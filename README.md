@@ -56,6 +56,12 @@ List runs that have machine-readable metadata:
 python3 -m agentlab runs list
 ```
 
+Attach a human review label to a run:
+
+```bash
+python3 -m agentlab review --run latest --label success_clean --note "Focused one-line fix; checks pass."
+```
+
 The first real project task is:
 
 ```bash

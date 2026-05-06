@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Iterable, List
 
 from agentlab.agents.manual import ManualAgentAdapter
+from agentlab.review import FAILURE_LABELS, resolve_run_dir, write_review
 from agentlab.results import discover_result_files, load_results
 from agentlab.runner import run_task
 from agentlab.tasks import TaskLoadError, discover_task_files, load_task
@@ -77,6 +78,46 @@ def build_parser() -> argparse.ArgumentParser:
     )
     list_parser.set_defaults(handler=handle_runs_list)
 
+    review_parser = subcommands.add_parser(
+        "review",
+        help="Attach a human review label and note to a run.",
+    )
+    review_parser.add_argument(
+        "--run",
+        required=True,
+        help="Run directory to review, or 'latest'.",
+    )
+    review_parser.add_argument(
+        "--runs-dir",
+        default="runs",
+        help="Directory where run artifacts are stored when --run latest is used.",
+    )
+    review_parser.add_argument(
+        "--label",
+        required=True,
+        choices=FAILURE_LABELS,
+        help="Primary failure/success label.",
+    )
+    review_parser.add_argument(
+        "--secondary",
+        action="append",
+        default=[],
+        choices=FAILURE_LABELS,
+        help="Optional secondary label. Can be repeated.",
+    )
+    review_parser.add_argument(
+        "--note",
+        required=True,
+        help="Short human review note.",
+    )
+    review_parser.add_argument(
+        "--evidence",
+        action="append",
+        default=[],
+        help="Evidence such as a failing command, diff hunk, or transcript excerpt.",
+    )
+    review_parser.set_defaults(handler=handle_review)
+
     return parser
 
 
@@ -132,13 +173,32 @@ def handle_runs_list(args: argparse.Namespace) -> int:
         [
             result.get("run_id", ""),
             result.get("status", ""),
+            _review_label(result),
             result.get("agent_name", ""),
             result.get("task_id", ""),
             str(len(result.get("files_changed", []))),
         ]
         for result in results
     ]
-    _print_table(["run_id", "status", "agent", "task", "files"], rows)
+    _print_table(["run_id", "status", "review", "agent", "task", "files"], rows)
+    return 0
+
+
+def handle_review(args: argparse.Namespace) -> int:
+    try:
+        run_dir = resolve_run_dir(Path(args.runs_dir), args.run)
+        review_path = write_review(
+            run_dir,
+            primary_label=args.label,
+            note=args.note,
+            secondary_labels=args.secondary,
+            evidence=args.evidence,
+        )
+    except (OSError, ValueError, FileNotFoundError) as exc:
+        print(f"ERROR {exc}", file=sys.stderr)
+        return 1
+
+    print(f"Review: {review_path}")
     return 0
 
 
@@ -151,3 +211,17 @@ def _print_table(headers: List[str], rows: List[List[str]]) -> None:
     print("  ".join("-" * width for width in widths))
     for row in rows:
         print("  ".join(str(cell).ljust(widths[index]) for index, cell in enumerate(row)))
+
+
+def _review_label(result: object) -> str:
+    if not isinstance(result, dict):
+        return ""
+    run_dir = result.get("run_dir")
+    if not run_dir:
+        return ""
+    from agentlab.review import load_review
+
+    review = load_review(Path(str(run_dir)))
+    if not review:
+        return ""
+    return str(review.get("primary_label", ""))
