@@ -45,6 +45,20 @@ class TaskLoadingTest(unittest.TestCase):
         with self.assertRaises(TaskLoadError):
             EvalTask.from_mapping({"id": "missing-fields"})
 
+    def test_rejects_unknown_failure_mode(self):
+        with self.assertRaises(TaskLoadError):
+            EvalTask.from_mapping(
+                {
+                    "id": "demo-001",
+                    "title": "Demo task",
+                    "repo": "https://github.com/example/demo",
+                    "commit": "abc123",
+                    "language": "python",
+                    "prompt": "Fix it.",
+                    "failure_modes": ["not_a_real_label"],
+                }
+            )
+
     def test_starter_task_is_valid(self):
         task = load_task("tasks/starter/python_bugfix_001.yaml")
         self.assertEqual(task.id, "python-bugfix-001")

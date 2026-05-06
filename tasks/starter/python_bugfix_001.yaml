@@ -23,4 +23,4 @@ failure_modes:
   - spec_misread
   - bad_local_fix
   - over_edit
-  - no_test_run
+  - tool_misuse

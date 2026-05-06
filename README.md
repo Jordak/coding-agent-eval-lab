@@ -50,6 +50,26 @@ repo. Press Enter in the terminal when edits are complete; the harness will then
 capture the diff and run the task checks. Use `--no-pause` for a negative-control
 run where the manual adapter intentionally changes nothing.
 
+Run a task through Codex CLI:
+
+```bash
+python3 -m agentlab run --agent codex --task tasks/starter/2048_advanced_snake_params_001.yaml
+```
+
+Useful Codex options:
+
+```bash
+python3 -m agentlab run \
+  --agent codex \
+  --codex-model gpt-5.2 \
+  --codex-timeout-seconds 1800 \
+  --task tasks/starter/2048_advanced_snake_params_001.yaml
+```
+
+The Codex adapter stores `codex-events.jsonl`, `codex-last-message.md`,
+`transcript.md`, `diff.patch`, `report.md`, and `result.json` in the run
+directory.
+
 List runs that have machine-readable metadata:
 
 ```bash

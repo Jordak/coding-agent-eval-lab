@@ -15,6 +15,15 @@ still runs inside Cursor's agent harness.
   and artifact capture.
 - `agentlab.reporting` will render Markdown and later static HTML reports.
 
+## Agent Adapters
+
+The manual adapter is the positive/negative-control baseline. It can pause for a
+human edit or run with `--no-pause` to intentionally make no changes.
+
+The Codex CLI adapter uses `codex exec` non-interactively against the isolated
+workspace. It captures JSONL events, the final agent message, the resulting diff,
+and the same deterministic checks as every other adapter.
+
 ## Early Constraint
 
 The first implementation avoids mandatory third-party dependencies so the lab is

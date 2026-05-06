@@ -6,6 +6,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, Optional
 
+from agentlab.taxonomy import FAILURE_LABELS
+
 
 class TaskLoadError(ValueError):
     """Raised when a task file cannot be loaded or validated."""
@@ -53,6 +55,16 @@ class EvalTask:
             ),
         )
 
+        failure_modes = _string_list(mapping.get("failure_modes", []), "failure_modes")
+        invalid_failure_modes = [
+            label for label in failure_modes if label not in FAILURE_LABELS
+        ]
+        if invalid_failure_modes:
+            raise TaskLoadError(
+                "failure_modes contains unknown label(s): "
+                + ", ".join(invalid_failure_modes)
+            )
+
         return cls(
             id=str(mapping["id"]),
             title=str(mapping["title"]),
@@ -65,10 +77,7 @@ class EvalTask:
             test=_string_list(mapping.get("test", []), "test"),
             success=success,
             tags=_string_list(mapping.get("tags", []), "tags"),
-            failure_modes=_string_list(
-                mapping.get("failure_modes", []),
-                "failure_modes",
-            ),
+            failure_modes=failure_modes,
             source_path=source_path,
         )
 

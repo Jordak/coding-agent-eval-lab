@@ -38,9 +38,26 @@ def run_task(task: EvalTask, agent: AgentAdapter, runs_dir: Path) -> EvaluationR
     diff_path = run_dir / "diff.patch"
     files_changed = capture_diff(prepared.path, diff_path)
     all_checks = setup_checks + baseline_checks + test_checks
+    notes = []
+    files_changed_ok = True
+    if (
+        task.success.max_files_changed is not None
+        and len(files_changed) > task.success.max_files_changed
+    ):
+        files_changed_ok = False
+        notes.append(
+            "changed "
+            f"{len(files_changed)} files; limit is {task.success.max_files_changed}"
+        )
+
     score = Score(
-        tests_passed=all(check.passed for check in all_checks),
+        tests_passed=(
+            agent_run.error is None
+            and all(check.passed for check in all_checks)
+            and files_changed_ok
+        ),
         checks=all_checks,
+        notes=notes,
     )
 
     agent_run = replace(

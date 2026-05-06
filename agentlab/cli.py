@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 from typing import Iterable, List
 
+from agentlab.agents.codex_cli import CodexCliAdapter, CodexCliConfig
 from agentlab.agents.manual import ManualAgentAdapter
 from agentlab.review import FAILURE_LABELS, resolve_run_dir, write_review
 from agentlab.results import discover_result_files, load_results
@@ -49,7 +50,7 @@ def build_parser() -> argparse.ArgumentParser:
     run_parser.add_argument(
         "--agent",
         default="manual",
-        choices=["manual"],
+        choices=["manual", "codex"],
         help="Agent backend to use.",
     )
     run_parser.add_argument(
@@ -61,6 +62,39 @@ def build_parser() -> argparse.ArgumentParser:
         "--no-pause",
         action="store_true",
         help="For the manual agent, do not wait for human edits.",
+    )
+    run_parser.add_argument(
+        "--codex-command",
+        default="codex",
+        help="Codex CLI executable to use when --agent codex.",
+    )
+    run_parser.add_argument(
+        "--codex-model",
+        default=None,
+        help="Optional model passed to `codex exec --model`.",
+    )
+    run_parser.add_argument(
+        "--codex-profile",
+        default=None,
+        help="Optional profile passed to `codex exec --profile`.",
+    )
+    run_parser.add_argument(
+        "--codex-sandbox",
+        default="workspace-write",
+        choices=["read-only", "workspace-write", "danger-full-access"],
+        help="Sandbox mode passed to `codex exec --sandbox`.",
+    )
+    run_parser.add_argument(
+        "--codex-approval",
+        default="never",
+        choices=["untrusted", "on-failure", "on-request", "never"],
+        help="Approval policy passed to `codex exec --ask-for-approval`.",
+    )
+    run_parser.add_argument(
+        "--codex-timeout-seconds",
+        type=int,
+        default=1800,
+        help="Maximum wall time for `codex exec`.",
     )
     run_parser.set_defaults(handler=handle_run)
 
@@ -149,7 +183,7 @@ def handle_task_validate(args: argparse.Namespace) -> int:
 def handle_run(args: argparse.Namespace) -> int:
     try:
         task = load_task(args.task)
-        agent = ManualAgentAdapter(pause=not args.no_pause)
+        agent = _build_agent(args)
         evaluation = run_task(task, agent, Path(args.runs_dir))
     except (RuntimeError, TaskLoadError) as exc:
         print(f"ERROR {exc}", file=sys.stderr)
@@ -160,6 +194,23 @@ def handle_run(args: argparse.Namespace) -> int:
     print(f"Result: {evaluation.result_path}")
     print(f"Status: {'passed' if evaluation.score.tests_passed else 'failed'}")
     return 0
+
+
+def _build_agent(args: argparse.Namespace) -> object:
+    if args.agent == "manual":
+        return ManualAgentAdapter(pause=not args.no_pause)
+    if args.agent == "codex":
+        return CodexCliAdapter(
+            CodexCliConfig(
+                command=args.codex_command,
+                model=args.codex_model,
+                profile=args.codex_profile,
+                sandbox=args.codex_sandbox,
+                approval_policy=args.codex_approval,
+                timeout_seconds=args.codex_timeout_seconds,
+            )
+        )
+    raise RuntimeError(f"unknown agent: {args.agent}")
 
 
 def handle_runs_list(args: argparse.Namespace) -> int:

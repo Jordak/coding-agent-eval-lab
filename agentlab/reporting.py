@@ -31,6 +31,10 @@ def render_markdown_report(run: "EvaluationRun") -> str:
             for command_index, check in enumerate(run.score.checks, 1)
         )
 
+    if run.score.notes:
+        lines.extend(["", "## Score Notes", ""])
+        lines.extend(f"- {note}" for note in run.score.notes)
+
     lines.extend(
         [
             "",

@@ -4,20 +4,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict, Iterable, List
 
-
-FAILURE_LABELS = [
-    "success_clean",
-    "success_messy",
-    "context_miss",
-    "spec_misread",
-    "bad_local_fix",
-    "test_gap",
-    "over_edit",
-    "tool_misuse",
-    "dependency_issue",
-    "stuck_or_timeout",
-    "unsafe_action",
-]
+from agentlab.taxonomy import FAILURE_LABELS
 
 
 def write_review(
