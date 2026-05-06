@@ -79,4 +79,5 @@ python3 -m agentlab task validate tasks/starter/2048_advanced_snake_params_001.y
 
 See [docs/design.md](docs/design.md) for architecture notes and
 [docs/failure-taxonomy.md](docs/failure-taxonomy.md) for the initial review
-taxonomy.
+taxonomy. See [docs/first-eval.md](docs/first-eval.md) for the first completed
+positive/negative control evaluation.
