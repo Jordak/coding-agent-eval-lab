@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "coding-agent-eval-lab"
+version = "0.1.0"
+description = "A reproducible evaluation harness for coding agents."
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pyyaml>=6"]
+
+[project.scripts]
+agentlab = "agentlab.cli:main"
+
+[tool.setuptools]
+packages = ["agentlab", "agentlab.agents"]

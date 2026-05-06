@@ -1,0 +1,33 @@
+id: 2048-advanced-snake-params-001
+title: Advanced-snake simulations should persist custom weights
+repo: https://github.com/Jordak/2048-game.git
+commit: aec81a17d78a60f1f69d64aade4c108423d1f97e
+language: python
+prompt: >
+  Fix the simulation metadata bug where runs using the advanced-snake heuristic
+  do not persist their custom heuristic weights in the result payload. The CLI
+  exposes this heuristic as advanced-snake, so a simulation with custom weights
+  should return those weights in the params field and preserve the run tag.
+  Keep the patch focused and run the relevant tests.
+setup:
+  - python3 -c "import numpy"
+baseline:
+  - python3 -c "from game import Game; game = Game(); assert game.board.shape == (4, 4); assert not game.game_over()"
+test:
+  - python3 -c "from types import SimpleNamespace; from simulation import run_single_simulation; from ai.heuristics import get_advanced_heuristic_with_weights; weights = {'empty': 1.0, 'smooth': 2.0, 'mono': 3.0, 'snake': 4.0}; heuristic = get_advanced_heuristic_with_weights(weights); args = SimpleNamespace(ai='expectimax', heuristic='advanced-snake', depth=1, tag='eval-smoke'); result = run_single_simulation((args, weights, heuristic, {'name': heuristic.name, 'version': heuristic.version, 'description': heuristic.description})); assert result['params'] == weights, result; assert result['tag'] == 'eval-smoke', result"
+  - python3 -c "from game import Game; game = Game(); assert game.board.shape == (4, 4); assert not game.game_over()"
+success:
+  tests_must_pass: true
+  max_files_changed: 3
+tags:
+  - bugfix
+  - python
+  - simulation
+  - metadata
+failure_modes:
+  - context_miss
+  - spec_misread
+  - bad_local_fix
+  - test_gap
+  - over_edit
+  - tool_misuse

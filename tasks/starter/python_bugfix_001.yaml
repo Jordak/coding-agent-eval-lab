@@ -1,0 +1,26 @@
+id: python-bugfix-001
+title: Invalid JSON should return 400
+repo: https://github.com/example/small-flask-app
+commit: abc123
+language: python
+prompt: >
+  Fix the bug where invalid JSON request bodies return a 500 instead of a 400.
+setup:
+  - python -m pip install -e .
+baseline:
+  - pytest
+test:
+  - pytest tests/test_errors.py
+success:
+  tests_must_pass: true
+  max_files_changed: 4
+tags:
+  - bugfix
+  - backend
+  - error-handling
+failure_modes:
+  - context_miss
+  - spec_misread
+  - bad_local_fix
+  - over_edit
+  - no_test_run

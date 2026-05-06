@@ -1,0 +1,19 @@
+.DS_Store
+Agent Eval Project Handoff.md
+docs/project-handoff.md
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+build/
+dist/
+*.egg-info/
+reports/*
+!reports/.gitkeep
+runs/
+sources/
+workspaces/
+*.sqlite
+*.sqlite3
