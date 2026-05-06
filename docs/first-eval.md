@@ -46,6 +46,31 @@ Observed result:
 - Changed file: `simulation.py`.
 - All setup, baseline, target, and post-check commands passed.
 
+## First Codex CLI Run
+
+After adding the Codex CLI adapter, the same task was run with:
+
+```bash
+python3 -m agentlab run --agent codex --task tasks/starter/2048_advanced_snake_params_001.yaml
+```
+
+The first attempt exposed an adapter bug: `--ask-for-approval` was passed after
+`exec`, but this Codex CLI expects that option before the subcommand. The harness
+captured the runtime error in `transcript.md` and `result.json`, and the failed
+run was labeled `tool_misuse`.
+
+After fixing the adapter command shape, Codex completed the task successfully:
+
+- Status: passed.
+- Duration: about 69 seconds.
+- Files changed: 2.
+- Changed files: `simulation.py`, `test_ai.py`.
+- Review label: `success_clean`.
+
+Codex made the same production fix as the manual positive control and also
+updated the stale local unit test fixture to use `advanced-snake`, include `tag`,
+and assert the current heuristic metadata.
+
 ## What This Proves
 
 This first eval proves the core loop:
@@ -53,6 +78,7 @@ This first eval proves the core loop:
 - A task can pin an external repo and commit.
 - The harness can isolate a workspace.
 - The manual adapter can produce both negative and positive control runs.
+- The Codex CLI adapter can run non-interactively and produce a passing patch.
 - The report captures checks, changed files, transcript, and patch.
 - Result metadata can be listed and human-reviewed.
 
