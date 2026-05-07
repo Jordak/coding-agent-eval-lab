@@ -81,10 +81,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="Skip tasks that do not declare reference_artifact.",
     )
     verify_reference_parser.add_argument(
-        "--write-artifacts",
-        action="store_true",
+        "--no-write-artifacts",
+        action="store_false",
+        dest="write_artifacts",
         help=(
-            "Write reference-report.md, reference-result.json, and "
+            "Do not write reference-report.md, reference-result.json, or "
             "reference.diff next to each task.yaml."
         ),
     )

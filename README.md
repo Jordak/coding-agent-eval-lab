@@ -45,13 +45,8 @@ Verify a task's reference artifact:
 python3 -m agentlab task verify-reference tasks/starter/2048-advanced-snake-params-001
 ```
 
-Write positive-control reference artifacts next to the task bundle:
-
-```bash
-python3 -m agentlab task verify-reference \
-  --write-artifacts \
-  tasks/starter/2048-advanced-snake-params-001
-```
+Use `--no-write-artifacts` for a transient check that does not update
+`reference-report.md`, `reference-result.json`, or `reference.diff`.
 
 Run the self-tests:
 
@@ -102,7 +97,7 @@ directory.
 
 Reference verification uses the same report/result shape, marked with
 `trial_kind: reference_verification`, and writes `reference-report.md`,
-`reference-result.json`, and `reference.diff` when `--write-artifacts` is used.
+`reference-result.json`, and `reference.diff` by default.
 
 List trials that have machine-readable metadata:
 
