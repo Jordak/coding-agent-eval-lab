@@ -5,4 +5,5 @@ _Generated from task bundles. Do not edit by hand; regenerate with the task-card
 | Task | Type | Language | Tags |
 | --- | --- | --- | --- |
 | [Advanced-snake simulations should persist custom weights](2048-advanced-snake-params-001/task-card.md) | `capability` | `python` | `bugfix`, `python`, `simulation`, `metadata`, `real-failure` |
+| [Click should not suggest a shadowed help option](click-help-shadowed-option-001/task-card.md) | `regression` | `python` | `bugfix`, `python`, `cli`, `error-message`, `real-issue` |
 | [Invalid JSON should return 400](python-bugfix-001/task-card.md) | `capability` | `python` | `bugfix`, `backend`, `error-handling` |

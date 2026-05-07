@@ -194,6 +194,7 @@ class TaskLoadingTest(unittest.TestCase):
             [path.as_posix() for path in files],
             [
                 "tasks/starter/2048-advanced-snake-params-001/task.yaml",
+                "tasks/starter/click-help-shadowed-option-001/task.yaml",
                 "tasks/starter/python-bugfix-001/task.yaml",
             ],
         )
