@@ -8,6 +8,8 @@ from typing import Any, Dict, Iterable, List, Mapping, Optional
 
 from agentlab.taxonomy import FAILURE_LABELS
 
+EVAL_TYPES = ["capability", "regression"]
+
 
 class TaskLoadError(ValueError):
     """Raised when a task file cannot be loaded or validated."""
@@ -27,6 +29,9 @@ class EvalTask:
     commit: str
     language: str
     prompt: str
+    suite: str = "default"
+    eval_type: str = "capability"
+    reference_solution: Optional[str] = None
     setup: List[str] = field(default_factory=list)
     baseline: List[str] = field(default_factory=list)
     test: List[str] = field(default_factory=list)
@@ -65,6 +70,12 @@ class EvalTask:
                 + ", ".join(invalid_failure_modes)
             )
 
+        eval_type = str(mapping.get("eval_type", "capability"))
+        if eval_type not in EVAL_TYPES:
+            raise TaskLoadError(
+                "eval_type must be one of: " + ", ".join(EVAL_TYPES)
+            )
+
         return cls(
             id=str(mapping["id"]),
             title=str(mapping["title"]),
@@ -72,6 +83,12 @@ class EvalTask:
             commit=str(mapping["commit"]),
             language=str(mapping["language"]),
             prompt=str(mapping["prompt"]).strip(),
+            suite=str(mapping.get("suite", "default")),
+            eval_type=eval_type,
+            reference_solution=_optional_string(
+                mapping.get("reference_solution"),
+                "reference_solution",
+            ),
             setup=_string_list(mapping.get("setup", []), "setup"),
             baseline=_string_list(mapping.get("baseline", []), "baseline"),
             test=_string_list(mapping.get("test", []), "test"),
@@ -303,3 +320,11 @@ def _optional_int(value: Any, field_name: str) -> Optional[int]:
         return int(value)
     except (TypeError, ValueError) as exc:
         raise TaskLoadError(f"{field_name} must be an integer") from exc
+
+
+def _optional_string(value: Any, field_name: str) -> Optional[str]:
+    if value is None:
+        return None
+    if isinstance(value, (str, int, float)):
+        return str(value).strip()
+    raise TaskLoadError(f"{field_name} must be a scalar string")

@@ -2,18 +2,23 @@
 
 ## Core Entities
 
-The lab separates task design, agent runtime, underlying model, and evaluation.
+The lab separates task design, agent harness, underlying model, and evaluation.
 This keeps reports honest when, for example, Cursor uses Claude as a model but
 still runs inside Cursor's agent harness.
 
+The project follows the vocabulary in
+[anthropic-eval-principles.md](anthropic-eval-principles.md): tasks, trials,
+graders/assertions, transcripts/traces, outcomes, evaluation harness, agent
+harness/scaffold, and evaluation suites.
+
 ## MVP Architecture
 
-- `agentlab.tasks` loads and validates task YAML.
-- `agentlab.workspace` will prepare clean checkouts for each task.
-- `agentlab.agents` defines runtime adapters.
-- `agentlab.runner` will coordinate workspace setup, agent execution, scoring,
-  and artifact capture.
-- `agentlab.reporting` will render Markdown and later static HTML reports.
+- `agentlab.tasks` loads and validates task YAML, including suite and eval type.
+- `agentlab.workspace` prepares clean checkouts for each trial.
+- `agentlab.agents` defines agent harness adapters.
+- `agentlab.runner` coordinates workspace setup, agent execution, code-based
+  graders, outcome capture, and artifact writing.
+- `agentlab.reporting` renders Markdown trial reports and later static HTML.
 
 ## Agent Adapters
 
@@ -21,8 +26,21 @@ The manual adapter is the positive/negative-control baseline. It can pause for a
 human edit or run with `--no-pause` to intentionally make no changes.
 
 The Codex CLI adapter uses `codex exec` non-interactively against the isolated
-workspace. It captures JSONL events, the final agent message, the resulting diff,
-and the same deterministic checks as every other adapter.
+workspace. It captures JSONL events, the final agent message, the resulting
+patch, and the same code-based graders as every other adapter.
+
+## Graders And Outcomes
+
+The current harness uses deterministic code-based graders: setup commands,
+baseline assertions, target assertions, and post-change assertions. These are
+fast, cheap, reproducible, and appropriate for early coding-agent evals.
+
+Reports emphasize the outcome: the final patch, changed files, command results,
+and grader pass/fail status. Tool-call and transcript graders should be added
+only when they evaluate behavior that outcome graders cannot capture.
+
+See [runtime-accountability.md](runtime-accountability.md) for open work around
+model identity, account context, token usage, and cost tracking.
 
 ## Early Constraint
 

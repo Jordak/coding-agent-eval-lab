@@ -70,7 +70,7 @@ def _print_manual_instructions(task: EvalTask, workspace: Path) -> None:
     print("Edit files in the workspace above. When done, return here and press Enter.")
     if task.test:
         print("")
-        print("Scoring checks that will run after you continue:")
+        print("Code-based grader assertions that will run after you continue:")
         for command in task.test:
             print(f"- {command}")
     print("")

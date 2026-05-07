@@ -8,21 +8,22 @@ The first real task targets `Jordak/2048-game` at commit
 The bug is intentionally small and realistic: the CLI exposes the parameterized
 heuristic as `advanced-snake`, but `simulation.py` only persisted custom weights
 when the old name `advanced` was present. As a result, simulation result payloads
-preserved the run tag but returned `params: None`.
+preserved the trial tag but returned `params: None`.
 
-## Success Signal
+## Code-Based Graders
 
-The task uses deterministic Python checks:
+The task uses deterministic Python assertions:
 
 - Import the core dependency.
 - Confirm basic `Game` construction still works.
 - Run a single `advanced-snake` simulation with custom weights.
 - Assert that the result payload preserves both `params` and `tag`.
 
-## Negative Control
+## Negative-Control Trial
 
 Running the manual adapter with `--no-pause` makes no edits. The harness should
-clone the repo, run checks, capture an empty diff, and fail the target assertion.
+clone the repo, run code-based graders, capture an empty diff, and fail the
+target assertion.
 
 Observed result:
 
@@ -30,7 +31,7 @@ Observed result:
 - Files changed: 0.
 - Failure: `params` was `None` for an `advanced-snake` simulation.
 
-## Positive Control
+## Positive-Control Trial
 
 Running the manual adapter with its human-edit pause allows a focused patch:
 
@@ -44,9 +45,9 @@ Observed result:
 - Status: passed.
 - Files changed: 1.
 - Changed file: `simulation.py`.
-- All setup, baseline, target, and post-check commands passed.
+- All setup, baseline, target, and post-change assertions passed.
 
-## First Codex CLI Run
+## First Codex CLI Trials
 
 After adding the Codex CLI adapter, the same task was run with:
 
@@ -54,10 +55,10 @@ After adding the Codex CLI adapter, the same task was run with:
 python3 -m agentlab run --agent codex --task tasks/starter/2048_advanced_snake_params_001.yaml
 ```
 
-The first attempt exposed an adapter bug: `--ask-for-approval` was passed after
+The first trial exposed an adapter bug: `--ask-for-approval` was passed after
 `exec`, but this Codex CLI expects that option before the subcommand. The harness
 captured the runtime error in `transcript.md` and `result.json`, and the failed
-run was labeled `tool_misuse`.
+trial was labeled `tool_misuse`.
 
 After fixing the adapter command shape, Codex completed the task successfully:
 
@@ -77,9 +78,10 @@ This first eval proves the core loop:
 
 - A task can pin an external repo and commit.
 - The harness can isolate a workspace.
-- The manual adapter can produce both negative and positive control runs.
-- The Codex CLI adapter can run non-interactively and produce a passing patch.
-- The report captures checks, changed files, transcript, and patch.
+- The manual adapter can produce both negative and positive control trials.
+- The Codex CLI adapter can run a trial non-interactively and produce a passing
+  patch.
+- The report captures grader assertions, changed files, transcript, and patch.
 - Result metadata can be listed and human-reviewed.
 
 ## Next Step

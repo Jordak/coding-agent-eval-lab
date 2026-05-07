@@ -45,7 +45,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     validate_parser.set_defaults(handler=handle_task_validate)
 
-    run_parser = subcommands.add_parser("run", help="Run one task through an agent.")
+    run_parser = subcommands.add_parser(
+        "run",
+        help="Run one trial for a task through an agent harness.",
+    )
     run_parser.add_argument("--task", required=True, help="Task YAML file to run.")
     run_parser.add_argument(
         "--agent",
@@ -56,7 +59,7 @@ def build_parser() -> argparse.ArgumentParser:
     run_parser.add_argument(
         "--runs-dir",
         default="runs",
-        help="Directory where run artifacts should be written.",
+        help="Directory where trial artifacts should be written.",
     )
     run_parser.add_argument(
         "--no-pause",
@@ -98,33 +101,55 @@ def build_parser() -> argparse.ArgumentParser:
     )
     run_parser.set_defaults(handler=handle_run)
 
-    runs_parser = subcommands.add_parser("runs", help="Inspect stored run artifacts.")
+    runs_parser = subcommands.add_parser(
+        "runs",
+        help="Inspect stored trial artifacts. Legacy alias for trials.",
+    )
     runs_subcommands = runs_parser.add_subparsers(dest="runs_command")
 
     list_parser = runs_subcommands.add_parser(
         "list",
-        help="List runs that have result.json metadata.",
+        help="List trials that have result.json metadata.",
     )
     list_parser.add_argument(
         "--runs-dir",
         default="runs",
-        help="Directory where run artifacts are stored.",
+        help="Directory where trial artifacts are stored.",
     )
     list_parser.set_defaults(handler=handle_runs_list)
 
+    trials_parser = subcommands.add_parser(
+        "trials",
+        help="Inspect stored trial artifacts.",
+    )
+    trials_subcommands = trials_parser.add_subparsers(dest="trials_command")
+
+    trials_list_parser = trials_subcommands.add_parser(
+        "list",
+        help="List trials that have result.json metadata.",
+    )
+    trials_list_parser.add_argument(
+        "--runs-dir",
+        default="runs",
+        help="Directory where trial artifacts are stored.",
+    )
+    trials_list_parser.set_defaults(handler=handle_runs_list)
+
     review_parser = subcommands.add_parser(
         "review",
-        help="Attach a human review label and note to a run.",
+        help="Attach a human review label and note to a trial.",
     )
     review_parser.add_argument(
         "--run",
+        "--trial",
         required=True,
-        help="Run directory to review, or 'latest'.",
+        dest="run",
+        help="Trial directory to review, or 'latest'.",
     )
     review_parser.add_argument(
         "--runs-dir",
         default="runs",
-        help="Directory where run artifacts are stored when --run latest is used.",
+        help="Directory where trial artifacts are stored when --run latest is used.",
     )
     review_parser.add_argument(
         "--label",
@@ -190,6 +215,7 @@ def handle_run(args: argparse.Namespace) -> int:
         return 1
 
     print(f"Run: {evaluation.run_dir}")
+    print(f"Trial: {evaluation.run_dir.name}")
     print(f"Report: {evaluation.report_path}")
     print(f"Result: {evaluation.result_path}")
     print(f"Status: {'passed' if evaluation.score.tests_passed else 'failed'}")
@@ -222,7 +248,9 @@ def handle_runs_list(args: argparse.Namespace) -> int:
 
     rows = [
         [
-            result.get("run_id", ""),
+            result.get("trial_id", result.get("run_id", "")),
+            result.get("eval_suite", ""),
+            result.get("eval_type", ""),
             result.get("status", ""),
             _review_label(result),
             result.get("agent_name", ""),
@@ -231,7 +259,10 @@ def handle_runs_list(args: argparse.Namespace) -> int:
         ]
         for result in results
     ]
-    _print_table(["run_id", "status", "review", "agent", "task", "files"], rows)
+    _print_table(
+        ["trial_id", "suite", "type", "status", "review", "agent", "task", "files"],
+        rows,
+    )
     return 0
 
 

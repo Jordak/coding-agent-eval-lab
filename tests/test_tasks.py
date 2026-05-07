@@ -15,8 +15,12 @@ class TaskLoadingTest(unittest.TestCase):
                     repo: https://github.com/example/demo
                     commit: abc123
                     language: python
+                    suite: demo-suite
+                    eval_type: regression
                     prompt: >
                       Fix the small bug.
+                    reference_solution: >
+                      Change the relevant branch and keep existing behavior intact.
                     setup:
                       - python -m pip install -e .
                     baseline:
@@ -36,6 +40,12 @@ class TaskLoadingTest(unittest.TestCase):
         )
 
         self.assertEqual(task.id, "demo-001")
+        self.assertEqual(task.suite, "demo-suite")
+        self.assertEqual(task.eval_type, "regression")
+        self.assertEqual(
+            task.reference_solution,
+            "Change the relevant branch and keep existing behavior intact.",
+        )
         self.assertEqual(task.prompt, "Fix the small bug.")
         self.assertEqual(task.setup, ["python -m pip install -e ."])
         self.assertTrue(task.success.tests_must_pass)
@@ -56,6 +66,20 @@ class TaskLoadingTest(unittest.TestCase):
                     "language": "python",
                     "prompt": "Fix it.",
                     "failure_modes": ["not_a_real_label"],
+                }
+            )
+
+    def test_rejects_unknown_eval_type(self):
+        with self.assertRaises(TaskLoadError):
+            EvalTask.from_mapping(
+                {
+                    "id": "demo-001",
+                    "title": "Demo task",
+                    "repo": "https://github.com/example/demo",
+                    "commit": "abc123",
+                    "language": "python",
+                    "prompt": "Fix it.",
+                    "eval_type": "maybe",
                 }
             )
 

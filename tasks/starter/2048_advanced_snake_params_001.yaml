@@ -3,12 +3,18 @@ title: Advanced-snake simulations should persist custom weights
 repo: https://github.com/Jordak/2048-game.git
 commit: aec81a17d78a60f1f69d64aade4c108423d1f97e
 language: python
+suite: starter-coding
+eval_type: capability
 prompt: >
-  Fix the simulation metadata bug where runs using the advanced-snake heuristic
+  Fix the simulation metadata bug where trials using the advanced-snake heuristic
   do not persist their custom heuristic weights in the result payload. The CLI
   exposes this heuristic as advanced-snake, so a simulation with custom weights
-  should return those weights in the params field and preserve the run tag.
+  should return those weights in the params field and preserve the trial tag.
   Keep the patch focused and run the relevant tests.
+reference_solution: >
+  In simulation.py, persist params when args.heuristic is advanced-snake instead
+  of the obsolete advanced name; a focused solution changes only that condition
+  and may optionally update stale tests to match the renamed heuristic.
 setup:
   - python3 -c "import numpy"
 baseline:
@@ -24,6 +30,7 @@ tags:
   - python
   - simulation
   - metadata
+  - real-failure
 failure_modes:
   - context_miss
   - spec_misread

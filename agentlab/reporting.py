@@ -11,20 +11,24 @@ if TYPE_CHECKING:
 def render_markdown_report(run: "EvaluationRun") -> str:
     status = "passed" if run.score.tests_passed else "failed"
     lines = [
-        f"# Evaluation Report: {run.task.id}",
+        f"# Evaluation Trial Report: {run.task.id}",
         "",
-        f"- Agent: `{run.agent_run.agent_name}`",
+        f"- Trial: `{run.run_dir.name}`",
+        f"- Evaluation suite: `{run.task.suite}`",
+        f"- Evaluation type: `{run.task.eval_type}`",
+        f"- Agent harness: `{run.agent_run.agent_name}`",
         f"- Status: `{status}`",
+        f"- Outcome: `{status}`",
         f"- Files changed: `{len(run.agent_run.files_changed)}`",
-        f"- Transcript: `{run.agent_run.transcript_path.name}`",
+        f"- Transcript/trace: `{run.agent_run.transcript_path.name}`",
         f"- Diff: `{run.agent_run.diff_path.name}`",
         "",
-        "## Checks",
+        "## Code-Based Graders",
         "",
     ]
 
     if not run.score.checks:
-        lines.append("No checks were configured.")
+        lines.append("No code-based graders were configured.")
     else:
         lines.extend(
             _render_check(command_index, check)
@@ -32,7 +36,7 @@ def render_markdown_report(run: "EvaluationRun") -> str:
         )
 
     if run.score.notes:
-        lines.extend(["", "## Score Notes", ""])
+        lines.extend(["", "## Grader Notes", ""])
         lines.extend(f"- {note}" for note in run.score.notes)
 
     lines.extend(
@@ -54,7 +58,9 @@ def render_markdown_report(run: "EvaluationRun") -> str:
 
 def _render_check(index: int, check: CheckResult) -> str:
     passed = "passed" if check.passed else "failed"
-    lines = [f"{index}. `{check.command}`: {passed} ({check.returncode})"]
+    lines = [
+        f"{index}. Assertion `{check.command}`: {passed} ({check.returncode})"
+    ]
     output = _trim_output(check.stderr or check.stdout)
     if output:
         lines.extend(["", "```text", output, "```", ""])
