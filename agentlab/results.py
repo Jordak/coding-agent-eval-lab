@@ -23,6 +23,9 @@ def to_result_dict(run: Any) -> Dict[str, Any]:
         "task_title": run.task.title,
         "eval_suite": run.task.suite,
         "eval_type": run.task.eval_type,
+        "reference_artifact": _reference_artifact_to_dict(
+            run.task.reference_artifact
+        ),
         "agent_name": run.agent_run.agent_name,
         "model_name": run.agent_run.model_name,
         "status": "passed" if run.score.tests_passed else "failed",
@@ -76,6 +79,16 @@ def _check_to_dict(check: CheckResult) -> Dict[str, Any]:
         "passed": check.passed,
         "stdout": _trim(check.stdout),
         "stderr": _trim(check.stderr),
+    }
+
+
+def _reference_artifact_to_dict(artifact: Any) -> Dict[str, Any] | None:
+    if artifact is None:
+        return None
+    return {
+        "type": artifact.type,
+        "path": artifact.path,
+        "commit": artifact.commit,
     }
 
 

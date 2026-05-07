@@ -41,6 +41,14 @@ tasks/<suite>/<task-id>/
 `task.yaml` is the source of truth. `task-card.md` is generated and committed
 next to it. Suite `README.md` files are generated indexes.
 
+When a task has a verified reference patch or commit, record it in `task.yaml`:
+
+```yaml
+reference_artifact:
+  type: patch
+  path: reference.patch
+```
+
 ## Workflow
 
 1. Edit or create `task.yaml` in a task bundle.

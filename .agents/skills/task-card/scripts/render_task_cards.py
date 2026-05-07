@@ -95,7 +95,7 @@ def render_task_card(task: EvalTask) -> str:
         "",
         "## Reference Artifact",
         "",
-        _reference_artifact_text(bundle_dir),
+        _reference_artifact_text(task, bundle_dir),
         "",
         "## Graders",
         "",
@@ -177,17 +177,28 @@ def _inline_code_list(values: List[str]) -> str:
     return "\n".join(f"- `{value}`" for value in values)
 
 
-def _reference_artifact_text(bundle_dir: Path) -> str:
-    candidates = [
-        "reference.patch",
-        "reference.diff",
-        "reference.md",
-        "reference-commit.txt",
-    ]
-    existing = [name for name in candidates if (bundle_dir / name).exists()]
-    if not existing:
+def _reference_artifact_text(task: EvalTask, bundle_dir: Path) -> str:
+    artifact = task.reference_artifact
+    if artifact is None:
         return "No verified reference artifact configured yet."
-    return "\n".join(f"- `{name}`" for name in existing)
+    if artifact.type == "patch":
+        exists = artifact.path is not None and (bundle_dir / artifact.path).is_file()
+        status = "present" if exists else "missing"
+        return "\n".join(
+            [
+                "- Type: `patch`",
+                f"- Path: `{artifact.path}`",
+                f"- Status: `{status}`",
+            ]
+        )
+    if artifact.type == "commit":
+        return "\n".join(
+            [
+                "- Type: `commit`",
+                f"- Commit: `{artifact.commit}`",
+            ]
+        )
+    return f"Unsupported reference artifact type: `{artifact.type}`"
 
 
 def _display_name(value: str) -> str:

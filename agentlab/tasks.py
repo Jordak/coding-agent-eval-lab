@@ -23,6 +23,13 @@ class SuccessCriteria:
 
 
 @dataclass(frozen=True)
+class ReferenceArtifact:
+    type: str
+    path: Optional[str] = None
+    commit: Optional[str] = None
+
+
+@dataclass(frozen=True)
 class EvalTask:
     id: str
     title: str
@@ -33,6 +40,7 @@ class EvalTask:
     suite: str = "default"
     eval_type: str = "capability"
     reference_solution: Optional[str] = None
+    reference_artifact: Optional[ReferenceArtifact] = None
     setup: List[str] = field(default_factory=list)
     baseline: List[str] = field(default_factory=list)
     test: List[str] = field(default_factory=list)
@@ -89,6 +97,10 @@ class EvalTask:
             reference_solution=_optional_string(
                 mapping.get("reference_solution"),
                 "reference_solution",
+            ),
+            reference_artifact=_reference_artifact(
+                mapping.get("reference_artifact"),
+                source_path,
             ),
             setup=_string_list(mapping.get("setup", []), "setup"),
             baseline=_string_list(mapping.get("baseline", []), "baseline"),
@@ -361,3 +373,49 @@ def _optional_string(value: Any, field_name: str) -> Optional[str]:
     if isinstance(value, (str, int, float)):
         return str(value).strip()
     raise TaskLoadError(f"{field_name} must be a scalar string")
+
+
+def _reference_artifact(
+    value: Any,
+    source_path: Optional[Path],
+) -> Optional[ReferenceArtifact]:
+    if value is None:
+        return None
+    mapping = _mapping(value, "reference_artifact")
+    artifact_type = _required_string(
+        mapping.get("type"),
+        "reference_artifact.type",
+    )
+    if artifact_type == "patch":
+        artifact_path = _required_string(
+            mapping.get("path"),
+            "reference_artifact.path",
+        )
+        _validate_relative_path(artifact_path, "reference_artifact.path")
+        if source_path is not None and not (source_path.parent / artifact_path).is_file():
+            raise TaskLoadError(
+                f"reference_artifact.path does not exist: {artifact_path}"
+            )
+        return ReferenceArtifact(type=artifact_type, path=artifact_path)
+    if artifact_type == "commit":
+        return ReferenceArtifact(
+            type=artifact_type,
+            commit=_required_string(
+                mapping.get("commit"),
+                "reference_artifact.commit",
+            ),
+        )
+    raise TaskLoadError("reference_artifact.type must be one of: patch, commit")
+
+
+def _required_string(value: Any, field_name: str) -> str:
+    parsed = _optional_string(value, field_name)
+    if parsed is None or parsed == "":
+        raise TaskLoadError(f"{field_name} is required")
+    return parsed
+
+
+def _validate_relative_path(value: str, field_name: str) -> None:
+    path = Path(value)
+    if path.is_absolute() or ".." in path.parts:
+        raise TaskLoadError(f"{field_name} must be a relative path inside the bundle")

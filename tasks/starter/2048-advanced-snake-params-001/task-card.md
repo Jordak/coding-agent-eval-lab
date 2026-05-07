@@ -18,7 +18,9 @@ In simulation.py, persist params when args.heuristic is advanced-snake instead o
 
 ## Reference Artifact
 
-No verified reference artifact configured yet.
+- Type: `patch`
+- Path: `reference.patch`
+- Status: `present`
 
 ## Graders
 

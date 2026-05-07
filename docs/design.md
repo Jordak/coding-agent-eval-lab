@@ -34,6 +34,13 @@ The task loader accepts either a direct task YAML path or a task bundle
 directory. Suite directories can be passed to validation commands to discover
 all bundled `task.yaml` files below them.
 
+Publishable tasks should distinguish a prose `reference_solution` from a
+verified `reference_artifact`. The prose field orients readers. The artifact
+points to a reviewed reference patch or commit that proves the task is solvable
+and that graders can accept a known-good outcome. Reference artifacts may be
+AI-authored, but they must be human-reviewed and validated before the task is
+treated as publishable.
+
 Generated task cards and suite indexes are source-adjacent review artifacts, not
 the source of truth. The repo-local pre-commit hook runs the task-card generator
 in `--check` mode so drift is caught before commits.

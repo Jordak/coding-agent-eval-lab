@@ -29,6 +29,9 @@ class TaskLoadingTest(unittest.TestCase):
                       Fix the small bug.
                     reference_solution: >
                       Change the relevant branch and keep existing behavior intact.
+                    reference_artifact:
+                      type: commit
+                      commit: def456
                     setup:
                       - python -m pip install -e .
                     baseline:
@@ -55,6 +58,10 @@ class TaskLoadingTest(unittest.TestCase):
             task.reference_solution,
             "Change the relevant branch and keep existing behavior intact.",
         )
+        self.assertIsNotNone(task.reference_artifact)
+        assert task.reference_artifact is not None
+        self.assertEqual(task.reference_artifact.type, "commit")
+        self.assertEqual(task.reference_artifact.commit, "def456")
         self.assertEqual(task.prompt, "Fix the small bug.")
         self.assertEqual(task.setup, ["python -m pip install -e ."])
         self.assertEqual(task.failure_modes, ["context_miss", "resource_inefficient"])
@@ -92,6 +99,90 @@ class TaskLoadingTest(unittest.TestCase):
                     "eval_type": "maybe",
                 }
             )
+
+    def test_rejects_malformed_reference_artifact(self):
+        with self.assertRaises(TaskLoadError):
+            EvalTask.from_mapping(
+                {
+                    "id": "demo-001",
+                    "title": "Demo task",
+                    "repo": "https://github.com/example/demo",
+                    "commit": "abc123",
+                    "language": "python",
+                    "prompt": "Fix it.",
+                    "reference_artifact": {"type": "patch"},
+                }
+            )
+
+    def test_rejects_reference_artifact_outside_bundle(self):
+        with self.assertRaises(TaskLoadError):
+            EvalTask.from_mapping(
+                {
+                    "id": "demo-001",
+                    "title": "Demo task",
+                    "repo": "https://github.com/example/demo",
+                    "commit": "abc123",
+                    "language": "python",
+                    "prompt": "Fix it.",
+                    "reference_artifact": {
+                        "type": "patch",
+                        "path": "../reference.patch",
+                    },
+                }
+            )
+
+    def test_loads_reference_patch_from_task_bundle(self):
+        with tempfile.TemporaryDirectory() as temp:
+            bundle = Path(temp) / "demo-task"
+            bundle.mkdir()
+            (bundle / "reference.patch").write_text("diff --git a/a b/a\n", encoding="utf-8")
+            (bundle / "task.yaml").write_text(
+                textwrap.dedent(
+                    """
+                    id: demo-001
+                    title: Demo task
+                    repo: https://github.com/example/demo
+                    commit: abc123
+                    language: python
+                    prompt: Fix it.
+                    reference_artifact:
+                      type: patch
+                      path: reference.patch
+                    """
+                ),
+                encoding="utf-8",
+            )
+
+            task = load_task(bundle)
+
+        self.assertIsNotNone(task.reference_artifact)
+        assert task.reference_artifact is not None
+        self.assertEqual(task.reference_artifact.type, "patch")
+        self.assertEqual(task.reference_artifact.path, "reference.patch")
+
+    def test_rejects_missing_reference_patch_file(self):
+        with tempfile.TemporaryDirectory() as temp:
+            bundle = Path(temp) / "demo-task"
+            bundle.mkdir()
+            (bundle / "task.yaml").write_text(
+                textwrap.dedent(
+                    """
+                    id: demo-001
+                    title: Demo task
+                    repo: https://github.com/example/demo
+                    commit: abc123
+                    language: python
+                    prompt: Fix it.
+                    reference_artifact:
+                      type: patch
+                      path: missing.patch
+                    """
+                ),
+                encoding="utf-8",
+            )
+
+            with self.assertRaises(TaskLoadError):
+                load_task(bundle)
 
     def test_starter_task_is_valid(self):
         task = load_task("tasks/starter/python-bugfix-001")

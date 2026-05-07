@@ -113,7 +113,8 @@ The first real project task is:
 python3 -m agentlab task validate tasks/starter/2048-advanced-snake-params-001
 ```
 
-Regenerate task cards and suite indexes:
+Regenerate task cards and suite indexes after changing task metadata or
+reference artifacts:
 
 ```bash
 python3 .agents/skills/task-card/scripts/render_task_cards.py tasks

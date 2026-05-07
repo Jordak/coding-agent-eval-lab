@@ -58,4 +58,6 @@ January 2026 post, [Demystifying evals for AI agents](https://www.anthropic.com/
 - Task bundles should set `suite`, `eval_type`, and reference metadata in
   `task.yaml` for real tasks. Generated `task-card.md` files make tasks readable
   by humans and AI assistants.
+- Publishable tasks should include a verified `reference_artifact`, such as a
+  patch or commit, not only prose reference-solution notes.
 - Reports use "code-based graders" and "assertions" for deterministic commands.

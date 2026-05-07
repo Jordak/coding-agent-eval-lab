@@ -15,6 +15,9 @@ reference_solution: >
   In simulation.py, persist params when args.heuristic is advanced-snake instead
   of the obsolete advanced name; a focused solution changes only that condition
   and may optionally update stale tests to match the renamed heuristic.
+reference_artifact:
+  type: patch
+  path: reference.patch
 setup:
   - python3 -c "import numpy"
 baseline:
