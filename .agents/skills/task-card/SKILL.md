@@ -56,7 +56,8 @@ reference_artifact:
 3. Run the generator for the suite or all tasks.
 4. Review `task-card.md` for readability.
 5. Run `python3 -m agentlab task validate tasks`.
-6. Ensure `python3 .agents/skills/task-card/scripts/render_task_cards.py tasks --check` passes before committing.
+6. For tasks with reference artifacts, run `python3 -m agentlab task verify-reference <task-bundle>`.
+7. Ensure `python3 .agents/skills/task-card/scripts/render_task_cards.py tasks --check` passes before committing.
 
 Do not hand-edit generated task cards or suite indexes. Update the YAML,
 reference artifact, or generator instead.

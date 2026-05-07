@@ -41,6 +41,10 @@ and that graders can accept a known-good outcome. Reference artifacts may be
 AI-authored, but they must be human-reviewed and validated before the task is
 treated as publishable.
 
+Use `agentlab task verify-reference <task-bundle>` to clone the pinned repo,
+apply or check out the reference artifact, run setup/baseline/target graders,
+and enforce success criteria such as max files changed.
+
 Generated task cards and suite indexes are source-adjacent review artifacts, not
 the source of truth. The repo-local pre-commit hook runs the task-card generator
 in `--check` mode so drift is caught before commits.

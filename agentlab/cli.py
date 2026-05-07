@@ -2,11 +2,17 @@ from __future__ import annotations
 
 import argparse
 import sys
+import tempfile
 from pathlib import Path
 from typing import Iterable, List
 
 from agentlab.agents.codex_cli import CodexCliAdapter, CodexCliConfig
 from agentlab.agents.manual import ManualAgentAdapter
+from agentlab.reference import (
+    ReferenceVerification,
+    ReferenceVerificationError,
+    verify_reference,
+)
 from agentlab.review import FAILURE_LABELS, resolve_run_dir, write_review
 from agentlab.results import discover_result_files, load_results
 from agentlab.runner import run_task
@@ -48,6 +54,33 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     validate_parser.set_defaults(handler=handle_task_validate)
+
+    verify_reference_parser = task_subcommands.add_parser(
+        "verify-reference",
+        help="Apply verified reference artifacts and run task graders.",
+    )
+    verify_reference_parser.add_argument(
+        "paths",
+        nargs="+",
+        help=(
+            "Task files, task bundle directories, suite directories, or glob "
+            "patterns to verify."
+        ),
+    )
+    verify_reference_parser.add_argument(
+        "--workspace-root",
+        default=None,
+        help=(
+            "Optional directory for verification workspaces. Defaults to a "
+            "temporary directory that is removed after verification."
+        ),
+    )
+    verify_reference_parser.add_argument(
+        "--skip-missing",
+        action="store_true",
+        help="Skip tasks that do not declare reference_artifact.",
+    )
+    verify_reference_parser.set_defaults(handler=handle_task_verify_reference)
 
     run_parser = subcommands.add_parser(
         "run",
@@ -230,6 +263,60 @@ def handle_task_validate(args: argparse.Namespace) -> int:
     return 0
 
 
+def handle_task_verify_reference(args: argparse.Namespace) -> int:
+    files = discover_task_files(args.paths)
+    if not files:
+        print("No task files matched.", file=sys.stderr)
+        return 1
+
+    if args.workspace_root:
+        workspace_root = Path(args.workspace_root)
+        workspace_root.mkdir(parents=True, exist_ok=True)
+        return _verify_reference_files(files, workspace_root, args.skip_missing)
+
+    with tempfile.TemporaryDirectory(prefix="agentlab-reference-") as temp:
+        return _verify_reference_files(files, Path(temp), args.skip_missing)
+
+
+def _verify_reference_files(
+    files: List[Path],
+    workspace_root: Path,
+    skip_missing: bool,
+) -> int:
+    failures: List[str] = []
+    skipped = 0
+    for path in files:
+        try:
+            task = load_task(path)
+            if task.reference_artifact is None and skip_missing:
+                skipped += 1
+                print(f"SKIP {Path(path)} ({task.id}): no reference_artifact")
+                continue
+            verification = verify_reference(task, workspace_root)
+        except (RuntimeError, TaskLoadError, ReferenceVerificationError) as exc:
+            failures.append(f"{path}: {exc}")
+            continue
+
+        status = "OK" if verification.success else "FAIL"
+        print(
+            f"{status} {Path(path)} ({task.id}) "
+            f"files_changed={len(verification.files_changed)}"
+        )
+        if not verification.success:
+            failures.append(f"{path}: reference verification failed")
+            _print_failed_reference_checks(verification)
+
+    if failures:
+        for failure in failures:
+            print(f"ERROR {failure}", file=sys.stderr)
+        return 1
+
+    print(f"Verified {len(files) - skipped} reference artifact(s).")
+    if skipped:
+        print(f"Skipped {skipped} task(s) without reference_artifact.")
+    return 0
+
+
 def handle_run(args: argparse.Namespace) -> int:
     try:
         task = load_task(args.task)
@@ -383,6 +470,20 @@ def _print_table(headers: List[str], rows: List[List[str]]) -> None:
         print("  ".join(str(cell).ljust(widths[index]) for index, cell in enumerate(row)))
 
 
+def _print_failed_reference_checks(verification: ReferenceVerification) -> None:
+    checks = verification.setup_checks + verification.baseline_checks
+    checks += [verification.artifact_check] + verification.target_checks
+    for check in checks:
+        if check.passed:
+            continue
+        output = _trim_cli_output(check.stderr or check.stdout)
+        print(f"  failed: {check.command} ({check.returncode})", file=sys.stderr)
+        if output:
+            print(output, file=sys.stderr)
+    for note in verification.notes:
+        print(f"  note: {note}", file=sys.stderr)
+
+
 def _review_label(result: object) -> str:
     if not isinstance(result, dict):
         return ""
@@ -399,6 +500,13 @@ def _review_label(result: object) -> str:
 
 def _format_rate(value: float) -> str:
     return f"{value:.2f}"
+
+
+def _trim_cli_output(output: str, max_chars: int = 1000) -> str:
+    output = output.strip()
+    if len(output) <= max_chars:
+        return output
+    return output[-max_chars:]
 
 
 def _format_review_labels(labels: object) -> str:

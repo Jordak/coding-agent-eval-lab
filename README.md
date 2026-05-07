@@ -39,6 +39,12 @@ Validate the starter task:
 python3 -m agentlab task validate tasks/starter
 ```
 
+Verify a task's reference artifact:
+
+```bash
+python3 -m agentlab task verify-reference tasks/starter/2048-advanced-snake-params-001
+```
+
 Run the self-tests:
 
 ```bash
