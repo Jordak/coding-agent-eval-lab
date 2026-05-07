@@ -1,4 +1,8 @@
-# Design Notes
+# Design Overview
+
+Accepted architectural decisions live in [adr/](adr/). This file summarizes the
+current system shape; new durable decisions should be added as ADRs instead of
+only being recorded here.
 
 ## Core Entities
 
@@ -20,6 +24,20 @@ harness/scaffold, and evaluation suites.
   graders, outcome capture, and artifact writing.
 - `agentlab.reporting` renders Markdown trial reports and later static HTML.
 
+## Task Bundles
+
+Tasks live as bundles under `tasks/<suite>/<task-id>/`. Each bundle contains a
+source `task.yaml`, a generated `task-card.md`, and any reference artifacts such
+as `reference.patch`.
+
+The task loader accepts either a direct task YAML path or a task bundle
+directory. Suite directories can be passed to validation commands to discover
+all bundled `task.yaml` files below them.
+
+Generated task cards and suite indexes are source-adjacent review artifacts, not
+the source of truth. The repo-local pre-commit hook runs the task-card generator
+in `--check` mode so drift is caught before commits.
+
 ## Agent Adapters
 
 The manual adapter is the positive/negative-control baseline. It can pause for a
@@ -38,6 +56,15 @@ fast, cheap, reproducible, and appropriate for early coding-agent evals.
 Reports emphasize the outcome: the final patch, changed files, command results,
 and grader pass/fail status. Tool-call and transcript graders should be added
 only when they evaluate behavior that outcome graders cannot capture.
+
+The project keeps the deterministic **grader outcome** separate from the
+**human review outcome**. A trial can pass code-based graders and still receive a
+human review label such as `success_messy`, `over_edit`, or `test_gap`.
+
+Human review should be backed by structured **outcome evidence** where possible:
+edit size metrics such as files changed and lines added/deleted, resource usage
+metrics such as duration, tokens, and cost, plus targeted diff, transcript, and
+grader-output excerpts.
 
 ## Aggregation
 

@@ -9,6 +9,7 @@ from typing import Any, Dict, Iterable, List, Mapping, Optional
 from agentlab.taxonomy import FAILURE_LABELS
 
 EVAL_TYPES = ["capability", "regression"]
+TASK_BUNDLE_FILENAMES = ("task.yaml", "task.yml")
 
 
 class TaskLoadError(ValueError):
@@ -101,18 +102,22 @@ class EvalTask:
 
 def discover_task_files(patterns: Iterable[str]) -> List[Path]:
     files: List[Path] = []
+    seen: set[Path] = set()
     for pattern in patterns:
         matches = sorted(Path(match) for match in glob.glob(pattern))
-        if matches:
-            files.extend(matches)
-        else:
-            files.append(Path(pattern))
+        candidates = matches if matches else [Path(pattern)]
+        for candidate in candidates:
+            for task_file in _task_files_for_candidate(candidate):
+                resolved = task_file.resolve()
+                if resolved not in seen:
+                    files.append(task_file)
+                    seen.add(resolved)
 
-    return [path for path in files if path.is_file()]
+    return files
 
 
 def load_task(path: str | Path) -> EvalTask:
-    task_path = Path(path)
+    task_path = resolve_task_file(path)
     try:
         raw_text = task_path.read_text(encoding="utf-8")
     except OSError as exc:
@@ -120,6 +125,34 @@ def load_task(path: str | Path) -> EvalTask:
 
     mapping = load_task_mapping(raw_text)
     return EvalTask.from_mapping(mapping, source_path=task_path)
+
+
+def resolve_task_file(path: str | Path) -> Path:
+    task_path = Path(path)
+    if task_path.is_dir():
+        for filename in TASK_BUNDLE_FILENAMES:
+            candidate = task_path / filename
+            if candidate.is_file():
+                return candidate
+        raise TaskLoadError(f"task bundle is missing task.yaml: {task_path}")
+    return task_path
+
+
+def _task_files_for_candidate(candidate: Path) -> List[Path]:
+    if candidate.is_file():
+        return [candidate]
+    if not candidate.is_dir():
+        return []
+
+    for filename in TASK_BUNDLE_FILENAMES:
+        task_file = candidate / filename
+        if task_file.is_file():
+            return [task_file]
+
+    task_files: List[Path] = []
+    for filename in TASK_BUNDLE_FILENAMES:
+        task_files.extend(sorted(candidate.glob(f"**/{filename}")))
+    return task_files
 
 
 def load_task_mapping(raw_text: str) -> Mapping[str, Any]:

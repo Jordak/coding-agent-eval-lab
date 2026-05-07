@@ -52,7 +52,7 @@ Observed result:
 After adding the Codex CLI adapter, the same task was run with:
 
 ```bash
-python3 -m agentlab run --agent codex --task tasks/starter/2048_advanced_snake_params_001.yaml
+python3 -m agentlab run --agent codex --task tasks/starter/2048-advanced-snake-params-001
 ```
 
 The first trial exposed an adapter bug: `--ask-for-approval` was passed after
@@ -93,7 +93,7 @@ the manual positive and negative controls.
 That milestone is now complete for Codex CLI. The next step is repeated trials:
 
 ```bash
-python3 -m agentlab run --agent codex --trials 5 --task tasks/starter/2048_advanced_snake_params_001.yaml
+python3 -m agentlab run --agent codex --trials 5 --task tasks/starter/2048-advanced-snake-params-001
 python3 -m agentlab trials summarize
 ```
 

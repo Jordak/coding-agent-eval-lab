@@ -1,5 +1,5 @@
 .DS_Store
-Agent Eval Project Handoff.md
+# Keep docs/project-handoff.md on disk; it is ignored only because it contains private handoff context.
 docs/project-handoff.md
 __pycache__/
 *.py[cod]

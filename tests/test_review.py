@@ -13,7 +13,7 @@ class ReviewTest(unittest.TestCase):
                 run_dir,
                 primary_label="success_clean",
                 note="Focused patch with passing checks.",
-                secondary_labels=["tool_misuse"],
+                secondary_labels=["resource_inefficient"],
                 evidence=["diff.patch"],
             )
 
@@ -22,7 +22,7 @@ class ReviewTest(unittest.TestCase):
             self.assertIsNotNone(review)
             assert review is not None
             self.assertEqual(review["primary_label"], "success_clean")
-            self.assertEqual(review["secondary_labels"], ["tool_misuse"])
+            self.assertEqual(review["secondary_labels"], ["resource_inefficient"])
 
     def test_rejects_unknown_label(self):
         with tempfile.TemporaryDirectory() as temp:

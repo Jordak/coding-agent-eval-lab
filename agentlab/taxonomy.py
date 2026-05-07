@@ -6,6 +6,7 @@ FAILURE_LABELS = [
     "bad_local_fix",
     "test_gap",
     "over_edit",
+    "resource_inefficient",
     "tool_misuse",
     "dependency_issue",
     "stuck_or_timeout",

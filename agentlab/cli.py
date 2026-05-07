@@ -42,7 +42,10 @@ def build_parser() -> argparse.ArgumentParser:
     validate_parser.add_argument(
         "paths",
         nargs="+",
-        help="Task file paths or glob patterns, such as tasks/starter/*.yaml.",
+        help=(
+            "Task files, task bundle directories, or glob patterns, "
+            "such as tasks/starter or tasks/starter/*/task.yaml."
+        ),
     )
     validate_parser.set_defaults(handler=handle_task_validate)
 
@@ -50,7 +53,11 @@ def build_parser() -> argparse.ArgumentParser:
         "run",
         help="Run one trial for a task through an agent harness.",
     )
-    run_parser.add_argument("--task", required=True, help="Task YAML file to run.")
+    run_parser.add_argument(
+        "--task",
+        required=True,
+        help="Task YAML file or task bundle directory to run.",
+    )
     run_parser.add_argument(
         "--agent",
         default="manual",

@@ -1,0 +1,140 @@
+# Agent Eval Lab Context
+
+## Project Purpose
+
+Agent Eval Lab is a local evaluation harness for coding agents. It runs realistic
+software engineering tasks against pinned repository commits, captures the trial
+trace and outcome, applies graders, and summarizes reliability across repeated
+trials.
+
+The project is evaluation infrastructure, not a general coding assistant or IDE.
+
+## Intended Readers
+
+- **Technical evaluators and model-quality engineers**: use the lab to understand
+  where a coding-agent harness is reliable, brittle, or worth improving next.
+- **Solo developers choosing an AI coding tool**: use the lab's reports to see
+  which agent harness fits their project style and risk tolerance.
+
+## Domain Vocabulary
+
+- **Task**: a single eval case with repository, commit, prompt, environment, and
+  success criteria.
+- **Task bundle**: the canonical on-disk unit for a task: a directory containing
+  `task.yaml`, generated `task-card.md`, and any reference artifacts.
+- **Task card**: generated Markdown summary of a task bundle for humans and AI
+  assistants. It is committed next to `task.yaml` but regenerated from task
+  metadata rather than hand-edited.
+- **Task-card drift**: mismatch between `task.yaml` and generated task cards or
+  suite indexes. The repo-local pre-commit hook should catch drift before
+  commits.
+- **Suite index**: generated Markdown index at the suite directory level linking
+  to task cards in that suite.
+- **Prompt ambiguity**: realistic user-level imprecision in a task prompt. It is
+  acceptable only when the task's expected behavior, graders, reference solution,
+  and human-review rubric remain unambiguous.
+- **Non-interactive task**: a task intended to be attempted from a fixed prompt
+  without a clarification loop. The first Solo Dev Starter Suite uses
+  non-interactive tasks.
+- **Interactive task**: a future task type where the agent harness may ask
+  follow-up questions, and the quality of those questions can be graded.
+- **Trial**: one attempt at a task by an agent harness. Prefer "trial" in new
+  docs and result metadata. Use "run" only for CLI compatibility and historical
+  artifact paths.
+- **Evaluation suite**: a group of tasks designed to measure a capability or
+  regression surface.
+- **Solo Dev Starter Suite**: the first serious evaluation suite for this
+  project, focused on small realistic maintenance tasks a solo developer faces
+  when starting or stabilizing an AI-assisted project. It should be a curated
+  mixed-language suite rather than a single-language suite or random sample.
+  Include one UI/visual task in the first version, graded conservatively with
+  deterministic checks plus human visual review.
+- **Agent harness**: the product or scaffold being evaluated, such as Codex CLI,
+  Claude Code, Cursor Agent, or the manual adapter. Prefer this term over
+  "agent", "agent tool", or "agent application" when naming comparison targets.
+- **Agent harness configuration**: a comparable setup of an agent harness plus
+  its explicit model, permissions, sandbox, project rules, and runtime options
+  when known.
+- **Agent adapter**: the local Python integration that invokes an agent harness
+  through Agent Eval Lab.
+- **Underlying model**: the model selected by an agent harness. Do not collapse
+  agent harness and model into one comparison dimension.
+- **Grader**: scoring logic for a trial. Code-based graders are the default for
+  coding tasks.
+- **Assertion**: one check inside a grader, usually a command that must exit
+  successfully.
+- **Transcript / trace**: the record of an agent trial, including agent output,
+  tool events, command output, and intermediate state when available.
+- **Outcome**: the final workspace state after a trial, especially the patch,
+  changed files, and grader results.
+- **Grader outcome**: the deterministic pass/fail result produced by configured
+  graders and assertions.
+- **Human review outcome**: the human-approved quality judgment for a trial,
+  recorded with review labels, notes, and evidence. It can disagree with or add
+  nuance to the grader outcome.
+- **Outcome evidence**: structured facts used to support an outcome or human
+  review, such as changed files, lines added/deleted, commands run, duration,
+  token usage, cost, diff excerpts, transcript/trace excerpts, and grader output.
+- **Edit size metrics**: structured evidence about patch size, especially files
+  changed and lines added/deleted.
+- **Resource usage metrics**: structured evidence about runtime cost, especially
+  duration, input/output tokens, and estimated dollar cost when available.
+- **resource_inefficient**: review/failure label for trials that use
+  disproportionate runtime, token budget, cost, or command churn relative to the
+  task complexity and outcome quality. Prefer as a secondary label unless
+  resource waste is the dominant result. Initially judged by human reviewers
+  using structured metrics; explicit thresholds should wait until enough trial
+  history exists.
+- **Reference solution**: proof that a real task is solvable and that its graders
+  can accept a known-good fix.
+- **Reference artifact**: a verified reference patch or commit for a task. It may
+  be authored with AI assistance, but it must be reviewed and validated against
+  the task graders before the task is publishable.
+- **Fixture repo**: a purpose-built repository used when a capability is hard to
+  cover with a natural external project. Avoid relying on fixture repos for the
+  main credibility of a suite.
+- **Human review label**: a failure-taxonomy or success label attached after
+  inspecting a trial.
+- **Agent capability report**: the lab's primary summary artifact. It explains
+  what an agent harness does well, poorly, and inconsistently across an
+  evaluation suite in AI-readable Markdown, backed by trials, graders, outcomes,
+  transcripts/traces, human review labels, and aggregate metrics.
+- **Hand-authored interpretation**: report prose whose claims are selected and
+  approved by a human reviewer, even when drafted with AI assistance.
+- **Evidence-based claim**: a report statement scoped to the evaluated tasks,
+  agent harness configuration, runtime conditions, graders, and observed trials.
+  Avoid global capability claims that exceed the evidence.
+- **Evidence-scoped recommendation**: practical guidance whose scope is limited
+  to the evidence behind it. Use recommendations to help readers act, but do not
+  imply broader certainty than the trials support.
+- **Codex deep baseline**: the first agent capability report for the Solo Dev
+  Starter Suite, focused on evaluating one Codex CLI agent harness configuration
+  deeply before comparing multiple harnesses. Initial depth target: six task
+  categories, one task per category, five independent trials per task using the
+  same prompt and same agent harness configuration.
+- **Solo developer**: an individual choosing an AI coding tool for a project
+  based on task fit, reliability, risk tolerance, validation quality, runtime,
+  and cost.
+
+## Documentation Conventions
+
+- Use `docs/adr/` for architectural decisions.
+- Use `docs/design.md` for the current system overview, not as the primary home
+  for new decisions.
+- Use `docs/anthropic-eval-principles.md` for eval terminology and practice
+  conventions.
+- Use `docs/runtime-accountability.md` for open questions around model identity,
+  token usage, billing context, and cost.
+
+## Current Architectural Shape
+
+- The CLI entrypoint is `python3 -m agentlab`.
+- Task files are human-editable YAML or JSON and live under `tasks/`.
+- Task bundles live under `tasks/<suite>/<task-id>/` and contain `task.yaml`,
+  generated `task-card.md`, and reference artifacts.
+- Each trial gets an isolated cloned workspace under `runs/<trial-id>/workspace`.
+- Agent adapters implement the `AgentAdapter` protocol in `agentlab.agents`.
+- Trial artifacts include `report.md`, `result.json`, `diff.patch`, and an
+  adapter-specific transcript or trace.
+- Multi-trial summaries group by suite, eval type, task, agent harness, and
+  model, then report pass rate, pass@k, and pass^k.

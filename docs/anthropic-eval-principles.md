@@ -55,6 +55,7 @@ January 2026 post, [Demystifying evals for AI agents](https://www.anthropic.com/
 - `result.json` includes both legacy `run_id` and preferred `trial_id`.
 - Existing `runs` commands remain for compatibility; new docs should prefer
   `trials`.
-- YAML task files should set `suite`, `eval_type`, and `reference_solution` for
-  real tasks.
+- Task bundles should set `suite`, `eval_type`, and reference metadata in
+  `task.yaml` for real tasks. Generated `task-card.md` files make tasks readable
+  by humans and AI assistants.
 - Reports use "code-based graders" and "assertions" for deterministic commands.

@@ -31,6 +31,8 @@ Reports cannot yet reliably answer:
 - Which account or billing context paid for the trial.
 - How many input/output tokens were consumed.
 - What the trial cost.
+- Whether an apparently correct patch was unusually expensive in tokens, cost,
+  or runtime.
 - Whether a later Codex CLI config change affected comparability.
 
 ## TODO
@@ -40,6 +42,8 @@ Reports cannot yet reliably answer:
 - Prefer requiring `--codex-model` for publishable comparisons.
 - Parse `codex-events.jsonl` for token usage and cost if the event stream exposes
   it.
+- Store resource usage metrics as outcome evidence for human review and
+  capability reports.
 - Store runtime configuration in `result.json`, including sandbox mode, approval
   policy, command path, model, profile, and CLI version.
 - Add a report warning when model, token usage, or cost is unknown.

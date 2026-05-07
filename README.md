@@ -5,7 +5,7 @@ software engineering tasks, grading their outcomes, classifying failure modes,
 and producing model-quality reports.
 
 This project is intentionally about evaluation infrastructure, not another chat
-wrapper. It keeps four concerns separate:
+wrapper. It keeps the key evaluation concerns separate:
 
 - **Task**: a single test case with repository, commit, prompt, environment, and
   success criteria.
@@ -20,12 +20,15 @@ wrapper. It keeps four concerns separate:
 
 The first scaffold supports:
 
-- Human-editable YAML task files.
+- Human-editable task bundles with YAML source and generated Markdown cards.
 - `agentlab task validate` for schema checks.
-- A starter task file under `tasks/starter/`.
+- Starter task bundles under `tasks/starter/`.
 - `agentlab run --agent manual --task ...` for one manual trial.
-- Git checkout preparation, configured command execution, diff capture, and a
-  Markdown trial report.
+- Git checkout preparation, configured command execution, diff capture, and
+  Markdown/JSON trial artifacts.
+- Codex CLI and manual agent adapters.
+- Multi-trial execution and pass@k/pass^k summaries.
+- Human review labels using the failure taxonomy.
 - Standard-library unit tests.
 
 ## Quick Start
@@ -33,7 +36,7 @@ The first scaffold supports:
 Validate the starter task:
 
 ```bash
-python3 -m agentlab task validate "tasks/starter/*.yaml"
+python3 -m agentlab task validate tasks/starter
 ```
 
 Run the self-tests:
@@ -46,7 +49,7 @@ Run a real task through the manual adapter once its `repo` and `commit` point to
 an accessible Git repository:
 
 ```bash
-python3 -m agentlab run --agent manual --task path/to/task.yaml
+python3 -m agentlab run --agent manual --task path/to/task-bundle
 ```
 
 The manual adapter pauses after workspace setup so a human can edit the cloned
@@ -57,7 +60,7 @@ negative-control trial where the manual adapter intentionally changes nothing.
 Run a task through Codex CLI:
 
 ```bash
-python3 -m agentlab run --agent codex --task tasks/starter/2048_advanced_snake_params_001.yaml
+python3 -m agentlab run --agent codex --task tasks/starter/2048-advanced-snake-params-001
 ```
 
 Run multiple independent trials:
@@ -66,7 +69,7 @@ Run multiple independent trials:
 python3 -m agentlab run \
   --agent codex \
   --trials 5 \
-  --task tasks/starter/2048_advanced_snake_params_001.yaml
+  --task tasks/starter/2048-advanced-snake-params-001
 ```
 
 Useful Codex options:
@@ -76,7 +79,7 @@ python3 -m agentlab run \
   --agent codex \
   --codex-model gpt-5.2 \
   --codex-timeout-seconds 1800 \
-  --task tasks/starter/2048_advanced_snake_params_001.yaml
+  --task tasks/starter/2048-advanced-snake-params-001
 ```
 
 The Codex adapter stores `codex-events.jsonl`, `codex-last-message.md`,
@@ -107,19 +110,36 @@ python3 -m agentlab review --trial latest --label success_clean --note "Focused 
 The first real project task is:
 
 ```bash
-python3 -m agentlab task validate tasks/starter/2048_advanced_snake_params_001.yaml
+python3 -m agentlab task validate tasks/starter/2048-advanced-snake-params-001
 ```
+
+Regenerate task cards and suite indexes:
+
+```bash
+python3 .agents/skills/task-card/scripts/render_task_cards.py tasks
+```
+
+Enable the repo-local pre-commit hook:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+The hook fails commits when generated task cards or suite indexes drift from
+`task.yaml`, and it validates all task bundles.
 
 ## MVP Path
 
-1. Validate task definitions, including suite/type/reference-solution metadata.
+1. Validate task bundles, including suite/type/reference-artifact metadata.
 2. Create isolated workspaces from task repos and commits.
 3. Add a manual adapter that lets a human edit the checkout for positive-control trials.
 4. Capture diffs and command results.
 5. Generate a Markdown report.
 6. Add Cursor SDK, Claude Code, and Codex CLI adapters.
 
-See [docs/design.md](docs/design.md) for architecture notes,
+See [CONTEXT.md](CONTEXT.md) for project vocabulary,
+[docs/design.md](docs/design.md) for architecture notes,
+[docs/adr/](docs/adr/) for accepted architectural decisions,
 [docs/anthropic-eval-principles.md](docs/anthropic-eval-principles.md) for the
 terminology and practices this project follows,
 [docs/failure-taxonomy.md](docs/failure-taxonomy.md) for the initial review
