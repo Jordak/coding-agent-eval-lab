@@ -80,6 +80,14 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Skip tasks that do not declare reference_artifact.",
     )
+    verify_reference_parser.add_argument(
+        "--write-artifacts",
+        action="store_true",
+        help=(
+            "Write reference-report.md, reference-result.json, and "
+            "reference.diff next to each task.yaml."
+        ),
+    )
     verify_reference_parser.set_defaults(handler=handle_task_verify_reference)
 
     run_parser = subcommands.add_parser(
@@ -272,16 +280,27 @@ def handle_task_verify_reference(args: argparse.Namespace) -> int:
     if args.workspace_root:
         workspace_root = Path(args.workspace_root)
         workspace_root.mkdir(parents=True, exist_ok=True)
-        return _verify_reference_files(files, workspace_root, args.skip_missing)
+        return _verify_reference_files(
+            files,
+            workspace_root,
+            args.skip_missing,
+            args.write_artifacts,
+        )
 
     with tempfile.TemporaryDirectory(prefix="agentlab-reference-") as temp:
-        return _verify_reference_files(files, Path(temp), args.skip_missing)
+        return _verify_reference_files(
+            files,
+            Path(temp),
+            args.skip_missing,
+            args.write_artifacts,
+        )
 
 
 def _verify_reference_files(
     files: List[Path],
     workspace_root: Path,
     skip_missing: bool,
+    write_artifacts: bool,
 ) -> int:
     failures: List[str] = []
     skipped = 0
@@ -292,16 +311,23 @@ def _verify_reference_files(
                 skipped += 1
                 print(f"SKIP {Path(path)} ({task.id}): no reference_artifact")
                 continue
-            verification = verify_reference(task, workspace_root)
+            verification = verify_reference(
+                task,
+                workspace_root,
+                write_artifacts=write_artifacts,
+            )
         except (RuntimeError, TaskLoadError, ReferenceVerificationError) as exc:
             failures.append(f"{path}: {exc}")
             continue
 
         status = "OK" if verification.success else "FAIL"
-        print(
+        message = (
             f"{status} {Path(path)} ({task.id}) "
             f"files_changed={len(verification.files_changed)}"
         )
+        if write_artifacts:
+            message += f" report={verification.report_path}"
+        print(message)
         if not verification.success:
             failures.append(f"{path}: reference verification failed")
             _print_failed_reference_checks(verification)

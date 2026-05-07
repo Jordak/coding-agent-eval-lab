@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import subprocess
 from dataclasses import dataclass, field
+import json
 from pathlib import Path
 
 from agentlab.commands import run_commands
 from agentlab.commands import run_git
+from agentlab.reporting import render_reference_report
+from agentlab.results import reference_verification_to_result_dict
 from agentlab.scoring import CheckResult
 from agentlab.tasks import EvalTask
 from agentlab.workspace import capture_diff
@@ -26,15 +29,29 @@ class ReferenceVerification:
     target_checks: list[CheckResult] = field(default_factory=list)
     files_changed: list[str] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
+    diff_path: Path = Path("reference.diff")
+    report_path: Path = Path("reference-report.md")
+    result_path: Path = Path("reference-result.json")
 
     @property
     def success(self) -> bool:
-        checks = self.setup_checks + self.baseline_checks + [self.artifact_check]
-        checks += self.target_checks
-        return all(check.passed for check in checks) and not self.notes
+        return all(check.passed for check in self.all_checks) and not self.notes
+
+    @property
+    def all_checks(self) -> list[CheckResult]:
+        return (
+            self.setup_checks
+            + self.baseline_checks
+            + [self.artifact_check]
+            + self.target_checks
+        )
 
 
-def verify_reference(task: EvalTask, workspace_root: Path) -> ReferenceVerification:
+def verify_reference(
+    task: EvalTask,
+    workspace_root: Path,
+    write_artifacts: bool = False,
+) -> ReferenceVerification:
     artifact = task.reference_artifact
     if artifact is None:
         raise ReferenceVerificationError(
@@ -55,11 +72,12 @@ def verify_reference(task: EvalTask, workspace_root: Path) -> ReferenceVerificat
         )
 
     target_checks = run_commands(task.test, prepared.path)
-    diff_path = workspace_root / f"{task.id}-reference.diff"
+    output_dir = _reference_output_dir(task, workspace_root, write_artifacts)
+    diff_path = output_dir / "reference.diff"
     files_changed = _reference_files_changed(task, prepared.path, diff_path)
     notes = _success_notes(task, files_changed)
 
-    return ReferenceVerification(
+    verification = ReferenceVerification(
         task=task,
         workspace=prepared.path,
         artifact_check=artifact_check,
@@ -68,6 +86,27 @@ def verify_reference(task: EvalTask, workspace_root: Path) -> ReferenceVerificat
         target_checks=target_checks,
         files_changed=files_changed,
         notes=notes,
+        diff_path=diff_path,
+        report_path=output_dir / "reference-report.md",
+        result_path=output_dir / "reference-result.json",
+    )
+    if write_artifacts:
+        write_reference_artifacts(verification)
+    return verification
+
+
+def write_reference_artifacts(verification: ReferenceVerification) -> None:
+    verification.report_path.write_text(
+        render_reference_report(verification),
+        encoding="utf-8",
+    )
+    verification.result_path.write_text(
+        json.dumps(
+            reference_verification_to_result_dict(verification),
+            indent=2,
+            sort_keys=True,
+        ),
+        encoding="utf-8",
     )
 
 
@@ -132,3 +171,17 @@ def _git_check_result(
         stdout=completed.stdout,
         stderr=completed.stderr,
     )
+
+
+def _reference_output_dir(
+    task: EvalTask,
+    workspace_root: Path,
+    write_artifacts: bool,
+) -> Path:
+    if write_artifacts:
+        if task.source_path is None:
+            raise ReferenceVerificationError(
+                "writing reference artifacts requires task.source_path"
+            )
+        return task.source_path.parent
+    return workspace_root

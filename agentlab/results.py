@@ -17,6 +17,7 @@ def write_result_json(run: Any) -> None:
 
 def to_result_dict(run: Any) -> Dict[str, Any]:
     return {
+        "trial_kind": "agent_trial",
         "trial_id": run.run_dir.name,
         "run_id": run.run_dir.name,
         "task_id": run.task.id,
@@ -51,6 +52,47 @@ def to_result_dict(run: Any) -> Dict[str, Any]:
     }
 
 
+def reference_verification_to_result_dict(verification: Any) -> Dict[str, Any]:
+    status = "passed" if verification.success else "failed"
+    output_dir = verification.result_path.parent
+    return {
+        "trial_kind": "reference_verification",
+        "trial_id": f"{verification.task.id}-reference",
+        "run_id": f"{verification.task.id}-reference",
+        "task_id": verification.task.id,
+        "task_title": verification.task.title,
+        "eval_suite": verification.task.suite,
+        "eval_type": verification.task.eval_type,
+        "reference_artifact": _reference_artifact_to_dict(
+            verification.task.reference_artifact
+        ),
+        "agent_name": "reference",
+        "model_name": None,
+        "status": status,
+        "success": verification.success,
+        "outcome": {
+            "status": status,
+            "files_changed": verification.files_changed,
+            "n_files_changed": len(verification.files_changed),
+            "diff_path": _display_path(verification.diff_path, output_dir),
+        },
+        "score_notes": verification.notes,
+        "duration_ms": 0,
+        "error": None,
+        "cost_usd": None,
+        "files_changed": verification.files_changed,
+        "commands_run": [check.command for check in verification.all_checks],
+        "checks": [_check_to_dict(check) for check in verification.all_checks],
+        "graders": [
+            _check_to_grader_dict(check) for check in verification.all_checks
+        ],
+        "report_path": _display_path(verification.report_path, output_dir),
+        "transcript_path": None,
+        "diff_path": _display_path(verification.diff_path, output_dir),
+        "run_dir": _display_path(output_dir, output_dir),
+    }
+
+
 def discover_result_files(runs_dir: Path) -> List[Path]:
     if not runs_dir.exists():
         return []
@@ -63,6 +105,8 @@ def load_results(paths: Iterable[Path]) -> List[Dict[str, Any]]:
         try:
             result = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
+            continue
+        if result.get("trial_kind", "agent_trial") != "agent_trial":
             continue
         run_dir = Path(str(result.get("run_dir") or path.parent))
         review = load_review(run_dir)
@@ -105,3 +149,10 @@ def _trim(value: str, max_chars: int = 4000) -> str:
     if len(value) <= max_chars:
         return value
     return value[-max_chars:]
+
+
+def _display_path(path: Path, base: Path) -> str:
+    try:
+        return str(path.relative_to(base))
+    except ValueError:
+        return str(path)

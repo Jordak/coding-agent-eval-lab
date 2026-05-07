@@ -45,6 +45,14 @@ Verify a task's reference artifact:
 python3 -m agentlab task verify-reference tasks/starter/2048-advanced-snake-params-001
 ```
 
+Write positive-control reference artifacts next to the task bundle:
+
+```bash
+python3 -m agentlab task verify-reference \
+  --write-artifacts \
+  tasks/starter/2048-advanced-snake-params-001
+```
+
 Run the self-tests:
 
 ```bash
@@ -91,6 +99,10 @@ python3 -m agentlab run \
 The Codex adapter stores `codex-events.jsonl`, `codex-last-message.md`,
 `transcript.md`, `diff.patch`, `report.md`, and `result.json` in the run
 directory.
+
+Reference verification uses the same report/result shape, marked with
+`trial_kind: reference_verification`, and writes `reference-report.md`,
+`reference-result.json`, and `reference.diff` when `--write-artifacts` is used.
 
 List trials that have machine-readable metadata:
 

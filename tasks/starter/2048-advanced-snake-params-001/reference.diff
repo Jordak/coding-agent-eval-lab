@@ -1,0 +1,14 @@
+diff --git a/simulation.py b/simulation.py
+index 7745ce5..66e640c 100644
+--- a/simulation.py
++++ b/simulation.py
+@@ -30,6 +30,6 @@ def run_single_simulation(args_tuple):
+         'final_score': int(game.score), 'highest_tile': int(np.max(game.board)),
+         'heuristic_name': heuristic_meta['name'] if heuristic_meta else None,
+         'heuristic_version': heuristic_meta['version'] if heuristic_meta else None,
+-        'params': weights if args.heuristic == 'advanced' else None,
++        'params': weights if args.heuristic == 'advanced-snake' else None,
+         'tag': args.tag
+-    }
+\ No newline at end of file
++    }

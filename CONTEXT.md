@@ -90,6 +90,9 @@ The project is evaluation infrastructure, not a general coding assistant or IDE.
 - **Reference artifact**: a verified reference patch or commit for a task. It may
   be authored with AI assistance, but it must be reviewed and validated against
   the task graders before the task is publishable.
+- **Reference verification**: positive-control execution of a task's reference
+  artifact. It writes report/result artifacts shaped like agent trial outputs,
+  marked with `trial_kind: reference_verification`.
 - **Fixture repo**: a purpose-built repository used when a capability is hard to
   cover with a natural external project. Avoid relying on fixture repos for the
   main credibility of a suite.

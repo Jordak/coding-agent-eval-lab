@@ -1,0 +1,113 @@
+{
+  "agent_name": "reference",
+  "checks": [
+    {
+      "command": "python3 -c \"import numpy\"",
+      "passed": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "command": "python3 -c \"from game import Game; game = Game(); assert game.board.shape == (4, 4); assert not game.game_over()\"",
+      "passed": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "command": "git apply reference.patch",
+      "passed": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "command": "python3 -c \"from types import SimpleNamespace; from simulation import run_single_simulation; from ai.heuristics import get_advanced_heuristic_with_weights; weights = {'empty': 1.0, 'smooth': 2.0, 'mono': 3.0, 'snake': 4.0}; heuristic = get_advanced_heuristic_with_weights(weights); args = SimpleNamespace(ai='expectimax', heuristic='advanced-snake', depth=1, tag='eval-smoke'); result = run_single_simulation((args, weights, heuristic, {'name': heuristic.name, 'version': heuristic.version, 'description': heuristic.description})); assert result['params'] == weights, result; assert result['tag'] == 'eval-smoke', result\"",
+      "passed": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "command": "python3 -c \"from game import Game; game = Game(); assert game.board.shape == (4, 4); assert not game.game_over()\"",
+      "passed": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": ""
+    }
+  ],
+  "commands_run": [
+    "python3 -c \"import numpy\"",
+    "python3 -c \"from game import Game; game = Game(); assert game.board.shape == (4, 4); assert not game.game_over()\"",
+    "git apply reference.patch",
+    "python3 -c \"from types import SimpleNamespace; from simulation import run_single_simulation; from ai.heuristics import get_advanced_heuristic_with_weights; weights = {'empty': 1.0, 'smooth': 2.0, 'mono': 3.0, 'snake': 4.0}; heuristic = get_advanced_heuristic_with_weights(weights); args = SimpleNamespace(ai='expectimax', heuristic='advanced-snake', depth=1, tag='eval-smoke'); result = run_single_simulation((args, weights, heuristic, {'name': heuristic.name, 'version': heuristic.version, 'description': heuristic.description})); assert result['params'] == weights, result; assert result['tag'] == 'eval-smoke', result\"",
+    "python3 -c \"from game import Game; game = Game(); assert game.board.shape == (4, 4); assert not game.game_over()\""
+  ],
+  "cost_usd": null,
+  "diff_path": "reference.diff",
+  "duration_ms": 0,
+  "error": null,
+  "eval_suite": "starter-coding",
+  "eval_type": "capability",
+  "files_changed": [
+    "simulation.py"
+  ],
+  "graders": [
+    {
+      "assertion": "python3 -c \"import numpy\"",
+      "passed": true,
+      "returncode": 0,
+      "type": "code"
+    },
+    {
+      "assertion": "python3 -c \"from game import Game; game = Game(); assert game.board.shape == (4, 4); assert not game.game_over()\"",
+      "passed": true,
+      "returncode": 0,
+      "type": "code"
+    },
+    {
+      "assertion": "git apply reference.patch",
+      "passed": true,
+      "returncode": 0,
+      "type": "code"
+    },
+    {
+      "assertion": "python3 -c \"from types import SimpleNamespace; from simulation import run_single_simulation; from ai.heuristics import get_advanced_heuristic_with_weights; weights = {'empty': 1.0, 'smooth': 2.0, 'mono': 3.0, 'snake': 4.0}; heuristic = get_advanced_heuristic_with_weights(weights); args = SimpleNamespace(ai='expectimax', heuristic='advanced-snake', depth=1, tag='eval-smoke'); result = run_single_simulation((args, weights, heuristic, {'name': heuristic.name, 'version': heuristic.version, 'description': heuristic.description})); assert result['params'] == weights, result; assert result['tag'] == 'eval-smoke', result\"",
+      "passed": true,
+      "returncode": 0,
+      "type": "code"
+    },
+    {
+      "assertion": "python3 -c \"from game import Game; game = Game(); assert game.board.shape == (4, 4); assert not game.game_over()\"",
+      "passed": true,
+      "returncode": 0,
+      "type": "code"
+    }
+  ],
+  "model_name": null,
+  "outcome": {
+    "diff_path": "reference.diff",
+    "files_changed": [
+      "simulation.py"
+    ],
+    "n_files_changed": 1,
+    "status": "passed"
+  },
+  "reference_artifact": {
+    "commit": null,
+    "path": "reference.patch",
+    "type": "patch"
+  },
+  "report_path": "reference-report.md",
+  "run_dir": ".",
+  "run_id": "2048-advanced-snake-params-001-reference",
+  "score_notes": [],
+  "status": "passed",
+  "success": true,
+  "task_id": "2048-advanced-snake-params-001",
+  "task_title": "Advanced-snake simulations should persist custom weights",
+  "transcript_path": null,
+  "trial_id": "2048-advanced-snake-params-001-reference",
+  "trial_kind": "reference_verification"
+}

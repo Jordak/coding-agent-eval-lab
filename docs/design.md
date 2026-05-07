@@ -43,7 +43,11 @@ treated as publishable.
 
 Use `agentlab task verify-reference <task-bundle>` to clone the pinned repo,
 apply or check out the reference artifact, run setup/baseline/target graders,
-and enforce success criteria such as max files changed.
+and enforce success criteria such as max files changed. With
+`--write-artifacts`, reference verification writes `reference-report.md`,
+`reference-result.json`, and `reference.diff` next to the task bundle. These use
+the same report/result shape as agent trials, but are marked with
+`trial_kind: reference_verification` and excluded from normal trial summaries.
 
 Generated task cards and suite indexes are source-adjacent review artifacts, not
 the source of truth. The repo-local pre-commit hook runs the task-card generator
