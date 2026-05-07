@@ -10,6 +10,7 @@ from agentlab.agents.manual import ManualAgentAdapter
 from agentlab.review import FAILURE_LABELS, resolve_run_dir, write_review
 from agentlab.results import discover_result_files, load_results
 from agentlab.runner import run_task
+from agentlab.summary import summarize_trials
 from agentlab.tasks import TaskLoadError, discover_task_files, load_task
 
 
@@ -60,6 +61,12 @@ def build_parser() -> argparse.ArgumentParser:
         "--runs-dir",
         default="runs",
         help="Directory where trial artifacts should be written.",
+    )
+    run_parser.add_argument(
+        "--trials",
+        type=int,
+        default=1,
+        help="Number of independent trials to run for this task.",
     )
     run_parser.add_argument(
         "--no-pause",
@@ -135,6 +142,17 @@ def build_parser() -> argparse.ArgumentParser:
     )
     trials_list_parser.set_defaults(handler=handle_runs_list)
 
+    trials_summary_parser = trials_subcommands.add_parser(
+        "summarize",
+        help="Summarize trials by suite, task, agent harness, and model.",
+    )
+    trials_summary_parser.add_argument(
+        "--runs-dir",
+        default="runs",
+        help="Directory where trial artifacts are stored.",
+    )
+    trials_summary_parser.set_defaults(handler=handle_trials_summarize)
+
     review_parser = subcommands.add_parser(
         "review",
         help="Attach a human review label and note to a trial.",
@@ -208,18 +226,34 @@ def handle_task_validate(args: argparse.Namespace) -> int:
 def handle_run(args: argparse.Namespace) -> int:
     try:
         task = load_task(args.task)
-        agent = _build_agent(args)
-        evaluation = run_task(task, agent, Path(args.runs_dir))
+        if args.trials < 1:
+            raise RuntimeError("--trials must be at least 1")
+        evaluations = []
+        for trial_index in range(args.trials):
+            agent = _build_agent(args)
+            if args.trials > 1:
+                print(f"Starting trial {trial_index + 1}/{args.trials}...")
+            evaluations.append(run_task(task, agent, Path(args.runs_dir)))
     except (RuntimeError, TaskLoadError) as exc:
         print(f"ERROR {exc}", file=sys.stderr)
         return 1
 
-    print(f"Run: {evaluation.run_dir}")
-    print(f"Trial: {evaluation.run_dir.name}")
-    print(f"Report: {evaluation.report_path}")
-    print(f"Result: {evaluation.result_path}")
-    print(f"Status: {'passed' if evaluation.score.tests_passed else 'failed'}")
-    return 0
+    for evaluation in evaluations:
+        print(f"Run: {evaluation.run_dir}")
+        print(f"Trial: {evaluation.run_dir.name}")
+        print(f"Report: {evaluation.report_path}")
+        print(f"Result: {evaluation.result_path}")
+        print(f"Status: {'passed' if evaluation.score.tests_passed else 'failed'}")
+
+    passed = sum(1 for evaluation in evaluations if evaluation.score.tests_passed)
+    if len(evaluations) > 1:
+        print(
+            "Summary: "
+            f"{passed}/{len(evaluations)} passed; "
+            f"pass@{len(evaluations)}={1.0 if passed else 0.0:.2f}; "
+            f"pass^{len(evaluations)}={1.0 if passed == len(evaluations) else 0.0:.2f}"
+        )
+    return 0 if passed == len(evaluations) else 1
 
 
 def _build_agent(args: argparse.Namespace) -> object:
@@ -266,6 +300,53 @@ def handle_runs_list(args: argparse.Namespace) -> int:
     return 0
 
 
+def handle_trials_summarize(args: argparse.Namespace) -> int:
+    result_files = discover_result_files(Path(args.runs_dir))
+    results = load_results(result_files)
+    if not results:
+        print("No result.json files found.")
+        return 0
+
+    rows = []
+    for summary in summarize_trials(results):
+        rows.append(
+            [
+                summary.eval_suite,
+                summary.eval_type,
+                summary.task_id,
+                summary.agent_name,
+                summary.model_name,
+                str(summary.trials),
+                str(summary.passes),
+                _format_rate(summary.pass_rate),
+                _format_rate(summary.pass_at_k),
+                _format_rate(summary.pass_caret_k),
+                str(summary.median_duration_ms),
+                str(summary.median_files_changed),
+                _format_review_labels(summary.review_labels),
+            ]
+        )
+    _print_table(
+        [
+            "suite",
+            "type",
+            "task",
+            "agent",
+            "model",
+            "trials",
+            "passes",
+            "pass_rate",
+            "pass@k",
+            "pass^k",
+            "med_ms",
+            "med_files",
+            "reviews",
+        ],
+        rows,
+    )
+    return 0
+
+
 def handle_review(args: argparse.Namespace) -> int:
     try:
         run_dir = resolve_run_dir(Path(args.runs_dir), args.run)
@@ -307,3 +388,13 @@ def _review_label(result: object) -> str:
     if not review:
         return ""
     return str(review.get("primary_label", ""))
+
+
+def _format_rate(value: float) -> str:
+    return f"{value:.2f}"
+
+
+def _format_review_labels(labels: object) -> str:
+    if not isinstance(labels, dict) or not labels:
+        return ""
+    return ",".join(f"{label}:{count}" for label, count in labels.items())

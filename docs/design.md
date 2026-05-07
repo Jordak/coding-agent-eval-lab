@@ -39,6 +39,14 @@ Reports emphasize the outcome: the final patch, changed files, command results,
 and grader pass/fail status. Tool-call and transcript graders should be added
 only when they evaluate behavior that outcome graders cannot capture.
 
+## Aggregation
+
+Single trials are useful for debugging, but agent evals need repeated trials
+because agent behavior is non-deterministic. `agentlab run --trials N` executes
+multiple independent trials for the same task and agent harness. `agentlab trials
+summarize` groups stored results and reports pass rate, pass@k, pass^k, median
+duration, median changed files, and review-label counts.
+
 See [runtime-accountability.md](runtime-accountability.md) for open work around
 model identity, account context, token usage, and cost tracking.
 

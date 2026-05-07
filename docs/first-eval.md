@@ -89,3 +89,13 @@ This first eval proves the core loop:
 The next meaningful milestone is an automated agent adapter that attempts this
 same task without a human edit pause, so its behavior can be compared against
 the manual positive and negative controls.
+
+That milestone is now complete for Codex CLI. The next step is repeated trials:
+
+```bash
+python3 -m agentlab run --agent codex --trials 5 --task tasks/starter/2048_advanced_snake_params_001.yaml
+python3 -m agentlab trials summarize
+```
+
+This turns the one-off success into a consistency measurement using pass@k and
+pass^k.

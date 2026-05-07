@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List
 
 from agentlab.scoring import CheckResult
+from agentlab.review import load_review
 
 
 def write_result_json(run: Any) -> None:
@@ -57,9 +58,14 @@ def load_results(paths: Iterable[Path]) -> List[Dict[str, Any]]:
     results: List[Dict[str, Any]] = []
     for path in paths:
         try:
-            results.append(json.loads(path.read_text(encoding="utf-8")))
+            result = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
             continue
+        run_dir = Path(str(result.get("run_dir") or path.parent))
+        review = load_review(run_dir)
+        if review:
+            result["review"] = review
+        results.append(result)
     return results
 
 

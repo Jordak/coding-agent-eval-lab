@@ -60,6 +60,15 @@ Run a task through Codex CLI:
 python3 -m agentlab run --agent codex --task tasks/starter/2048_advanced_snake_params_001.yaml
 ```
 
+Run multiple independent trials:
+
+```bash
+python3 -m agentlab run \
+  --agent codex \
+  --trials 5 \
+  --task tasks/starter/2048_advanced_snake_params_001.yaml
+```
+
 Useful Codex options:
 
 ```bash
@@ -79,6 +88,15 @@ List trials that have machine-readable metadata:
 ```bash
 python3 -m agentlab trials list
 ```
+
+Summarize trials by suite, task, agent harness, and model:
+
+```bash
+python3 -m agentlab trials summarize
+```
+
+`pass@k` means at least one trial in the group passed. `pass^k` means every trial
+in the group passed.
 
 Attach a human review label to a trial:
 
