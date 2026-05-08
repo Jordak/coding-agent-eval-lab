@@ -53,6 +53,20 @@ Generated task cards and suite indexes are source-adjacent review artifacts, not
 the source of truth. The repo-local pre-commit hook runs the task-card generator
 in `--check` mode so drift is caught before commits.
 
+## Task Environments
+
+Task setup should provision the dependencies needed by the deterministic graders
+and by the obvious self-checks an agent is likely to run. For example, a Python
+task that reasonably invites `pytest` should either make the relevant pytest
+entrypoint available or document that the intended validation scope is the
+listed grader commands.
+
+The current lightweight harness avoids host-global dependency assumptions, but
+task-local virtualenv/package-manager activation still needs a first-class
+design before promoting many upstream Python or JavaScript tasks. Candidate
+curation should record setup cost and whether full upstream tests are available
+inside the trial workspace.
+
 ## Agent Adapters
 
 The manual adapter is the positive/negative-control baseline. It can pause for a
@@ -85,9 +99,10 @@ grader-output excerpts.
 
 Single trials are useful for debugging, but agent evals need repeated trials
 because agent behavior is non-deterministic. `agentlab run --trials N` executes
-multiple independent trials for the same task and agent harness. `agentlab trials
-summarize` groups stored results and reports pass rate, pass@k, pass^k, median
-duration, median changed files, and review-label counts.
+multiple independent trials for the same task and agent harness; `--jobs N`
+controls how many of those trials run concurrently. `agentlab trials summarize`
+groups stored results and reports pass rate, pass@k, pass^k, median duration,
+median changed files, and review-label counts.
 
 See [runtime-accountability.md](runtime-accountability.md) for open work around
 model identity, account context, token usage, and cost tracking.

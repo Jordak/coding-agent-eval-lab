@@ -1,13 +1,36 @@
 import contextlib
 import io
+import tempfile
+import threading
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import patch
 
-from agentlab.cli import _print_run_summaries
+from agentlab.cli import _print_run_summaries, _run_trials, build_parser
 
 
 class CliOutputTest(unittest.TestCase):
+    def test_run_parser_accepts_jobs(self):
+        parser = build_parser()
+
+        args = parser.parse_args(
+            [
+                "run",
+                "--agent",
+                "codex",
+                "--task",
+                "tasks/starter/example",
+                "--trials",
+                "5",
+                "--jobs",
+                "3",
+            ]
+        )
+
+        self.assertEqual(args.trials, 5)
+        self.assertEqual(args.jobs, 3)
+
     def test_run_summary_prints_agent_errors_to_stderr(self):
         evaluation = SimpleNamespace(
             agent_run=SimpleNamespace(
@@ -27,6 +50,45 @@ class CliOutputTest(unittest.TestCase):
 
         self.assertIn("ERROR example-agent: agent executable not found", stderr.getvalue())
         self.assertIn("Status: failed", stdout.getvalue())
+
+    def test_parallel_trials_disable_per_agent_progress(self):
+        lock = threading.Lock()
+        progress_values = []
+
+        def fake_run_task(task, agent, runs_dir):
+            with lock:
+                index = len(progress_values)
+                progress_values.append(agent.config.show_progress)
+            return SimpleNamespace(
+                agent_run=SimpleNamespace(agent_name="codex", error=None),
+                run_dir=Path(runs_dir) / f"run-{index}",
+                report_path=Path(runs_dir) / f"run-{index}" / "report.md",
+                result_path=Path(runs_dir) / f"run-{index}" / "result.json",
+                score=SimpleNamespace(tests_passed=True),
+            )
+
+        with tempfile.TemporaryDirectory() as temp:
+            args = SimpleNamespace(
+                agent="codex",
+                codex_command="codex-test",
+                codex_model=None,
+                codex_profile=None,
+                codex_sandbox="workspace-write",
+                codex_approval="never",
+                codex_timeout_seconds=1,
+                jobs=2,
+                no_pause=True,
+                runs_dir=temp,
+                trials=3,
+            )
+            stdout = io.StringIO()
+
+            with patch("agentlab.cli.run_task", side_effect=fake_run_task):
+                with contextlib.redirect_stdout(stdout):
+                    evaluations = _run_trials(SimpleNamespace(id="task"), args)
+
+        self.assertEqual(len(evaluations), 3)
+        self.assertEqual(progress_values, [False, False, False])
 
 
 if __name__ == "__main__":

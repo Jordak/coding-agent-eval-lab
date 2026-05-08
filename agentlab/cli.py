@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import sys
 import tempfile
+from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from pathlib import Path
 from typing import Iterable, List
 
@@ -18,7 +19,7 @@ from agentlab.results import discover_result_files, load_results
 from agentlab.runner import run_task
 from agentlab.summary import summarize_trials
 from agentlab.tasks import TaskLoadError, discover_task_files, load_task
-from agentlab.terminal import print_error
+from agentlab.terminal import ProgressBar, print_error
 
 
 def main(argv: Iterable[str] | None = None) -> int:
@@ -117,6 +118,12 @@ def build_parser() -> argparse.ArgumentParser:
         type=int,
         default=1,
         help="Number of independent trials to run for this task.",
+    )
+    run_parser.add_argument(
+        "--jobs",
+        type=int,
+        default=1,
+        help="Maximum number of trials to run concurrently.",
     )
     run_parser.add_argument(
         "--no-pause",
@@ -350,14 +357,13 @@ def handle_run(args: argparse.Namespace) -> int:
         task = load_task(args.task)
         if args.trials < 1:
             raise RuntimeError("--trials must be at least 1")
-        evaluations = []
-        for trial_index in range(args.trials):
-            agent = _build_agent(args)
-            if args.trials > 1:
-                print(f"Starting trial {trial_index + 1}/{args.trials}...")
-            evaluations.append(run_task(task, agent, Path(args.runs_dir)))
+        if args.jobs < 1:
+            raise RuntimeError("--jobs must be at least 1")
+        if args.agent == "manual" and not args.no_pause and args.jobs > 1:
+            raise RuntimeError("parallel manual trials require --no-pause")
+        evaluations = _run_trials(task, args)
     except (RuntimeError, TaskLoadError) as exc:
-        print(f"ERROR {exc}", file=sys.stderr)
+        print_error(str(exc))
         return 1
 
     _print_run_summaries(evaluations)
@@ -373,6 +379,95 @@ def handle_run(args: argparse.Namespace) -> int:
     return 0 if passed == len(evaluations) else 1
 
 
+def _run_trials(task: object, args: argparse.Namespace) -> list[object]:
+    runs_dir = Path(args.runs_dir)
+    jobs = min(args.jobs, args.trials)
+    if jobs == 1:
+        evaluations = []
+        for trial_index in range(args.trials):
+            if args.trials > 1:
+                print(f"Starting trial {trial_index + 1}/{args.trials}...")
+            evaluations.append(
+                _run_single_trial(
+                    task=task,
+                    args=args,
+                    runs_dir=runs_dir,
+                    show_agent_progress=True,
+                )
+            )
+        return evaluations
+
+    print(f"Starting {args.trials} trials with {jobs} jobs...")
+    indexed_evaluations = []
+    failures = []
+    with ThreadPoolExecutor(max_workers=jobs) as executor:
+        future_indexes = {}
+        for trial_index in range(args.trials):
+            print(f"Starting trial {trial_index + 1}/{args.trials}...")
+            future = executor.submit(
+                _run_single_trial,
+                task,
+                args,
+                runs_dir,
+                False,
+            )
+            future_indexes[future] = trial_index
+
+        progress = ProgressBar("Trials")
+        pending = set(future_indexes)
+        while pending:
+            done, pending = wait(
+                pending,
+                timeout=progress.interval_seconds,
+                return_when=FIRST_COMPLETED,
+            )
+            if not done:
+                progress.update(f"waiting for {len(pending)} trial(s)")
+                continue
+
+            for future in done:
+                trial_index = future_indexes[future]
+                trial_label = f"trial {trial_index + 1}/{args.trials}"
+                try:
+                    evaluation = future.result()
+                except Exception as exc:
+                    failures.append(f"{trial_label}: {exc}")
+                    continue
+
+                indexed_evaluations.append((trial_index, evaluation))
+                status = "passed" if evaluation.score.tests_passed else "failed"
+                progress.clear()
+                print(
+                    f"Completed {trial_label}: "
+                    f"{status} ({evaluation.run_dir.name})"
+                )
+        progress.finish("all trials finished")
+
+    if failures:
+        raise RuntimeError(
+            "parallel trial failure(s): "
+            + "; ".join(str(failure) for failure in failures)
+        )
+
+    return [
+        evaluation
+        for _trial_index, evaluation in sorted(
+            indexed_evaluations,
+            key=lambda indexed: indexed[0],
+        )
+    ]
+
+
+def _run_single_trial(
+    task: object,
+    args: argparse.Namespace,
+    runs_dir: Path,
+    show_agent_progress: bool,
+) -> object:
+    agent = _build_agent(args, show_progress=show_agent_progress)
+    return run_task(task, agent, runs_dir)
+
+
 def _print_run_summaries(evaluations: list[object]) -> None:
     for evaluation in evaluations:
         if evaluation.agent_run.error:
@@ -386,7 +481,7 @@ def _print_run_summaries(evaluations: list[object]) -> None:
         print(f"Status: {'passed' if evaluation.score.tests_passed else 'failed'}")
 
 
-def _build_agent(args: argparse.Namespace) -> object:
+def _build_agent(args: argparse.Namespace, show_progress: bool = True) -> object:
     if args.agent == "manual":
         return ManualAgentAdapter(pause=not args.no_pause)
     if args.agent == "codex":
@@ -398,6 +493,7 @@ def _build_agent(args: argparse.Namespace) -> object:
                 sandbox=args.codex_sandbox,
                 approval_policy=args.codex_approval,
                 timeout_seconds=args.codex_timeout_seconds,
+                show_progress=show_progress,
             )
         )
     raise RuntimeError(f"unknown agent: {args.agent}")

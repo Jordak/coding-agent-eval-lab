@@ -93,7 +93,7 @@ the manual positive and negative controls.
 That milestone is now complete for Codex CLI. The next step is repeated trials:
 
 ```bash
-python3 -m agentlab run --agent codex --trials 5 --task tasks/starter/2048-advanced-snake-params-001
+python3 -m agentlab run --agent codex --trials 5 --jobs 3 --task tasks/starter/2048-advanced-snake-params-001
 python3 -m agentlab trials summarize
 ```
 

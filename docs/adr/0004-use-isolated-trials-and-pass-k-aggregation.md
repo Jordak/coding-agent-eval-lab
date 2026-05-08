@@ -12,7 +12,9 @@ useful for debugging, but it is not enough to characterize reliability.
 ## Decision
 
 Each `agentlab run` invocation executes one or more independent trials. Every
-trial receives its own run directory and isolated workspace checkout.
+trial receives its own run directory and isolated workspace checkout. Multiple
+trials may run concurrently when the caller passes `--jobs N`, but aggregation
+still treats each trial as an independent attempt.
 
 For multi-trial summaries, group stored results by evaluation suite, eval type,
 task, agent harness, and model. Report:

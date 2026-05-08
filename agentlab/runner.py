@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import time
+import uuid
 from dataclasses import dataclass, replace
 from pathlib import Path
 
@@ -87,4 +88,4 @@ def run_task(task: EvalTask, agent: AgentAdapter, runs_dir: Path) -> EvaluationR
 
 def _run_id(task_id: str, agent_name: str) -> str:
     stamp = time.strftime("%Y%m%d-%H%M%S")
-    return f"{stamp}-{task_id}-{agent_name}"
+    return f"{stamp}-{task_id}-{agent_name}-{uuid.uuid4().hex[:8]}"

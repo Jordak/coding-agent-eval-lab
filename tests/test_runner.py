@@ -6,11 +6,16 @@ import unittest
 from pathlib import Path
 
 from agentlab.agents.manual import ManualAgentAdapter
-from agentlab.runner import run_task
+from agentlab.runner import _run_id, run_task
 from agentlab.tasks import EvalTask, SuccessCriteria
 
 
 class RunnerTest(unittest.TestCase):
+    def test_run_ids_are_unique_for_quick_repeated_trials(self):
+        run_ids = {_run_id("fixture-task", "manual") for _ in range(100)}
+
+        self.assertEqual(len(run_ids), 100)
+
     def test_manual_run_against_local_git_repo(self):
         if shutil.which("git") is None:
             self.skipTest("git is required for workspace preparation")

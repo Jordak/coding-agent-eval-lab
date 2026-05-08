@@ -37,12 +37,15 @@ class ProgressBar:
         stream: TextIO | None = None,
         width: int = 18,
         interval_seconds: float = 0.5,
+        enabled: bool | None = None,
     ):
         self.label = label
         self.stream = stream or sys.stderr
         self.width = width
         self.interval_seconds = interval_seconds
-        self.enabled = hasattr(self.stream, "isatty") and self.stream.isatty()
+        if enabled is None:
+            enabled = hasattr(self.stream, "isatty") and self.stream.isatty()
+        self.enabled = enabled
         self._started_at = time.monotonic()
         self._next_update = 0.0
 

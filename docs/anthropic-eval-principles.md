@@ -48,7 +48,7 @@ January 2026 post, [Demystifying evals for AI agents](https://www.anthropic.com/
 
 - CLI subcommand `run` executes one **trial**.
 - CLI option `run --trials N` executes N independent trials for the same task and
-  agent harness.
+  agent harness; `--jobs N` allows bounded concurrent trial execution.
 - `trials summarize` groups trials by suite, task, agent harness, and model.
 - `pass@k` is 1.0 when at least one trial in the group passed.
 - `pass^k` is 1.0 only when every trial in the group passed.

@@ -23,6 +23,7 @@ class CodexCliConfig:
     sandbox: str = "workspace-write"
     approval_policy: str = "never"
     timeout_seconds: int = 1800
+    show_progress: bool = True
 
 
 class CodexCliAdapter:
@@ -129,7 +130,7 @@ class CodexCliAdapter:
             raise FileNotFoundError(self.config.command)
         command = [executable] + command[1:]
 
-        progress = ProgressBar("Codex")
+        progress = ProgressBar("Codex", enabled=self.config.show_progress)
         progress.update("starting agent process")
         try:
             process = subprocess.Popen(

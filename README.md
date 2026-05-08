@@ -27,7 +27,7 @@ The first scaffold supports:
 - Git checkout preparation, configured command execution, diff capture, and
   Markdown/JSON trial artifacts.
 - Codex CLI and manual agent adapters.
-- Multi-trial execution and pass@k/pass^k summaries.
+- Multi-trial execution, concurrent trial jobs, and pass@k/pass^k summaries.
 - Human review labels using the failure taxonomy.
 - Standard-library unit tests.
 
@@ -78,8 +78,13 @@ Run multiple independent trials:
 python3 -m agentlab run \
   --agent codex \
   --trials 5 \
+  --jobs 3 \
   --task tasks/starter/2048-advanced-snake-params-001
 ```
+
+`--jobs` controls how many trials run at the same time. During parallel runs,
+the terminal shows one aggregate trial progress bar plus trial-level
+start/completion messages instead of per-agent progress bars.
 
 Useful Codex options:
 
