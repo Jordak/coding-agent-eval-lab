@@ -26,6 +26,7 @@ setup:
 environment_path:
   - .agentlab/venv/bin
 environment:
+  PYTHONPATH: "{workspace}/src"
   VIRTUAL_ENV: "{workspace}/.agentlab/venv"
 baseline:
   - python -c 'import click; from click.testing import CliRunner; cli = click.command()(click.option("--point", nargs=2, type=int)(lambda point: click.echo(repr(point)))); result = CliRunner().invoke(cli, [], default_map={"point":"3 4"}); assert result.exit_code != 0, result.output; assert "Value must be an iterable" in result.output, result.output'

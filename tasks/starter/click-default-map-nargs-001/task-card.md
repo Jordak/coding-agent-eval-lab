@@ -25,6 +25,7 @@ In Option.consume_value, when a value comes from default_map and is a string for
 ## Environment
 
 - PATH prepends: `.agentlab/venv/bin`
+- PYTHONPATH={workspace}/src
 - VIRTUAL_ENV={workspace}/.agentlab/venv
 
 ## Graders

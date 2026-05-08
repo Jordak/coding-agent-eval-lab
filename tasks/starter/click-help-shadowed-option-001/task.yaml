@@ -27,6 +27,7 @@ setup:
 environment_path:
   - .agentlab/venv/bin
 environment:
+  PYTHONPATH: "{workspace}/src"
   VIRTUAL_ENV: "{workspace}/.agentlab/venv"
 baseline:
   - python -c 'import click; from click.testing import CliRunner; cli = click.group("cli", context_settings={"help_option_names":["-h","--help"]})(lambda: None); foo = click.command("foo")(click.option("--host","-h")(click.argument("required_arg")(lambda required_arg, host: None))); cli.add_command(foo); result = CliRunner().invoke(cli, ["foo"]); expected = "Try " + chr(39) + "cli foo -h" + chr(39) + " for help."; assert result.exit_code == 2, result.output; assert expected in result.output, result.output'

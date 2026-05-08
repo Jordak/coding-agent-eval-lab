@@ -32,3 +32,6 @@ bundle validation before commits.
 - Put reusable behavior in shared layers. Keep child adapters focused on
   adapter-specific behavior, and move general terminal, reporting, or error
   presentation into common code.
+- When testing a new task, grader, environment setup, or agent-harness behavior,
+  start with one trial and one job (`--trials 1 --jobs 1`). Scale to parallel
+  trial batches only after the single-trial path is known to be fair.
