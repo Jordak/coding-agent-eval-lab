@@ -94,8 +94,8 @@ python3 -m agentlab run \
 The Codex adapter stores `codex-events.jsonl`, `codex-last-message.md`,
 `transcript.md`, `diff.patch`, `report.md`, and `result.json` in the run
 directory. By default it resolves `codex` from `PATH`. If the CLI is installed
-elsewhere, use `--codex-command /path/to/codex` or set
-`AGENTLAB_CODEX_COMMAND=/path/to/codex`.
+outside `PATH`, fix the shell environment or use `--codex-command
+/path/to/codex` for that run.
 
 Reference verification uses the same report/result shape, marked with
 `trial_kind: reference_verification`, and writes `reference-report.md`,

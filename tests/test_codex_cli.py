@@ -31,7 +31,6 @@ class CodexCliAdapterTest(unittest.TestCase):
             assert agent_run.error is not None
             self.assertIn("Codex CLI not found", agent_run.error)
             self.assertIn("--codex-command", agent_run.error)
-            self.assertIn("AGENTLAB_CODEX_COMMAND", agent_run.error)
 
     def test_codex_adapter_runs_command_and_captures_patch(self):
         if shutil.which("git") is None:

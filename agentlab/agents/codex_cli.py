@@ -138,8 +138,8 @@ class CodexCliAdapter:
 def _missing_cli_message(command: str) -> str:
     return (
         f"Codex CLI not found: {command}. Make the executable discoverable on "
-        "PATH, pass --codex-command /path/to/codex, or set "
-        "AGENTLAB_CODEX_COMMAND=/path/to/codex."
+        "PATH, or pass --codex-command /path/to/codex for a nonstandard "
+        "installation."
     )
 
 

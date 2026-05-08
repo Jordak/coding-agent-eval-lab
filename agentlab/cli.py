@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import os
 import sys
 import tempfile
 from pathlib import Path
@@ -125,11 +124,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     run_parser.add_argument(
         "--codex-command",
-        default=os.environ.get("AGENTLAB_CODEX_COMMAND", "codex"),
-        help=(
-            "Codex CLI executable to use when --agent codex. Defaults to "
-            "$AGENTLAB_CODEX_COMMAND or 'codex'."
-        ),
+        default="codex",
+        help="Codex CLI executable to use when --agent codex.",
     )
     run_parser.add_argument(
         "--codex-model",
