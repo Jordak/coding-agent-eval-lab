@@ -8,6 +8,7 @@ from pathlib import Path
 from agentlab.agents.base import AgentAdapter
 from agentlab.agents.base import AgentRun
 from agentlab.commands import run_commands
+from agentlab.environment import build_task_environment
 from agentlab.reporting import render_markdown_report
 from agentlab.scoring import Score
 from agentlab.tasks import EvalTask
@@ -30,11 +31,12 @@ def run_task(task: EvalTask, agent: AgentAdapter, runs_dir: Path) -> EvaluationR
     run_dir.mkdir(parents=True, exist_ok=False)
 
     prepared = prepare_workspace(task, run_dir / "workspace")
-    setup_checks = run_commands(task.setup, prepared.path)
-    baseline_checks = run_commands(task.baseline, prepared.path)
+    task_env = build_task_environment(task, prepared.path)
+    setup_checks = run_commands(task.setup, prepared.path, env=task_env)
+    baseline_checks = run_commands(task.baseline, prepared.path, env=task_env)
 
     agent_run = agent.run(task, prepared.path, run_dir)
-    test_checks = run_commands(task.test, prepared.path)
+    test_checks = run_commands(task.test, prepared.path, env=task_env)
 
     diff_path = run_dir / "diff.patch"
     files_changed = capture_diff(prepared.path, diff_path)

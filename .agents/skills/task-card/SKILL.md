@@ -41,6 +41,16 @@ tasks/<suite>/<task-id>/
 `task.yaml` is the source of truth. `task-card.md` is generated and committed
 next to it. Suite `README.md` files are generated indexes.
 
+When a task needs local tools such as `pytest`, record workspace-relative PATH
+entries and variables in `task.yaml`:
+
+```yaml
+environment_path:
+  - .agentlab/venv/bin
+environment:
+  VIRTUAL_ENV: "{workspace}/.agentlab/venv"
+```
+
 When a task has a verified reference patch or commit, record it in `task.yaml`:
 
 ```yaml

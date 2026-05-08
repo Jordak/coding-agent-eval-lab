@@ -61,11 +61,17 @@ task that reasonably invites `pytest` should either make the relevant pytest
 entrypoint available or document that the intended validation scope is the
 listed grader commands.
 
-The current lightweight harness avoids host-global dependency assumptions, but
-task-local virtualenv/package-manager activation still needs a first-class
-design before promoting many upstream Python or JavaScript tasks. Candidate
-curation should record setup cost and whether full upstream tests are available
-inside the trial workspace.
+Tasks can declare `environment_path` entries to prepend workspace-relative
+directories to `PATH`, and an `environment` mapping for environment variables.
+The runner applies that task-local environment to setup, baseline, agent, and
+target grader commands. This lets a task create `.agentlab/venv` in setup and
+then expose `python`, `pip`, and `pytest` consistently to both the agent and the
+graders.
+
+The current lightweight harness still leaves interpreter/package-manager
+selection inside task setup commands. Candidate curation should record setup
+cost, language runtime requirements, and whether full upstream tests are
+available inside the trial workspace.
 
 ## Agent Adapters
 

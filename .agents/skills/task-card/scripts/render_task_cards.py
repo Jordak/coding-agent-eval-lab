@@ -11,6 +11,7 @@ REPO_ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(REPO_ROOT))
 
 from agentlab.tasks import EvalTask, discover_task_files, load_task  # noqa: E402
+from agentlab.environment import describe_task_environment  # noqa: E402
 
 
 def main(argv: Iterable[str] | None = None) -> int:
@@ -97,6 +98,10 @@ def render_task_card(task: EvalTask) -> str:
         "",
         _reference_artifact_text(task, bundle_dir),
         "",
+        "## Environment",
+        "",
+        _environment_text(task),
+        "",
         "## Graders",
         "",
         "### Setup",
@@ -169,6 +174,13 @@ def _command_list(commands: List[str]) -> str:
     if not commands:
         return "None configured."
     return "\n".join(f"- `{command}`" for command in commands)
+
+
+def _environment_text(task: EvalTask) -> str:
+    lines = describe_task_environment(task)
+    if not lines:
+        return "No task-local environment configured."
+    return "\n".join(f"- {line}" for line in lines)
 
 
 def _inline_code_list(values: List[str]) -> str:

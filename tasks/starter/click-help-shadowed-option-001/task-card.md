@@ -22,20 +22,26 @@ In UsageError.show, derive the available help option names from the current comm
 - Path: `reference.patch`
 - Status: `present`
 
+## Environment
+
+- PATH prepends: `.agentlab/venv/bin`
+- VIRTUAL_ENV={workspace}/.agentlab/venv
+
 ## Graders
 
 ### Setup
 
-- `python3 -c 'import sys; sys.path.insert(0,"src"); import click'`
+- `PYENV_VERSION=3.13.5 python3.13 -m venv .agentlab/venv`
+- `python -m pip install -e . "pytest<9"`
 
 ### Baseline
 
-- `python3 -c 'import sys; sys.path.insert(0,"src"); import click; from click.testing import CliRunner; cli = click.group("cli", context_settings={"help_option_names":["-h","--help"]})(lambda: None); foo = click.command("foo")(click.option("--host","-h")(click.argument("required_arg")(lambda required_arg, host: None))); cli.add_command(foo); result = CliRunner().invoke(cli, ["foo"]); expected = "Try " + chr(39) + "cli foo -h" + chr(39) + " for help."; assert result.exit_code == 2, result.output; assert expected in result.output, result.output'`
+- `python -c 'import click; from click.testing import CliRunner; cli = click.group("cli", context_settings={"help_option_names":["-h","--help"]})(lambda: None); foo = click.command("foo")(click.option("--host","-h")(click.argument("required_arg")(lambda required_arg, host: None))); cli.add_command(foo); result = CliRunner().invoke(cli, ["foo"]); expected = "Try " + chr(39) + "cli foo -h" + chr(39) + " for help."; assert result.exit_code == 2, result.output; assert expected in result.output, result.output'`
 
 ### Target
 
-- `python3 -c 'import sys; sys.path.insert(0,"src"); import click; from click.testing import CliRunner; cli = click.group("cli", context_settings={"help_option_names":["-h","--help"]})(lambda: None); foo = click.command("foo")(click.option("--host","-h")(click.argument("required_arg")(lambda required_arg, host: None))); cli.add_command(foo); runner = CliRunner(); result = runner.invoke(cli, ["foo"]); expected = "Try " + chr(39) + "cli foo --help" + chr(39) + " for help."; bad = "Try " + chr(39) + "cli foo -h" + chr(39) + " for help."; assert result.exit_code == 2, result.output; assert expected in result.output, result.output; assert bad not in result.output, result.output; help_result = runner.invoke(cli, ["foo", "--help"]); assert help_result.exit_code == 0, help_result.output; assert "--help" in help_result.output, help_result.output'`
-- `python3 -c 'import sys; sys.path.insert(0,"src"); import click; from click.testing import CliRunner; cli = click.group("cli", context_settings={"help_option_names":["-h","--help"]})(lambda: None); foo = click.command("foo")(click.option("--host","-h")(click.option("--help-file","--help")(click.argument("required_arg")(lambda required_arg, help_file, host: None)))); cli.add_command(foo); result = CliRunner().invoke(cli, ["foo"]); assert result.exit_code == 2, result.output; assert "Try " not in result.output, result.output'`
+- `python -c 'import click; from click.testing import CliRunner; cli = click.group("cli", context_settings={"help_option_names":["-h","--help"]})(lambda: None); foo = click.command("foo")(click.option("--host","-h")(click.argument("required_arg")(lambda required_arg, host: None))); cli.add_command(foo); runner = CliRunner(); result = runner.invoke(cli, ["foo"]); expected = "Try " + chr(39) + "cli foo --help" + chr(39) + " for help."; bad = "Try " + chr(39) + "cli foo -h" + chr(39) + " for help."; assert result.exit_code == 2, result.output; assert expected in result.output, result.output; assert bad not in result.output, result.output; help_result = runner.invoke(cli, ["foo", "--help"]); assert help_result.exit_code == 0, help_result.output; assert "--help" in help_result.output, help_result.output'`
+- `python -c 'import click; from click.testing import CliRunner; cli = click.group("cli", context_settings={"help_option_names":["-h","--help"]})(lambda: None); foo = click.command("foo")(click.option("--host","-h")(click.option("--help-file","--help")(click.argument("required_arg")(lambda required_arg, help_file, host: None)))); cli.add_command(foo); result = CliRunner().invoke(cli, ["foo"]); assert result.exit_code == 2, result.output; assert "Try " not in result.output, result.output'`
 
 ## Success Criteria
 

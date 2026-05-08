@@ -20,6 +20,10 @@ Illustrative placeholder task only. Replace with a real repo commit and a known 
 
 No verified reference artifact configured yet.
 
+## Environment
+
+No task-local environment configured.
+
 ## Graders
 
 ### Setup

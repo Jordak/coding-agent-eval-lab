@@ -54,6 +54,45 @@ class RunnerTest(unittest.TestCase):
             self.assertTrue(evaluation.agent_run.diff_path.exists())
             self.assertEqual(evaluation.agent_run.files_changed, [])
 
+    def test_task_environment_path_is_used_by_graders(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for workspace preparation")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo = temp_path / "repo"
+            repo.mkdir()
+            self._git(["init"], repo)
+            self._git(["config", "user.email", "agentlab@example.com"], repo)
+            self._git(["config", "user.name", "Agent Lab"], repo)
+            bin_dir = repo / "bin"
+            bin_dir.mkdir()
+            verifier = bin_dir / "verify-local-env"
+            verifier.write_text("#!/bin/sh\necho ok\n", encoding="utf-8")
+            verifier.chmod(0o755)
+            self._git(["add", "bin/verify-local-env"], repo)
+            self._git(["commit", "-m", "initial"], repo)
+            commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+
+            task = EvalTask(
+                id="env-path-task",
+                title="Environment path task",
+                repo=str(repo),
+                commit=commit,
+                language="text",
+                prompt="Do nothing.",
+                environment_path=["bin"],
+                test=["verify-local-env"],
+            )
+
+            evaluation = run_task(
+                task,
+                ManualAgentAdapter(pause=False),
+                temp_path / "runs",
+            )
+
+            self.assertTrue(evaluation.score.tests_passed)
+
     def test_max_files_changed_is_enforced(self):
         if shutil.which("git") is None:
             self.skipTest("git is required for workspace preparation")

@@ -28,21 +28,21 @@ passing reference verification.
   is easy to explain, and standalone inline graders can assert the fix without
   copying the upstream pytest test into the starting repo.
 
-## Strong Candidates
-
 ### Click default_map should split multi-value string defaults
 
+- Status: promoted to `tasks/starter/click-default-map-nargs-001`
 - Repository: <https://github.com/pallets/click>
 - Issue: <https://github.com/pallets/click/issues/2745>
 - PR: <https://github.com/pallets/click/pull/3364>
 - Candidate start commit: `8bd8b4a074c55c03b6eb5666edc44a9c43df38a2`
 - Candidate reference commit: `3a3e0350b6a2ea3e799440d48e779acabcf44de9`
 - Candidate category: Python bugfix / CLI parameter behavior
-- Why promising: real bug, clear behavior, small production fix, good regression
-  surface.
-- Risks / checks: upstream PR includes docs and changelog movement; reference
-  artifact should probably be a trimmed patch focused on `src/click/core.py` and
-  behavioral graders.
+- Notes: promoted with a trimmed production reference patch focused on
+  `src/click/core.py`. Graders assert string splitting for `nargs=2` and tuple
+  option types, unchanged single-value string defaults, and explicit CLI
+  arguments overriding `default_map`.
+
+## Strong Candidates
 
 ### Prettier duplicate dangling comments in experimental ternaries
 

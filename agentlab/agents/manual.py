@@ -4,6 +4,7 @@ import time
 from pathlib import Path
 
 from agentlab.agents.base import AgentRun
+from agentlab.environment import describe_task_environment
 from agentlab.tasks import EvalTask
 
 
@@ -68,6 +69,12 @@ def _print_manual_instructions(task: EvalTask, workspace: Path) -> None:
     print(task.prompt)
     print("")
     print("Edit files in the workspace above. When done, return here and press Enter.")
+    environment_lines = describe_task_environment(task)
+    if environment_lines:
+        print("")
+        print("Task-local environment used by setup, grader, and agent commands:")
+        for line in environment_lines:
+            print(f"- {line}")
     if task.test:
         print("")
         print("Code-based grader assertions that will run after you continue:")

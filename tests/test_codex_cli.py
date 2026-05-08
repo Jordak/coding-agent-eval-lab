@@ -25,7 +25,7 @@ class CodexCliAdapterTest(unittest.TestCase):
                 "  fi\n"
                 "  shift\n"
                 "done\n"
-                "printf 'Done.\\n' > \"$last\"\n"
+                "printf 'Done %s.\\n' \"$AGENTLAB_TEST_SENTINEL\" > \"$last\"\n"
                 "printf '{\"type\":\"done\"}\\n'\n",
                 encoding="utf-8",
             )
@@ -37,6 +37,7 @@ class CodexCliAdapterTest(unittest.TestCase):
                 commit="unused",
                 language="text",
                 prompt="No-op.",
+                environment={"AGENTLAB_TEST_SENTINEL": "from-env"},
             )
             adapter = CodexCliAdapter(
                 CodexCliConfig(command=str(fake_codex), timeout_seconds=5)
@@ -55,7 +56,7 @@ class CodexCliAdapterTest(unittest.TestCase):
                 (temp_path / "run" / "codex-last-message.md").read_text(
                     encoding="utf-8"
                 ),
-                "Done.\n",
+                "Done from-env.\n",
             )
 
     def test_missing_codex_cli_error_points_to_portable_configuration(self):

@@ -1,0 +1,51 @@
+id: click-default-map-nargs-001
+title: Click should split default_map strings for multi-value options
+repo: https://github.com/pallets/click.git
+commit: 8bd8b4a074c55c03b6eb5666edc44a9c43df38a2
+language: python
+suite: starter-coding
+eval_type: regression
+prompt: >
+  Fix Click's handling of string values supplied through default_map for
+  multi-value parameters. When default_map provides a string for an option with
+  nargs greater than 1, or for a tuple option type, Click should split the
+  string the same way it splits environment variable values. Already-structured
+  list or tuple values should still pass through unchanged, single-value string
+  defaults should not be split, and explicit CLI arguments should still override
+  default_map. Keep the production patch focused.
+reference_solution: >
+  In Option.consume_value, when a value comes from default_map and is a string
+  for a multi-value parameter, split it with the parameter type's existing
+  environment-variable splitting behavior before type conversion.
+reference_artifact:
+  type: patch
+  path: reference.patch
+setup:
+  - PYENV_VERSION=3.13.5 python3.13 -m venv .agentlab/venv
+  - python -m pip install -e . "pytest<9"
+environment_path:
+  - .agentlab/venv/bin
+environment:
+  VIRTUAL_ENV: "{workspace}/.agentlab/venv"
+baseline:
+  - python -c 'import click; from click.testing import CliRunner; cli = click.command()(click.option("--point", nargs=2, type=int)(lambda point: click.echo(repr(point)))); result = CliRunner().invoke(cli, [], default_map={"point":"3 4"}); assert result.exit_code != 0, result.output; assert "Value must be an iterable" in result.output, result.output'
+test:
+  - python -c 'import ast, click; from click.testing import CliRunner; cli = click.command()(click.option("--point", nargs=2, type=int)(lambda point: click.echo(repr(point)))); runner = CliRunner(); result = runner.invoke(cli, [], default_map={"point":"3 4"}); assert result.exit_code == 0, result.output; assert ast.literal_eval(result.output.strip()) == (3, 4), result.output; override = runner.invoke(cli, ["--point", "10", "20"], default_map={"point":"3 4"}); assert override.exit_code == 0, override.output; assert ast.literal_eval(override.output.strip()) == (10, 20), override.output'
+  - python -c 'import ast, click; from click.testing import CliRunner; cli = click.command()(click.option("--word-pair", type=(str, str))(lambda word_pair: click.echo(repr(word_pair)))); result = CliRunner().invoke(cli, [], default_map={"word_pair":"hello world"}); assert result.exit_code == 0, result.output; assert ast.literal_eval(result.output.strip()) == ("hello", "world"), result.output'
+  - python -c 'import click; from click.testing import CliRunner; cli = click.command()(click.option("--name")(lambda name: click.echo(name))); result = CliRunner().invoke(cli, [], default_map={"name":"hello world"}); assert result.exit_code == 0, result.output; assert result.output.strip() == "hello world", result.output'
+success:
+  tests_must_pass: true
+  max_files_changed: 2
+tags:
+  - bugfix
+  - python
+  - cli
+  - default-map
+  - real-issue
+failure_modes:
+  - context_miss
+  - spec_misread
+  - bad_local_fix
+  - test_gap
+  - over_edit
+  - resource_inefficient

@@ -7,6 +7,7 @@ from pathlib import Path
 
 from agentlab.commands import run_commands
 from agentlab.commands import run_git
+from agentlab.environment import build_task_environment
 from agentlab.reporting import render_reference_report
 from agentlab.results import reference_verification_to_result_dict
 from agentlab.scoring import CheckResult
@@ -59,8 +60,9 @@ def verify_reference(
         )
 
     prepared = prepare_workspace(task, workspace_root)
-    setup_checks = run_commands(task.setup, prepared.path)
-    baseline_checks = run_commands(task.baseline, prepared.path)
+    task_env = build_task_environment(task, prepared.path)
+    setup_checks = run_commands(task.setup, prepared.path, env=task_env)
+    baseline_checks = run_commands(task.baseline, prepared.path, env=task_env)
 
     if artifact.type == "patch":
         artifact_check = _apply_patch_artifact(task, prepared.path)
@@ -71,7 +73,7 @@ def verify_reference(
             f"unsupported reference artifact type: {artifact.type}"
         )
 
-    target_checks = run_commands(task.test, prepared.path)
+    target_checks = run_commands(task.test, prepared.path, env=task_env)
     output_dir = _reference_output_dir(task, workspace_root, write_artifacts)
     diff_path = output_dir / "reference.diff"
     files_changed = _reference_files_changed(task, prepared.path, diff_path)

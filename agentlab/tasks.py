@@ -44,6 +44,8 @@ class EvalTask:
     setup: List[str] = field(default_factory=list)
     baseline: List[str] = field(default_factory=list)
     test: List[str] = field(default_factory=list)
+    environment_path: List[str] = field(default_factory=list)
+    environment: Dict[str, str] = field(default_factory=dict)
     success: SuccessCriteria = field(default_factory=SuccessCriteria)
     tags: List[str] = field(default_factory=list)
     failure_modes: List[str] = field(default_factory=list)
@@ -105,6 +107,14 @@ class EvalTask:
             setup=_string_list(mapping.get("setup", []), "setup"),
             baseline=_string_list(mapping.get("baseline", []), "baseline"),
             test=_string_list(mapping.get("test", []), "test"),
+            environment_path=_environment_path(
+                mapping.get("environment_path", []),
+                "environment_path",
+            ),
+            environment=_string_mapping(
+                mapping.get("environment", {}),
+                "environment",
+            ),
             success=success,
             tags=_string_list(mapping.get("tags", []), "tags"),
             failure_modes=failure_modes,
@@ -356,6 +366,27 @@ def _string_list(value: Any, field_name: str) -> List[str]:
     if not all(isinstance(item, (str, int, float)) for item in value):
         raise TaskLoadError(f"{field_name} must contain only scalar values")
     return [str(item) for item in value]
+
+
+def _environment_path(value: Any, field_name: str) -> List[str]:
+    entries = _string_list(value, field_name)
+    for entry in entries:
+        _validate_relative_path(entry, field_name)
+    return entries
+
+
+def _string_mapping(value: Any, field_name: str) -> Dict[str, str]:
+    if value is None:
+        return {}
+    mapping = _mapping(value, field_name)
+    parsed: Dict[str, str] = {}
+    for key, raw_value in mapping.items():
+        if not isinstance(key, str) or not key:
+            raise TaskLoadError(f"{field_name} keys must be non-empty strings")
+        if raw_value is None or not isinstance(raw_value, (str, int, float)):
+            raise TaskLoadError(f"{field_name}.{key} must be a scalar value")
+        parsed[key] = str(raw_value)
+    return parsed
 
 
 def _optional_int(value: Any, field_name: str) -> Optional[int]:

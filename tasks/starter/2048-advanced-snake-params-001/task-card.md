@@ -22,6 +22,10 @@ In simulation.py, persist params when args.heuristic is advanced-snake instead o
 - Path: `reference.patch`
 - Status: `present`
 
+## Environment
+
+No task-local environment configured.
+
 ## Graders
 
 ### Setup

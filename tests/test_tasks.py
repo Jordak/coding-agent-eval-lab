@@ -38,6 +38,10 @@ class TaskLoadingTest(unittest.TestCase):
                       - pytest
                     test:
                       - pytest tests/test_demo.py
+                    environment_path:
+                      - .agentlab/venv/bin
+                    environment:
+                      VIRTUAL_ENV: "{workspace}/.agentlab/venv"
                     success:
                       tests_must_pass: true
                       max_files_changed: 2
@@ -64,6 +68,11 @@ class TaskLoadingTest(unittest.TestCase):
         self.assertEqual(task.reference_artifact.commit, "def456")
         self.assertEqual(task.prompt, "Fix the small bug.")
         self.assertEqual(task.setup, ["python -m pip install -e ."])
+        self.assertEqual(task.environment_path, [".agentlab/venv/bin"])
+        self.assertEqual(
+            task.environment,
+            {"VIRTUAL_ENV": "{workspace}/.agentlab/venv"},
+        )
         self.assertEqual(task.failure_modes, ["context_miss", "resource_inefficient"])
         self.assertTrue(task.success.tests_must_pass)
         self.assertEqual(task.success.max_files_changed, 2)
@@ -131,6 +140,20 @@ class TaskLoadingTest(unittest.TestCase):
                 }
             )
 
+    def test_rejects_environment_path_outside_workspace(self):
+        with self.assertRaises(TaskLoadError):
+            EvalTask.from_mapping(
+                {
+                    "id": "demo-001",
+                    "title": "Demo task",
+                    "repo": "https://github.com/example/demo",
+                    "commit": "abc123",
+                    "language": "python",
+                    "prompt": "Fix it.",
+                    "environment_path": ["../bin"],
+                }
+            )
+
     def test_loads_reference_patch_from_task_bundle(self):
         with tempfile.TemporaryDirectory() as temp:
             bundle = Path(temp) / "demo-task"
@@ -194,6 +217,7 @@ class TaskLoadingTest(unittest.TestCase):
             [path.as_posix() for path in files],
             [
                 "tasks/starter/2048-advanced-snake-params-001/task.yaml",
+                "tasks/starter/click-default-map-nargs-001/task.yaml",
                 "tasks/starter/click-help-shadowed-option-001/task.yaml",
                 "tasks/starter/python-bugfix-001/task.yaml",
             ],

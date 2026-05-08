@@ -8,6 +8,8 @@ from pathlib import Path
 from typing import Callable, List, Optional
 
 from agentlab.agents.base import AgentRun
+from agentlab.environment import build_task_environment
+from agentlab.environment import describe_task_environment
 from agentlab.terminal import ProgressBar
 from agentlab.tasks import EvalTask
 
@@ -47,11 +49,16 @@ class CodexCliAdapter:
 
         prompt = _build_prompt(task)
         command = self._build_command(workspace, last_message_path, prompt)
+        task_env = build_task_environment(task, workspace)
 
         error = None
         completed: subprocess.CompletedProcess[str] | None = None
         try:
-            completed = self._run_command(command, self.config.timeout_seconds)
+            completed = self._run_command(
+                command,
+                self.config.timeout_seconds,
+                env=task_env,
+            )
         except FileNotFoundError:
             error = _missing_cli_message(self.config.command)
         except subprocess.TimeoutExpired as exc:
@@ -121,6 +128,7 @@ class CodexCliAdapter:
         self,
         command: List[str],
         timeout_seconds: int,
+        env: dict[str, str] | None = None,
     ) -> subprocess.CompletedProcess[str]:
         if self._command_runner:
             return self._command_runner(command, timeout_seconds)
@@ -138,6 +146,7 @@ class CodexCliAdapter:
                 text=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
+                env=env,
             )
         except Exception:
             progress.clear()
@@ -195,6 +204,15 @@ def _build_prompt(task: EvalTask) -> str:
     if task.test:
         lines.extend(["Validation commands that will be run after you finish:"])
         lines.extend(f"- {command}" for command in task.test)
+        lines.append("")
+    environment_lines = describe_task_environment(task)
+    if environment_lines:
+        lines.extend(
+            [
+                "Task-local environment used by setup, grader, and agent commands:",
+            ]
+        )
+        lines.extend(f"- {line}" for line in environment_lines)
         lines.append("")
     if task.success.max_files_changed is not None:
         lines.append(f"Expected max files changed: {task.success.max_files_changed}")
