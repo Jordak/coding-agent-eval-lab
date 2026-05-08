@@ -72,6 +72,13 @@ The project is evaluation infrastructure, not a general coding assistant or IDE.
 - **Human review outcome**: the human-approved quality judgment for a trial,
   recorded with review labels, notes, and evidence. It can disagree with or add
   nuance to the grader outcome.
+- **Trial validity**: human-review metadata indicating whether a trial is fair to
+  count in capability summaries. Valid trials count toward pass rate, pass@k,
+  pass^k, and median outcome metrics.
+- **Excluded trial**: a stored trial whose raw artifacts remain inspectable but
+  whose result is omitted from fair capability metrics because the attempt was
+  invalidated by setup, harness, operator, task-definition, or dependency
+  problems.
 - **Outcome evidence**: structured facts used to support an outcome or human
   review, such as changed files, lines added/deleted, commands run, duration,
   token usage, cost, diff excerpts, transcript/trace excerpts, and grader output.
@@ -140,4 +147,5 @@ The project is evaluation infrastructure, not a general coding assistant or IDE.
 - Trial artifacts include `report.md`, `result.json`, `diff.patch`, and an
   adapter-specific transcript or trace.
 - Multi-trial summaries group by suite, eval type, task, agent harness, and
-  model, then report pass rate, pass@k, and pass^k.
+  model, then report fair-trial pass rate, pass@k, pass^k, and excluded-trial
+  counts.

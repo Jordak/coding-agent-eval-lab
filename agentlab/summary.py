@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from statistics import median
 from typing import Any, Dict, Iterable, List, Tuple
 
+from agentlab.validity import exclusion_reason, trial_is_valid
+
 
 @dataclass(frozen=True)
 class TrialGroupSummary:
@@ -13,7 +15,9 @@ class TrialGroupSummary:
     task_id: str
     agent_name: str
     model_name: str
+    total_trials: int
     trials: int
+    excluded_trials: int
     passes: int
     pass_rate: float
     pass_at_k: float
@@ -21,6 +25,7 @@ class TrialGroupSummary:
     median_duration_ms: int
     median_files_changed: float
     review_labels: Dict[str, int]
+    exclusion_reasons: Dict[str, int]
 
 
 def summarize_trials(results: Iterable[Dict[str, Any]]) -> List[TrialGroupSummary]:
@@ -49,15 +54,22 @@ def _summarize_group(
     key: Tuple[str, str, str, str, str],
     results: List[Dict[str, Any]],
 ) -> TrialGroupSummary:
-    passes = sum(1 for result in results if bool(result.get("success")))
-    trials = len(results)
-    durations = [int(result.get("duration_ms") or 0) for result in results]
+    valid_results = [result for result in results if trial_is_valid(result)]
+    excluded_results = [result for result in results if not trial_is_valid(result)]
+    passes = sum(1 for result in valid_results if bool(result.get("success")))
+    trials = len(valid_results)
+    durations = [int(result.get("duration_ms") or 0) for result in valid_results]
     files_changed = [
         len(result.get("files_changed") or [])
-        for result in results
+        for result in valid_results
     ]
     review_labels = Counter(
-        label for result in results for label in [_review_label(result)] if label
+        label for result in valid_results for label in [_review_label(result)] if label
+    )
+    exclusion_reasons = Counter(
+        reason
+        for result in excluded_results
+        for reason in [exclusion_reason(result) or "unknown"]
     )
     eval_suite, eval_type, task_id, agent_name, model_name = key
     pass_rate = passes / trials if trials else 0.0
@@ -67,7 +79,9 @@ def _summarize_group(
         task_id=task_id,
         agent_name=agent_name,
         model_name=model_name,
+        total_trials=len(results),
         trials=trials,
+        excluded_trials=len(excluded_results),
         passes=passes,
         pass_rate=pass_rate,
         pass_at_k=1.0 if passes > 0 else 0.0,
@@ -75,6 +89,7 @@ def _summarize_group(
         median_duration_ms=int(median(durations)) if durations else 0,
         median_files_changed=median(files_changed) if files_changed else 0.0,
         review_labels=dict(sorted(review_labels.items())),
+        exclusion_reasons=dict(sorted(exclusion_reasons.items())),
     )
 
 

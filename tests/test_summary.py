@@ -43,6 +43,35 @@ class SummaryTest(unittest.TestCase):
 
         self.assertEqual(len(summaries), 3)
 
+    def test_excludes_invalid_trials_from_pass_metrics(self):
+        results = [
+            self._result(success=True, duration_ms=100, files_changed=["a.py"]),
+            self._result(
+                success=False,
+                duration_ms=999,
+                files_changed=["a.py", "b.py", "c.py"],
+                review={
+                    "primary_label": "dependency_issue",
+                    "trial_validity": "excluded",
+                    "exclusion_reason": "setup_error",
+                },
+            ),
+        ]
+
+        summary = summarize_trials(results)[0]
+
+        self.assertEqual(summary.total_trials, 2)
+        self.assertEqual(summary.trials, 1)
+        self.assertEqual(summary.excluded_trials, 1)
+        self.assertEqual(summary.passes, 1)
+        self.assertEqual(summary.pass_rate, 1.0)
+        self.assertEqual(summary.pass_at_k, 1.0)
+        self.assertEqual(summary.pass_caret_k, 1.0)
+        self.assertEqual(summary.median_duration_ms, 100)
+        self.assertEqual(summary.median_files_changed, 1)
+        self.assertEqual(summary.review_labels, {})
+        self.assertEqual(summary.exclusion_reasons, {"setup_error": 1})
+
     def _result(
         self,
         success=True,
@@ -51,6 +80,7 @@ class SummaryTest(unittest.TestCase):
         task_id="task-a",
         agent_name="codex",
         model_name="m1",
+        review=None,
     ):
         return {
             "eval_suite": "starter",
@@ -61,6 +91,7 @@ class SummaryTest(unittest.TestCase):
             "success": success,
             "duration_ms": duration_ms,
             "files_changed": files_changed or [],
+            "review": review,
         }
 
 

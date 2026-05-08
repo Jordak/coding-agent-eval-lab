@@ -42,8 +42,9 @@ to task-environment configuration, not the candidate patches: post-agent
 graders failed with `ModuleNotFoundError: No module named 'click'` because the
 task environment did not yet set `PYTHONPATH={workspace}/src`.
 
-Those five runs were reviewed locally as `dependency_issue` so summaries show
-the reason for exclusion.
+Those five runs should be reviewed as `dependency_issue` with trial validity
+`excluded` and exclusion reason `setup_error`, so summaries show the reason for
+exclusion without counting them in fair capability metrics.
 
 ## Observations
 
@@ -58,8 +59,8 @@ the reason for exclusion.
 
 ## Next Steps
 
-- Add an explicit invalid/excluded trial state so dependency-issue runs do not
-  distort pass-rate summaries.
+- Use explicit trial-validity review metadata for dependency-issue runs so they
+  do not distort pass-rate summaries.
 - After a single-trial smoke test passes for any new task or environment change,
   run bounded repeated trials and report pass@k/pass^k.
 - Add human review labels for the two passing Click trials after inspecting

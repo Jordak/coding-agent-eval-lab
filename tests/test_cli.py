@@ -31,6 +31,27 @@ class CliOutputTest(unittest.TestCase):
         self.assertEqual(args.trials, 5)
         self.assertEqual(args.jobs, 3)
 
+    def test_review_parser_accepts_excluded_trial_validity(self):
+        parser = build_parser()
+
+        args = parser.parse_args(
+            [
+                "review",
+                "--run",
+                "runs/example",
+                "--label",
+                "dependency_issue",
+                "--note",
+                "Task setup failed before the agent acted.",
+                "--exclude",
+                "--exclusion-reason",
+                "setup_error",
+            ]
+        )
+
+        self.assertTrue(args.exclude)
+        self.assertEqual(args.exclusion_reason, "setup_error")
+
     def test_run_summary_is_quiet_when_all_trials_pass(self):
         evaluation = SimpleNamespace(
             agent_run=SimpleNamespace(

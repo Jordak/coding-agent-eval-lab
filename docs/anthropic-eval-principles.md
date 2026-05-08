@@ -8,6 +8,8 @@ January 2026 post, [Demystifying evals for AI agents](https://www.anthropic.com/
 - **Task**: one test case with defined inputs and success criteria.
 - **Trial**: one attempt at a task by an agent harness. Because agent behavior is
   non-deterministic, publishable comparisons should run multiple trials per task.
+- **Fair trial**: a trial whose setup, harness, task definition, and operator
+  conditions are valid enough to count in aggregate capability metrics.
 - **Grader**: logic that scores an aspect of performance. Code-based graders are
   the default for coding tasks; model-based and human graders are added when they
   provide signal that deterministic checks cannot.
@@ -36,6 +38,9 @@ January 2026 post, [Demystifying evals for AI agents](https://www.anthropic.com/
   unless tool behavior is the thing under evaluation.
 - Use transcript review to check whether failures are fair and whether graders
   rejected a valid solution.
+- Exclude invalid trials from capability metrics only with an explicit
+  human-review validity judgment and a recorded exclusion reason. Keep the raw
+  artifacts inspectable.
 - Track capability suites separately from regression suites.
 - Run multiple trials when comparing non-deterministic agents, then report
   pass@k or pass^k depending on whether the product values one successful attempt
@@ -50,9 +55,12 @@ January 2026 post, [Demystifying evals for AI agents](https://www.anthropic.com/
 - CLI option `run --trials N` executes N independent trials for the same task and
   agent harness; `--jobs N` allows bounded concurrent trial execution.
 - `trials summarize` groups trials by suite, task, agent harness, and model.
-- `pass@k` is 1.0 when at least one trial in the group passed.
-- `pass^k` is 1.0 only when every trial in the group passed.
+- `pass@k` is 1.0 when at least one fair trial in the group passed.
+- `pass^k` is 1.0 only when every fair trial in the group passed.
 - `result.json` includes both legacy `run_id` and preferred `trial_id`.
+- Human review may mark a trial as `valid` or `excluded`. Excluded trials are
+  reported separately and omitted from fair pass-rate, pass@k, and pass^k
+  calculations.
 - Existing `runs` commands remain for compatibility; new docs should prefer
   `trials`.
 - Task bundles should set `suite`, `eval_type`, and reference metadata in

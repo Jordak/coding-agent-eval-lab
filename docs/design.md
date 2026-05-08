@@ -96,6 +96,13 @@ The project keeps the deterministic **grader outcome** separate from the
 **human review outcome**. A trial can pass code-based graders and still receive a
 human review label such as `success_messy`, `over_edit`, or `test_gap`.
 
+Human review also records **trial validity**. A valid trial is fair to count in
+capability summaries. An excluded trial keeps its raw artifacts and review
+evidence, but its pass/fail result is removed from fair pass-rate, pass@k,
+pass^k, and median outcome metrics. Exclusion reasons use a small vocabulary:
+`dependency_issue`, `harness_error`, `setup_error`, `operator_error`,
+`invalid_task`, and `unknown`.
+
 Human review should be backed by structured **outcome evidence** where possible:
 edit size metrics such as files changed and lines added/deleted, resource usage
 metrics such as duration, tokens, and cost, plus targeted diff, transcript, and
@@ -107,8 +114,9 @@ Single trials are useful for debugging, but agent evals need repeated trials
 because agent behavior is non-deterministic. `agentlab run --trials N` executes
 multiple independent trials for the same task and agent harness; `--jobs N`
 controls how many of those trials run concurrently. `agentlab trials summarize`
-groups stored results and reports pass rate, pass@k, pass^k, median duration,
-median changed files, and review-label counts.
+groups stored results and reports total trials, fair trials, excluded trials,
+fair-trial pass rate, pass@k, pass^k, median duration, median changed files,
+review-label counts, and exclusion-reason counts.
 
 See [runtime-accountability.md](runtime-accountability.md) for open work around
 model identity, account context, token usage, and cost tracking.

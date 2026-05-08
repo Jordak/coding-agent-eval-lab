@@ -14,12 +14,20 @@ from agentlab.reference import (
     ReferenceVerificationError,
     verify_reference,
 )
-from agentlab.review import FAILURE_LABELS, resolve_run_dir, write_review
+from agentlab.review import FAILURE_LABELS, load_review, resolve_run_dir, write_review
 from agentlab.results import discover_result_files, load_results
 from agentlab.runner import run_task
 from agentlab.summary import summarize_trials
 from agentlab.tasks import TaskLoadError, discover_task_files, load_task
 from agentlab.terminal import ProgressBar, print_error
+from agentlab.validity import (
+    DEFAULT_TRIAL_VALIDITY,
+    EXCLUDED_TRIAL_VALIDITY,
+    EXCLUSION_REASONS,
+    TRIAL_VALIDITIES,
+    exclusion_reason,
+    trial_validity,
+)
 
 
 def main(argv: Iterable[str] | None = None) -> int:
@@ -249,6 +257,23 @@ def build_parser() -> argparse.ArgumentParser:
         action="append",
         default=[],
         help="Evidence such as a failing command, diff hunk, or transcript excerpt.",
+    )
+    review_parser.add_argument(
+        "--validity",
+        default=None,
+        choices=TRIAL_VALIDITIES,
+        help="Whether this trial should count in fair capability summaries.",
+    )
+    review_parser.add_argument(
+        "--exclude",
+        action="store_true",
+        help="Mark this trial as excluded from fair capability summaries.",
+    )
+    review_parser.add_argument(
+        "--exclusion-reason",
+        default=None,
+        choices=EXCLUSION_REASONS,
+        help="Reason an excluded trial should not count in fair summaries.",
     )
     review_parser.set_defaults(handler=handle_review)
 
@@ -515,7 +540,9 @@ def handle_runs_list(args: argparse.Namespace) -> int:
             result.get("eval_suite", ""),
             result.get("eval_type", ""),
             result.get("status", ""),
+            trial_validity(result),
             _review_label(result),
+            exclusion_reason(result),
             result.get("agent_name", ""),
             result.get("task_id", ""),
             str(len(result.get("files_changed", []))),
@@ -523,7 +550,18 @@ def handle_runs_list(args: argparse.Namespace) -> int:
         for result in results
     ]
     _print_table(
-        ["trial_id", "suite", "type", "status", "review", "agent", "task", "files"],
+        [
+            "trial_id",
+            "suite",
+            "type",
+            "status",
+            "validity",
+            "review",
+            "exclusion",
+            "agent",
+            "task",
+            "files",
+        ],
         rows,
     )
     return 0
@@ -545,7 +583,9 @@ def handle_trials_summarize(args: argparse.Namespace) -> int:
                 summary.task_id,
                 summary.agent_name,
                 summary.model_name,
+                str(summary.total_trials),
                 str(summary.trials),
+                str(summary.excluded_trials),
                 str(summary.passes),
                 _format_rate(summary.pass_rate),
                 _format_rate(summary.pass_at_k),
@@ -553,6 +593,7 @@ def handle_trials_summarize(args: argparse.Namespace) -> int:
                 str(summary.median_duration_ms),
                 str(summary.median_files_changed),
                 _format_review_labels(summary.review_labels),
+                _format_review_labels(summary.exclusion_reasons),
             ]
         )
     _print_table(
@@ -562,7 +603,9 @@ def handle_trials_summarize(args: argparse.Namespace) -> int:
             "task",
             "agent",
             "model",
-            "trials",
+            "total",
+            "fair",
+            "excluded",
             "passes",
             "pass_rate",
             "pass@k",
@@ -570,6 +613,7 @@ def handle_trials_summarize(args: argparse.Namespace) -> int:
             "med_ms",
             "med_files",
             "reviews",
+            "exclusions",
         ],
         rows,
     )
@@ -579,18 +623,29 @@ def handle_trials_summarize(args: argparse.Namespace) -> int:
 def handle_review(args: argparse.Namespace) -> int:
     try:
         run_dir = resolve_run_dir(Path(args.runs_dir), args.run)
+        validity = args.validity or DEFAULT_TRIAL_VALIDITY
+        if args.exclude:
+            if args.validity == DEFAULT_TRIAL_VALIDITY:
+                raise ValueError("--exclude conflicts with --validity valid")
+            validity = EXCLUDED_TRIAL_VALIDITY
         review_path = write_review(
             run_dir,
             primary_label=args.label,
             note=args.note,
             secondary_labels=args.secondary,
             evidence=args.evidence,
+            trial_validity=validity,
+            exclusion_reason=args.exclusion_reason,
         )
     except (OSError, ValueError, FileNotFoundError) as exc:
         print(f"ERROR {exc}", file=sys.stderr)
         return 1
 
+    review = load_review(run_dir) or {}
     print(f"Review: {review_path}")
+    print(f"Validity: {review.get('trial_validity', validity)}")
+    if review.get("trial_validity") == EXCLUDED_TRIAL_VALIDITY:
+        print(f"Exclusion: {review.get('exclusion_reason', 'unknown')}")
     return 0
 
 
@@ -622,11 +677,12 @@ def _print_failed_reference_checks(verification: ReferenceVerification) -> None:
 def _review_label(result: object) -> str:
     if not isinstance(result, dict):
         return ""
+    review = result.get("review")
+    if isinstance(review, dict):
+        return str(review.get("primary_label", ""))
     run_dir = result.get("run_dir")
     if not run_dir:
         return ""
-    from agentlab.review import load_review
-
     review = load_review(Path(str(run_dir)))
     if not review:
         return ""

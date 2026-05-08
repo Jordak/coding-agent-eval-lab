@@ -6,6 +6,7 @@ from typing import Any, Dict, Iterable, List
 
 from agentlab.scoring import CheckResult
 from agentlab.review import load_review
+from agentlab.validity import DEFAULT_TRIAL_VALIDITY
 
 
 def write_result_json(run: Any) -> None:
@@ -31,6 +32,8 @@ def to_result_dict(run: Any) -> Dict[str, Any]:
         "model_name": run.agent_run.model_name,
         "status": "passed" if run.score.tests_passed else "failed",
         "success": run.score.tests_passed,
+        "trial_validity": DEFAULT_TRIAL_VALIDITY,
+        "exclusion_reason": None,
         "outcome": {
             "status": "passed" if run.score.tests_passed else "failed",
             "files_changed": run.agent_run.files_changed,
@@ -70,6 +73,8 @@ def reference_verification_to_result_dict(verification: Any) -> Dict[str, Any]:
         "model_name": None,
         "status": status,
         "success": verification.success,
+        "trial_validity": DEFAULT_TRIAL_VALIDITY,
+        "exclusion_reason": None,
         "outcome": {
             "status": status,
             "files_changed": verification.files_changed,
@@ -112,6 +117,14 @@ def load_results(paths: Iterable[Path]) -> List[Dict[str, Any]]:
         review = load_review(run_dir)
         if review:
             result["review"] = review
+            result["trial_validity"] = review.get(
+                "trial_validity",
+                result.get("trial_validity", DEFAULT_TRIAL_VALIDITY),
+            )
+            result["exclusion_reason"] = review.get(
+                "exclusion_reason",
+                result.get("exclusion_reason"),
+            )
         results.append(result)
     return results
 

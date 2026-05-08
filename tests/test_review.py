@@ -1,3 +1,4 @@
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -23,11 +24,68 @@ class ReviewTest(unittest.TestCase):
             assert review is not None
             self.assertEqual(review["primary_label"], "success_clean")
             self.assertEqual(review["secondary_labels"], ["resource_inefficient"])
+            self.assertEqual(review["trial_validity"], "valid")
+            self.assertIsNone(review["exclusion_reason"])
 
     def test_rejects_unknown_label(self):
         with tempfile.TemporaryDirectory() as temp:
             with self.assertRaises(ValueError):
                 write_review(Path(temp), "not_a_label", "bad label")
+
+    def test_excluded_review_requires_exclusion_reason(self):
+        with tempfile.TemporaryDirectory() as temp:
+            with self.assertRaises(ValueError):
+                write_review(
+                    Path(temp),
+                    primary_label="spec_misread",
+                    note="Not a fair task run.",
+                    trial_validity="excluded",
+                )
+
+    def test_excluded_review_defaults_dependency_issue_reason(self):
+        with tempfile.TemporaryDirectory() as temp:
+            run_dir = Path(temp)
+
+            write_review(
+                run_dir,
+                primary_label="dependency_issue",
+                note="The task environment was missing PYTHONPATH.",
+                trial_validity="excluded",
+            )
+
+            review = load_review(run_dir)
+            self.assertIsNotNone(review)
+            assert review is not None
+            self.assertEqual(review["trial_validity"], "excluded")
+            self.assertEqual(review["exclusion_reason"], "dependency_issue")
+
+    def test_review_updates_result_validity_metadata(self):
+        with tempfile.TemporaryDirectory() as temp:
+            run_dir = Path(temp)
+            result_path = run_dir / "result.json"
+            result_path.write_text(
+                json.dumps(
+                    {
+                        "trial_id": "trial-1",
+                        "trial_validity": "valid",
+                        "exclusion_reason": None,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            write_review(
+                run_dir,
+                primary_label="dependency_issue",
+                note="The dependency install failed before the agent acted.",
+                trial_validity="excluded",
+                exclusion_reason="setup_error",
+            )
+
+            result = json.loads(result_path.read_text(encoding="utf-8"))
+            self.assertEqual(result["trial_validity"], "excluded")
+            self.assertEqual(result["exclusion_reason"], "setup_error")
+            self.assertEqual(result["review"]["primary_label"], "dependency_issue")
 
     def test_resolves_latest_run(self):
         with tempfile.TemporaryDirectory() as temp:

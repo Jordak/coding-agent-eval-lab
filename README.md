@@ -29,7 +29,7 @@ The first scaffold supports:
   Markdown/JSON trial artifacts.
 - Codex CLI and manual agent adapters.
 - Multi-trial execution, concurrent trial jobs, and pass@k/pass^k summaries.
-- Human review labels using the failure taxonomy.
+- Human review labels, trial-validity metadata, and excluded-trial summaries.
 - Standard-library unit tests.
 
 ## Quick Start
@@ -123,13 +123,25 @@ Summarize trials by suite, task, agent harness, and model:
 python3 -m agentlab trials summarize
 ```
 
-`pass@k` means at least one trial in the group passed. `pass^k` means every trial
-in the group passed.
+`pass@k` means at least one fair trial in the group passed. `pass^k` means every
+fair trial in the group passed. Trials marked `excluded` by human review remain
+stored but do not count in those fair capability metrics.
 
 Attach a human review label to a trial:
 
 ```bash
 python3 -m agentlab review --trial latest --label success_clean --note "Focused one-line fix; graders pass."
+```
+
+Exclude an invalid trial from fair summaries while preserving its artifacts:
+
+```bash
+python3 -m agentlab review \
+  --trial latest \
+  --label dependency_issue \
+  --note "Task setup failed before the agent acted." \
+  --exclude \
+  --exclusion-reason setup_error
 ```
 
 The first real project task is:

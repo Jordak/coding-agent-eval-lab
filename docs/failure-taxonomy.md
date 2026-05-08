@@ -17,3 +17,17 @@
 Each trial review should store a primary label, optional secondary labels, a
 short human note, and evidence such as a failing assertion, diff hunk, transcript
 excerpt, command output, edit size metrics, token usage, duration, or cost.
+
+## Trial Validity
+
+Review labels describe what happened. Trial validity controls whether the trial
+counts in fair capability metrics.
+
+- `valid`: count the trial in pass rate, pass@k, pass^k, and median outcome
+  metrics.
+- `excluded`: keep the artifacts but exclude the trial from fair capability
+  metrics because the attempt was invalidated before it could measure the agent
+  harness.
+
+Excluded trials require one exclusion reason: `dependency_issue`,
+`harness_error`, `setup_error`, `operator_error`, `invalid_task`, or `unknown`.

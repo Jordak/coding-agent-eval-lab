@@ -19,9 +19,12 @@ still treats each trial as an independent attempt.
 For multi-trial summaries, group stored results by evaluation suite, eval type,
 task, agent harness, and model. Report:
 
-- pass rate: passed trials divided by total trials
-- pass@k: whether at least one trial in the group passed
-- pass^k: whether every trial in the group passed
+- pass rate: passed fair trials divided by total fair trials
+- pass@k: whether at least one fair trial in the group passed
+- pass^k: whether every fair trial in the group passed
+
+See [ADR 0007](0007-exclude-invalid-trials-from-capability-summaries.md) for
+trial-validity metadata and excluded-trial handling.
 
 ## Consequences
 
