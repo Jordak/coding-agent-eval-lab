@@ -1,5 +1,6 @@
 import contextlib
 import io
+import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -8,6 +9,7 @@ from unittest.mock import patch
 from agentlab.cli import (
     handle_doctor,
     handle_run,
+    handle_runs_list,
     _print_run_summaries,
     build_parser,
     handle_task_smoke_test,
@@ -181,6 +183,44 @@ class CliOutputTest(unittest.TestCase):
         self.assertIn("Doctor: codex", stdout.getvalue())
         self.assertIn("ERROR Codex executable: Codex CLI not found", stderr.getvalue())
         self.assertIn("Preflight failed.", stderr.getvalue())
+
+    def test_runs_list_uses_normalized_review_overlay(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runs_dir = Path(temp)
+            run_dir = runs_dir / "trial-reviewed"
+            run_dir.mkdir()
+            (run_dir / "result.json").write_text(
+                (
+                    '{"trial_id":"trial-reviewed","task_id":"task-a",'
+                    '"eval_suite":"starter","eval_type":"capability",'
+                    '"agent_name":"codex","model_name":"gpt-test",'
+                    '"status":"failed","success":false,'
+                    '"trial_validity":"valid","exclusion_reason":null,'
+                    '"files_changed":["app.py"],"lines_added":1,'
+                    '"lines_deleted":0}'
+                ),
+                encoding="utf-8",
+            )
+            (run_dir / "review.json").write_text(
+                (
+                    '{"primary_label":"dependency_issue",'
+                    '"secondary_labels":[],"note":"Invalid setup.",'
+                    '"evidence":["report.md"],"trial_validity":"excluded",'
+                    '"exclusion_reason":"setup_error"}'
+                ),
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                status = handle_runs_list(SimpleNamespace(runs_dir=str(runs_dir)))
+
+        output = stdout.getvalue()
+        self.assertEqual(status, 0)
+        self.assertIn("trial-reviewed", output)
+        self.assertIn("excluded", output)
+        self.assertIn("dependency_issue", output)
+        self.assertIn("setup_error", output)
 
     def test_run_summary_is_quiet_when_all_trials_pass(self):
         evaluation = SimpleNamespace(

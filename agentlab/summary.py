@@ -5,6 +5,10 @@ from dataclasses import dataclass
 from statistics import median
 from typing import Any, Dict, Iterable, List, Tuple
 
+from agentlab.outcome_evidence import (
+    normalize_result_dicts,
+    result_files_changed_count,
+)
 from agentlab.validity import exclusion_reason, trial_is_valid
 
 
@@ -31,7 +35,10 @@ class TrialGroupSummary:
 
 
 def summarize_trials(results: Iterable[Dict[str, Any]]) -> List[TrialGroupSummary]:
-    groups: Dict[Tuple[str, str, str, str, str], List[Dict[str, Any]]] = defaultdict(list)
+    results = normalize_result_dicts(results)
+    groups: Dict[Tuple[str, str, str, str, str], List[Dict[str, Any]]] = defaultdict(
+        list
+    )
     for result in results:
         groups[_group_key(result)].append(result)
 
@@ -62,7 +69,7 @@ def _summarize_group(
     trials = len(valid_results)
     durations = [int(result.get("duration_ms") or 0) for result in valid_results]
     files_changed = [
-        len(result.get("files_changed") or [])
+        result_files_changed_count(result)
         for result in valid_results
     ]
     lines_added = [int(result.get("lines_added") or 0) for result in valid_results]
