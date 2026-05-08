@@ -139,6 +139,12 @@ interpretation. Per-trial rows link to the report, transcript, diff, and result
 artifacts so reviewers can inspect surprising pass rates without leaving the
 appendix.
 
+Trial storage remains the append-only file-artifact workflow described above.
+Trial listing, summaries, Human review outcome overlays, and Outcome evidence
+appendices discover current evidence from `runs/*/result.json` and adjacent
+artifacts such as `review.json`, transcripts, and diffs. There is no active
+database-backed Trial storage Interface or storage migration in this slice.
+
 See [runtime-accountability.md](runtime-accountability.md) for open work around
 model identity, account context, token usage, and cost tracking.
 

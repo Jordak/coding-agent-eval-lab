@@ -3,10 +3,70 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from agentlab.results import load_results
+from agentlab.evidence import render_evidence_appendix
+from agentlab.results import discover_result_files, load_results
+from agentlab.review import write_review
+from agentlab.summary import summarize_trials
 
 
 class ResultsTest(unittest.TestCase):
+    def test_file_artifacts_feed_trial_listing_summaries_reviews_and_evidence(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runs_dir = Path(temp) / "runs"
+            passing_run = runs_dir / "trial-pass"
+            excluded_run = runs_dir / "trial-excluded"
+            reference_run = runs_dir / "reference-verification"
+            passing_run.mkdir(parents=True)
+            excluded_run.mkdir()
+            reference_run.mkdir()
+
+            self._write_result(passing_run, trial_id="trial-pass", success=True)
+            self._write_result(excluded_run, trial_id="trial-excluded", success=False)
+            self._write_result(
+                reference_run,
+                trial_id="task-a-reference",
+                success=True,
+                trial_kind="reference_verification",
+            )
+            write_review(
+                excluded_run,
+                primary_label="dependency_issue",
+                note="The Task environment was invalid before the Agent harness acted.",
+                trial_validity="excluded",
+                exclusion_reason="setup_error",
+            )
+
+            result_files = discover_result_files(runs_dir)
+            self.assertEqual(
+                result_files,
+                [
+                    reference_run / "result.json",
+                    excluded_run / "result.json",
+                    passing_run / "result.json",
+                ],
+            )
+
+            results = load_results(result_files)
+            self.assertEqual(
+                [result["trial_id"] for result in results],
+                ["trial-excluded", "trial-pass"],
+            )
+            excluded = results[0]
+            self.assertEqual(excluded["review"]["primary_label"], "dependency_issue")
+            self.assertEqual(excluded["trial_validity"], "excluded")
+            self.assertEqual(excluded["exclusion_reason"], "setup_error")
+
+            summary = summarize_trials(results)[0]
+            self.assertEqual(summary.total_trials, 2)
+            self.assertEqual(summary.trials, 1)
+            self.assertEqual(summary.excluded_trials, 1)
+            self.assertEqual(summary.passes, 1)
+
+            appendix = render_evidence_appendix(results)
+            self.assertIn("- Agent trials: `2`", appendix)
+            self.assertIn("setup_error:1", appendix)
+            self.assertIn("trial-pass/result.json", appendix)
+
     def test_load_results_backfills_line_metrics_from_diff_patch(self):
         with tempfile.TemporaryDirectory() as temp:
             run_dir = Path(temp) / "run-1"
@@ -71,6 +131,38 @@ class ResultsTest(unittest.TestCase):
             self.assertEqual(result["reasoning_output_tokens"], 2)
             self.assertEqual(result["resource_usage"]["total_tokens"], 15)
             self.assertIsNone(result["cost_usd"])
+
+    def _write_result(
+        self,
+        run_dir: Path,
+        trial_id: str,
+        success: bool,
+        trial_kind: str = "agent_trial",
+    ) -> None:
+        result = {
+            "trial_kind": trial_kind,
+            "trial_id": trial_id,
+            "run_id": trial_id,
+            "task_id": "task-a",
+            "eval_suite": "starter",
+            "eval_type": "capability",
+            "agent_name": "codex",
+            "model_name": "model-a",
+            "status": "passed" if success else "failed",
+            "success": success,
+            "duration_ms": 100 if success else 999,
+            "files_changed": ["app.py"],
+            "lines_added": 5 if success else 50,
+            "lines_deleted": 1 if success else 10,
+            "report_path": str(run_dir / "report.md"),
+            "transcript_path": str(run_dir / "transcript.md"),
+            "diff_path": str(run_dir / "diff.patch"),
+            "run_dir": str(run_dir),
+        }
+        (run_dir / "result.json").write_text(
+            json.dumps(result),
+            encoding="utf-8",
+        )
 
 
 if __name__ == "__main__":
