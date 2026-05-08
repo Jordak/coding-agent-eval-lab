@@ -4,30 +4,34 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
 
-from agentlab.agents.codex_cli import (
-    CodexCliAdapter,
-    CodexCliConfig,
-    _resolve_executable,
-)
+from agentlab.agents.codex_cli import CodexCliAdapter, CodexCliConfig
 from agentlab.runner import run_task
 from agentlab.tasks import EvalTask
 
 
 class CodexCliAdapterTest(unittest.TestCase):
-    def test_resolves_codex_from_macos_app_bundle_when_not_on_path(self):
+    def test_missing_codex_cli_error_points_to_portable_configuration(self):
         with tempfile.TemporaryDirectory() as temp:
-            bundled_codex = Path(temp) / "Codex.app" / "Contents" / "Resources" / "codex"
-            bundled_codex.parent.mkdir(parents=True)
-            bundled_codex.write_text("#!/bin/sh\n", encoding="utf-8")
-            bundled_codex.chmod(0o755)
+            temp_path = Path(temp)
+            task = EvalTask(
+                id="missing-codex",
+                title="Missing Codex",
+                repo=str(temp_path),
+                commit="unused",
+                language="text",
+                prompt="No-op.",
+            )
+            adapter = CodexCliAdapter(
+                CodexCliConfig(command="agentlab-codex-missing", timeout_seconds=1)
+            )
 
-            with patch("agentlab.agents.codex_cli.shutil.which", return_value=None):
-                self.assertEqual(
-                    _resolve_executable("codex", fallback_paths=[bundled_codex]),
-                    str(bundled_codex),
-                )
+            agent_run = adapter.run(task, temp_path, temp_path / "run")
+
+            assert agent_run.error is not None
+            self.assertIn("Codex CLI not found", agent_run.error)
+            self.assertIn("--codex-command", agent_run.error)
+            self.assertIn("AGENTLAB_CODEX_COMMAND", agent_run.error)
 
     def test_codex_adapter_runs_command_and_captures_patch(self):
         if shutil.which("git") is None:

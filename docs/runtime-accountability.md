@@ -8,9 +8,10 @@ The Codex adapter shells out to the locally installed Codex CLI:
 codex --ask-for-approval never exec --json --cd <workspace> --sandbox workspace-write ...
 ```
 
-By default, the adapter resolves `codex` from `PATH`, then falls back to
-`/Applications/Codex.app/Contents/Resources/codex` on macOS when that bundled
-CLI exists. `--codex-command` can still point at a specific executable.
+By default, the adapter resolves `codex` from `PATH`. If the CLI is installed
+somewhere that is not on `PATH`, the run should pass `--codex-command
+/path/to/codex` or set `AGENTLAB_CODEX_COMMAND=/path/to/codex`. The adapter does
+not guess platform-specific install paths.
 
 This means each Codex trial currently measures **Codex CLI as configured on this
 machine**. Authentication, default model selection, account limits, and token
