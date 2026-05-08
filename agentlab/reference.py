@@ -12,6 +12,8 @@ from agentlab.patches import count_patch_lines
 from agentlab.reporting import render_reference_report
 from agentlab.results import reference_verification_to_result_dict
 from agentlab.scoring import CheckResult
+from agentlab.scoring import Score
+from agentlab.scoring import calculate_grader_outcome
 from agentlab.tasks import EvalTask
 from agentlab.workspace import capture_diff
 from agentlab.workspace import prepare_workspace
@@ -26,29 +28,28 @@ class ReferenceVerification:
     task: EvalTask
     workspace: Path
     artifact_check: CheckResult
+    score: Score
     setup_checks: list[CheckResult] = field(default_factory=list)
     baseline_checks: list[CheckResult] = field(default_factory=list)
     target_checks: list[CheckResult] = field(default_factory=list)
     files_changed: list[str] = field(default_factory=list)
     lines_added: int = 0
     lines_deleted: int = 0
-    notes: list[str] = field(default_factory=list)
     diff_path: Path = Path("reference.diff")
     report_path: Path = Path("reference-report.md")
     result_path: Path = Path("reference-result.json")
 
     @property
     def success(self) -> bool:
-        return all(check.passed for check in self.all_checks) and not self.notes
+        return self.score.tests_passed
+
+    @property
+    def notes(self) -> list[str]:
+        return self.score.notes
 
     @property
     def all_checks(self) -> list[CheckResult]:
-        return (
-            self.setup_checks
-            + self.baseline_checks
-            + [self.artifact_check]
-            + self.target_checks
-        )
+        return self.score.checks
 
 
 def verify_reference(
@@ -81,19 +82,20 @@ def verify_reference(
     diff_path = output_dir / "reference.diff"
     files_changed = _reference_files_changed(task, prepared.path, diff_path)
     patch_stats = count_patch_lines(diff_path.read_text(encoding="utf-8"))
-    notes = _success_notes(task, files_changed)
+    all_checks = setup_checks + baseline_checks + [artifact_check] + target_checks
+    score = calculate_grader_outcome(task, all_checks, files_changed)
 
     verification = ReferenceVerification(
         task=task,
         workspace=prepared.path,
         artifact_check=artifact_check,
+        score=score,
         setup_checks=setup_checks,
         baseline_checks=baseline_checks,
         target_checks=target_checks,
         files_changed=files_changed,
         lines_added=patch_stats.lines_added,
         lines_deleted=patch_stats.lines_deleted,
-        notes=notes,
         diff_path=diff_path,
         report_path=output_dir / "reference-report.md",
         result_path=output_dir / "reference-result.json",
@@ -151,17 +153,6 @@ def _reference_files_changed(
     if task.reference_artifact and task.reference_artifact.type == "commit":
         return capture_diff(workspace, diff_path, base_ref=task.commit)
     return capture_diff(workspace, diff_path)
-
-
-def _success_notes(task: EvalTask, files_changed: list[str]) -> list[str]:
-    notes: list[str] = []
-    max_files_changed = task.success.max_files_changed
-    if max_files_changed is not None and len(files_changed) > max_files_changed:
-        notes.append(
-            "changed "
-            f"{len(files_changed)} files; limit is {max_files_changed}"
-        )
-    return notes
 
 
 def _git_check_result(
