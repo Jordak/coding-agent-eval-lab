@@ -12,6 +12,7 @@ from agentlab.environment import build_task_environment
 from agentlab.patches import count_patch_lines
 from agentlab.reporting import render_markdown_report
 from agentlab.scoring import Score
+from agentlab.scoring import calculate_grader_outcome
 from agentlab.tasks import EvalTask
 from agentlab.workspace import capture_diff, prepare_workspace
 
@@ -43,26 +44,11 @@ def run_task(task: EvalTask, agent: AgentAdapter, runs_dir: Path) -> EvaluationR
     files_changed = capture_diff(prepared.path, diff_path)
     patch_stats = count_patch_lines(diff_path.read_text(encoding="utf-8"))
     all_checks = setup_checks + baseline_checks + test_checks
-    notes = []
-    files_changed_ok = True
-    if (
-        task.success.max_files_changed is not None
-        and len(files_changed) > task.success.max_files_changed
-    ):
-        files_changed_ok = False
-        notes.append(
-            "changed "
-            f"{len(files_changed)} files; limit is {task.success.max_files_changed}"
-        )
-
-    score = Score(
-        tests_passed=(
-            agent_run.error is None
-            and all(check.passed for check in all_checks)
-            and files_changed_ok
-        ),
-        checks=all_checks,
-        notes=notes,
+    score = calculate_grader_outcome(
+        task,
+        all_checks,
+        files_changed,
+        agent_error=agent_run.error,
     )
 
     agent_run = replace(
