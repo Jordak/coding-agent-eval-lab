@@ -150,7 +150,9 @@ python3 -m agentlab report evidence-appendix --output reports/evidence-appendix.
 ```
 
 The appendix is generated evidence, not final interpretation. Use it as the
-data backbone for hand-authored capability reports.
+data backbone for hand-authored capability reports. Per-trial rows link to the
+report, transcript, diff, and result artifacts so surprising pass rates can be
+investigated without hunting through `runs/`.
 
 Attach a human review label to a trial:
 

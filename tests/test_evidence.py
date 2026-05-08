@@ -29,6 +29,8 @@ class EvidenceAppendixTest(unittest.TestCase):
                         "trial_validity": "valid",
                     },
                     "report_path": "runs/trial-pass/report.md",
+                    "transcript_path": "runs/trial-pass/transcript.md",
+                    "diff_path": "runs/trial-pass/diff.patch",
                     "run_dir": "runs/trial-pass",
                 },
                 {
@@ -61,6 +63,8 @@ class EvidenceAppendixTest(unittest.TestCase):
         self.assertIn("| 1 | 5 | 1 | 10 | 5 | 2 | unknown | 100 |", appendix)
         self.assertIn("| trial-excluded | task-a | codex | model-a | failed | excluded | dependency_issue | setup_error |", appendix)
         self.assertIn("[report](runs/trial-pass/report.md)", appendix)
+        self.assertIn("[transcript](runs/trial-pass/transcript.md)", appendix)
+        self.assertIn("[diff](runs/trial-pass/diff.patch)", appendix)
         self.assertIn("[result](runs/trial-pass/result.json)", appendix)
 
 

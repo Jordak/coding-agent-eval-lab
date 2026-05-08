@@ -100,6 +100,8 @@ def render_evidence_appendix(results: Iterable[Dict[str, Any]]) -> str:
                     "Cost USD",
                     "Duration ms",
                     "Report",
+                    "Transcript",
+                    "Diff",
                     "Result",
                 ],
                 [_trial_row(result) for result in results],
@@ -129,6 +131,8 @@ def _trial_row(result: Dict[str, Any]) -> List[object]:
         _unknown_if_none(result.get("cost_usd")),
         result.get("duration_ms", 0),
         _markdown_link("report", result.get("report_path")),
+        _markdown_link("transcript", result.get("transcript_path")),
+        _markdown_link("diff", result.get("diff_path")),
         _markdown_link("result", result.get("run_dir"), "result.json"),
     ]
 
