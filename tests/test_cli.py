@@ -31,7 +31,27 @@ class CliOutputTest(unittest.TestCase):
         self.assertEqual(args.trials, 5)
         self.assertEqual(args.jobs, 3)
 
-    def test_run_summary_prints_agent_errors_to_stderr(self):
+    def test_run_summary_is_quiet_when_all_trials_pass(self):
+        evaluation = SimpleNamespace(
+            agent_run=SimpleNamespace(
+                agent_name="example-agent",
+                error=None,
+            ),
+            run_dir=Path("runs/example"),
+            report_path=Path("runs/example/report.md"),
+            result_path=Path("runs/example/result.json"),
+            score=SimpleNamespace(tests_passed=True),
+        )
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+
+        with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+            _print_run_summaries([evaluation])
+
+        self.assertEqual("", stdout.getvalue())
+        self.assertEqual("", stderr.getvalue())
+
+    def test_run_summary_prints_failed_trials_and_agent_errors(self):
         evaluation = SimpleNamespace(
             agent_run=SimpleNamespace(
                 agent_name="example-agent",
@@ -49,7 +69,9 @@ class CliOutputTest(unittest.TestCase):
             _print_run_summaries([evaluation])
 
         self.assertIn("ERROR example-agent: agent executable not found", stderr.getvalue())
-        self.assertIn("Status: failed", stdout.getvalue())
+        self.assertIn("Failed trials:", stdout.getvalue())
+        self.assertIn("- example: failed", stdout.getvalue())
+        self.assertIn("Report: runs/example/report.md", stdout.getvalue())
 
     def test_parallel_trials_disable_per_agent_progress(self):
         lock = threading.Lock()
@@ -89,6 +111,7 @@ class CliOutputTest(unittest.TestCase):
 
         self.assertEqual(len(evaluations), 3)
         self.assertEqual(progress_values, [False, False, False])
+        self.assertNotIn("Completed trial", stdout.getvalue())
 
 
 if __name__ == "__main__":

@@ -84,7 +84,9 @@ python3 -m agentlab run \
 
 `--jobs` controls how many trials run at the same time. During parallel runs,
 the terminal shows one aggregate trial progress bar plus trial-level
-start/completion messages instead of per-agent progress bars.
+start information instead of per-agent progress bars. Passing batches print only
+the aggregate summary; failed batches also print the failed trial IDs and report
+paths.
 
 Useful Codex options:
 

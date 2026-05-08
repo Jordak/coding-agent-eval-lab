@@ -366,16 +366,9 @@ def handle_run(args: argparse.Namespace) -> int:
         print_error(str(exc))
         return 1
 
-    _print_run_summaries(evaluations)
-
     passed = sum(1 for evaluation in evaluations if evaluation.score.tests_passed)
-    if len(evaluations) > 1:
-        print(
-            "Summary: "
-            f"{passed}/{len(evaluations)} passed; "
-            f"pass@{len(evaluations)}={1.0 if passed else 0.0:.2f}; "
-            f"pass^{len(evaluations)}={1.0 if passed == len(evaluations) else 0.0:.2f}"
-        )
+    _print_run_summaries(evaluations)
+    _print_aggregate_summary(evaluations, passed)
     return 0 if passed == len(evaluations) else 1
 
 
@@ -403,7 +396,6 @@ def _run_trials(task: object, args: argparse.Namespace) -> list[object]:
     with ThreadPoolExecutor(max_workers=jobs) as executor:
         future_indexes = {}
         for trial_index in range(args.trials):
-            print(f"Starting trial {trial_index + 1}/{args.trials}...")
             future = executor.submit(
                 _run_single_trial,
                 task,
@@ -435,12 +427,6 @@ def _run_trials(task: object, args: argparse.Namespace) -> list[object]:
                     continue
 
                 indexed_evaluations.append((trial_index, evaluation))
-                status = "passed" if evaluation.score.tests_passed else "failed"
-                progress.clear()
-                print(
-                    f"Completed {trial_label}: "
-                    f"{status} ({evaluation.run_dir.name})"
-                )
         progress.finish("all trials finished")
 
     if failures:
@@ -469,16 +455,33 @@ def _run_single_trial(
 
 
 def _print_run_summaries(evaluations: list[object]) -> None:
-    for evaluation in evaluations:
+    failed = [
+        evaluation
+        for evaluation in evaluations
+        if not evaluation.score.tests_passed or evaluation.agent_run.error
+    ]
+    if not failed:
+        return
+
+    print("Failed trials:")
+    for evaluation in failed:
         if evaluation.agent_run.error:
             print_error(
                 f"{evaluation.agent_run.agent_name}: {evaluation.agent_run.error}"
             )
-        print(f"Run: {evaluation.run_dir}")
-        print(f"Trial: {evaluation.run_dir.name}")
-        print(f"Report: {evaluation.report_path}")
-        print(f"Result: {evaluation.result_path}")
-        print(f"Status: {'passed' if evaluation.score.tests_passed else 'failed'}")
+        print(f"- {evaluation.run_dir.name}: failed")
+        print(f"  Report: {evaluation.report_path}")
+        print(f"  Result: {evaluation.result_path}")
+
+
+def _print_aggregate_summary(evaluations: list[object], passed: int) -> None:
+    total = len(evaluations)
+    print(
+        "Summary: "
+        f"{passed}/{total} passed; "
+        f"pass@{total}={1.0 if passed else 0.0:.2f}; "
+        f"pass^{total}={1.0 if passed == total else 0.0:.2f}"
+    )
 
 
 def _build_agent(args: argparse.Namespace, show_progress: bool = True) -> object:
