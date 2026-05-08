@@ -1,13 +1,18 @@
 from __future__ import annotations
 
 import argparse
+import shlex
 import sys
 import tempfile
 from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from pathlib import Path
 from typing import Iterable, List
 
-from agentlab.agents.codex_cli import CodexCliAdapter, CodexCliConfig
+from agentlab.agents.codex_cli import (
+    CodexCliAdapter,
+    CodexCliConfig,
+    run_codex_preflight,
+)
 from agentlab.agents.manual import ManualAgentAdapter
 from agentlab.evidence import render_evidence_appendix
 from agentlab.reference import (
@@ -161,6 +166,51 @@ def build_parser() -> argparse.ArgumentParser:
         help="Maximum wall time for `codex exec`.",
     )
     smoke_test_parser.set_defaults(handler=handle_task_smoke_test)
+
+    doctor_parser = subcommands.add_parser(
+        "doctor",
+        help="Check local agent harness prerequisites before running trials.",
+    )
+    doctor_parser.add_argument(
+        "--agent",
+        default="codex",
+        choices=["codex"],
+        help="Agent harness to check.",
+    )
+    doctor_parser.add_argument(
+        "--codex-command",
+        default="codex",
+        help="Codex CLI executable to use when --agent codex.",
+    )
+    doctor_parser.add_argument(
+        "--codex-model",
+        default=None,
+        help="Optional model passed to `codex exec --model`.",
+    )
+    doctor_parser.add_argument(
+        "--codex-profile",
+        default=None,
+        help="Optional profile passed to `codex exec --profile`.",
+    )
+    doctor_parser.add_argument(
+        "--codex-sandbox",
+        default="workspace-write",
+        choices=["read-only", "workspace-write", "danger-full-access"],
+        help="Sandbox mode passed to `codex exec --sandbox`.",
+    )
+    doctor_parser.add_argument(
+        "--codex-approval",
+        default="never",
+        choices=["untrusted", "on-failure", "on-request", "never"],
+        help="Approval policy passed to `codex exec --ask-for-approval`.",
+    )
+    doctor_parser.add_argument(
+        "--codex-timeout-seconds",
+        type=int,
+        default=15,
+        help="Maximum wall time for each Codex preflight command.",
+    )
+    doctor_parser.set_defaults(handler=handle_doctor)
 
     run_parser = subcommands.add_parser(
         "run",
@@ -504,6 +554,28 @@ def handle_task_smoke_test(args: argparse.Namespace) -> int:
     return 0 if evaluation.score.tests_passed else 1
 
 
+def handle_doctor(args: argparse.Namespace) -> int:
+    if args.agent == "codex":
+        result = run_codex_preflight(
+            CodexCliConfig(
+                command=args.codex_command,
+                model=args.codex_model,
+                profile=args.codex_profile,
+                sandbox=args.codex_sandbox,
+                approval_policy=args.codex_approval,
+                timeout_seconds=args.codex_timeout_seconds,
+                show_progress=False,
+            ),
+            timeout_seconds=args.codex_timeout_seconds,
+        )
+    else:
+        print_error(f"unknown agent: {args.agent}")
+        return 1
+
+    _print_preflight_result(result)
+    return 0 if result.passed else 1
+
+
 def handle_run(args: argparse.Namespace) -> int:
     try:
         task = load_task(args.task)
@@ -660,6 +732,26 @@ def _print_smoke_test_result(evaluation: object) -> None:
         "--exclude "
         "--exclusion-reason setup_error"
     )
+
+
+def _print_preflight_result(result: object) -> None:
+    print(f"Doctor: {result.agent_name}")
+    for check in result.checks:
+        if check.passed:
+            print(f"OK {check.name}: {check.message}")
+            continue
+
+        print_error(f"{check.name}: {check.message}")
+        if check.command:
+            print(f"  Command: {shlex.join(check.command)}", file=sys.stderr)
+        output = _trim_cli_output(check.stderr or check.stdout)
+        if output:
+            print(output, file=sys.stderr)
+
+    if result.passed:
+        print("Preflight passed.")
+    else:
+        print("Preflight failed.", file=sys.stderr)
 
 
 def _build_agent(args: argparse.Namespace, show_progress: bool = True) -> object:

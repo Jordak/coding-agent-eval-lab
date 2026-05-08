@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import shutil
 import subprocess
+import tempfile
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -10,12 +11,14 @@ from typing import Callable, List, Optional
 from agentlab.agents.base import AgentRun
 from agentlab.environment import build_task_environment
 from agentlab.environment import describe_task_environment
+from agentlab.preflight import PreflightCheck, PreflightResult
 from agentlab.resource_usage import ResourceUsage, parse_resource_usage_events
 from agentlab.terminal import ProgressBar
 from agentlab.tasks import EvalTask
 
 
 CommandRunner = Callable[[List[str], int], subprocess.CompletedProcess[str]]
+PreflightRunner = Callable[[List[str], int], subprocess.CompletedProcess[str]]
 
 
 @dataclass(frozen=True)
@@ -195,6 +198,136 @@ def _missing_cli_message(command: str) -> str:
         "PATH, or pass --codex-command /path/to/codex for a nonstandard "
         "installation."
     )
+
+
+def run_codex_preflight(
+    config: CodexCliConfig,
+    timeout_seconds: int = 15,
+    command_runner: PreflightRunner | None = None,
+) -> PreflightResult:
+    executable = shutil.which(config.command)
+    if executable is None:
+        return PreflightResult(
+            agent_name="codex",
+            checks=[
+                PreflightCheck(
+                    name="Codex executable",
+                    passed=False,
+                    command=[config.command],
+                    message=_missing_cli_message(config.command),
+                )
+            ],
+        )
+
+    checks = [
+        PreflightCheck(
+            name="Codex executable",
+            passed=True,
+            command=[config.command],
+            message=f"found {executable}",
+        )
+    ]
+    checks.append(
+        _run_preflight_command(
+            name="Codex version",
+            command=[executable, "--version"],
+            timeout_seconds=timeout_seconds,
+            command_runner=command_runner,
+        )
+    )
+    with tempfile.TemporaryDirectory(prefix="agentlab-codex-preflight-") as temp:
+        temp_path = Path(temp)
+        checks.append(
+            _run_preflight_command(
+                name="Codex exec command shape",
+                command=_build_preflight_exec_help_command(
+                    config,
+                    executable,
+                    temp_path,
+                ),
+                timeout_seconds=timeout_seconds,
+                command_runner=command_runner,
+            )
+        )
+    return PreflightResult(agent_name="codex", checks=checks)
+
+
+def _build_preflight_exec_help_command(
+    config: CodexCliConfig,
+    executable: str,
+    workspace: Path,
+) -> List[str]:
+    adapter = CodexCliAdapter(config)
+    trial_command = adapter._build_command(
+        workspace,
+        workspace / "codex-last-message.md",
+        "__agentlab_preflight__",
+    )
+    return [executable] + trial_command[1:-1] + ["--help"]
+
+
+def _run_preflight_command(
+    name: str,
+    command: List[str],
+    timeout_seconds: int,
+    command_runner: PreflightRunner | None,
+) -> PreflightCheck:
+    try:
+        if command_runner:
+            completed = command_runner(command, timeout_seconds)
+        else:
+            completed = subprocess.run(
+                command,
+                text=True,
+                capture_output=True,
+                timeout=timeout_seconds,
+            )
+    except subprocess.TimeoutExpired as exc:
+        return PreflightCheck(
+            name=name,
+            passed=False,
+            command=command,
+            message=f"timed out after {timeout_seconds}s",
+            stdout=exc.stdout or "",
+            stderr=exc.stderr or "",
+        )
+    except OSError as exc:
+        return PreflightCheck(
+            name=name,
+            passed=False,
+            command=command,
+            message=str(exc),
+        )
+
+    output = _first_output_line(completed.stdout, completed.stderr)
+    if completed.returncode == 0:
+        return PreflightCheck(
+            name=name,
+            passed=True,
+            command=command,
+            message=output or "ok",
+            returncode=completed.returncode,
+            stdout=completed.stdout,
+            stderr=completed.stderr,
+        )
+
+    detail = output or "no output"
+    return PreflightCheck(
+        name=name,
+        passed=False,
+        command=command,
+        message=f"exited with status {completed.returncode}: {detail}",
+        returncode=completed.returncode,
+        stdout=completed.stdout,
+        stderr=completed.stderr,
+    )
+
+
+def _first_output_line(stdout: str, stderr: str) -> str:
+    output = (stdout or "").strip() or (stderr or "").strip()
+    if not output:
+        return ""
+    return output.splitlines()[0]
 
 
 def _build_prompt(task: EvalTask) -> str:

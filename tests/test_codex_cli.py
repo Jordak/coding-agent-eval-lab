@@ -6,12 +6,33 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from agentlab.agents.codex_cli import CodexCliAdapter, CodexCliConfig
+from agentlab.agents.codex_cli import (
+    CodexCliAdapter,
+    CodexCliConfig,
+    run_codex_preflight,
+)
 from agentlab.runner import run_task
 from agentlab.tasks import EvalTask
 
 
 class CodexCliAdapterTest(unittest.TestCase):
+    def test_codex_command_places_global_approval_before_exec(self):
+        adapter = CodexCliAdapter(
+            CodexCliConfig(command="codex-test", approval_policy="never")
+        )
+
+        command = adapter._build_command(
+            Path("/workspace"),
+            Path("/run/codex-last-message.md"),
+            "prompt",
+        )
+
+        self.assertEqual(
+            command[:4],
+            ["codex-test", "--ask-for-approval", "never", "exec"],
+        )
+        self.assertLess(command.index("--ask-for-approval"), command.index("exec"))
+
     def test_codex_adapter_popen_path_captures_output(self):
         with tempfile.TemporaryDirectory() as temp:
             temp_path = Path(temp)
@@ -80,6 +101,99 @@ class CodexCliAdapterTest(unittest.TestCase):
             assert agent_run.error is not None
             self.assertIn("Codex CLI not found", agent_run.error)
             self.assertIn("--codex-command", agent_run.error)
+
+    def test_codex_preflight_runs_version_and_exec_help_shape(self):
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            fake_codex = temp_path / "fake-codex"
+            fake_codex.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+            fake_codex.chmod(0o755)
+            commands = []
+
+            def fake_runner(command, timeout_seconds):
+                commands.append(command)
+                if "--version" in command:
+                    return subprocess.CompletedProcess(
+                        args=command,
+                        returncode=0,
+                        stdout="codex 1.2.3\n",
+                        stderr="",
+                    )
+                return subprocess.CompletedProcess(
+                    args=command,
+                    returncode=0,
+                    stdout="Usage: codex exec [OPTIONS]\n",
+                    stderr="",
+                )
+
+            result = run_codex_preflight(
+                CodexCliConfig(
+                    command=str(fake_codex),
+                    model="gpt-test",
+                    profile="agentlab",
+                    sandbox="read-only",
+                    approval_policy="never",
+                ),
+                timeout_seconds=3,
+                command_runner=fake_runner,
+            )
+
+        self.assertTrue(result.passed)
+        self.assertEqual(commands[0], [str(fake_codex), "--version"])
+        exec_help_command = commands[1]
+        self.assertLess(
+            exec_help_command.index("--ask-for-approval"),
+            exec_help_command.index("exec"),
+        )
+        self.assertIn("--json", exec_help_command)
+        self.assertIn("--cd", exec_help_command)
+        self.assertIn("--sandbox", exec_help_command)
+        self.assertIn("--model", exec_help_command)
+        self.assertIn("--profile", exec_help_command)
+        self.assertEqual(exec_help_command[-1], "--help")
+
+    def test_codex_preflight_missing_command_fails_fast(self):
+        result = run_codex_preflight(
+            CodexCliConfig(command="agentlab-codex-missing"),
+            timeout_seconds=1,
+        )
+
+        self.assertFalse(result.passed)
+        self.assertEqual(len(result.checks), 1)
+        self.assertEqual(result.checks[0].name, "Codex executable")
+        self.assertIn("Codex CLI not found", result.checks[0].message)
+
+    def test_codex_preflight_reports_exec_help_failure(self):
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            fake_codex = temp_path / "fake-codex"
+            fake_codex.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+            fake_codex.chmod(0o755)
+
+            def fake_runner(command, timeout_seconds):
+                if "--version" in command:
+                    return subprocess.CompletedProcess(
+                        args=command,
+                        returncode=0,
+                        stdout="codex 1.2.3\n",
+                        stderr="",
+                    )
+                return subprocess.CompletedProcess(
+                    args=command,
+                    returncode=2,
+                    stdout="",
+                    stderr="unexpected argument '--ask-for-approval'\n",
+                )
+
+            result = run_codex_preflight(
+                CodexCliConfig(command=str(fake_codex)),
+                timeout_seconds=3,
+                command_runner=fake_runner,
+            )
+
+        self.assertFalse(result.passed)
+        self.assertEqual(result.checks[-1].name, "Codex exec command shape")
+        self.assertIn("unexpected argument", result.checks[-1].message)
 
     def test_codex_adapter_runs_command_and_captures_patch(self):
         if shutil.which("git") is None:

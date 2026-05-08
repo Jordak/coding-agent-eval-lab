@@ -8,11 +8,13 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from agentlab.cli import (
+    handle_doctor,
     _print_run_summaries,
     _run_trials,
     build_parser,
     handle_task_smoke_test,
 )
+from agentlab.preflight import PreflightCheck, PreflightResult
 
 
 class CliOutputTest(unittest.TestCase):
@@ -92,6 +94,95 @@ class CliOutputTest(unittest.TestCase):
         self.assertEqual(args.agent, "codex")
         self.assertFalse(hasattr(args, "trials"))
         self.assertFalse(hasattr(args, "jobs"))
+
+    def test_doctor_parser_accepts_codex_preflight_options(self):
+        parser = build_parser()
+
+        args = parser.parse_args(
+            [
+                "doctor",
+                "--agent",
+                "codex",
+                "--codex-command",
+                "codex-test",
+                "--codex-approval",
+                "never",
+                "--codex-timeout-seconds",
+                "3",
+            ]
+        )
+
+        self.assertEqual(args.agent, "codex")
+        self.assertEqual(args.codex_command, "codex-test")
+        self.assertEqual(args.codex_approval, "never")
+        self.assertEqual(args.codex_timeout_seconds, 3)
+
+    def test_handle_doctor_runs_codex_preflight(self):
+        args = SimpleNamespace(
+            agent="codex",
+            codex_command="codex-test",
+            codex_model=None,
+            codex_profile=None,
+            codex_sandbox="workspace-write",
+            codex_approval="never",
+            codex_timeout_seconds=3,
+        )
+        result = PreflightResult(
+            agent_name="codex",
+            checks=[
+                PreflightCheck(
+                    name="Codex executable",
+                    passed=True,
+                    message="found /tmp/codex-test",
+                )
+            ],
+        )
+        stdout = io.StringIO()
+
+        with patch(
+            "agentlab.cli.run_codex_preflight",
+            return_value=result,
+        ) as preflight:
+            with contextlib.redirect_stdout(stdout):
+                status = handle_doctor(args)
+
+        self.assertEqual(status, 0)
+        self.assertEqual(preflight.call_count, 1)
+        self.assertIn("Doctor: codex", stdout.getvalue())
+        self.assertIn("Preflight passed.", stdout.getvalue())
+
+    def test_handle_doctor_returns_failure_when_preflight_fails(self):
+        args = SimpleNamespace(
+            agent="codex",
+            codex_command="missing-codex",
+            codex_model=None,
+            codex_profile=None,
+            codex_sandbox="workspace-write",
+            codex_approval="never",
+            codex_timeout_seconds=3,
+        )
+        result = PreflightResult(
+            agent_name="codex",
+            checks=[
+                PreflightCheck(
+                    name="Codex executable",
+                    passed=False,
+                    command=["missing-codex"],
+                    message="Codex CLI not found",
+                )
+            ],
+        )
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+
+        with patch("agentlab.cli.run_codex_preflight", return_value=result):
+            with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                status = handle_doctor(args)
+
+        self.assertEqual(status, 1)
+        self.assertIn("Doctor: codex", stdout.getvalue())
+        self.assertIn("ERROR Codex executable: Codex CLI not found", stderr.getvalue())
+        self.assertIn("Preflight failed.", stderr.getvalue())
 
     def test_run_summary_is_quiet_when_all_trials_pass(self):
         evaluation = SimpleNamespace(

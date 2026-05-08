@@ -13,6 +13,17 @@ somewhere that is not on `PATH`, fix the shell environment or pass
 `--codex-command /path/to/codex` for that run. The adapter does not guess
 platform-specific install paths.
 
+Before running Codex trials, use the local preflight check:
+
+```bash
+python3 -m agentlab doctor --agent codex
+```
+
+The preflight verifies that `codex` resolves from `PATH`, records the installed
+CLI version, and asks the installed CLI to parse the same non-interactive
+`exec` command shape that trials use. This catches harness/runtime launch
+problems before a real task trial is created.
+
 Codex trials show terminal liveness while the subprocess is running, including a
 `waiting for agent response` progress message. Agent adapter errors are reported
 through the shared trial summary path and printed to stderr, so launch failures
@@ -53,7 +64,7 @@ Reports cannot yet reliably answer:
 
 ## TODO
 
-- Record Codex CLI version for every Codex trial.
+- Store the Codex preflight result or CLI version in every Codex trial artifact.
 - Record the explicit model whenever supplied.
 - Prefer requiring `--codex-model` for publishable comparisons.
 - Parse `codex-events.jsonl` for cost if the event stream exposes it.

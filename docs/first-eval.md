@@ -57,8 +57,13 @@ python3 -m agentlab run --agent codex --task tasks/starter/2048-advanced-snake-p
 
 The first trial exposed an adapter bug: `--ask-for-approval` was passed after
 `exec`, but this Codex CLI expects that option before the subcommand. The harness
-captured the runtime error in `transcript.md` and `result.json`, and the failed
-trial was labeled `tool_misuse`.
+captured the runtime error in `transcript.md` and `result.json`. Under the
+current trial-validity vocabulary, this run is reviewed as `tool_misuse` by the
+harness with trial validity `excluded` and exclusion reason `harness_error`,
+because Codex exited before it could attempt the task.
+
+Run `python3 -m agentlab doctor --agent codex` before new Codex trial batches to
+catch this class of adapter/runtime launch problem before creating task trials.
 
 After fixing the adapter command shape, Codex completed the task successfully:
 

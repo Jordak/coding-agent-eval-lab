@@ -69,3 +69,6 @@ January 2026 post, [Demystifying evals for AI agents](https://www.anthropic.com/
 - Publishable tasks should include a verified `reference_artifact`, such as a
   patch or commit, not only prose reference-solution notes.
 - Reports use "code-based graders" and "assertions" for deterministic commands.
+- V1 starter tasks are non-interactive. Future interactive tasks must declare
+  their interaction mode explicitly and remain grouped separately from
+  non-interactive trials in aggregate metrics.

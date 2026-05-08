@@ -58,6 +58,14 @@ Generated task cards and suite indexes are source-adjacent review artifacts, not
 the source of truth. The repo-local pre-commit hook runs the task-card generator
 in `--check` mode so drift is caught before commits.
 
+## Interaction Model
+
+V1 tasks are non-interactive by default: the agent harness receives a fixed
+prompt and should proceed without a clarification loop. Future task bundles may
+opt into bounded follow-up questions with explicit interaction metadata, but
+interactive tasks must be summarized separately from non-interactive tasks. See
+[ADR 0008](adr/0008-reserve-interactive-task-contracts.md).
+
 ## Task Environments
 
 Task setup should provision the dependencies needed by the deterministic graders
