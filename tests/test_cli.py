@@ -1,7 +1,5 @@
 import contextlib
 import io
-import tempfile
-import threading
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -9,8 +7,8 @@ from unittest.mock import patch
 
 from agentlab.cli import (
     handle_doctor,
+    handle_run,
     _print_run_summaries,
-    _run_trials,
     build_parser,
     handle_task_smoke_test,
 )
@@ -226,45 +224,44 @@ class CliOutputTest(unittest.TestCase):
         self.assertIn("- example: failed", stdout.getvalue())
         self.assertIn("Report: runs/example/report.md", stdout.getvalue())
 
-    def test_parallel_trials_disable_per_agent_progress(self):
-        lock = threading.Lock()
-        progress_values = []
-
-        def fake_run_task(task, agent, runs_dir):
-            with lock:
-                index = len(progress_values)
-                progress_values.append(agent.config.show_progress)
-            return SimpleNamespace(
-                agent_run=SimpleNamespace(agent_name="codex", error=None),
-                run_dir=Path(runs_dir) / f"run-{index}",
-                report_path=Path(runs_dir) / f"run-{index}" / "report.md",
-                result_path=Path(runs_dir) / f"run-{index}" / "result.json",
+    def test_handle_run_preserves_cli_summary_from_trial_execution(self):
+        args = SimpleNamespace(
+            task="tasks/starter/example",
+            agent="manual",
+            runs_dir="runs",
+            trials=2,
+            jobs=1,
+            no_pause=True,
+        )
+        task = SimpleNamespace(id="task-a")
+        evaluations = [
+            SimpleNamespace(
+                agent_run=SimpleNamespace(agent_name="manual", error=None),
+                run_dir=Path(f"runs/trial-{index}"),
+                report_path=Path(f"runs/trial-{index}/report.md"),
+                result_path=Path(f"runs/trial-{index}/result.json"),
                 score=SimpleNamespace(tests_passed=True),
             )
+            for index in range(2)
+        ]
+        stdout = io.StringIO()
 
-        with tempfile.TemporaryDirectory() as temp:
-            args = SimpleNamespace(
-                agent="codex",
-                codex_command="codex-test",
-                codex_model=None,
-                codex_profile=None,
-                codex_sandbox="workspace-write",
-                codex_approval="never",
-                codex_timeout_seconds=1,
-                jobs=2,
-                no_pause=True,
-                runs_dir=temp,
-                trials=3,
-            )
-            stdout = io.StringIO()
-
-            with patch("agentlab.cli.run_task", side_effect=fake_run_task):
+        with patch("agentlab.cli.load_task", return_value=task):
+            with patch("agentlab.cli.execute_trials", return_value=evaluations) as execute:
                 with contextlib.redirect_stdout(stdout):
-                    evaluations = _run_trials(SimpleNamespace(id="task"), args)
+                    status = handle_run(args)
 
-        self.assertEqual(len(evaluations), 3)
-        self.assertEqual(progress_values, [False, False, False])
-        self.assertNotIn("Completed trial", stdout.getvalue())
+        self.assertEqual(status, 0)
+        self.assertEqual(execute.call_count, 1)
+        config = execute.call_args.args[2]
+        self.assertEqual(config.trials, 2)
+        self.assertEqual(config.jobs, 1)
+        self.assertEqual(config.agent_name, "manual")
+        self.assertTrue(config.manual_parallel_allowed)
+        self.assertIn(
+            "Summary: 2/2 passed; pass@2=1.00; pass^2=1.00",
+            stdout.getvalue(),
+        )
 
     def test_task_smoke_test_verifies_reference_before_one_trial(self):
         args = SimpleNamespace(
@@ -301,12 +298,18 @@ class CliOutputTest(unittest.TestCase):
 
         with patch("agentlab.cli.load_task", return_value=task):
             with patch("agentlab.cli.verify_reference", return_value=verification):
-                with patch("agentlab.cli.run_task", return_value=evaluation) as run:
+                with patch(
+                    "agentlab.cli.execute_trials",
+                    return_value=[evaluation],
+                ) as execute:
                     with contextlib.redirect_stdout(stdout):
                         status = handle_task_smoke_test(args)
 
         self.assertEqual(status, 0)
-        self.assertEqual(run.call_count, 1)
+        self.assertEqual(execute.call_count, 1)
+        config = execute.call_args.args[2]
+        self.assertEqual(config.trials, 1)
+        self.assertEqual(config.jobs, 1)
         self.assertIn("Smoke test step 1/2", stdout.getvalue())
         self.assertIn("Smoke test step 2/2", stdout.getvalue())
         self.assertIn("Next step: inspect the report and diff", stdout.getvalue())
@@ -321,13 +324,13 @@ class CliOutputTest(unittest.TestCase):
         with patch("agentlab.cli.load_task", return_value=task):
             with patch("agentlab.cli.verify_reference", return_value=verification):
                 with patch("agentlab.cli._print_failed_reference_checks"):
-                    with patch("agentlab.cli.run_task") as run:
+                    with patch("agentlab.cli.execute_trials") as execute:
                         with contextlib.redirect_stdout(stdout):
                             with contextlib.redirect_stderr(stderr):
                                 status = handle_task_smoke_test(args)
 
         self.assertEqual(status, 1)
-        self.assertEqual(run.call_count, 0)
+        self.assertEqual(execute.call_count, 0)
         self.assertIn("ERROR reference verification failed", stderr.getvalue())
 
 
