@@ -102,6 +102,66 @@ def build_parser() -> argparse.ArgumentParser:
     )
     verify_reference_parser.set_defaults(handler=handle_task_verify_reference)
 
+    smoke_test_parser = task_subcommands.add_parser(
+        "smoke-test",
+        help="Verify a task reference artifact, then run exactly one agent trial.",
+    )
+    smoke_test_parser.add_argument(
+        "--task",
+        required=True,
+        help="Task YAML file or task bundle directory to smoke-test.",
+    )
+    smoke_test_parser.add_argument(
+        "--agent",
+        default="manual",
+        choices=["manual", "codex"],
+        help="Agent backend to use for the one-trial smoke test.",
+    )
+    smoke_test_parser.add_argument(
+        "--runs-dir",
+        default="runs",
+        help="Directory where smoke-test trial artifacts should be written.",
+    )
+    smoke_test_parser.add_argument(
+        "--no-pause",
+        action="store_true",
+        help="For the manual agent, do not wait for human edits.",
+    )
+    smoke_test_parser.add_argument(
+        "--codex-command",
+        default="codex",
+        help="Codex CLI executable to use when --agent codex.",
+    )
+    smoke_test_parser.add_argument(
+        "--codex-model",
+        default=None,
+        help="Optional model passed to `codex exec --model`.",
+    )
+    smoke_test_parser.add_argument(
+        "--codex-profile",
+        default=None,
+        help="Optional profile passed to `codex exec --profile`.",
+    )
+    smoke_test_parser.add_argument(
+        "--codex-sandbox",
+        default="workspace-write",
+        choices=["read-only", "workspace-write", "danger-full-access"],
+        help="Sandbox mode passed to `codex exec --sandbox`.",
+    )
+    smoke_test_parser.add_argument(
+        "--codex-approval",
+        default="never",
+        choices=["untrusted", "on-failure", "on-request", "never"],
+        help="Approval policy passed to `codex exec --ask-for-approval`.",
+    )
+    smoke_test_parser.add_argument(
+        "--codex-timeout-seconds",
+        type=int,
+        default=1800,
+        help="Maximum wall time for `codex exec`.",
+    )
+    smoke_test_parser.set_defaults(handler=handle_task_smoke_test)
+
     run_parser = subcommands.add_parser(
         "run",
         help="Run one trial for a task through an agent harness.",
@@ -400,6 +460,50 @@ def _verify_reference_files(
     return 0
 
 
+def handle_task_smoke_test(args: argparse.Namespace) -> int:
+    try:
+        task = load_task(args.task)
+    except TaskLoadError as exc:
+        print_error(str(exc))
+        return 1
+
+    print("Smoke test step 1/2: verifying reference artifact...")
+    with tempfile.TemporaryDirectory(prefix="agentlab-smoke-reference-") as temp:
+        try:
+            verification = verify_reference(
+                task,
+                Path(temp),
+                write_artifacts=False,
+            )
+        except (RuntimeError, ReferenceVerificationError) as exc:
+            print_error(f"reference verification failed: {exc}")
+            return 1
+
+    if not verification.success:
+        print_error("reference verification failed")
+        _print_failed_reference_checks(verification)
+        return 1
+
+    print(
+        "Reference OK: "
+        f"{task.id} files_changed={len(verification.files_changed)} "
+        f"lines_added={verification.lines_added} "
+        f"lines_deleted={verification.lines_deleted}"
+    )
+    print("Smoke test step 2/2: running exactly one trial with one job...")
+
+    try:
+        agent = _build_agent(args)
+        evaluation = run_task(task, agent, Path(args.runs_dir))
+    except RuntimeError as exc:
+        print_error(str(exc))
+        return 1
+
+    _print_run_summaries([evaluation])
+    _print_smoke_test_result(evaluation)
+    return 0 if evaluation.score.tests_passed else 1
+
+
 def handle_run(args: argparse.Namespace) -> int:
     try:
         task = load_task(args.task)
@@ -529,6 +633,32 @@ def _print_aggregate_summary(evaluations: list[object], passed: int) -> None:
         f"{passed}/{total} passed; "
         f"pass@{total}={1.0 if passed else 0.0:.2f}; "
         f"pass^{total}={1.0 if passed == total else 0.0:.2f}"
+    )
+
+
+def _print_smoke_test_result(evaluation: object) -> None:
+    status = "passed" if evaluation.score.tests_passed else "failed"
+    print(f"Smoke test trial: {evaluation.run_dir.name}")
+    print(f"Status: {status}")
+    print(f"Report: {evaluation.report_path}")
+    print(f"Result: {evaluation.result_path}")
+    print(f"Diff: {evaluation.agent_run.diff_path}")
+    print("")
+    if evaluation.score.tests_passed:
+        print("Next step: inspect the report and diff before repeated trials.")
+        return
+    print(
+        "If this failure is caused by setup, harness, operator, task-definition, "
+        "or dependency problems, preserve the artifacts and exclude the trial, "
+        "for example:"
+    )
+    print(
+        "python3 -m agentlab review "
+        f"--trial {evaluation.run_dir} "
+        "--label dependency_issue "
+        "--note \"Smoke test failed before measuring agent capability.\" "
+        "--exclude "
+        "--exclusion-reason setup_error"
     )
 
 

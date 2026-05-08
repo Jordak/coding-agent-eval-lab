@@ -49,6 +49,11 @@ to the task bundle by default; use `--no-write-artifacts` for a transient check.
 These artifacts use the same report/result shape as agent trials, but are marked with
 `trial_kind: reference_verification` and excluded from normal trial summaries.
 
+Use `agentlab task smoke-test` before repeated trials. The smoke-test workflow
+verifies the reference artifact, then runs exactly one agent trial with one job
+and prints the report, result, and diff paths a maintainer should inspect before
+scaling.
+
 Generated task cards and suite indexes are source-adjacent review artifacts, not
 the source of truth. The repo-local pre-commit hook runs the task-card generator
 in `--check` mode so drift is caught before commits.

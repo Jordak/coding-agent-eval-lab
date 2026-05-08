@@ -7,7 +7,12 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from agentlab.cli import _print_run_summaries, _run_trials, build_parser
+from agentlab.cli import (
+    _print_run_summaries,
+    _run_trials,
+    build_parser,
+    handle_task_smoke_test,
+)
 
 
 class CliOutputTest(unittest.TestCase):
@@ -68,6 +73,25 @@ class CliOutputTest(unittest.TestCase):
 
         self.assertEqual(args.runs_dir, "runs")
         self.assertEqual(args.output, "reports/evidence.md")
+
+    def test_task_smoke_test_parser_uses_one_agent_trial(self):
+        parser = build_parser()
+
+        args = parser.parse_args(
+            [
+                "task",
+                "smoke-test",
+                "--task",
+                "tasks/starter/example",
+                "--agent",
+                "codex",
+            ]
+        )
+
+        self.assertEqual(args.task, "tasks/starter/example")
+        self.assertEqual(args.agent, "codex")
+        self.assertFalse(hasattr(args, "trials"))
+        self.assertFalse(hasattr(args, "jobs"))
 
     def test_run_summary_is_quiet_when_all_trials_pass(self):
         evaluation = SimpleNamespace(
@@ -150,6 +174,70 @@ class CliOutputTest(unittest.TestCase):
         self.assertEqual(len(evaluations), 3)
         self.assertEqual(progress_values, [False, False, False])
         self.assertNotIn("Completed trial", stdout.getvalue())
+
+    def test_task_smoke_test_verifies_reference_before_one_trial(self):
+        args = SimpleNamespace(
+            task="tasks/starter/example",
+            agent="manual",
+            runs_dir="runs",
+            no_pause=True,
+            codex_command="codex",
+            codex_model=None,
+            codex_profile=None,
+            codex_sandbox="workspace-write",
+            codex_approval="never",
+            codex_timeout_seconds=1,
+        )
+        task = SimpleNamespace(id="task-a")
+        verification = SimpleNamespace(
+            success=True,
+            files_changed=["app.py"],
+            lines_added=2,
+            lines_deleted=1,
+        )
+        evaluation = SimpleNamespace(
+            agent_run=SimpleNamespace(
+                agent_name="manual",
+                diff_path=Path("runs/trial/diff.patch"),
+                error=None,
+            ),
+            run_dir=Path("runs/trial"),
+            report_path=Path("runs/trial/report.md"),
+            result_path=Path("runs/trial/result.json"),
+            score=SimpleNamespace(tests_passed=True),
+        )
+        stdout = io.StringIO()
+
+        with patch("agentlab.cli.load_task", return_value=task):
+            with patch("agentlab.cli.verify_reference", return_value=verification):
+                with patch("agentlab.cli.run_task", return_value=evaluation) as run:
+                    with contextlib.redirect_stdout(stdout):
+                        status = handle_task_smoke_test(args)
+
+        self.assertEqual(status, 0)
+        self.assertEqual(run.call_count, 1)
+        self.assertIn("Smoke test step 1/2", stdout.getvalue())
+        self.assertIn("Smoke test step 2/2", stdout.getvalue())
+        self.assertIn("Next step: inspect the report and diff", stdout.getvalue())
+
+    def test_task_smoke_test_stops_when_reference_fails(self):
+        args = SimpleNamespace(task="tasks/starter/example")
+        task = SimpleNamespace(id="task-a")
+        verification = SimpleNamespace(success=False)
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+
+        with patch("agentlab.cli.load_task", return_value=task):
+            with patch("agentlab.cli.verify_reference", return_value=verification):
+                with patch("agentlab.cli._print_failed_reference_checks"):
+                    with patch("agentlab.cli.run_task") as run:
+                        with contextlib.redirect_stdout(stdout):
+                            with contextlib.redirect_stderr(stderr):
+                                status = handle_task_smoke_test(args)
+
+        self.assertEqual(status, 1)
+        self.assertEqual(run.call_count, 0)
+        self.assertIn("ERROR reference verification failed", stderr.getvalue())
 
 
 if __name__ == "__main__":

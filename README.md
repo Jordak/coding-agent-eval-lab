@@ -50,6 +50,18 @@ python3 -m agentlab task verify-reference tasks/starter/2048-advanced-snake-para
 Use `--no-write-artifacts` for a transient check that does not update
 `reference-report.md`, `reference-result.json`, or `reference.diff`.
 
+Smoke-test a task before repeated trials:
+
+```bash
+python3 -m agentlab task smoke-test \
+  --task tasks/starter/2048-advanced-snake-params-001 \
+  --agent codex
+```
+
+The smoke-test workflow verifies the reference artifact first, then runs exactly
+one trial with one job. Inspect the emitted report and diff before scaling to
+repeated or parallel trials.
+
 Run the self-tests:
 
 ```bash

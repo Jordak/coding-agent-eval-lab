@@ -142,6 +142,8 @@ The project is evaluation infrastructure, not a general coding assistant or IDE.
 - Task files are human-editable YAML or JSON and live under `tasks/`.
 - Task bundles live under `tasks/<suite>/<task-id>/` and contain `task.yaml`,
   generated `task-card.md`, and reference artifacts.
+- Task smoke tests verify the reference artifact, then run exactly one agent
+  trial with one job before repeated or parallel trials are interpreted.
 - Each trial gets an isolated cloned workspace under `runs/<trial-id>/workspace`.
 - Agent adapters implement the `AgentAdapter` protocol in `agentlab.agents`.
 - Trial artifacts include `report.md`, `result.json`, `diff.patch`, and an
