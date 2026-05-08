@@ -149,3 +149,5 @@ The project is evaluation infrastructure, not a general coding assistant or IDE.
 - Multi-trial summaries group by suite, eval type, task, agent harness, and
   model, then report fair-trial pass rate, pass@k, pass^k, and excluded-trial
   counts.
+- Generated evidence appendices provide AI-readable Markdown tables for
+  capability reports; human-authored interpretation remains separate.

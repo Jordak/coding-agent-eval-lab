@@ -9,6 +9,7 @@ from typing import Iterable, List
 
 from agentlab.agents.codex_cli import CodexCliAdapter, CodexCliConfig
 from agentlab.agents.manual import ManualAgentAdapter
+from agentlab.evidence import render_evidence_appendix
 from agentlab.reference import (
     ReferenceVerification,
     ReferenceVerificationError,
@@ -217,6 +218,28 @@ def build_parser() -> argparse.ArgumentParser:
         help="Directory where trial artifacts are stored.",
     )
     trials_summary_parser.set_defaults(handler=handle_trials_summarize)
+
+    report_parser = subcommands.add_parser(
+        "report",
+        help="Generate report-support artifacts from stored trial evidence.",
+    )
+    report_subcommands = report_parser.add_subparsers(dest="report_command")
+
+    evidence_parser = report_subcommands.add_parser(
+        "evidence-appendix",
+        help="Generate a Markdown evidence appendix from stored trial results.",
+    )
+    evidence_parser.add_argument(
+        "--runs-dir",
+        default="runs",
+        help="Directory where trial artifacts are stored.",
+    )
+    evidence_parser.add_argument(
+        "--output",
+        default=None,
+        help="Optional Markdown file to write. Defaults to stdout.",
+    )
+    evidence_parser.set_defaults(handler=handle_report_evidence_appendix)
 
     review_parser = subcommands.add_parser(
         "review",
@@ -625,6 +648,25 @@ def handle_trials_summarize(args: argparse.Namespace) -> int:
         ],
         rows,
     )
+    return 0
+
+
+def handle_report_evidence_appendix(args: argparse.Namespace) -> int:
+    result_files = discover_result_files(Path(args.runs_dir))
+    results = load_results(result_files)
+    if not results:
+        print("No result.json files found.", file=sys.stderr)
+        return 1
+
+    appendix = render_evidence_appendix(results)
+    if args.output:
+        output_path = Path(args.output)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(appendix, encoding="utf-8")
+        print(f"Evidence appendix: {output_path}")
+        return 0
+
+    print(appendix)
     return 0
 
 

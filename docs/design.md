@@ -119,6 +119,11 @@ fair-trial pass rate, pass@k, pass^k, median duration, median changed files,
 median line additions/deletions, review-label counts, and exclusion-reason
 counts.
 
+`agentlab report evidence-appendix` renders those summaries plus per-trial
+evidence into Markdown. This generated appendix is intended as the data backbone
+for hand-authored, evidence-scoped capability reports; it does not replace human
+interpretation.
+
 See [runtime-accountability.md](runtime-accountability.md) for open work around
 model identity, account context, token usage, and cost tracking.
 

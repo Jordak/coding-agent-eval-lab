@@ -130,6 +130,15 @@ python3 -m agentlab trials summarize
 fair trial in the group passed. Trials marked `excluded` by human review remain
 stored but do not count in those fair capability metrics.
 
+Generate a Markdown evidence appendix for capability reports:
+
+```bash
+python3 -m agentlab report evidence-appendix --output reports/evidence-appendix.md
+```
+
+The appendix is generated evidence, not final interpretation. Use it as the
+data backbone for hand-authored capability reports.
+
 Attach a human review label to a trial:
 
 ```bash

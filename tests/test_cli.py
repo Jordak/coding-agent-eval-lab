@@ -52,6 +52,23 @@ class CliOutputTest(unittest.TestCase):
         self.assertTrue(args.exclude)
         self.assertEqual(args.exclusion_reason, "setup_error")
 
+    def test_report_parser_accepts_evidence_appendix_output(self):
+        parser = build_parser()
+
+        args = parser.parse_args(
+            [
+                "report",
+                "evidence-appendix",
+                "--runs-dir",
+                "runs",
+                "--output",
+                "reports/evidence.md",
+            ]
+        )
+
+        self.assertEqual(args.runs_dir, "runs")
+        self.assertEqual(args.output, "reports/evidence.md")
+
     def test_run_summary_is_quiet_when_all_trials_pass(self):
         evaluation = SimpleNamespace(
             agent_run=SimpleNamespace(
