@@ -701,6 +701,10 @@ def handle_runs_list(args: argparse.Namespace) -> int:
             str(len(result.get("files_changed", []))),
             str(result.get("lines_added", 0)),
             str(result.get("lines_deleted", 0)),
+            _format_optional(result.get("input_tokens")),
+            _format_optional(result.get("output_tokens")),
+            _format_optional(result.get("reasoning_output_tokens")),
+            _format_optional(result.get("cost_usd")),
         ]
         for result in results
     ]
@@ -718,6 +722,10 @@ def handle_runs_list(args: argparse.Namespace) -> int:
             "files",
             "added",
             "deleted",
+            "in_tok",
+            "out_tok",
+            "reason_tok",
+            "cost",
         ],
         rows,
     )
@@ -871,6 +879,12 @@ def _review_label(result: object) -> str:
 
 def _format_rate(value: float) -> str:
     return f"{value:.2f}"
+
+
+def _format_optional(value: object) -> str:
+    if value is None:
+        return ""
+    return str(value)
 
 
 def _trim_cli_output(output: str, max_chars: int = 1000) -> str:

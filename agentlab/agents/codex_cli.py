@@ -10,6 +10,7 @@ from typing import Callable, List, Optional
 from agentlab.agents.base import AgentRun
 from agentlab.environment import build_task_environment
 from agentlab.environment import describe_task_environment
+from agentlab.resource_usage import ResourceUsage, parse_resource_usage_events
 from agentlab.terminal import ProgressBar
 from agentlab.tasks import EvalTask
 
@@ -67,11 +68,14 @@ class CodexCliAdapter:
 
         if completed is not None:
             events_path.write_text(completed.stdout, encoding="utf-8")
+            usage = parse_resource_usage_events(completed.stdout)
             if completed.returncode != 0:
                 error = (
                     f"Codex CLI exited with status {completed.returncode}: "
                     f"{completed.stderr.strip()}"
                 ).strip()
+        else:
+            usage = ResourceUsage()
 
         transcript_path.write_text(
             _render_transcript(
@@ -95,6 +99,11 @@ class CodexCliAdapter:
             diff_path=diff_path,
             duration_ms=duration_ms,
             model_name=self.config.model,
+            input_tokens=usage.input_tokens,
+            cached_input_tokens=usage.cached_input_tokens,
+            output_tokens=usage.output_tokens,
+            reasoning_output_tokens=usage.reasoning_output_tokens,
+            cost_usd=usage.cost_usd,
             error=error,
         )
 

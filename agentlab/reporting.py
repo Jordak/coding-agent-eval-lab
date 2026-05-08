@@ -45,6 +45,26 @@ def render_markdown_report(run: "EvaluationRun") -> str:
     lines.extend(
         [
             "",
+            "## Resource Usage",
+            "",
+            f"- Duration ms: `{run.agent_run.duration_ms}`",
+            f"- Input tokens: `{_display_optional(run.agent_run.input_tokens)}`",
+            (
+                "- Cached input tokens: "
+                f"`{_display_optional(run.agent_run.cached_input_tokens)}`"
+            ),
+            f"- Output tokens: `{_display_optional(run.agent_run.output_tokens)}`",
+            (
+                "- Reasoning output tokens: "
+                f"`{_display_optional(run.agent_run.reasoning_output_tokens)}`"
+            ),
+            f"- Cost USD: `{_display_optional(run.agent_run.cost_usd)}`",
+        ]
+    )
+
+    lines.extend(
+        [
+            "",
             "## Changed Files",
             "",
         ]
@@ -125,3 +145,9 @@ def _trim_output(output: str, max_chars: int = 2000) -> str:
     if len(output) <= max_chars:
         return output
     return output[-max_chars:]
+
+
+def _display_optional(value: object) -> str:
+    if value is None:
+        return "unknown"
+    return str(value)

@@ -18,6 +18,12 @@ Codex trials show terminal liveness while the subprocess is running, including a
 through the shared trial summary path and printed to stderr, so launch failures
 do not require opening `transcript.md`.
 
+When `codex-events.jsonl` includes `turn.completed` usage metadata, Agent Lab
+captures input tokens, cached input tokens, output tokens, and reasoning output
+tokens as outcome evidence. Current local Codex traces do not expose dollar cost,
+so cost remains `unknown` unless a future event stream includes a reliable cost
+field.
+
 This means each Codex trial currently measures **Codex CLI as configured on this
 machine**. Authentication, default model selection, account limits, and token
 budget are handled by the local Codex app/CLI configuration, not by Agent Lab.
@@ -34,15 +40,15 @@ Trial reports can currently answer:
 - What files changed.
 - What assertions ran.
 - How long the adapter call took for the trial.
+- How many input/output tokens were reported by Codex CLI, when exposed in the
+  event stream.
 
 Reports cannot yet reliably answer:
 
 - Which exact model was used if `--codex-model` was omitted.
 - Which account or billing context paid for the trial.
-- How many input/output tokens were consumed.
 - What the trial cost.
-- Whether an apparently correct patch was unusually expensive in tokens, cost,
-  or runtime.
+- Whether an apparently correct patch was unusually expensive in cost or runtime.
 - Whether a later Codex CLI config change affected comparability.
 
 ## TODO
@@ -50,12 +56,9 @@ Reports cannot yet reliably answer:
 - Record Codex CLI version for every Codex trial.
 - Record the explicit model whenever supplied.
 - Prefer requiring `--codex-model` for publishable comparisons.
-- Parse `codex-events.jsonl` for token usage and cost if the event stream exposes
-  it.
-- Store resource usage metrics as outcome evidence for human review and
-  capability reports.
+- Parse `codex-events.jsonl` for cost if the event stream exposes it.
 - Store runtime configuration in `result.json`, including sandbox mode, approval
   policy, command path, model, profile, and CLI version.
-- Add a report warning when model, token usage, or cost is unknown.
+- Add a report warning when model or cost is unknown.
 - Document that early results are local-machine/runtime measurements, not pure
   model-vs-model comparisons.

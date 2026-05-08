@@ -1,3 +1,4 @@
+import json
 import shutil
 import subprocess
 import sys
@@ -123,6 +124,18 @@ class CodexCliAdapterTest(unittest.TestCase):
             self.assertEqual(evaluation.agent_run.files_changed, ["answer.txt"])
             self.assertTrue((evaluation.run_dir / "codex-events.jsonl").exists())
             self.assertTrue((evaluation.run_dir / "codex-last-message.md").exists())
+            self.assertEqual(evaluation.agent_run.input_tokens, 10)
+            self.assertEqual(evaluation.agent_run.cached_input_tokens, 4)
+            self.assertEqual(evaluation.agent_run.output_tokens, 5)
+            self.assertEqual(evaluation.agent_run.reasoning_output_tokens, 2)
+            self.assertIsNone(evaluation.agent_run.cost_usd)
+            result = json.loads(evaluation.result_path.read_text(encoding="utf-8"))
+            self.assertEqual(result["input_tokens"], 10)
+            self.assertEqual(result["resource_usage"]["total_tokens"], 15)
+            self.assertIsNone(result["resource_usage"]["cost_usd"])
+            report = evaluation.report_path.read_text(encoding="utf-8")
+            self.assertIn("- Input tokens: `10`", report)
+            self.assertIn("- Cost USD: `unknown`", report)
             transcript = evaluation.agent_run.transcript_path.read_text(
                 encoding="utf-8"
             )
@@ -140,7 +153,11 @@ class CodexCliAdapterTest(unittest.TestCase):
         return subprocess.CompletedProcess(
             args=command,
             returncode=0,
-            stdout='{"type":"done"}\n',
+            stdout=(
+                '{"type":"turn.completed","usage":{"input_tokens":10,'
+                '"cached_input_tokens":4,"output_tokens":5,'
+                '"reasoning_output_tokens":2}}\n'
+            ),
             stderr="",
         )
 

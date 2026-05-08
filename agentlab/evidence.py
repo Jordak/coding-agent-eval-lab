@@ -94,6 +94,10 @@ def render_evidence_appendix(results: Iterable[Dict[str, Any]]) -> str:
                     "Files",
                     "+Lines",
                     "-Lines",
+                    "Input Tokens",
+                    "Output Tokens",
+                    "Reasoning Tokens",
+                    "Cost USD",
                     "Duration ms",
                     "Report",
                     "Result",
@@ -119,6 +123,10 @@ def _trial_row(result: Dict[str, Any]) -> List[object]:
         len(result.get("files_changed") or []),
         result.get("lines_added", 0),
         result.get("lines_deleted", 0),
+        _unknown_if_none(result.get("input_tokens")),
+        _unknown_if_none(result.get("output_tokens")),
+        _unknown_if_none(result.get("reasoning_output_tokens")),
+        _unknown_if_none(result.get("cost_usd")),
         result.get("duration_ms", 0),
         _markdown_link("report", result.get("report_path")),
         _markdown_link("result", result.get("run_dir"), "result.json"),
@@ -162,6 +170,12 @@ def _format_counts(counts: Dict[str, int]) -> str:
     if not counts:
         return ""
     return ", ".join(f"{label}:{count}" for label, count in counts.items())
+
+
+def _unknown_if_none(value: object) -> object:
+    if value is None:
+        return "unknown"
+    return value
 
 
 def _escape_cell(value: object) -> str:

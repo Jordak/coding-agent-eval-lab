@@ -18,6 +18,10 @@ class AgentRun:
     duration_ms: int = 0
     lines_added: int = 0
     lines_deleted: int = 0
+    input_tokens: Optional[int] = None
+    cached_input_tokens: Optional[int] = None
+    output_tokens: Optional[int] = None
+    reasoning_output_tokens: Optional[int] = None
     model_name: Optional[str] = None
     success: Optional[bool] = None
     cost_usd: Optional[float] = None

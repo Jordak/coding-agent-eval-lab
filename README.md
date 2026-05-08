@@ -28,6 +28,7 @@ The first scaffold supports:
 - Git checkout preparation, configured command execution, diff capture, and
   Markdown/JSON trial artifacts.
 - Outcome evidence including changed files and line additions/deletions.
+- Codex token usage capture when `codex-events.jsonl` exposes usage metadata.
 - Codex CLI and manual agent adapters.
 - Multi-trial execution, concurrent trial jobs, and pass@k/pass^k summaries.
 - Human review labels, trial-validity metadata, and excluded-trial summaries.

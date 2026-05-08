@@ -5,6 +5,11 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List
 
 from agentlab.patches import count_patch_lines
+from agentlab.resource_usage import (
+    ResourceUsage,
+    parse_resource_usage_events,
+    resource_usage_to_dict,
+)
 from agentlab.scoring import CheckResult
 from agentlab.review import load_review
 from agentlab.validity import DEFAULT_TRIAL_VALIDITY
@@ -47,6 +52,19 @@ def to_result_dict(run: Any) -> Dict[str, Any]:
         "duration_ms": run.agent_run.duration_ms,
         "error": run.agent_run.error,
         "cost_usd": run.agent_run.cost_usd,
+        "input_tokens": run.agent_run.input_tokens,
+        "cached_input_tokens": run.agent_run.cached_input_tokens,
+        "output_tokens": run.agent_run.output_tokens,
+        "reasoning_output_tokens": run.agent_run.reasoning_output_tokens,
+        "resource_usage": resource_usage_to_dict(
+            ResourceUsage(
+                input_tokens=run.agent_run.input_tokens,
+                cached_input_tokens=run.agent_run.cached_input_tokens,
+                output_tokens=run.agent_run.output_tokens,
+                reasoning_output_tokens=run.agent_run.reasoning_output_tokens,
+                cost_usd=run.agent_run.cost_usd,
+            )
+        ),
         "files_changed": run.agent_run.files_changed,
         "lines_added": run.agent_run.lines_added,
         "lines_deleted": run.agent_run.lines_deleted,
@@ -92,6 +110,11 @@ def reference_verification_to_result_dict(verification: Any) -> Dict[str, Any]:
         "duration_ms": 0,
         "error": None,
         "cost_usd": None,
+        "input_tokens": None,
+        "cached_input_tokens": None,
+        "output_tokens": None,
+        "reasoning_output_tokens": None,
+        "resource_usage": resource_usage_to_dict(ResourceUsage()),
         "files_changed": verification.files_changed,
         "lines_added": verification.lines_added,
         "lines_deleted": verification.lines_deleted,
@@ -124,6 +147,7 @@ def load_results(paths: Iterable[Path]) -> List[Dict[str, Any]]:
             continue
         run_dir = Path(str(result.get("run_dir") or path.parent))
         _backfill_patch_stats(result, run_dir)
+        _backfill_resource_usage(result, run_dir)
         review = load_review(run_dir)
         if review:
             result["review"] = review
@@ -137,6 +161,48 @@ def load_results(paths: Iterable[Path]) -> List[Dict[str, Any]]:
             )
         results.append(result)
     return results
+
+
+def _backfill_resource_usage(result: Dict[str, Any], run_dir: Path) -> None:
+    resource_usage = result.get("resource_usage")
+    if not isinstance(resource_usage, dict):
+        resource_usage = {}
+
+    if not resource_usage:
+        event_usage = _resource_usage_from_events(run_dir)
+        if event_usage is not None:
+            resource_usage = resource_usage_to_dict(event_usage)
+
+    for key in [
+        "input_tokens",
+        "cached_input_tokens",
+        "output_tokens",
+        "reasoning_output_tokens",
+        "cost_usd",
+    ]:
+        result.setdefault(key, resource_usage.get(key))
+
+    usage = ResourceUsage(
+        input_tokens=_optional_int(result.get("input_tokens")),
+        cached_input_tokens=_optional_int(result.get("cached_input_tokens")),
+        output_tokens=_optional_int(result.get("output_tokens")),
+        reasoning_output_tokens=_optional_int(result.get("reasoning_output_tokens")),
+        cost_usd=_optional_float(result.get("cost_usd")),
+    )
+    result["resource_usage"] = resource_usage_to_dict(usage)
+
+
+def _resource_usage_from_events(run_dir: Path) -> ResourceUsage | None:
+    events_path = run_dir / "codex-events.jsonl"
+    if not events_path.exists():
+        return None
+    try:
+        usage = parse_resource_usage_events(events_path.read_text(encoding="utf-8"))
+    except OSError:
+        return None
+    if usage.total_tokens is None and usage.cost_usd is None:
+        return None
+    return usage
 
 
 def _backfill_patch_stats(result: Dict[str, Any], run_dir: Path) -> None:
@@ -170,6 +236,18 @@ def _result_diff_path(result: Dict[str, Any], run_dir: Path) -> Path | None:
     if diff_path.is_absolute():
         return diff_path
     return run_dir / diff_path
+
+
+def _optional_int(value: object) -> int | None:
+    if isinstance(value, int):
+        return value
+    return None
+
+
+def _optional_float(value: object) -> float | None:
+    if isinstance(value, (int, float)):
+        return float(value)
+    return None
 
 
 def _check_to_dict(check: CheckResult) -> Dict[str, Any]:

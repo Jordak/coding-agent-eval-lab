@@ -20,6 +20,10 @@ class EvidenceAppendixTest(unittest.TestCase):
                     "files_changed": ["app.py"],
                     "lines_added": 5,
                     "lines_deleted": 1,
+                    "input_tokens": 10,
+                    "output_tokens": 5,
+                    "reasoning_output_tokens": 2,
+                    "cost_usd": None,
                     "review": {
                         "primary_label": "success_clean",
                         "trial_validity": "valid",
@@ -54,6 +58,7 @@ class EvidenceAppendixTest(unittest.TestCase):
         self.assertIn("# Capability Report Evidence Appendix", appendix)
         self.assertIn("| starter | regression | task-a | codex | model-a | 2 | 1 | 1 | 1 | 1.00 | 1.00 | 1.00 | 100 | 1 | 5 | 1 | success_clean:1 | setup_error:1 |", appendix)
         self.assertIn("| trial-pass | task-a | codex | model-a | passed | valid | success_clean |", appendix)
+        self.assertIn("| 1 | 5 | 1 | 10 | 5 | 2 | unknown | 100 |", appendix)
         self.assertIn("| trial-excluded | task-a | codex | model-a | failed | excluded | dependency_issue | setup_error |", appendix)
         self.assertIn("[report](runs/trial-pass/report.md)", appendix)
         self.assertIn("[result](runs/trial-pass/result.json)", appendix)
