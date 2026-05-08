@@ -30,6 +30,15 @@ class TerminalOutputTest(unittest.TestCase):
         self.assertIn("Codex [", stream.getvalue())
         self.assertIn("waiting for agent response", stream.getvalue())
 
+    def test_progress_bar_clear_removes_current_line(self):
+        stream = _TtyStringIO()
+        progress = ProgressBar("Codex", stream=stream)
+
+        progress.clear()
+
+        self.assertTrue(stream.getvalue().startswith("\r"))
+        self.assertTrue(stream.getvalue().endswith("\r"))
+
 
 if __name__ == "__main__":
     unittest.main()

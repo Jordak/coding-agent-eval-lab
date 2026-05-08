@@ -131,11 +131,16 @@ class CodexCliAdapter:
 
         progress = ProgressBar("Codex")
         progress.update("starting agent process")
-        process = subprocess.Popen(
-            command,
-            text=True,
-            capture_output=True,
-        )
+        try:
+            process = subprocess.Popen(
+                command,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+        except Exception:
+            progress.clear()
+            raise
         started_at = time.monotonic()
 
         while True:

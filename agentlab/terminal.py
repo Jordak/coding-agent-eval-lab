@@ -77,3 +77,10 @@ class ProgressBar:
             + f"{self.label} [{'=' * self.width}] {minutes:02d}:{seconds:02d} {message}\n"
         )
         self.stream.flush()
+
+    def clear(self) -> None:
+        if not self.enabled:
+            return
+
+        self.stream.write("\r" + " " * 100 + "\r")
+        self.stream.flush()

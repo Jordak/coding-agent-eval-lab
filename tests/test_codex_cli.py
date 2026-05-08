@@ -11,6 +11,53 @@ from agentlab.tasks import EvalTask
 
 
 class CodexCliAdapterTest(unittest.TestCase):
+    def test_codex_adapter_popen_path_captures_output(self):
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            fake_codex = temp_path / "fake-codex"
+            fake_codex.write_text(
+                "#!/bin/sh\n"
+                "last=''\n"
+                "while [ \"$#\" -gt 0 ]; do\n"
+                "  if [ \"$1\" = '--output-last-message' ]; then\n"
+                "    shift\n"
+                "    last=\"$1\"\n"
+                "  fi\n"
+                "  shift\n"
+                "done\n"
+                "printf 'Done.\\n' > \"$last\"\n"
+                "printf '{\"type\":\"done\"}\\n'\n",
+                encoding="utf-8",
+            )
+            fake_codex.chmod(0o755)
+            task = EvalTask(
+                id="popen-codex",
+                title="Popen Codex",
+                repo=str(temp_path),
+                commit="unused",
+                language="text",
+                prompt="No-op.",
+            )
+            adapter = CodexCliAdapter(
+                CodexCliConfig(command=str(fake_codex), timeout_seconds=5)
+            )
+
+            agent_run = adapter.run(task, temp_path, temp_path / "run")
+
+            self.assertIsNone(agent_run.error)
+            self.assertEqual(
+                (temp_path / "run" / "codex-events.jsonl").read_text(
+                    encoding="utf-8"
+                ),
+                '{"type":"done"}\n',
+            )
+            self.assertEqual(
+                (temp_path / "run" / "codex-last-message.md").read_text(
+                    encoding="utf-8"
+                ),
+                "Done.\n",
+            )
+
     def test_missing_codex_cli_error_points_to_portable_configuration(self):
         with tempfile.TemporaryDirectory() as temp:
             temp_path = Path(temp)
