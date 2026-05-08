@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Callable, List, Optional
 
 from agentlab.agents.base import AgentRun
+from agentlab.terminal import ProgressBar
 from agentlab.tasks import EvalTask
 
 
@@ -127,12 +128,41 @@ class CodexCliAdapter:
         if executable is None:
             raise FileNotFoundError(self.config.command)
         command = [executable] + command[1:]
-        return subprocess.run(
+
+        progress = ProgressBar("Codex")
+        progress.update("starting agent process")
+        process = subprocess.Popen(
             command,
             text=True,
             capture_output=True,
-            timeout=timeout_seconds,
         )
+        started_at = time.monotonic()
+
+        while True:
+            try:
+                stdout, stderr = process.communicate(
+                    timeout=progress.interval_seconds
+                )
+                progress.finish("agent process finished")
+                return subprocess.CompletedProcess(
+                    args=command,
+                    returncode=process.returncode,
+                    stdout=stdout,
+                    stderr=stderr,
+                )
+            except subprocess.TimeoutExpired:
+                elapsed = time.monotonic() - started_at
+                if elapsed >= timeout_seconds:
+                    process.kill()
+                    stdout, stderr = process.communicate()
+                    progress.finish("agent process timed out")
+                    raise subprocess.TimeoutExpired(
+                        command,
+                        timeout_seconds,
+                        output=stdout,
+                        stderr=stderr,
+                    )
+                progress.update("waiting for agent response")
 
 
 def _missing_cli_message(command: str) -> str:

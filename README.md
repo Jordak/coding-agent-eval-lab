@@ -95,7 +95,9 @@ The Codex adapter stores `codex-events.jsonl`, `codex-last-message.md`,
 `transcript.md`, `diff.patch`, `report.md`, and `result.json` in the run
 directory. By default it resolves `codex` from `PATH`. If the CLI is installed
 outside `PATH`, fix the shell environment or use `--codex-command
-/path/to/codex` for that run.
+/path/to/codex` for that run. While the agent process is running, the terminal
+shows a small progress bar such as `waiting for agent response`; agent launch
+errors are also printed to stderr instead of only appearing in the transcript.
 
 Reference verification uses the same report/result shape, marked with
 `trial_kind: reference_verification`, and writes `reference-report.md`,

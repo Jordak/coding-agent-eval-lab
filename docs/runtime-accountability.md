@@ -13,6 +13,11 @@ somewhere that is not on `PATH`, fix the shell environment or pass
 `--codex-command /path/to/codex` for that run. The adapter does not guess
 platform-specific install paths.
 
+Codex trials show terminal liveness while the subprocess is running, including a
+`waiting for agent response` progress message. Agent adapter errors are reported
+through the shared trial summary path and printed to stderr, so launch failures
+do not require opening `transcript.md`.
+
 This means each Codex trial currently measures **Codex CLI as configured on this
 machine**. Authentication, default model selection, account limits, and token
 budget are handled by the local Codex app/CLI configuration, not by Agent Lab.

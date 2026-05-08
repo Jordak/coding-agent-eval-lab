@@ -18,6 +18,7 @@ from agentlab.results import discover_result_files, load_results
 from agentlab.runner import run_task
 from agentlab.summary import summarize_trials
 from agentlab.tasks import TaskLoadError, discover_task_files, load_task
+from agentlab.terminal import print_error
 
 
 def main(argv: Iterable[str] | None = None) -> int:
@@ -359,12 +360,7 @@ def handle_run(args: argparse.Namespace) -> int:
         print(f"ERROR {exc}", file=sys.stderr)
         return 1
 
-    for evaluation in evaluations:
-        print(f"Run: {evaluation.run_dir}")
-        print(f"Trial: {evaluation.run_dir.name}")
-        print(f"Report: {evaluation.report_path}")
-        print(f"Result: {evaluation.result_path}")
-        print(f"Status: {'passed' if evaluation.score.tests_passed else 'failed'}")
+    _print_run_summaries(evaluations)
 
     passed = sum(1 for evaluation in evaluations if evaluation.score.tests_passed)
     if len(evaluations) > 1:
@@ -375,6 +371,19 @@ def handle_run(args: argparse.Namespace) -> int:
             f"pass^{len(evaluations)}={1.0 if passed == len(evaluations) else 0.0:.2f}"
         )
     return 0 if passed == len(evaluations) else 1
+
+
+def _print_run_summaries(evaluations: list[object]) -> None:
+    for evaluation in evaluations:
+        if evaluation.agent_run.error:
+            print_error(
+                f"{evaluation.agent_run.agent_name}: {evaluation.agent_run.error}"
+            )
+        print(f"Run: {evaluation.run_dir}")
+        print(f"Trial: {evaluation.run_dir.name}")
+        print(f"Report: {evaluation.report_path}")
+        print(f"Result: {evaluation.result_path}")
+        print(f"Status: {'passed' if evaluation.score.tests_passed else 'failed'}")
 
 
 def _build_agent(args: argparse.Namespace) -> object:
