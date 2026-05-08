@@ -3,12 +3,16 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Dict, Iterable, List
 
+from agentlab.outcome_evidence import (
+    normalize_result_dicts,
+    result_files_changed_count,
+)
 from agentlab.summary import summarize_trials
 from agentlab.validity import exclusion_reason, trial_validity
 
 
 def render_evidence_appendix(results: Iterable[Dict[str, Any]]) -> str:
-    results = list(results)
+    results = normalize_result_dicts(results)
     lines = [
         "# Capability Report Evidence Appendix",
         "",
@@ -122,7 +126,7 @@ def _trial_row(result: Dict[str, Any]) -> List[object]:
         trial_validity(result),
         _review_label(result),
         exclusion_reason(result),
-        len(result.get("files_changed") or []),
+        result_files_changed_count(result),
         result.get("lines_added", 0),
         result.get("lines_deleted", 0),
         _unknown_if_none(result.get("input_tokens")),
