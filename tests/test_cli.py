@@ -8,6 +8,7 @@ from unittest.mock import patch
 from agentlab.cli import (
     handle_doctor,
     handle_run,
+    _codex_config_from_args,
     _print_run_summaries,
     build_parser,
     handle_task_smoke_test,
@@ -119,9 +120,9 @@ class CliOutputTest(unittest.TestCase):
         args = SimpleNamespace(
             agent="codex",
             codex_command="codex-test",
-            codex_model=None,
-            codex_profile=None,
-            codex_sandbox="workspace-write",
+            codex_model="gpt-test",
+            codex_profile="agentlab",
+            codex_sandbox="read-only",
             codex_approval="never",
             codex_timeout_seconds=3,
         )
@@ -146,8 +147,36 @@ class CliOutputTest(unittest.TestCase):
 
         self.assertEqual(status, 0)
         self.assertEqual(preflight.call_count, 1)
+        config = preflight.call_args.args[0]
+        self.assertEqual(config.command, "codex-test")
+        self.assertEqual(config.model, "gpt-test")
+        self.assertEqual(config.profile, "agentlab")
+        self.assertEqual(config.sandbox, "read-only")
+        self.assertEqual(config.approval_policy, "never")
+        self.assertEqual(config.timeout_seconds, 3)
+        self.assertFalse(config.show_progress)
         self.assertIn("Doctor: codex", stdout.getvalue())
         self.assertIn("Preflight passed.", stdout.getvalue())
+
+    def test_codex_config_builder_centralizes_cli_options(self):
+        args = SimpleNamespace(
+            codex_command="codex-test",
+            codex_model="gpt-test",
+            codex_profile="agentlab",
+            codex_sandbox="workspace-write",
+            codex_approval="on-failure",
+            codex_timeout_seconds=42,
+        )
+
+        config = _codex_config_from_args(args, show_progress=False)
+
+        self.assertEqual(config.command, "codex-test")
+        self.assertEqual(config.model, "gpt-test")
+        self.assertEqual(config.profile, "agentlab")
+        self.assertEqual(config.sandbox, "workspace-write")
+        self.assertEqual(config.approval_policy, "on-failure")
+        self.assertEqual(config.timeout_seconds, 42)
+        self.assertFalse(config.show_progress)
 
     def test_handle_doctor_returns_failure_when_preflight_fails(self):
         args = SimpleNamespace(
@@ -227,11 +256,17 @@ class CliOutputTest(unittest.TestCase):
     def test_handle_run_preserves_cli_summary_from_trial_execution(self):
         args = SimpleNamespace(
             task="tasks/starter/example",
-            agent="manual",
+            agent="codex",
             runs_dir="runs",
             trials=2,
             jobs=1,
             no_pause=True,
+            codex_command="codex-test",
+            codex_model="gpt-test",
+            codex_profile="agentlab",
+            codex_sandbox="read-only",
+            codex_approval="on-request",
+            codex_timeout_seconds=9,
         )
         task = SimpleNamespace(id="task-a")
         evaluations = [
@@ -253,10 +288,18 @@ class CliOutputTest(unittest.TestCase):
 
         self.assertEqual(status, 0)
         self.assertEqual(execute.call_count, 1)
+        agent = execute.call_args.args[1](show_progress=False)
+        self.assertEqual(agent.config.command, "codex-test")
+        self.assertEqual(agent.config.model, "gpt-test")
+        self.assertEqual(agent.config.profile, "agentlab")
+        self.assertEqual(agent.config.sandbox, "read-only")
+        self.assertEqual(agent.config.approval_policy, "on-request")
+        self.assertEqual(agent.config.timeout_seconds, 9)
+        self.assertFalse(agent.config.show_progress)
         config = execute.call_args.args[2]
         self.assertEqual(config.trials, 2)
         self.assertEqual(config.jobs, 1)
-        self.assertEqual(config.agent_name, "manual")
+        self.assertEqual(config.agent_name, "codex")
         self.assertTrue(config.manual_parallel_allowed)
         self.assertIn(
             "Summary: 2/2 passed; pass@2=1.00; pass^2=1.00",
@@ -266,11 +309,11 @@ class CliOutputTest(unittest.TestCase):
     def test_task_smoke_test_verifies_reference_before_one_trial(self):
         args = SimpleNamespace(
             task="tasks/starter/example",
-            agent="manual",
+            agent="codex",
             runs_dir="runs",
             no_pause=True,
-            codex_command="codex",
-            codex_model=None,
+            codex_command="codex-test",
+            codex_model="gpt-test",
             codex_profile=None,
             codex_sandbox="workspace-write",
             codex_approval="never",
@@ -307,6 +350,10 @@ class CliOutputTest(unittest.TestCase):
 
         self.assertEqual(status, 0)
         self.assertEqual(execute.call_count, 1)
+        agent = execute.call_args.args[1](show_progress=True)
+        self.assertEqual(agent.config.command, "codex-test")
+        self.assertEqual(agent.config.model, "gpt-test")
+        self.assertTrue(agent.config.show_progress)
         config = execute.call_args.args[2]
         self.assertEqual(config.trials, 1)
         self.assertEqual(config.jobs, 1)

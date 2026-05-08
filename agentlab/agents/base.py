@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Optional, Protocol
+from typing import Any, Dict, List, Optional, Protocol
 
 from agentlab.tasks import EvalTask
 
@@ -23,6 +23,7 @@ class AgentRun:
     output_tokens: Optional[int] = None
     reasoning_output_tokens: Optional[int] = None
     model_name: Optional[str] = None
+    agent_harness_config: Dict[str, Any] = field(default_factory=dict)
     success: Optional[bool] = None
     cost_usd: Optional[float] = None
     error: Optional[str] = None

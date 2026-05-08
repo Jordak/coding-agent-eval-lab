@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict, Iterable, List
 
+from agentlab.agent_harness_config import normalize_agent_harness_config
 from agentlab.patches import count_patch_lines
 from agentlab.resource_usage import (
     ResourceUsage,
@@ -36,6 +37,12 @@ def to_result_dict(run: Any) -> Dict[str, Any]:
         ),
         "agent_name": run.agent_run.agent_name,
         "model_name": run.agent_run.model_name,
+        "agent_harness_config": normalize_agent_harness_config(
+            getattr(run.agent_run, "agent_harness_config", {}),
+            agent_name=run.agent_run.agent_name,
+            model_name=run.agent_run.model_name,
+            cost_usd=run.agent_run.cost_usd,
+        ),
         "status": "passed" if run.score.tests_passed else "failed",
         "success": run.score.tests_passed,
         "trial_validity": DEFAULT_TRIAL_VALIDITY,
@@ -148,6 +155,7 @@ def load_results(paths: Iterable[Path]) -> List[Dict[str, Any]]:
         run_dir = Path(str(result.get("run_dir") or path.parent))
         _backfill_patch_stats(result, run_dir)
         _backfill_resource_usage(result, run_dir)
+        _backfill_agent_harness_config(result)
         review = load_review(run_dir)
         if review:
             result["review"] = review
@@ -161,6 +169,15 @@ def load_results(paths: Iterable[Path]) -> List[Dict[str, Any]]:
             )
         results.append(result)
     return results
+
+
+def _backfill_agent_harness_config(result: Dict[str, Any]) -> None:
+    result["agent_harness_config"] = normalize_agent_harness_config(
+        _dict_or_none(result.get("agent_harness_config")),
+        agent_name=_optional_str(result.get("agent_name")),
+        model_name=_optional_str(result.get("model_name")),
+        cost_usd=_optional_float(result.get("cost_usd")),
+    )
 
 
 def _backfill_resource_usage(result: Dict[str, Any], run_dir: Path) -> None:
@@ -247,6 +264,18 @@ def _optional_int(value: object) -> int | None:
 def _optional_float(value: object) -> float | None:
     if isinstance(value, (int, float)):
         return float(value)
+    return None
+
+
+def _optional_str(value: object) -> str | None:
+    if isinstance(value, str):
+        return value
+    return None
+
+
+def _dict_or_none(value: object) -> Dict[str, Any] | None:
+    if isinstance(value, dict):
+        return value
     return None
 
 

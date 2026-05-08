@@ -9,6 +9,8 @@ from pathlib import Path
 from agentlab.agents.codex_cli import (
     CodexCliAdapter,
     CodexCliConfig,
+    CodexRuntimeFacts,
+    codex_agent_harness_config,
     run_codex_preflight,
 )
 from agentlab.runner import run_task
@@ -32,6 +34,37 @@ class CodexCliAdapterTest(unittest.TestCase):
             ["codex-test", "--ask-for-approval", "never", "exec"],
         )
         self.assertLess(command.index("--ask-for-approval"), command.index("exec"))
+
+    def test_codex_agent_harness_config_keeps_unknowns_explicit(self):
+        config = codex_agent_harness_config(
+            CodexCliConfig(
+                command="codex-test",
+                model=None,
+                profile="agentlab",
+                sandbox="workspace-write",
+                approval_policy="never",
+                timeout_seconds=60,
+            ),
+            runtime_facts=CodexRuntimeFacts(
+                command_identity="/usr/local/bin/codex-test",
+                cli_version="codex 1.2.3",
+            ),
+        )
+
+        self.assertEqual(config["agent_harness"], "codex")
+        self.assertEqual(config["agent_adapter"], "codex_cli")
+        self.assertEqual(config["command"], "codex-test")
+        self.assertEqual(config["command_identity"], "/usr/local/bin/codex-test")
+        self.assertIsNone(config["model_name"])
+        self.assertEqual(config["model_source"], "unknown")
+        self.assertEqual(config["profile"], "agentlab")
+        self.assertEqual(config["sandbox"], "workspace-write")
+        self.assertEqual(config["approval_policy"], "never")
+        self.assertEqual(config["timeout_seconds"], 60)
+        self.assertEqual(config["cli_version"], "codex 1.2.3")
+        self.assertIsNone(config["runtime_accountability"]["account"])
+        self.assertIsNone(config["runtime_accountability"]["billing_context"])
+        self.assertIsNone(config["runtime_accountability"]["cost_usd"])
 
     def test_codex_adapter_popen_path_captures_output(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -151,6 +184,17 @@ class CodexCliAdapterTest(unittest.TestCase):
         self.assertIn("--model", exec_help_command)
         self.assertIn("--profile", exec_help_command)
         self.assertEqual(exec_help_command[-1], "--help")
+        self.assertEqual(result.agent_harness_config["agent_harness"], "codex")
+        self.assertEqual(result.agent_harness_config["command"], str(fake_codex))
+        self.assertEqual(
+            result.agent_harness_config["command_identity"],
+            str(fake_codex.resolve()),
+        )
+        self.assertEqual(result.agent_harness_config["model_name"], "gpt-test")
+        self.assertEqual(result.agent_harness_config["model_source"], "explicit")
+        self.assertEqual(result.agent_harness_config["profile"], "agentlab")
+        self.assertEqual(result.agent_harness_config["sandbox"], "read-only")
+        self.assertEqual(result.agent_harness_config["cli_version"], "codex 1.2.3")
 
     def test_codex_preflight_missing_command_fails_fast(self):
         result = run_codex_preflight(
@@ -247,7 +291,28 @@ class CodexCliAdapterTest(unittest.TestCase):
             self.assertEqual(result["input_tokens"], 10)
             self.assertEqual(result["resource_usage"]["total_tokens"], 15)
             self.assertIsNone(result["resource_usage"]["cost_usd"])
+            harness_config = result["agent_harness_config"]
+            self.assertEqual(harness_config["agent_harness"], "codex")
+            self.assertEqual(harness_config["agent_adapter"], "codex_cli")
+            self.assertEqual(harness_config["command"], "codex-test")
+            self.assertIsNone(harness_config["command_identity"])
+            self.assertIsNone(harness_config["model_name"])
+            self.assertEqual(harness_config["model_source"], "unknown")
+            self.assertEqual(harness_config["sandbox"], "workspace-write")
+            self.assertEqual(harness_config["approval_policy"], "never")
+            self.assertEqual(harness_config["timeout_seconds"], 30)
+            self.assertIsNone(harness_config["cli_version"])
+            self.assertIsNone(
+                harness_config["runtime_accountability"]["account"]
+            )
+            self.assertIsNone(
+                harness_config["runtime_accountability"]["billing_context"]
+            )
             report = evaluation.report_path.read_text(encoding="utf-8")
+            self.assertIn("## Agent Harness Configuration", report)
+            self.assertIn("- Command: `codex-test`", report)
+            self.assertIn("- Model: `unknown`", report)
+            self.assertIn("- Account: `unknown`", report)
             self.assertIn("- Input tokens: `10`", report)
             self.assertIn("- Cost USD: `unknown`", report)
             transcript = evaluation.agent_run.transcript_path.read_text(

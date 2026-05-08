@@ -566,15 +566,7 @@ def handle_task_smoke_test(args: argparse.Namespace) -> int:
 def handle_doctor(args: argparse.Namespace) -> int:
     if args.agent == "codex":
         result = run_codex_preflight(
-            CodexCliConfig(
-                command=args.codex_command,
-                model=args.codex_model,
-                profile=args.codex_profile,
-                sandbox=args.codex_sandbox,
-                approval_policy=args.codex_approval,
-                timeout_seconds=args.codex_timeout_seconds,
-                show_progress=False,
-            ),
+            _codex_config_from_args(args, show_progress=False),
             timeout_seconds=args.codex_timeout_seconds,
         )
     else:
@@ -688,18 +680,23 @@ def _build_agent(args: argparse.Namespace, show_progress: bool = True) -> object
     if args.agent == "manual":
         return ManualAgentAdapter(pause=not args.no_pause)
     if args.agent == "codex":
-        return CodexCliAdapter(
-            CodexCliConfig(
-                command=args.codex_command,
-                model=args.codex_model,
-                profile=args.codex_profile,
-                sandbox=args.codex_sandbox,
-                approval_policy=args.codex_approval,
-                timeout_seconds=args.codex_timeout_seconds,
-                show_progress=show_progress,
-            )
-        )
+        return CodexCliAdapter(_codex_config_from_args(args, show_progress))
     raise RuntimeError(f"unknown agent: {args.agent}")
+
+
+def _codex_config_from_args(
+    args: argparse.Namespace,
+    show_progress: bool = True,
+) -> CodexCliConfig:
+    return CodexCliConfig(
+        command=args.codex_command,
+        model=args.codex_model,
+        profile=args.codex_profile,
+        sandbox=args.codex_sandbox,
+        approval_policy=args.codex_approval,
+        timeout_seconds=args.codex_timeout_seconds,
+        show_progress=show_progress,
+    )
 
 
 def _agent_factory(args: argparse.Namespace) -> Callable[[bool], object]:

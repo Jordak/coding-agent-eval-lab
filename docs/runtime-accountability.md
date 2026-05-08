@@ -35,6 +35,13 @@ tokens as outcome evidence. Current local Codex traces do not expose dollar cost
 so cost remains `unknown` unless a future event stream includes a reliable cost
 field.
 
+Codex trial `result.json` artifacts also store an `agent_harness_config` object
+with the explicit model and profile when supplied, sandbox mode, approval
+policy, timeout, configured command, resolved command identity when available,
+and CLI version when Agent Lab can read it. Runtime-accountability fields that
+the harness cannot currently provide, such as account and billing context, remain
+explicitly unknown in artifact metadata and report output.
+
 This means each Codex trial currently measures **Codex CLI as configured on this
 machine**. Authentication, default model selection, account limits, and token
 budget are handled by the local Codex app/CLI configuration, not by Agent Lab.
@@ -64,12 +71,10 @@ Reports cannot yet reliably answer:
 
 ## TODO
 
-- Store the Codex preflight result or CLI version in every Codex trial artifact.
-- Record the explicit model whenever supplied.
+- Preserve any additional preflight-derived runtime facts in trial metadata when
+  future checks expose them.
 - Prefer requiring `--codex-model` for publishable comparisons.
 - Parse `codex-events.jsonl` for cost if the event stream exposes it.
-- Store runtime configuration in `result.json`, including sandbox mode, approval
-  policy, command path, model, profile, and CLI version.
 - Add a report warning when model or cost is unknown.
 - Document that early results are local-machine/runtime measurements, not pure
   model-vs-model comparisons.

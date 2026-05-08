@@ -25,10 +25,16 @@ def render_markdown_report(run: "EvaluationRun") -> str:
         f"- Lines deleted: `{run.agent_run.lines_deleted}`",
         f"- Transcript/trace: `{run.agent_run.transcript_path.name}`",
         f"- Diff: `{run.agent_run.diff_path.name}`",
-        "",
-        "## Code-Based Graders",
-        "",
     ]
+
+    config_lines = _render_agent_harness_config(
+        getattr(run.agent_run, "agent_harness_config", {})
+    )
+    if config_lines:
+        lines.extend(["", "## Agent Harness Configuration", ""])
+        lines.extend(config_lines)
+
+    lines.extend(["", "## Code-Based Graders", ""])
 
     if not run.score.checks:
         lines.append("No code-based graders were configured.")
@@ -151,3 +157,30 @@ def _display_optional(value: object) -> str:
     if value is None:
         return "unknown"
     return str(value)
+
+
+def _render_agent_harness_config(config: object) -> list[str]:
+    if not isinstance(config, dict) or not config:
+        return []
+    runtime_accountability = config.get("runtime_accountability")
+    if not isinstance(runtime_accountability, dict):
+        runtime_accountability = {}
+
+    fields = [
+        ("Agent adapter", config.get("agent_adapter")),
+        ("Command", config.get("command")),
+        ("Command identity", config.get("command_identity")),
+        ("Model", config.get("model_name")),
+        ("Model source", config.get("model_source")),
+        ("Profile", config.get("profile")),
+        ("Sandbox", config.get("sandbox")),
+        ("Approval policy", config.get("approval_policy")),
+        ("Timeout seconds", config.get("timeout_seconds")),
+        ("CLI version", config.get("cli_version")),
+        ("Account", runtime_accountability.get("account")),
+        ("Billing context", runtime_accountability.get("billing_context")),
+    ]
+    return [
+        f"- {label}: `{_display_optional(value)}`"
+        for label, value in fields
+    ]
