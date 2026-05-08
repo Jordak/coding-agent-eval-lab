@@ -21,3 +21,14 @@ under `tasks/`.
 
 This checkout uses `.githooks/pre-commit` to check generated task cards and task
 bundle validation before commits.
+
+## Engineering operating rules
+
+- Do not hard-code user- or machine-specific file locations when a portable
+  discovery or configuration mechanism exists. Prefer repo-relative paths,
+  `PATH`, explicit CLI flags, or documented setup.
+- If a failure is caused by the local environment, diagnose and fix the
+  environment before adding application-level workarounds.
+- Put reusable behavior in shared layers. Keep child adapters focused on
+  adapter-specific behavior, and move general terminal, reporting, or error
+  presentation into common code.
