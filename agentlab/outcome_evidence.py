@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict
 
+from agentlab.agent_harness_config import normalize_agent_harness_config
 from agentlab.patches import count_patch_lines
 from agentlab.resource_usage import (
     ResourceUsage,
@@ -31,6 +32,7 @@ class OutcomeEvidence:
     reference_artifact: Dict[str, Any] | None
     agent_name: str
     model_name: str | None
+    agent_harness_config: Dict[str, Any]
     status: str
     success: bool
     trial_validity: str
@@ -68,6 +70,7 @@ class OutcomeEvidence:
                 "reference_artifact": self.reference_artifact,
                 "agent_name": self.agent_name,
                 "model_name": self.model_name,
+                "agent_harness_config": dict(self.agent_harness_config),
                 "status": self.status,
                 "success": self.success,
                 "trial_validity": self.trial_validity,
@@ -123,6 +126,7 @@ def normalize_outcome_evidence(
 
     _backfill_edit_size(data, resolved_run_dir)
     _backfill_resource_usage(data, resolved_run_dir)
+    _backfill_agent_harness_config(data)
 
     status, success = _grader_status(data)
     trial_validity, review_exclusion_reason = _review_validity(
@@ -165,6 +169,7 @@ def normalize_outcome_evidence(
         reference_artifact=_optional_dict(data.get("reference_artifact")),
         agent_name=str(data.get("agent_name") or ""),
         model_name=_optional_str(data.get("model_name")),
+        agent_harness_config=dict(data.get("agent_harness_config") or {}),
         status=status,
         success=success,
         trial_validity=trial_validity,
@@ -348,6 +353,15 @@ def _backfill_resource_usage(data: Dict[str, Any], run_dir: Path | None) -> None
         cost_usd=_optional_float(data.get("cost_usd")),
     )
     data["resource_usage"] = resource_usage_to_dict(usage)
+
+
+def _backfill_agent_harness_config(data: Dict[str, Any]) -> None:
+    data["agent_harness_config"] = normalize_agent_harness_config(
+        _optional_dict(data.get("agent_harness_config")),
+        agent_name=_optional_str(data.get("agent_name")),
+        model_name=_optional_str(data.get("model_name")),
+        cost_usd=_optional_float(data.get("cost_usd")),
+    )
 
 
 def _resource_usage_from_events(run_dir: Path | None) -> ResourceUsage | None:

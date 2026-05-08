@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 
 @dataclass(frozen=True)
@@ -19,6 +19,7 @@ class PreflightCheck:
 class PreflightResult:
     agent_name: str
     checks: List[PreflightCheck]
+    agent_harness_config: Dict[str, Any] = field(default_factory=dict)
 
     @property
     def passed(self) -> bool:

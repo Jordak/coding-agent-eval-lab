@@ -132,6 +132,44 @@ class ResultsTest(unittest.TestCase):
             self.assertEqual(result["resource_usage"]["total_tokens"], 15)
             self.assertIsNone(result["cost_usd"])
 
+    def test_load_results_backfills_and_preserves_agent_harness_config(self):
+        with tempfile.TemporaryDirectory() as temp:
+            run_dir = Path(temp) / "run-1"
+            run_dir.mkdir()
+            result_path = run_dir / "result.json"
+            result_path.write_text(
+                json.dumps(
+                    {
+                        "trial_kind": "agent_trial",
+                        "run_dir": str(run_dir),
+                        "agent_name": "codex",
+                        "model_name": None,
+                        "cost_usd": None,
+                        "agent_harness_config": {
+                            "agent_harness": "codex",
+                            "agent_adapter": "codex_cli",
+                            "runtime_accountability": {
+                                "account": None,
+                                "future_runtime_fact": None,
+                            },
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = load_results([result_path])[0]
+
+            harness_config = result["agent_harness_config"]
+            self.assertEqual(harness_config["agent_harness"], "codex")
+            self.assertEqual(harness_config["agent_adapter"], "codex_cli")
+            self.assertIsNone(harness_config["model_name"])
+            runtime_accountability = harness_config["runtime_accountability"]
+            self.assertIsNone(runtime_accountability["account"])
+            self.assertIsNone(runtime_accountability["billing_context"])
+            self.assertIsNone(runtime_accountability["cost_usd"])
+            self.assertIsNone(runtime_accountability["future_runtime_fact"])
+
     def _write_result(
         self,
         run_dir: Path,

@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict, Iterable, List
 
+from agentlab.agent_harness_config import normalize_agent_harness_config
 from agentlab.outcome_evidence import load_outcome_evidence
 from agentlab.resource_usage import (
     ResourceUsage,
@@ -34,6 +35,12 @@ def to_result_dict(run: Any) -> Dict[str, Any]:
         ),
         "agent_name": run.agent_run.agent_name,
         "model_name": run.agent_run.model_name,
+        "agent_harness_config": normalize_agent_harness_config(
+            getattr(run.agent_run, "agent_harness_config", {}),
+            agent_name=run.agent_run.agent_name,
+            model_name=run.agent_run.model_name,
+            cost_usd=run.agent_run.cost_usd,
+        ),
         "status": "passed" if run.score.tests_passed else "failed",
         "success": run.score.tests_passed,
         "trial_validity": DEFAULT_TRIAL_VALIDITY,

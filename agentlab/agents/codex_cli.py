@@ -6,8 +6,9 @@ import tempfile
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
+from agentlab.agent_harness_config import normalize_agent_harness_config
 from agentlab.agents.base import AgentRun
 from agentlab.environment import build_task_environment
 from agentlab.environment import describe_task_environment
@@ -32,6 +33,12 @@ class CodexCliConfig:
     show_progress: bool = True
 
 
+@dataclass(frozen=True)
+class CodexRuntimeFacts:
+    command_identity: str | None = None
+    cli_version: str | None = None
+
+
 class CodexCliAdapter:
     name = "codex"
 
@@ -54,6 +61,7 @@ class CodexCliAdapter:
         prompt = _build_prompt(task)
         command = self._build_command(workspace, last_message_path, prompt)
         task_env = build_task_environment(task, workspace)
+        runtime_facts = self._collect_runtime_facts()
 
         error = None
         completed: subprocess.CompletedProcess[str] | None = None
@@ -102,6 +110,11 @@ class CodexCliAdapter:
             diff_path=diff_path,
             duration_ms=duration_ms,
             model_name=self.config.model,
+            agent_harness_config=codex_agent_harness_config(
+                self.config,
+                runtime_facts=runtime_facts,
+                cost_usd=usage.cost_usd,
+            ),
             input_tokens=usage.input_tokens,
             cached_input_tokens=usage.cached_input_tokens,
             output_tokens=usage.output_tokens,
@@ -191,12 +204,50 @@ class CodexCliAdapter:
                     )
                 progress.update("waiting for agent response")
 
+    def _collect_runtime_facts(self) -> CodexRuntimeFacts:
+        if self._command_runner:
+            return CodexRuntimeFacts()
+        executable = shutil.which(self.config.command)
+        if executable is None:
+            return CodexRuntimeFacts()
+        return CodexRuntimeFacts(
+            command_identity=str(Path(executable).resolve()),
+            cli_version=_codex_cli_version(executable),
+        )
+
 
 def _missing_cli_message(command: str) -> str:
     return (
         f"Codex CLI not found: {command}. Make the executable discoverable on "
         "PATH, or pass --codex-command /path/to/codex for a nonstandard "
         "installation."
+    )
+
+
+def codex_agent_harness_config(
+    config: CodexCliConfig,
+    *,
+    runtime_facts: CodexRuntimeFacts | None = None,
+    cost_usd: float | None = None,
+) -> Dict[str, Any]:
+    runtime_facts = runtime_facts or CodexRuntimeFacts()
+    return normalize_agent_harness_config(
+        {
+            "agent_harness": "codex",
+            "agent_adapter": "codex_cli",
+            "command": config.command,
+            "command_identity": runtime_facts.command_identity,
+            "model_name": config.model,
+            "model_source": "explicit" if config.model else "unknown",
+            "profile": config.profile,
+            "sandbox": config.sandbox,
+            "approval_policy": config.approval_policy,
+            "timeout_seconds": config.timeout_seconds,
+            "cli_version": runtime_facts.cli_version,
+        },
+        agent_name="codex",
+        model_name=config.model,
+        cost_usd=cost_usd,
     )
 
 
@@ -217,6 +268,7 @@ def run_codex_preflight(
                     message=_missing_cli_message(config.command),
                 )
             ],
+            agent_harness_config=codex_agent_harness_config(config),
         )
 
     checks = [
@@ -227,14 +279,13 @@ def run_codex_preflight(
             message=f"found {executable}",
         )
     ]
-    checks.append(
-        _run_preflight_command(
-            name="Codex version",
-            command=[executable, "--version"],
-            timeout_seconds=timeout_seconds,
-            command_runner=command_runner,
-        )
+    version_check = _run_preflight_command(
+        name="Codex version",
+        command=[executable, "--version"],
+        timeout_seconds=timeout_seconds,
+        command_runner=command_runner,
     )
+    checks.append(version_check)
     with tempfile.TemporaryDirectory(prefix="agentlab-codex-preflight-") as temp:
         temp_path = Path(temp)
         checks.append(
@@ -249,7 +300,38 @@ def run_codex_preflight(
                 command_runner=command_runner,
             )
         )
-    return PreflightResult(agent_name="codex", checks=checks)
+    return PreflightResult(
+        agent_name="codex",
+        checks=checks,
+        agent_harness_config=codex_agent_harness_config(
+            config,
+            runtime_facts=CodexRuntimeFacts(
+                command_identity=str(Path(executable).resolve()),
+                cli_version=_preflight_cli_version(version_check),
+            ),
+        ),
+    )
+
+
+def _codex_cli_version(executable: str) -> str | None:
+    try:
+        completed = subprocess.run(
+            [executable, "--version"],
+            text=True,
+            capture_output=True,
+            timeout=5,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if completed.returncode != 0:
+        return None
+    return _first_output_line(completed.stdout, completed.stderr) or None
+
+
+def _preflight_cli_version(check: PreflightCheck) -> str | None:
+    if not check.passed:
+        return None
+    return _first_output_line(check.stdout, check.stderr) or None
 
 
 def _build_preflight_exec_help_command(
