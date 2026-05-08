@@ -122,6 +122,15 @@ class EvalTask:
         )
 
 
+@dataclass(frozen=True)
+class TaskBundle:
+    task: EvalTask
+    task_file: Path
+    bundle_dir: Path
+    suite_dir: Path
+    task_card_path: Path
+
+
 def discover_task_files(patterns: Iterable[str]) -> List[Path]:
     files: List[Path] = []
     seen: set[Path] = set()
@@ -138,6 +147,10 @@ def discover_task_files(patterns: Iterable[str]) -> List[Path]:
     return files
 
 
+def discover_task_bundles(patterns: Iterable[str]) -> List[TaskBundle]:
+    return [load_task_bundle(path) for path in discover_task_files(patterns)]
+
+
 def load_task(path: str | Path) -> EvalTask:
     task_path = resolve_task_file(path)
     try:
@@ -147,6 +160,19 @@ def load_task(path: str | Path) -> EvalTask:
 
     mapping = load_task_mapping(raw_text)
     return EvalTask.from_mapping(mapping, source_path=task_path)
+
+
+def load_task_bundle(path: str | Path) -> TaskBundle:
+    task_path = resolve_task_file(path)
+    task = load_task(task_path)
+    bundle_dir = task_path.parent
+    return TaskBundle(
+        task=task,
+        task_file=task_path,
+        bundle_dir=bundle_dir,
+        suite_dir=bundle_dir.parent,
+        task_card_path=bundle_dir / "task-card.md",
+    )
 
 
 def resolve_task_file(path: str | Path) -> Path:

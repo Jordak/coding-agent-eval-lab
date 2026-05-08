@@ -6,7 +6,9 @@ from pathlib import Path
 from agentlab.tasks import (
     EvalTask,
     TaskLoadError,
+    discover_task_bundles,
     discover_task_files,
+    load_task_bundle,
     load_task,
     load_task_mapping,
 )
@@ -223,6 +225,23 @@ class TaskLoadingTest(unittest.TestCase):
             ],
         )
 
+    def test_discovers_loaded_task_bundle_models_from_directory(self):
+        bundles = discover_task_bundles(["tasks/starter"])
+
+        self.assertEqual(
+            [bundle.task.id for bundle in bundles],
+            [
+                "2048-advanced-snake-params-001",
+                "click-default-map-nargs-001",
+                "click-help-shadowed-option-001",
+                "python-bugfix-001",
+            ],
+        )
+        self.assertEqual(bundles[0].task_file.name, "task.yaml")
+        self.assertEqual(bundles[0].bundle_dir.name, "2048-advanced-snake-params-001")
+        self.assertEqual(bundles[0].suite_dir.as_posix(), "tasks/starter")
+        self.assertEqual(bundles[0].task_card_path.name, "task-card.md")
+
     def test_loads_task_bundle_directory(self):
         with tempfile.TemporaryDirectory() as temp:
             bundle = Path(temp) / "demo-task"
@@ -244,6 +263,33 @@ class TaskLoadingTest(unittest.TestCase):
             task = load_task(bundle)
 
         self.assertEqual(task.id, "demo-001")
+
+    def test_loads_task_bundle_model(self):
+        with tempfile.TemporaryDirectory() as temp:
+            suite = Path(temp) / "suite"
+            bundle = suite / "demo-task"
+            bundle.mkdir(parents=True)
+            (bundle / "task.yaml").write_text(
+                textwrap.dedent(
+                    """
+                    id: demo-001
+                    title: Demo task
+                    repo: https://github.com/example/demo
+                    commit: abc123
+                    language: python
+                    prompt: Fix it.
+                    """
+                ),
+                encoding="utf-8",
+            )
+
+            task_bundle = load_task_bundle(bundle)
+
+        self.assertEqual(task_bundle.task.id, "demo-001")
+        self.assertEqual(task_bundle.task_file, bundle / "task.yaml")
+        self.assertEqual(task_bundle.bundle_dir, bundle)
+        self.assertEqual(task_bundle.suite_dir, suite)
+        self.assertEqual(task_bundle.task_card_path, bundle / "task-card.md")
 
     def test_rejects_directory_without_task_yaml(self):
         with tempfile.TemporaryDirectory() as temp:
