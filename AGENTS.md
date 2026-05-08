@@ -6,6 +6,11 @@
 
 Issues and PRDs are tracked in GitHub Issues for `Jordak/coding-agent-eval-lab`. See `docs/agents/issue-tracker.md`.
 
+Current planning anchor: GitHub Issue #10, "PRD: Codex deep baseline and
+evidence-scoped capability reports"
+(`https://github.com/Jordak/coding-agent-eval-lab/issues/10`). After context
+compaction, read that PRD before choosing the next implementation slice.
+
 ### Triage labels
 
 This repo uses the default five-label triage vocabulary. See `docs/agents/triage-labels.md`.
