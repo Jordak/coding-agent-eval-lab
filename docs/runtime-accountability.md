@@ -8,6 +8,10 @@ The Codex adapter shells out to the locally installed Codex CLI:
 codex --ask-for-approval never exec --json --cd <workspace> --sandbox workspace-write ...
 ```
 
+By default, the adapter resolves `codex` from `PATH`, then falls back to
+`/Applications/Codex.app/Contents/Resources/codex` on macOS when that bundled
+CLI exists. `--codex-command` can still point at a specific executable.
+
 This means each Codex trial currently measures **Codex CLI as configured on this
 machine**. Authentication, default model selection, account limits, and token
 budget are handled by the local Codex app/CLI configuration, not by Agent Lab.

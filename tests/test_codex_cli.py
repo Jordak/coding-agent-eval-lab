@@ -4,13 +4,31 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
-from agentlab.agents.codex_cli import CodexCliAdapter, CodexCliConfig
+from agentlab.agents.codex_cli import (
+    CodexCliAdapter,
+    CodexCliConfig,
+    _resolve_executable,
+)
 from agentlab.runner import run_task
 from agentlab.tasks import EvalTask
 
 
 class CodexCliAdapterTest(unittest.TestCase):
+    def test_resolves_codex_from_macos_app_bundle_when_not_on_path(self):
+        with tempfile.TemporaryDirectory() as temp:
+            bundled_codex = Path(temp) / "Codex.app" / "Contents" / "Resources" / "codex"
+            bundled_codex.parent.mkdir(parents=True)
+            bundled_codex.write_text("#!/bin/sh\n", encoding="utf-8")
+            bundled_codex.chmod(0o755)
+
+            with patch("agentlab.agents.codex_cli.shutil.which", return_value=None):
+                self.assertEqual(
+                    _resolve_executable("codex", fallback_paths=[bundled_codex]),
+                    str(bundled_codex),
+                )
+
     def test_codex_adapter_runs_command_and_captures_patch(self):
         if shutil.which("git") is None:
             self.skipTest("git is required for workspace preparation")

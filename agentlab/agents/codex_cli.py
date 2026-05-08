@@ -1,17 +1,19 @@
 from __future__ import annotations
 
+import os
 import shutil
 import subprocess
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, List, Optional
+from typing import Callable, Iterable, List, Optional
 
 from agentlab.agents.base import AgentRun
 from agentlab.tasks import EvalTask
 
 
 CommandRunner = Callable[[List[str], int], subprocess.CompletedProcess[str]]
+CODEX_APP_CLI = Path("/Applications/Codex.app/Contents/Resources/codex")
 
 
 @dataclass(frozen=True)
@@ -123,7 +125,7 @@ class CodexCliAdapter:
         if self._command_runner:
             return self._command_runner(command, timeout_seconds)
 
-        executable = shutil.which(self.config.command)
+        executable = _resolve_executable(self.config.command)
         if executable is None:
             raise FileNotFoundError(self.config.command)
         command = [executable] + command[1:]
@@ -133,6 +135,24 @@ class CodexCliAdapter:
             capture_output=True,
             timeout=timeout_seconds,
         )
+
+
+def _resolve_executable(
+    command: str,
+    fallback_paths: Iterable[Path] = (CODEX_APP_CLI,),
+) -> str | None:
+    executable = shutil.which(command)
+    if executable is not None:
+        return executable
+
+    if command != "codex":
+        return None
+
+    for path in fallback_paths:
+        if path.is_file() and os.access(path, os.X_OK):
+            return str(path)
+
+    return None
 
 
 def _build_prompt(task: EvalTask) -> str:
