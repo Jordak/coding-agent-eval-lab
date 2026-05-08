@@ -44,21 +44,23 @@ Generated from local trial artifacts with:
 ```bash
 python3 -m agentlab trials summarize
 python3 -m agentlab report evidence-appendix --output /private/tmp/agentlab-current-evidence.md
+python3 -m agentlab run --agent codex --task tasks/starter/click-default-map-nargs-001 --trials 3 --jobs 3
 ```
 
 | Task | Total Trials | Fair Trials | Excluded Trials | Fair Passes | Fair Pass Rate | pass@k | pass^k | Human Review | Exclusions |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
 | `click-help-shadowed-option-001` | 7 | 6 | 1 | 6 | 1.00 | 1.00 | 1.00 | `success_clean:6` | `harness_error:1` |
-| `click-default-map-nargs-001` | 6 | 1 | 5 | 1 | 1.00 | 1.00 | 1.00 | `success_clean:1` | `setup_error:5` |
+| `click-default-map-nargs-001` | 9 | 4 | 5 | 4 | 1.00 | 1.00 | 1.00 | `success_clean:4` | `setup_error:5` |
 
 The help-option task has enough fair repeated trials to support a narrow
 consistency observation under these conditions: all six fair Codex trials
 passed the deterministic graders and were reviewed as `success_clean`.
 
-The default-map task has only one fair trial. It passed, but the five excluded
-setup-error trials mean this task should not yet be used for a consistency
-claim. It is evidence that the task environment needed correction, not evidence
-that Codex failed the task.
+The default-map task now has four fair trials after the corrected task
+environment and bounded follow-up batch. All four fair trials passed and were
+reviewed as `success_clean`. The five excluded setup-error trials remain useful
+diagnostic evidence about the earlier environment, but they do not count in fair
+capability metrics.
 
 ## What Codex Did Well
 
@@ -70,9 +72,10 @@ median of 62.5 added lines and 12 deleted lines. All fair trials passed. The
 patches generally changed Click option parsing/error formatting behavior and
 added coverage around the shadowed help-option case.
 
-For `click-default-map-nargs-001`, the fair trial edited two files with 63 added
-lines and 5 deleted lines. It passed the deterministic graders and was reviewed
-as `success_clean`.
+For `click-default-map-nargs-001`, the fair trials edited two files with a
+median of 88 added lines and 2.5 deleted lines. All fair trials passed. The
+patches generally changed default-map value handling and added regression tests
+for multi-value string defaults.
 
 ## What Was Brittle
 
@@ -95,8 +98,8 @@ For technical evaluators:
 - Run `agentlab doctor --agent codex` before spending a repeated trial batch.
 - Keep invalid setup, harness, and operator failures excluded from fair
   capability summaries, but preserve their transcripts for diagnosis.
-- Run a new bounded fair batch for `click-default-map-nargs-001` before making
-  any consistency statement about that task.
+- Repeat this same pattern before expanding to new task categories: reference
+  verification, one-trial smoke test, then a bounded fair batch.
 
 For solo developers:
 
@@ -128,3 +131,6 @@ paths are the evidence used for this report.
 | `20260507-190627-click-default-map-nargs-001-codex-da315bee` | `click-default-map-nargs-001` | failed | excluded: `setup_error` | `runs/20260507-190627-click-default-map-nargs-001-codex-da315bee/report.md` | `runs/20260507-190627-click-default-map-nargs-001-codex-da315bee/transcript.md` | `runs/20260507-190627-click-default-map-nargs-001-codex-da315bee/diff.patch` | `runs/20260507-190627-click-default-map-nargs-001-codex-da315bee/result.json` |
 | `20260507-190743-click-default-map-nargs-001-codex-45ab8712` | `click-default-map-nargs-001` | failed | excluded: `setup_error` | `runs/20260507-190743-click-default-map-nargs-001-codex-45ab8712/report.md` | `runs/20260507-190743-click-default-map-nargs-001-codex-45ab8712/transcript.md` | `runs/20260507-190743-click-default-map-nargs-001-codex-45ab8712/diff.patch` | `runs/20260507-190743-click-default-map-nargs-001-codex-45ab8712/result.json` |
 | `20260507-191800-click-default-map-nargs-001-codex-f8be8394` | `click-default-map-nargs-001` | passed | valid | `runs/20260507-191800-click-default-map-nargs-001-codex-f8be8394/report.md` | `runs/20260507-191800-click-default-map-nargs-001-codex-f8be8394/transcript.md` | `runs/20260507-191800-click-default-map-nargs-001-codex-f8be8394/diff.patch` | `runs/20260507-191800-click-default-map-nargs-001-codex-f8be8394/result.json` |
+| `20260507-212911-click-default-map-nargs-001-codex-59243485` | `click-default-map-nargs-001` | passed | valid | `runs/20260507-212911-click-default-map-nargs-001-codex-59243485/report.md` | `runs/20260507-212911-click-default-map-nargs-001-codex-59243485/transcript.md` | `runs/20260507-212911-click-default-map-nargs-001-codex-59243485/diff.patch` | `runs/20260507-212911-click-default-map-nargs-001-codex-59243485/result.json` |
+| `20260507-212911-click-default-map-nargs-001-codex-953cf220` | `click-default-map-nargs-001` | passed | valid | `runs/20260507-212911-click-default-map-nargs-001-codex-953cf220/report.md` | `runs/20260507-212911-click-default-map-nargs-001-codex-953cf220/transcript.md` | `runs/20260507-212911-click-default-map-nargs-001-codex-953cf220/diff.patch` | `runs/20260507-212911-click-default-map-nargs-001-codex-953cf220/result.json` |
+| `20260507-212911-click-default-map-nargs-001-codex-a2253130` | `click-default-map-nargs-001` | passed | valid | `runs/20260507-212911-click-default-map-nargs-001-codex-a2253130/report.md` | `runs/20260507-212911-click-default-map-nargs-001-codex-a2253130/transcript.md` | `runs/20260507-212911-click-default-map-nargs-001-codex-a2253130/diff.patch` | `runs/20260507-212911-click-default-map-nargs-001-codex-a2253130/result.json` |
