@@ -27,6 +27,7 @@ The first scaffold supports:
 - `agentlab run --agent manual --task ...` for one manual trial.
 - Git checkout preparation, configured command execution, diff capture, and
   Markdown/JSON trial artifacts.
+- Outcome evidence including changed files and line additions/deletions.
 - Codex CLI and manual agent adapters.
 - Multi-trial execution, concurrent trial jobs, and pass@k/pass^k summaries.
 - Human review labels, trial-validity metadata, and excluded-trial summaries.
@@ -101,8 +102,10 @@ python3 -m agentlab run \
 
 The Codex adapter stores `codex-events.jsonl`, `codex-last-message.md`,
 `transcript.md`, `diff.patch`, `report.md`, and `result.json` in the run
-directory. By default it resolves `codex` from `PATH`. If the CLI is installed
-outside `PATH`, fix the shell environment or use `--codex-command
+directory. Reports and result metadata include changed-file counts plus line
+additions/deletions from the captured patch. By default it resolves `codex` from
+`PATH`. If the CLI is installed outside `PATH`, fix the shell environment or use
+`--codex-command
 /path/to/codex` for that run. While the agent process is running, the terminal
 shows a small progress bar such as `waiting for agent response`; agent launch
 errors are also printed to stderr instead of only appearing in the transcript.

@@ -16,6 +16,8 @@ class AgentRun:
     files_changed: List[str] = field(default_factory=list)
     commands_run: List[str] = field(default_factory=list)
     duration_ms: int = 0
+    lines_added: int = 0
+    lines_deleted: int = 0
     model_name: Optional[str] = None
     success: Optional[bool] = None
     cost_usd: Optional[float] = None

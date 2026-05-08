@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict, Iterable, List
 
+from agentlab.patches import count_patch_lines
 from agentlab.scoring import CheckResult
 from agentlab.review import load_review
 from agentlab.validity import DEFAULT_TRIAL_VALIDITY
@@ -38,6 +39,8 @@ def to_result_dict(run: Any) -> Dict[str, Any]:
             "status": "passed" if run.score.tests_passed else "failed",
             "files_changed": run.agent_run.files_changed,
             "n_files_changed": len(run.agent_run.files_changed),
+            "lines_added": run.agent_run.lines_added,
+            "lines_deleted": run.agent_run.lines_deleted,
             "diff_path": str(run.agent_run.diff_path),
         },
         "score_notes": run.score.notes,
@@ -45,6 +48,8 @@ def to_result_dict(run: Any) -> Dict[str, Any]:
         "error": run.agent_run.error,
         "cost_usd": run.agent_run.cost_usd,
         "files_changed": run.agent_run.files_changed,
+        "lines_added": run.agent_run.lines_added,
+        "lines_deleted": run.agent_run.lines_deleted,
         "commands_run": run.agent_run.commands_run,
         "checks": [_check_to_dict(check) for check in run.score.checks],
         "graders": [_check_to_grader_dict(check) for check in run.score.checks],
@@ -79,6 +84,8 @@ def reference_verification_to_result_dict(verification: Any) -> Dict[str, Any]:
             "status": status,
             "files_changed": verification.files_changed,
             "n_files_changed": len(verification.files_changed),
+            "lines_added": verification.lines_added,
+            "lines_deleted": verification.lines_deleted,
             "diff_path": _display_path(verification.diff_path, output_dir),
         },
         "score_notes": verification.notes,
@@ -86,6 +93,8 @@ def reference_verification_to_result_dict(verification: Any) -> Dict[str, Any]:
         "error": None,
         "cost_usd": None,
         "files_changed": verification.files_changed,
+        "lines_added": verification.lines_added,
+        "lines_deleted": verification.lines_deleted,
         "commands_run": [check.command for check in verification.all_checks],
         "checks": [_check_to_dict(check) for check in verification.all_checks],
         "graders": [
@@ -114,6 +123,7 @@ def load_results(paths: Iterable[Path]) -> List[Dict[str, Any]]:
         if result.get("trial_kind", "agent_trial") != "agent_trial":
             continue
         run_dir = Path(str(result.get("run_dir") or path.parent))
+        _backfill_patch_stats(result, run_dir)
         review = load_review(run_dir)
         if review:
             result["review"] = review
@@ -127,6 +137,39 @@ def load_results(paths: Iterable[Path]) -> List[Dict[str, Any]]:
             )
         results.append(result)
     return results
+
+
+def _backfill_patch_stats(result: Dict[str, Any], run_dir: Path) -> None:
+    if "lines_added" in result and "lines_deleted" in result:
+        return
+
+    diff_path = _result_diff_path(result, run_dir)
+    if diff_path is None or not diff_path.exists():
+        result.setdefault("lines_added", 0)
+        result.setdefault("lines_deleted", 0)
+        return
+
+    try:
+        stats = count_patch_lines(diff_path.read_text(encoding="utf-8"))
+    except OSError:
+        stats = count_patch_lines("")
+    result["lines_added"] = stats.lines_added
+    result["lines_deleted"] = stats.lines_deleted
+
+    outcome = result.get("outcome")
+    if isinstance(outcome, dict):
+        outcome["lines_added"] = stats.lines_added
+        outcome["lines_deleted"] = stats.lines_deleted
+
+
+def _result_diff_path(result: Dict[str, Any], run_dir: Path) -> Path | None:
+    raw_path = result.get("diff_path")
+    if not raw_path:
+        raw_path = "diff.patch"
+    diff_path = Path(str(raw_path))
+    if diff_path.is_absolute():
+        return diff_path
+    return run_dir / diff_path
 
 
 def _check_to_dict(check: CheckResult) -> Dict[str, Any]:

@@ -24,6 +24,8 @@ class TrialGroupSummary:
     pass_caret_k: float
     median_duration_ms: int
     median_files_changed: float
+    median_lines_added: float
+    median_lines_deleted: float
     review_labels: Dict[str, int]
     exclusion_reasons: Dict[str, int]
 
@@ -63,6 +65,8 @@ def _summarize_group(
         len(result.get("files_changed") or [])
         for result in valid_results
     ]
+    lines_added = [int(result.get("lines_added") or 0) for result in valid_results]
+    lines_deleted = [int(result.get("lines_deleted") or 0) for result in valid_results]
     review_labels = Counter(
         label for result in valid_results for label in [_review_label(result)] if label
     )
@@ -88,6 +92,8 @@ def _summarize_group(
         pass_caret_k=1.0 if passes == trials and trials > 0 else 0.0,
         median_duration_ms=int(median(durations)) if durations else 0,
         median_files_changed=median(files_changed) if files_changed else 0.0,
+        median_lines_added=median(lines_added) if lines_added else 0.0,
+        median_lines_deleted=median(lines_deleted) if lines_deleted else 0.0,
         review_labels=dict(sorted(review_labels.items())),
         exclusion_reasons=dict(sorted(exclusion_reasons.items())),
     )

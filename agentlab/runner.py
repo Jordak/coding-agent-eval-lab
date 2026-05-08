@@ -9,6 +9,7 @@ from agentlab.agents.base import AgentAdapter
 from agentlab.agents.base import AgentRun
 from agentlab.commands import run_commands
 from agentlab.environment import build_task_environment
+from agentlab.patches import count_patch_lines
 from agentlab.reporting import render_markdown_report
 from agentlab.scoring import Score
 from agentlab.tasks import EvalTask
@@ -40,6 +41,7 @@ def run_task(task: EvalTask, agent: AgentAdapter, runs_dir: Path) -> EvaluationR
 
     diff_path = run_dir / "diff.patch"
     files_changed = capture_diff(prepared.path, diff_path)
+    patch_stats = count_patch_lines(diff_path.read_text(encoding="utf-8"))
     all_checks = setup_checks + baseline_checks + test_checks
     notes = []
     files_changed_ok = True
@@ -68,6 +70,8 @@ def run_task(task: EvalTask, agent: AgentAdapter, runs_dir: Path) -> EvaluationR
         diff_path=diff_path,
         files_changed=files_changed,
         commands_run=[check.command for check in all_checks],
+        lines_added=patch_stats.lines_added,
+        lines_deleted=patch_stats.lines_deleted,
         success=score.tests_passed,
     )
 

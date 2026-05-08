@@ -31,13 +31,23 @@ def prepare_workspace(task: EvalTask, root: Path) -> PreparedWorkspace:
     return PreparedWorkspace(task=task, path=workspace)
 
 
-def capture_diff(workspace: Path, diff_path: Path) -> list[str]:
-    diff = run_git(["diff", "--binary"], cwd=workspace)
+def capture_diff(
+    workspace: Path,
+    diff_path: Path,
+    base_ref: str | None = None,
+) -> list[str]:
+    diff_args = ["diff", "--binary"]
+    name_args = ["diff", "--name-only"]
+    if base_ref is not None:
+        diff_args.append(base_ref)
+        name_args.append(base_ref)
+
+    diff = run_git(diff_args, cwd=workspace)
     if diff.returncode != 0:
         raise RuntimeError(f"git diff failed: {diff.stderr.strip()}")
     diff_path.write_text(diff.stdout, encoding="utf-8")
 
-    changed = run_git(["diff", "--name-only"], cwd=workspace)
+    changed = run_git(name_args, cwd=workspace)
     if changed.returncode != 0:
         raise RuntimeError(f"git diff --name-only failed: {changed.stderr.strip()}")
     return [line for line in changed.stdout.splitlines() if line.strip()]

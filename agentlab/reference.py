@@ -8,6 +8,7 @@ from pathlib import Path
 from agentlab.commands import run_commands
 from agentlab.commands import run_git
 from agentlab.environment import build_task_environment
+from agentlab.patches import count_patch_lines
 from agentlab.reporting import render_reference_report
 from agentlab.results import reference_verification_to_result_dict
 from agentlab.scoring import CheckResult
@@ -29,6 +30,8 @@ class ReferenceVerification:
     baseline_checks: list[CheckResult] = field(default_factory=list)
     target_checks: list[CheckResult] = field(default_factory=list)
     files_changed: list[str] = field(default_factory=list)
+    lines_added: int = 0
+    lines_deleted: int = 0
     notes: list[str] = field(default_factory=list)
     diff_path: Path = Path("reference.diff")
     report_path: Path = Path("reference-report.md")
@@ -77,6 +80,7 @@ def verify_reference(
     output_dir = _reference_output_dir(task, workspace_root, write_artifacts)
     diff_path = output_dir / "reference.diff"
     files_changed = _reference_files_changed(task, prepared.path, diff_path)
+    patch_stats = count_patch_lines(diff_path.read_text(encoding="utf-8"))
     notes = _success_notes(task, files_changed)
 
     verification = ReferenceVerification(
@@ -87,6 +91,8 @@ def verify_reference(
         baseline_checks=baseline_checks,
         target_checks=target_checks,
         files_changed=files_changed,
+        lines_added=patch_stats.lines_added,
+        lines_deleted=patch_stats.lines_deleted,
         notes=notes,
         diff_path=diff_path,
         report_path=output_dir / "reference-report.md",
@@ -143,12 +149,7 @@ def _reference_files_changed(
     diff_path: Path,
 ) -> list[str]:
     if task.reference_artifact and task.reference_artifact.type == "commit":
-        changed = run_git(["diff", "--name-only", task.commit], cwd=workspace)
-        if changed.returncode != 0:
-            raise ReferenceVerificationError(
-                f"git diff --name-only failed: {changed.stderr.strip()}"
-            )
-        return [line for line in changed.stdout.splitlines() if line.strip()]
+        return capture_diff(workspace, diff_path, base_ref=task.commit)
     return capture_diff(workspace, diff_path)
 
 

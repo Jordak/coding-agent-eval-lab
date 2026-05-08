@@ -546,6 +546,8 @@ def handle_runs_list(args: argparse.Namespace) -> int:
             result.get("agent_name", ""),
             result.get("task_id", ""),
             str(len(result.get("files_changed", []))),
+            str(result.get("lines_added", 0)),
+            str(result.get("lines_deleted", 0)),
         ]
         for result in results
     ]
@@ -561,6 +563,8 @@ def handle_runs_list(args: argparse.Namespace) -> int:
             "agent",
             "task",
             "files",
+            "added",
+            "deleted",
         ],
         rows,
     )
@@ -592,6 +596,8 @@ def handle_trials_summarize(args: argparse.Namespace) -> int:
                 _format_rate(summary.pass_caret_k),
                 str(summary.median_duration_ms),
                 str(summary.median_files_changed),
+                str(summary.median_lines_added),
+                str(summary.median_lines_deleted),
                 _format_review_labels(summary.review_labels),
                 _format_review_labels(summary.exclusion_reasons),
             ]
@@ -612,6 +618,8 @@ def handle_trials_summarize(args: argparse.Namespace) -> int:
             "pass^k",
             "med_ms",
             "med_files",
+            "med_added",
+            "med_deleted",
             "reviews",
             "exclusions",
         ],

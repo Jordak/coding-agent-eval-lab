@@ -1,3 +1,4 @@
+import json
 import shutil
 import subprocess
 import sys
@@ -53,6 +54,8 @@ class RunnerTest(unittest.TestCase):
             self.assertTrue(evaluation.result_path.exists())
             self.assertTrue(evaluation.agent_run.diff_path.exists())
             self.assertEqual(evaluation.agent_run.files_changed, [])
+            self.assertEqual(evaluation.agent_run.lines_added, 0)
+            self.assertEqual(evaluation.agent_run.lines_deleted, 0)
 
     def test_task_environment_path_is_used_by_graders(self):
         if shutil.which("git") is None:
@@ -132,6 +135,62 @@ class RunnerTest(unittest.TestCase):
 
             self.assertFalse(evaluation.score.tests_passed)
             self.assertIn("changed 1 files", evaluation.score.notes[0])
+
+    def test_records_line_diff_metrics(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for workspace preparation")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo = temp_path / "repo"
+            repo.mkdir()
+            self._git(["init"], repo)
+            self._git(["config", "user.email", "agentlab@example.com"], repo)
+            self._git(["config", "user.name", "Agent Lab"], repo)
+            (repo / "app.txt").write_text("before\nsame\n", encoding="utf-8")
+            self._git(["add", "app.txt"], repo)
+            self._git(["commit", "-m", "initial"], repo)
+            commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+
+            task = EvalTask(
+                id="line-metrics-task",
+                title="Line metrics task",
+                repo=str(repo),
+                commit=commit,
+                language="text",
+                prompt="Change app.txt.",
+                test=[
+                    f"{sys.executable} -c "
+                    "\"from pathlib import Path; "
+                    "assert Path('app.txt').read_text() == 'after\\nsame\\nnew\\n'\""
+                ],
+            )
+
+            class EditingManualAdapter(ManualAgentAdapter):
+                def run(self, task, workspace, run_dir):
+                    (workspace / "app.txt").write_text(
+                        "after\nsame\nnew\n",
+                        encoding="utf-8",
+                    )
+                    return super().run(task, workspace, run_dir)
+
+            evaluation = run_task(
+                task,
+                EditingManualAdapter(pause=False),
+                temp_path / "runs",
+            )
+            result = json.loads(evaluation.result_path.read_text(encoding="utf-8"))
+            report = evaluation.report_path.read_text(encoding="utf-8")
+
+            self.assertTrue(evaluation.score.tests_passed)
+            self.assertEqual(evaluation.agent_run.lines_added, 2)
+            self.assertEqual(evaluation.agent_run.lines_deleted, 1)
+            self.assertEqual(result["lines_added"], 2)
+            self.assertEqual(result["lines_deleted"], 1)
+            self.assertEqual(result["outcome"]["lines_added"], 2)
+            self.assertEqual(result["outcome"]["lines_deleted"], 1)
+            self.assertIn("- Lines added: `2`", report)
+            self.assertIn("- Lines deleted: `1`", report)
 
     def _git(self, args, cwd):
         completed = subprocess.run(

@@ -138,6 +138,10 @@ class ReferenceVerificationTest(unittest.TestCase):
             self.assertEqual(result["trial_kind"], "reference_verification")
             self.assertEqual(result["agent_name"], "reference")
             self.assertEqual(result["status"], "passed")
+            self.assertEqual(result["lines_added"], 1)
+            self.assertEqual(result["lines_deleted"], 1)
+            self.assertEqual(result["outcome"]["lines_added"], 1)
+            self.assertEqual(result["outcome"]["lines_deleted"], 1)
             self.assertEqual(result["run_dir"], ".")
 
     def test_load_results_excludes_reference_verification_results(self):

@@ -7,8 +7,20 @@ class SummaryTest(unittest.TestCase):
     def test_summarizes_pass_at_k_and_pass_caret_k(self):
         results = [
             self._result(success=False, duration_ms=100, files_changed=[]),
-            self._result(success=True, duration_ms=300, files_changed=["a.py", "b.py"]),
-            self._result(success=True, duration_ms=200, files_changed=["a.py"]),
+            self._result(
+                success=True,
+                duration_ms=300,
+                files_changed=["a.py", "b.py"],
+                lines_added=8,
+                lines_deleted=3,
+            ),
+            self._result(
+                success=True,
+                duration_ms=200,
+                files_changed=["a.py"],
+                lines_added=4,
+                lines_deleted=1,
+            ),
         ]
 
         summary = summarize_trials(results)[0]
@@ -20,6 +32,8 @@ class SummaryTest(unittest.TestCase):
         self.assertEqual(summary.pass_caret_k, 0.0)
         self.assertEqual(summary.median_duration_ms, 200)
         self.assertEqual(summary.median_files_changed, 1)
+        self.assertEqual(summary.median_lines_added, 4)
+        self.assertEqual(summary.median_lines_deleted, 1)
 
     def test_pass_caret_k_requires_all_trials_to_pass(self):
         results = [
@@ -50,6 +64,8 @@ class SummaryTest(unittest.TestCase):
                 success=False,
                 duration_ms=999,
                 files_changed=["a.py", "b.py", "c.py"],
+                lines_added=999,
+                lines_deleted=999,
                 review={
                     "primary_label": "dependency_issue",
                     "trial_validity": "excluded",
@@ -69,6 +85,8 @@ class SummaryTest(unittest.TestCase):
         self.assertEqual(summary.pass_caret_k, 1.0)
         self.assertEqual(summary.median_duration_ms, 100)
         self.assertEqual(summary.median_files_changed, 1)
+        self.assertEqual(summary.median_lines_added, 0)
+        self.assertEqual(summary.median_lines_deleted, 0)
         self.assertEqual(summary.review_labels, {})
         self.assertEqual(summary.exclusion_reasons, {"setup_error": 1})
 
@@ -80,6 +98,8 @@ class SummaryTest(unittest.TestCase):
         task_id="task-a",
         agent_name="codex",
         model_name="m1",
+        lines_added=0,
+        lines_deleted=0,
         review=None,
     ):
         return {
@@ -91,6 +111,8 @@ class SummaryTest(unittest.TestCase):
             "success": success,
             "duration_ms": duration_ms,
             "files_changed": files_changed or [],
+            "lines_added": lines_added,
+            "lines_deleted": lines_deleted,
             "review": review,
         }
 

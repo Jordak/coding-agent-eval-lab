@@ -116,7 +116,8 @@ multiple independent trials for the same task and agent harness; `--jobs N`
 controls how many of those trials run concurrently. `agentlab trials summarize`
 groups stored results and reports total trials, fair trials, excluded trials,
 fair-trial pass rate, pass@k, pass^k, median duration, median changed files,
-review-label counts, and exclusion-reason counts.
+median line additions/deletions, review-label counts, and exclusion-reason
+counts.
 
 See [runtime-accountability.md](runtime-accountability.md) for open work around
 model identity, account context, token usage, and cost tracking.
