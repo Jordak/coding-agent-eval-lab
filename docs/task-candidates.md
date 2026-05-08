@@ -1,0 +1,115 @@
+# Task Candidate Backlog
+
+This file records real-repository task candidates found during early curation so
+they do not get lost in chat history. A candidate is not publishable until it has
+a pinned start commit, deterministic graders, a reviewed reference artifact, and
+passing reference verification.
+
+## Selection Criteria
+
+- Public repository with a clear license and accessible history.
+- Small, realistic maintenance task a solo developer can understand.
+- Pinned starting commit before the fix.
+- Known upstream issue or PR that clarifies intended behavior.
+- Deterministic code-based graders that do not require brittle external state.
+- Setup cost is acceptable for repeated trials.
+
+## Promoted Tasks
+
+### Click should not suggest a shadowed help option
+
+- Status: promoted to `tasks/starter/click-help-shadowed-option-001`
+- Repository: <https://github.com/pallets/click>
+- Issue: <https://github.com/pallets/click/issues/2790>
+- PR: <https://github.com/pallets/click/pull/3208>
+- Start commit: `f1f191ecd2c790b161187c78e7c88440e9524e5c`
+- Reference commit inspected: `1241abaed4e441582a21f4bf90c8482de02b92df`
+- Notes: strong starter task because the bug is user-facing, the target behavior
+  is easy to explain, and standalone inline graders can assert the fix without
+  copying the upstream pytest test into the starting repo.
+
+## Strong Candidates
+
+### Click default_map should split multi-value string defaults
+
+- Repository: <https://github.com/pallets/click>
+- Issue: <https://github.com/pallets/click/issues/2745>
+- PR: <https://github.com/pallets/click/pull/3364>
+- Candidate start commit: `8bd8b4a074c55c03b6eb5666edc44a9c43df38a2`
+- Candidate reference commit: `3a3e0350b6a2ea3e799440d48e779acabcf44de9`
+- Candidate category: Python bugfix / CLI parameter behavior
+- Why promising: real bug, clear behavior, small production fix, good regression
+  surface.
+- Risks / checks: upstream PR includes docs and changelog movement; reference
+  artifact should probably be a trimmed patch focused on `src/click/core.py` and
+  behavioral graders.
+
+### Prettier duplicate dangling comments in experimental ternaries
+
+- Repository: <https://github.com/prettier/prettier>
+- Issue: <https://github.com/prettier/prettier/issues/18944>
+- PR: <https://github.com/prettier/prettier/pull/18963>
+- Candidate start commit: `80a2fdb5e88ce220b88d9122cd74303d71e4d8c0`
+- Candidate reference commit inspected: `0bf6a9e01ab18c41d9eef397aed1a9fa95063301`
+- Candidate category: JavaScript formatter bugfix
+- Why promising: real formatting bug with a concrete before/after output.
+- Risks / checks: Prettier setup may be heavier than starter Python tasks; need a
+  narrow formatter invocation that avoids full repo setup cost if possible.
+
+### Vite should detect Deno workspace roots
+
+- Repository: <https://github.com/vitejs/vite>
+- Issue: <https://github.com/vitejs/vite/issues/22237>
+- PR: <https://github.com/vitejs/vite/pull/22238>
+- Candidate start commit: `dfc8aa5057dd8ec2b1223980d1e2eeb946ac3384`
+- Candidate reference commit: `2ea005e5ec4bf2e5c0f4ed5030d84d713f747fac`
+- Candidate category: TypeScript behavior bugfix / monorepo tooling
+- Why promising: realistic modern JS tooling issue with focused expected
+  behavior.
+- Risks / checks: Vite's package manager and test setup may make repeated trials
+  expensive. Candidate should be deferred until the lab handles JS/TS setup well.
+
+### HTTPX verify=False with client-side certs
+
+- Repository: <https://github.com/encode/httpx>
+- Related issue: <https://github.com/encode/httpx/issues/3441>
+- PR: <https://github.com/encode/httpx/pull/3442>
+- Candidate start commit: `0cb7e5a2e736628e2f506d259fcf0d48cd2bde82`
+- Candidate reference commit: `b1c39523ae3b5d6a3b8c3e49b0feca21242db2c9`
+- Candidate category: Python library behavior bugfix
+- Why promising: small production diff and clear behavioral combination.
+- Risks / checks: SSL/cert behavior can be awkward to grade robustly without
+  overfitting or depending on local certificate fixtures.
+
+## Possible Later Candidates
+
+### Express req.acceptsCharsets flexible input formats
+
+- Repository: <https://github.com/expressjs/express>
+- PR: <https://github.com/expressjs/express/pull/6088>
+- Candidate start commit: `8cb53ea5c3329032a1db47be019b717d8350fb0e`
+- Candidate reference commit inspected: `285e19dc3b6c53099f196396ffc7e769fb9555a5`
+- Candidate category: JavaScript API behavior
+- Why interesting: compact JS library task with behavior and tests.
+- Risks / checks: no linked issue was found during initial curation; clarify the
+  intended behavior from the PR body and tests before promoting.
+
+### Remotion AudioContext autoplay / muted fixes
+
+- Repository: <https://github.com/remotion-dev/remotion>
+- Issues: <https://github.com/remotion-dev/remotion/issues/7236>,
+  <https://github.com/remotion-dev/remotion/issues/7238>
+- PR: <https://github.com/remotion-dev/remotion/pull/7240>
+- Candidate category: TypeScript/media runtime bugfix
+- Why interesting: realistic frontend/media runtime task.
+- Risks / checks: likely heavier setup and harder deterministic grading. Keep for
+  later after the lab supports JS/TS task environments and possibly browser-like
+  validation.
+
+## Curation Follow-Ups
+
+- Resolve exact parent/reference commits for any candidate not yet pinned.
+- Prototype baseline and target graders before creating task bundles.
+- Record setup cost and whether full upstream tests are available to the agent.
+- Prefer adding one candidate at a time, with verified reference artifacts and a
+  small pilot trial batch before expanding the suite.
