@@ -5,14 +5,12 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List
 
 from agentlab.agent_harness_config import normalize_agent_harness_config
-from agentlab.patches import count_patch_lines
+from agentlab.outcome_evidence import load_outcome_evidence
 from agentlab.resource_usage import (
     ResourceUsage,
-    parse_resource_usage_events,
     resource_usage_to_dict,
 )
 from agentlab.scoring import CheckResult
-from agentlab.review import load_review
 from agentlab.validity import DEFAULT_TRIAL_VALIDITY
 
 
@@ -146,137 +144,10 @@ def discover_result_files(runs_dir: Path) -> List[Path]:
 def load_results(paths: Iterable[Path]) -> List[Dict[str, Any]]:
     results: List[Dict[str, Any]] = []
     for path in paths:
-        try:
-            result = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            continue
-        if result.get("trial_kind", "agent_trial") != "agent_trial":
-            continue
-        run_dir = Path(str(result.get("run_dir") or path.parent))
-        _backfill_patch_stats(result, run_dir)
-        _backfill_resource_usage(result, run_dir)
-        _backfill_agent_harness_config(result)
-        review = load_review(run_dir)
-        if review:
-            result["review"] = review
-            result["trial_validity"] = review.get(
-                "trial_validity",
-                result.get("trial_validity", DEFAULT_TRIAL_VALIDITY),
-            )
-            result["exclusion_reason"] = review.get(
-                "exclusion_reason",
-                result.get("exclusion_reason"),
-            )
-        results.append(result)
+        evidence = load_outcome_evidence(path)
+        if evidence is not None:
+            results.append(evidence.to_result_dict())
     return results
-
-
-def _backfill_agent_harness_config(result: Dict[str, Any]) -> None:
-    result["agent_harness_config"] = normalize_agent_harness_config(
-        _dict_or_none(result.get("agent_harness_config")),
-        agent_name=_optional_str(result.get("agent_name")),
-        model_name=_optional_str(result.get("model_name")),
-        cost_usd=_optional_float(result.get("cost_usd")),
-    )
-
-
-def _backfill_resource_usage(result: Dict[str, Any], run_dir: Path) -> None:
-    resource_usage = result.get("resource_usage")
-    if not isinstance(resource_usage, dict):
-        resource_usage = {}
-
-    if not resource_usage:
-        event_usage = _resource_usage_from_events(run_dir)
-        if event_usage is not None:
-            resource_usage = resource_usage_to_dict(event_usage)
-
-    for key in [
-        "input_tokens",
-        "cached_input_tokens",
-        "output_tokens",
-        "reasoning_output_tokens",
-        "cost_usd",
-    ]:
-        result.setdefault(key, resource_usage.get(key))
-
-    usage = ResourceUsage(
-        input_tokens=_optional_int(result.get("input_tokens")),
-        cached_input_tokens=_optional_int(result.get("cached_input_tokens")),
-        output_tokens=_optional_int(result.get("output_tokens")),
-        reasoning_output_tokens=_optional_int(result.get("reasoning_output_tokens")),
-        cost_usd=_optional_float(result.get("cost_usd")),
-    )
-    result["resource_usage"] = resource_usage_to_dict(usage)
-
-
-def _resource_usage_from_events(run_dir: Path) -> ResourceUsage | None:
-    events_path = run_dir / "codex-events.jsonl"
-    if not events_path.exists():
-        return None
-    try:
-        usage = parse_resource_usage_events(events_path.read_text(encoding="utf-8"))
-    except OSError:
-        return None
-    if usage.total_tokens is None and usage.cost_usd is None:
-        return None
-    return usage
-
-
-def _backfill_patch_stats(result: Dict[str, Any], run_dir: Path) -> None:
-    if "lines_added" in result and "lines_deleted" in result:
-        return
-
-    diff_path = _result_diff_path(result, run_dir)
-    if diff_path is None or not diff_path.exists():
-        result.setdefault("lines_added", 0)
-        result.setdefault("lines_deleted", 0)
-        return
-
-    try:
-        stats = count_patch_lines(diff_path.read_text(encoding="utf-8"))
-    except OSError:
-        stats = count_patch_lines("")
-    result["lines_added"] = stats.lines_added
-    result["lines_deleted"] = stats.lines_deleted
-
-    outcome = result.get("outcome")
-    if isinstance(outcome, dict):
-        outcome["lines_added"] = stats.lines_added
-        outcome["lines_deleted"] = stats.lines_deleted
-
-
-def _result_diff_path(result: Dict[str, Any], run_dir: Path) -> Path | None:
-    raw_path = result.get("diff_path")
-    if not raw_path:
-        raw_path = "diff.patch"
-    diff_path = Path(str(raw_path))
-    if diff_path.is_absolute():
-        return diff_path
-    return run_dir / diff_path
-
-
-def _optional_int(value: object) -> int | None:
-    if isinstance(value, int):
-        return value
-    return None
-
-
-def _optional_float(value: object) -> float | None:
-    if isinstance(value, (int, float)):
-        return float(value)
-    return None
-
-
-def _optional_str(value: object) -> str | None:
-    if isinstance(value, str):
-        return value
-    return None
-
-
-def _dict_or_none(value: object) -> Dict[str, Any] | None:
-    if isinstance(value, dict):
-        return value
-    return None
 
 
 def _check_to_dict(check: CheckResult) -> Dict[str, Any]:

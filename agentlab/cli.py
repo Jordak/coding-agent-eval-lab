@@ -14,6 +14,7 @@ from agentlab.agents.codex_cli import (
 )
 from agentlab.agents.manual import ManualAgentAdapter
 from agentlab.evidence import render_evidence_appendix
+from agentlab.outcome_evidence import result_files_changed_count
 from agentlab.reference import (
     ReferenceVerification,
     ReferenceVerificationError,
@@ -724,7 +725,7 @@ def handle_runs_list(args: argparse.Namespace) -> int:
             exclusion_reason(result),
             result.get("agent_name", ""),
             result.get("task_id", ""),
-            str(len(result.get("files_changed", []))),
+            str(result_files_changed_count(result)),
             str(result.get("lines_added", 0)),
             str(result.get("lines_deleted", 0)),
             _format_optional(result.get("input_tokens")),
