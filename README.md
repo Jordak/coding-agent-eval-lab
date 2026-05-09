@@ -195,6 +195,18 @@ python3 -m agentlab review \
   --exclusion-reason setup_error
 ```
 
+Archive reviewed excluded trials out of the active runs directory without
+deleting evidence:
+
+```bash
+python3 -m agentlab trials archive-excluded --exclusion-reason setup_error
+python3 -m agentlab trials archive-excluded --exclusion-reason setup_error --apply
+```
+
+The archive command is a dry run unless `--apply` is supplied. It moves matched
+reviewed excluded trials under `runs/_archive/excluded/<reason>/` and appends a
+machine-readable `archive-manifest.jsonl`.
+
 The first real project task is:
 
 ```bash

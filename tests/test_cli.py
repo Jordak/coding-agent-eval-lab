@@ -113,6 +113,24 @@ class CliOutputTest(unittest.TestCase):
         self.assertFalse(hasattr(args, "trials"))
         self.assertFalse(hasattr(args, "jobs"))
 
+    def test_trials_archive_excluded_parser_defaults_to_dry_run(self):
+        parser = build_parser()
+
+        args = parser.parse_args(
+            [
+                "trials",
+                "archive-excluded",
+                "--runs-dir",
+                "runs",
+                "--exclusion-reason",
+                "setup_error",
+            ]
+        )
+
+        self.assertEqual(args.runs_dir, "runs")
+        self.assertEqual(args.exclusion_reason, ["setup_error"])
+        self.assertFalse(args.apply)
+
     def test_doctor_parser_accepts_codex_preflight_options(self):
         parser = build_parser()
 

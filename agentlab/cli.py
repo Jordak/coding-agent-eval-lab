@@ -26,6 +26,7 @@ from agentlab.results import discover_result_files, load_results
 from agentlab.summary import summarize_trials
 from agentlab.tasks import TaskLoadError, discover_task_files, load_task
 from agentlab.terminal import print_error
+from agentlab.trial_archive import archive_excluded_trials
 from agentlab.trial_execution import TrialExecutionConfig, execute_trials
 from agentlab.validity import (
     DEFAULT_TRIAL_VALIDITY,
@@ -329,6 +330,34 @@ def build_parser() -> argparse.ArgumentParser:
         help="Directory where trial artifacts are stored.",
     )
     trials_summary_parser.set_defaults(handler=handle_trials_summarize)
+
+    trials_archive_parser = trials_subcommands.add_parser(
+        "archive-excluded",
+        help="Archive reviewed excluded trial artifacts without deleting evidence.",
+    )
+    trials_archive_parser.add_argument(
+        "--runs-dir",
+        default="runs",
+        help="Directory where active trial artifacts are stored.",
+    )
+    trials_archive_parser.add_argument(
+        "--archive-dir",
+        default=None,
+        help="Archive root. Defaults to <runs-dir>/_archive.",
+    )
+    trials_archive_parser.add_argument(
+        "--exclusion-reason",
+        action="append",
+        default=[],
+        choices=EXCLUSION_REASONS,
+        help="Only archive trials with this exclusion reason. Can be repeated.",
+    )
+    trials_archive_parser.add_argument(
+        "--apply",
+        action="store_true",
+        help="Move matched trials. Without this flag, only print a dry run.",
+    )
+    trials_archive_parser.set_defaults(handler=handle_trials_archive_excluded)
 
     report_parser = subcommands.add_parser(
         "report",
@@ -824,6 +853,35 @@ def handle_trials_summarize(args: argparse.Namespace) -> int:
         ],
         rows,
     )
+    return 0
+
+
+def handle_trials_archive_excluded(args: argparse.Namespace) -> int:
+    try:
+        result = archive_excluded_trials(
+            Path(args.runs_dir),
+            archive_dir=Path(args.archive_dir) if args.archive_dir else None,
+            exclusion_reasons=args.exclusion_reason,
+            apply=args.apply,
+        )
+    except OSError as exc:
+        print(f"ERROR {exc}", file=sys.stderr)
+        return 1
+
+    action = "Would archive" if result.dry_run else "Archived"
+    if not result.candidates:
+        print("No reviewed excluded trials matched.")
+        return 0
+
+    for candidate in result.candidates:
+        print(
+            f"{action}: {candidate.trial_id} "
+            f"({candidate.exclusion_reason}) -> {candidate.archived_run_dir}"
+        )
+    if result.dry_run:
+        print("Dry run only. Re-run with --apply to move artifacts.")
+    elif result.manifest_path:
+        print(f"Archive manifest: {result.manifest_path}")
     return 0
 
 
