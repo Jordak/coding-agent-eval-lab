@@ -42,6 +42,19 @@ passing reference verification.
   option types, unchanged single-value string defaults, and explicit CLI
   arguments overriding `default_map`.
 
+### Click should cover should_strip_ansi color and stream behavior
+
+- Status: promoted to `tasks/starter/click-should-strip-ansi-tests-001`
+- Repository: <https://github.com/pallets/click>
+- PR: <https://github.com/pallets/click/pull/2731>
+- Start commit: `8bd8b4a074c55c03b6eb5666edc44a9c43df38a2`
+- Reference commit inspected: `cf0c36d33734af1de9ecd5d3305970eb26ebba7f`
+- Candidate category: Python test-writing / CLI compatibility coverage
+- Notes: tests-only starter task. Graders assert the targeted compat test file
+  passes, the final diff stays in `tests/test_compat.py`, and the added tests
+  structurally exercise color override and stream/Jupyter detection behavior
+  without requiring production-code changes.
+
 ## Strong Candidates
 
 ### Prettier duplicate dangling comments in experimental ternaries
