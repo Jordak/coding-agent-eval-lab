@@ -42,6 +42,17 @@ passing reference verification.
   copies so the toggle-all checkbox receives render state directly, handles its
   own change event, and has a label wired to the input id.
 
+### Click should deduplicate help option construction
+
+- Status: promoted to `tasks/starter/click-help-option-refactor-001`
+- Repository: <https://github.com/pallets/click>
+- PR: <https://github.com/pallets/click/pull/2563>
+- Start commit: `9aeb586cbc622c229bbf80ad948e590f596a8d3e`
+- Reference commit inspected: `15644915e482b7c7bd7ee1aa77c9c2dbcd934330`
+- Notes: behavior-preserving production-code refactor that extracts shared
+  default-help-option construction. Graders assert pre/post CLI help behavior
+  and require the shared `HelpOption` extraction so a no-op cannot pass.
+
 ### Click should not suggest a shadowed help option
 
 - Status: promoted to `tasks/starter/click-help-shadowed-option-001`

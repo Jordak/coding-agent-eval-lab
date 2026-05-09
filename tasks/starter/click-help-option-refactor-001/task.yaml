@@ -1,0 +1,54 @@
+id: click-help-option-refactor-001
+title: Click should deduplicate help option construction
+repo: https://github.com/pallets/click.git
+commit: 9aeb586cbc622c229bbf80ad948e590f596a8d3e
+language: python
+suite: starter-coding
+eval_type: capability
+prompt: >
+  Refactor Click's default help option construction so the automatic help
+  option and the public help_option decorator share one reusable implementation.
+  Preserve the existing CLI behavior for default help, custom help aliases, and
+  commands with add_help_option disabled. Keep the production patch focused and
+  avoid changing externally visible behavior.
+reference_solution: >
+  Extract a HelpOption subclass in click.decorators, make help_option use it as
+  the default option class, export HelpOption from click, and have
+  Command.get_help_option instantiate the shared class. The reference patch is
+  based on upstream pallets/click PR #2563.
+reference_artifact:
+  type: patch
+  path: reference.patch
+setup:
+  - PYENV_VERSION=3.13.5 python3.13 -m venv .agentlab/venv
+  - python -m pip install -e . "pytest<9"
+environment_path:
+  - .agentlab/venv/bin
+environment:
+  PYTHONPATH: "{workspace}/src"
+  VIRTUAL_ENV: "{workspace}/.agentlab/venv"
+baseline:
+  - python -c 'import click; assert not hasattr(click, "HelpOption")'
+  - python -c 'import click; from click.testing import CliRunner; cmd = click.Command("demo", params=[click.Option(["--name"], help="Name")], callback=lambda name: click.echo("hello " + name if name else "hello")); result = CliRunner().invoke(cmd, ["--help"]); assert result.exit_code == 0, result.output; assert "Usage: demo [OPTIONS]" in result.output, result.output; assert "--help" in result.output, result.output; assert "Show this message and exit." in result.output, result.output; disabled = click.Command("plain", add_help_option=False, callback=lambda: None); disabled_result = CliRunner().invoke(disabled, ["--help"]); assert disabled_result.exit_code == 2, disabled_result.output; assert "No such option: --help" in disabled_result.output, disabled_result.output'
+  - python -c 'import click; from click.testing import CliRunner; cli = click.help_option("-h", "--halp")(click.command()(lambda: click.echo("ran"))); runner = CliRunner(); short_help = runner.invoke(cli, ["-h"]); long_help = runner.invoke(cli, ["--halp"]); normal_run = runner.invoke(cli, []); assert short_help.exit_code == 0, short_help.output; assert long_help.exit_code == 0, long_help.output; assert "Usage:" in short_help.output, short_help.output; assert "Usage:" in long_help.output, long_help.output; assert normal_run.exit_code == 0, normal_run.output; assert normal_run.output.strip() == "ran", normal_run.output'
+test:
+  - python -c 'import click; assert hasattr(click, "HelpOption"); cmd = click.Command("demo"); ctx = click.Context(cmd); option = cmd.get_help_option(ctx); assert isinstance(option, click.HelpOption), type(option); assert option.is_flag is True; assert option.is_eager is True; assert option.expose_value is False'
+  - python -c 'import click; from click.testing import CliRunner; cmd = click.Command("demo", params=[click.Option(["--name"], help="Name")], callback=lambda name: click.echo("hello " + name if name else "hello")); result = CliRunner().invoke(cmd, ["--help"]); assert result.exit_code == 0, result.output; assert "Usage: demo [OPTIONS]" in result.output, result.output; assert "--help" in result.output, result.output; assert "Show this message and exit." in result.output, result.output; disabled = click.Command("plain", add_help_option=False, callback=lambda: None); disabled_result = CliRunner().invoke(disabled, ["--help"]); assert disabled_result.exit_code == 2, disabled_result.output; assert "No such option: --help" in disabled_result.output, disabled_result.output'
+  - python -c 'import click; from click.testing import CliRunner; cli = click.help_option("-h", "--halp")(click.command()(lambda: click.echo("ran"))); runner = CliRunner(); short_help = runner.invoke(cli, ["-h"]); long_help = runner.invoke(cli, ["--halp"]); normal_run = runner.invoke(cli, []); assert short_help.exit_code == 0, short_help.output; assert long_help.exit_code == 0, long_help.output; assert "Usage:" in short_help.output, short_help.output; assert "Usage:" in long_help.output, long_help.output; assert normal_run.exit_code == 0, normal_run.output; assert normal_run.output.strip() == "ran", normal_run.output'
+success:
+  tests_must_pass: true
+  max_files_changed: 3
+tags:
+  - refactor
+  - python
+  - cli
+  - help-option
+  - real-pr
+failure_modes:
+  - context_miss
+  - spec_misread
+  - bad_local_fix
+  - test_gap
+  - over_edit
+  - resource_inefficient
+  - tool_misuse
