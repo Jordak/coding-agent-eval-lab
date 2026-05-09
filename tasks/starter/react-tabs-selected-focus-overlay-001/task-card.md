@@ -1,0 +1,67 @@
+# React Tabs selected-tab focus overlay should not mask custom borders
+
+- Task ID: `react-tabs-selected-focus-overlay-001`
+- Suite: `starter-coding`
+- Evaluation type: `regression`
+- Language: `javascript`
+- Repository: `https://github.com/reactjs/react-tabs.git`
+- Commit: `186631aca0458e0b991c94180bc3a4a785151c04`
+- Source: `task.yaml`
+
+## Prompt
+
+Fix the default react-tabs styles so focusing or clicking a selected tab no longer paints a white pseudo-element over the bottom edge of the tab. The current `.react-tabs__tab:focus:after` overlay can hide custom `.react-tabs__tab--selected` bottom-border or underline styles, as reported in react-tabs issue #450. Keep the patch focused on the distributed CSS plus the matching SCSS and LESS style sources. Human visual review should confirm that a selected tab with a custom bottom border or underline remains visible while the tab is focused, clicked, and selected, with no white block covering the selected state.
+
+## Reference
+
+Remove the obsolete focus `:after` pseudo-element from `style/react-tabs.css` and from the equivalent nested `&:after` rules in `style/react-tabs.scss` and `style/react-tabs.less`, while preserving the selected-tab styling and the existing focus rule.
+
+## Reference Artifact
+
+- Type: `patch`
+- Path: `reference.patch`
+- Status: `present`
+
+## Environment
+
+No task-local environment configured.
+
+## Graders
+
+### Setup
+
+None configured.
+
+### Baseline
+
+- `python3 -c 'from pathlib import Path; css = Path("style/react-tabs.css").read_text(); scss = Path("style/react-tabs.scss").read_text(); less = Path("style/react-tabs.less").read_text(); assert ".react-tabs__tab:focus:after" in css, css; assert "background: #fff" in css and "bottom: -5px" in css, css; assert "&:after" in scss and "&:after" in less'`
+
+### Target
+
+- `python3 -c 'from pathlib import Path; css = Path("style/react-tabs.css").read_text(); scss = Path("style/react-tabs.scss").read_text(); less = Path("style/react-tabs.less").read_text(); assert ".react-tabs__tab:focus:after" not in css, css; assert "&:after" not in scss, scss; assert "&:after" not in less, less; assert ".react-tabs__tab:focus" in css and "&:focus" in scss and "&:focus" in less; assert ".react-tabs__tab--selected" in css and "&--selected" in scss and "&--selected" in less; assert "border-color: #aaa" in css and "border-color: #aaa" in scss and "border-color: #aaa" in less'`
+- `git diff --check`
+
+## Success Criteria
+
+- Tests must pass: `true`
+- Max files changed: `3`
+
+## Tags
+
+- `bugfix`
+- `javascript`
+- `react`
+- `css`
+- `visual-ui`
+- `real-issue`
+
+## Expected Failure Modes
+
+- `context_miss`
+- `spec_misread`
+- `bad_local_fix`
+- `test_gap`
+- `over_edit`
+- `resource_inefficient`
+
+_Generated from `task.yaml`. Do not edit by hand; regenerate with the task-card skill._

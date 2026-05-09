@@ -226,6 +226,7 @@ class TaskLoadingTest(unittest.TestCase):
                 "tasks/starter/click-should-strip-ansi-tests-001/task.yaml",
                 "tasks/starter/datawrapper-mcp-docker-requirements-001/task.yaml",
                 "tasks/starter/httpx-verify-false-client-cert-001/task.yaml",
+                "tasks/starter/react-tabs-selected-focus-overlay-001/task.yaml",
                 "tasks/starter/todomvc-toggle-all-checkbox-001/task.yaml",
             ],
         )
@@ -243,6 +244,7 @@ class TaskLoadingTest(unittest.TestCase):
                 "click-should-strip-ansi-tests-001",
                 "datawrapper-mcp-docker-requirements-001",
                 "httpx-verify-false-client-cert-001",
+                "react-tabs-selected-focus-overlay-001",
                 "todomvc-toggle-all-checkbox-001",
             ],
         )

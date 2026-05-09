@@ -106,6 +106,19 @@ passing reference verification.
   Graders assert tuple and single-file cert handling, the no-cert `verify=False`
   path, and the existing `verify=True` with cert path.
 
+### React Tabs selected-tab focus overlay should not mask custom borders
+
+- Status: promoted to `tasks/starter/react-tabs-selected-focus-overlay-001`
+- Repository: <https://github.com/reactjs/react-tabs>
+- Issue: <https://github.com/reactjs/react-tabs/issues/450>
+- Start commit: `186631aca0458e0b991c94180bc3a4a785151c04`
+- Candidate category: React UI / CSS visual regression
+- Notes: promoted as the starter suite's single React UI/visual task. The task
+  uses deterministic CSS/SCSS/LESS structural graders to ensure the obsolete
+  focus pseudo-element overlay is removed while selected-tab styling remains,
+  and the generated task card documents human visual review criteria for custom
+  bottom-border or underline styles.
+
 ## Strong Candidates
 
 ### Prettier duplicate dangling comments in experimental ternaries

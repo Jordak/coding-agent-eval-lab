@@ -1,0 +1,121 @@
+{
+  "agent_name": "reference",
+  "cached_input_tokens": null,
+  "checks": [
+    {
+      "command": "python3 -c 'from pathlib import Path; css = Path(\"style/react-tabs.css\").read_text(); scss = Path(\"style/react-tabs.scss\").read_text(); less = Path(\"style/react-tabs.less\").read_text(); assert \".react-tabs__tab:focus:after\" in css, css; assert \"background: #fff\" in css and \"bottom: -5px\" in css, css; assert \"&:after\" in scss and \"&:after\" in less'",
+      "passed": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "command": "git apply reference.patch",
+      "passed": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "command": "python3 -c 'from pathlib import Path; css = Path(\"style/react-tabs.css\").read_text(); scss = Path(\"style/react-tabs.scss\").read_text(); less = Path(\"style/react-tabs.less\").read_text(); assert \".react-tabs__tab:focus:after\" not in css, css; assert \"&:after\" not in scss, scss; assert \"&:after\" not in less, less; assert \".react-tabs__tab:focus\" in css and \"&:focus\" in scss and \"&:focus\" in less; assert \".react-tabs__tab--selected\" in css and \"&--selected\" in scss and \"&--selected\" in less; assert \"border-color: #aaa\" in css and \"border-color: #aaa\" in scss and \"border-color: #aaa\" in less'",
+      "passed": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "command": "git diff --check",
+      "passed": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": ""
+    }
+  ],
+  "commands_run": [
+    "python3 -c 'from pathlib import Path; css = Path(\"style/react-tabs.css\").read_text(); scss = Path(\"style/react-tabs.scss\").read_text(); less = Path(\"style/react-tabs.less\").read_text(); assert \".react-tabs__tab:focus:after\" in css, css; assert \"background: #fff\" in css and \"bottom: -5px\" in css, css; assert \"&:after\" in scss and \"&:after\" in less'",
+    "git apply reference.patch",
+    "python3 -c 'from pathlib import Path; css = Path(\"style/react-tabs.css\").read_text(); scss = Path(\"style/react-tabs.scss\").read_text(); less = Path(\"style/react-tabs.less\").read_text(); assert \".react-tabs__tab:focus:after\" not in css, css; assert \"&:after\" not in scss, scss; assert \"&:after\" not in less, less; assert \".react-tabs__tab:focus\" in css and \"&:focus\" in scss and \"&:focus\" in less; assert \".react-tabs__tab--selected\" in css and \"&--selected\" in scss and \"&--selected\" in less; assert \"border-color: #aaa\" in css and \"border-color: #aaa\" in scss and \"border-color: #aaa\" in less'",
+    "git diff --check"
+  ],
+  "cost_usd": null,
+  "diff_path": "reference.diff",
+  "duration_ms": 0,
+  "error": null,
+  "eval_suite": "starter-coding",
+  "eval_type": "regression",
+  "exclusion_reason": null,
+  "files_changed": [
+    "style/react-tabs.css",
+    "style/react-tabs.less",
+    "style/react-tabs.scss"
+  ],
+  "graders": [
+    {
+      "assertion": "python3 -c 'from pathlib import Path; css = Path(\"style/react-tabs.css\").read_text(); scss = Path(\"style/react-tabs.scss\").read_text(); less = Path(\"style/react-tabs.less\").read_text(); assert \".react-tabs__tab:focus:after\" in css, css; assert \"background: #fff\" in css and \"bottom: -5px\" in css, css; assert \"&:after\" in scss and \"&:after\" in less'",
+      "passed": true,
+      "returncode": 0,
+      "type": "code"
+    },
+    {
+      "assertion": "git apply reference.patch",
+      "passed": true,
+      "returncode": 0,
+      "type": "code"
+    },
+    {
+      "assertion": "python3 -c 'from pathlib import Path; css = Path(\"style/react-tabs.css\").read_text(); scss = Path(\"style/react-tabs.scss\").read_text(); less = Path(\"style/react-tabs.less\").read_text(); assert \".react-tabs__tab:focus:after\" not in css, css; assert \"&:after\" not in scss, scss; assert \"&:after\" not in less, less; assert \".react-tabs__tab:focus\" in css and \"&:focus\" in scss and \"&:focus\" in less; assert \".react-tabs__tab--selected\" in css and \"&--selected\" in scss and \"&--selected\" in less; assert \"border-color: #aaa\" in css and \"border-color: #aaa\" in scss and \"border-color: #aaa\" in less'",
+      "passed": true,
+      "returncode": 0,
+      "type": "code"
+    },
+    {
+      "assertion": "git diff --check",
+      "passed": true,
+      "returncode": 0,
+      "type": "code"
+    }
+  ],
+  "input_tokens": null,
+  "lines_added": 0,
+  "lines_deleted": 30,
+  "model_name": null,
+  "outcome": {
+    "diff_path": "reference.diff",
+    "files_changed": [
+      "style/react-tabs.css",
+      "style/react-tabs.less",
+      "style/react-tabs.scss"
+    ],
+    "lines_added": 0,
+    "lines_deleted": 30,
+    "n_files_changed": 3,
+    "status": "passed"
+  },
+  "output_tokens": null,
+  "reasoning_output_tokens": null,
+  "reference_artifact": {
+    "commit": null,
+    "path": "reference.patch",
+    "type": "patch"
+  },
+  "report_path": "reference-report.md",
+  "resource_usage": {
+    "cached_input_tokens": null,
+    "cost_usd": null,
+    "input_tokens": null,
+    "output_tokens": null,
+    "reasoning_output_tokens": null,
+    "total_tokens": null
+  },
+  "run_dir": ".",
+  "run_id": "react-tabs-selected-focus-overlay-001-reference",
+  "score_notes": [],
+  "status": "passed",
+  "success": true,
+  "task_id": "react-tabs-selected-focus-overlay-001",
+  "task_title": "React Tabs selected-tab focus overlay should not mask custom borders",
+  "transcript_path": null,
+  "trial_id": "react-tabs-selected-focus-overlay-001-reference",
+  "trial_kind": "reference_verification",
+  "trial_validity": "valid"
+}
