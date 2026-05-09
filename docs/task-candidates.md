@@ -16,6 +16,18 @@ passing reference verification.
 
 ## Promoted Tasks
 
+### TodoMVC toggle-all checkbox should work directly
+
+- Status: promoted to `tasks/starter/todomvc-toggle-all-checkbox-001`
+- Repository: <https://github.com/tastejs/todomvc>
+- Start commit: `ff43b02e59dfa604386bb382034b2cd07c2bcd8a`
+- Candidate category: JavaScript frontend behavior / DOM state handling
+- Notes: strong starter task because it fixes a visible TodoMVC UI control in a
+  public MIT-licensed frontend repo while keeping deterministic graders
+  browserless. The task checks the JavaScript ES5 source and checked-in dist
+  copies so the toggle-all checkbox receives render state directly, handles its
+  own change event, and has a label wired to the input id.
+
 ### Click should not suggest a shadowed help option
 
 - Status: promoted to `tasks/starter/click-help-shadowed-option-001`

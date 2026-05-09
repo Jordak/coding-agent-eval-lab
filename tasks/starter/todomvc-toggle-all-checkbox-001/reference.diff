@@ -1,0 +1,72 @@
+diff --git a/examples/javascript-es5/dist/index.html b/examples/javascript-es5/dist/index.html
+index 0ca3f66d..717276d0 100644
+--- a/examples/javascript-es5/dist/index.html
++++ b/examples/javascript-es5/dist/index.html
+@@ -17,7 +17,7 @@
+             </header>
+             <main class="main">
+                 <div class="toggle-all-container">
+-                    <input class="toggle-all" type="checkbox" />
++                    <input id="toggle-all" class="toggle-all" type="checkbox" />
+                     <label class="toggle-all-label" for="toggle-all">Mark all as complete</label>
+                 </div>
+                 <ul class="todo-list"></ul>
+diff --git a/examples/javascript-es5/dist/view.js b/examples/javascript-es5/dist/view.js
+index b3432333..44aa755f 100644
+--- a/examples/javascript-es5/dist/view.js
++++ b/examples/javascript-es5/dist/view.js
+@@ -113,7 +113,7 @@
+                 self.$main.style.display = self.$footer.style.display = parameter.visible ? "block" : "none";
+             },
+             toggleAll: function () {
+-                self.$toggleAll.checked = parameter.checked;
++                self.$toggleAllInput.checked = parameter.checked;
+             },
+             setFilter: function () {
+                 self._setFilter(parameter);
+@@ -183,8 +183,7 @@
+                 handler();
+             });
+         } else if (event === "toggleAll") {
+-            $on(self.$toggleAll, "click", function () {
+-                self.$toggleAllInput.click();
++            $on(self.$toggleAllInput, "change", function () {
+                 handler({ completed: self.$toggleAllInput.checked });
+             });
+         } else if (event === "itemEdit") {
+diff --git a/examples/javascript-es5/index.html b/examples/javascript-es5/index.html
+index 67c29a04..8c5e3ece 100644
+--- a/examples/javascript-es5/index.html
++++ b/examples/javascript-es5/index.html
+@@ -17,7 +17,7 @@
+             </header>
+             <main class="main">
+                 <div class="toggle-all-container">
+-                    <input class="toggle-all" type="checkbox" />
++                    <input id="toggle-all" class="toggle-all" type="checkbox" />
+                     <label class="toggle-all-label" for="toggle-all">Mark all as complete</label>
+                 </div>
+                 <ul class="todo-list"></ul>
+diff --git a/examples/javascript-es5/src/view.js b/examples/javascript-es5/src/view.js
+index b3432333..44aa755f 100644
+--- a/examples/javascript-es5/src/view.js
++++ b/examples/javascript-es5/src/view.js
+@@ -113,7 +113,7 @@
+                 self.$main.style.display = self.$footer.style.display = parameter.visible ? "block" : "none";
+             },
+             toggleAll: function () {
+-                self.$toggleAll.checked = parameter.checked;
++                self.$toggleAllInput.checked = parameter.checked;
+             },
+             setFilter: function () {
+                 self._setFilter(parameter);
+@@ -183,8 +183,7 @@
+                 handler();
+             });
+         } else if (event === "toggleAll") {
+-            $on(self.$toggleAll, "click", function () {
+-                self.$toggleAllInput.click();
++            $on(self.$toggleAllInput, "change", function () {
+                 handler({ completed: self.$toggleAllInput.checked });
+             });
+         } else if (event === "itemEdit") {
