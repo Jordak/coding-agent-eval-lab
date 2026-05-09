@@ -158,6 +158,26 @@ backbone for hand-authored capability reports. Per-trial rows link to the
 report, transcript, diff, and result artifacts so surprising pass rates can be
 investigated without hunting through `runs/`.
 
+For report prep, make the evidence set explicit instead of relying on every
+local trial artifact:
+
+```json
+{
+  "name": "codex-click-pilot",
+  "description": "Selected Codex CLI trials for the Click pilot.",
+  "trials": [
+    "20260507-171508-click-help-shadowed-option-001-codex",
+    "20260507-190123-click-default-map-nargs-001-codex-18672b25/result.json"
+  ]
+}
+```
+
+```bash
+python3 -m agentlab report capability-evidence-digest \
+  --evidence-set reports/codex-click-pilot.json \
+  --output reports/evidence-digest.md
+```
+
 Attach a human review label to a trial:
 
 ```bash

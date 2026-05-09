@@ -14,6 +14,7 @@ from agentlab.agents.codex_cli import (
 )
 from agentlab.agents.manual import ManualAgentAdapter
 from agentlab.evidence import render_capability_evidence_digest
+from agentlab.evidence_sets import load_evidence_set
 from agentlab.outcome_evidence import result_files_changed_count
 from agentlab.reference import (
     ReferenceVerification,
@@ -344,6 +345,14 @@ def build_parser() -> argparse.ArgumentParser:
         "--runs-dir",
         default="runs",
         help="Directory where trial artifacts are stored.",
+    )
+    evidence_parser.add_argument(
+        "--evidence-set",
+        default=None,
+        help=(
+            "JSON file selecting the trial result files to include in the "
+            "capability evidence digest."
+        ),
     )
     evidence_parser.add_argument(
         "--output",
@@ -819,13 +828,26 @@ def handle_trials_summarize(args: argparse.Namespace) -> int:
 
 
 def handle_report_capability_evidence_digest(args: argparse.Namespace) -> int:
-    result_files = discover_result_files(Path(args.runs_dir))
+    selection_context = None
+    if args.evidence_set:
+        try:
+            evidence_set = load_evidence_set(
+                Path(args.evidence_set),
+                Path(args.runs_dir),
+            )
+        except (OSError, ValueError) as exc:
+            print(f"ERROR {exc}", file=sys.stderr)
+            return 1
+        result_files = evidence_set.result_files
+        selection_context = evidence_set.digest_context()
+    else:
+        result_files = discover_result_files(Path(args.runs_dir))
     results = load_results(result_files)
     if not results:
         print("No result.json files found.", file=sys.stderr)
         return 1
 
-    digest = render_capability_evidence_digest(results)
+    digest = render_capability_evidence_digest(results, selection_context)
     if args.output:
         output_path = Path(args.output)
         output_path.parent.mkdir(parents=True, exist_ok=True)

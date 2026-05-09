@@ -134,11 +134,13 @@ median line additions/deletions, review-label counts, and exclusion-reason
 counts.
 
 `agentlab report capability-evidence-digest` renders those summaries plus
-per-trial evidence into Markdown. This generated capability evidence digest is
-intended as the data backbone for hand-authored, evidence-scoped capability
-reports; it does not replace human interpretation. Per-trial rows link to the
-report, transcript, diff, and result artifacts so reviewers can inspect
-surprising pass rates without leaving the digest.
+per-trial evidence into Markdown. For local inspection it can scan a whole runs
+directory; for report preparation it should read an explicit evidence-set
+manifest so the selected trials are deliberate and reproducible. This generated
+capability evidence digest is intended as the data backbone for hand-authored,
+evidence-scoped capability reports; it does not replace human interpretation.
+Per-trial rows link to the report, transcript, diff, and result artifacts so
+reviewers can inspect surprising pass rates without leaving the digest.
 
 Trial storage remains the append-only file-artifact workflow described above.
 Trial listing, summaries, Human review outcome overlays, and Outcome evidence

@@ -69,12 +69,15 @@ class CliOutputTest(unittest.TestCase):
                 "capability-evidence-digest",
                 "--runs-dir",
                 "runs",
+                "--evidence-set",
+                "reports/codex-click-evidence.json",
                 "--output",
                 "reports/evidence-digest.md",
             ]
         )
 
         self.assertEqual(args.runs_dir, "runs")
+        self.assertEqual(args.evidence_set, "reports/codex-click-evidence.json")
         self.assertEqual(args.output, "reports/evidence-digest.md")
 
     def test_report_parser_keeps_evidence_appendix_alias(self):

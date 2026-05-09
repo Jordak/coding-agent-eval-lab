@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, Iterable, List
+from typing import Any, Dict, Iterable, List, Mapping
 
 from agentlab.outcome_evidence import (
     normalize_result_dicts,
@@ -11,7 +11,10 @@ from agentlab.summary import summarize_trials
 from agentlab.validity import exclusion_reason, trial_validity
 
 
-def render_capability_evidence_digest(results: Iterable[Dict[str, Any]]) -> str:
+def render_capability_evidence_digest(
+    results: Iterable[Dict[str, Any]],
+    selection_context: Mapping[str, object] | None = None,
+) -> str:
     results = normalize_result_dicts(results)
     lines = [
         "# Capability Evidence Digest",
@@ -24,10 +27,16 @@ def render_capability_evidence_digest(results: Iterable[Dict[str, Any]]) -> str:
         ),
         "",
         f"- Agent trials: `{len(results)}`",
-        "",
-        "## Aggregate Summaries",
-        "",
     ]
+    if selection_context is not None:
+        lines.extend(_selection_context_lines(selection_context))
+    lines.extend(
+        [
+            "",
+            "## Aggregate Summaries",
+            "",
+        ]
+    )
 
     summaries = summarize_trials(results)
     if not summaries:
@@ -119,6 +128,26 @@ def render_capability_evidence_digest(results: Iterable[Dict[str, Any]]) -> str:
 
 def render_evidence_appendix(results: Iterable[Dict[str, Any]]) -> str:
     return render_capability_evidence_digest(results)
+
+
+def _selection_context_lines(context: Mapping[str, object]) -> list[str]:
+    lines: list[str] = []
+    name = context.get("name")
+    if name:
+        lines.append(f"- Evidence set: `{name}`")
+    source_path = context.get("source_path")
+    if source_path:
+        lines.append(f"- Evidence set source: `{source_path}`")
+    description = context.get("description")
+    if description:
+        lines.append(f"- Evidence set description: {description}")
+    selected_entries = context.get("selected_entries")
+    if selected_entries is not None:
+        lines.append(f"- Selected entries: `{selected_entries}`")
+    selected_result_files = context.get("selected_result_files")
+    if selected_result_files is not None:
+        lines.append(f"- Selected result files: `{selected_result_files}`")
+    return lines
 
 
 def _trial_row(result: Dict[str, Any]) -> List[object]:
