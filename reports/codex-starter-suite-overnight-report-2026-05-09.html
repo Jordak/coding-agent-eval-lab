@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex Starter Suite Overnight Report - 2026-05-09</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f8fa;
+      --panel: #ffffff;
+      --ink: #1d2433;
+      --muted: #5f6b7a;
+      --line: #d8dee8;
+      --good: #136f4b;
+      --warn: #986800;
+      --bad: #a33a2a;
+      --blue: #225c9f;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+
+    h1, h2, h3 { line-height: 1.2; margin: 0; }
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.3rem; margin-top: 36px; }
+    h3 { font-size: 1rem; margin-top: 20px; }
+    p { margin: 10px 0 0; }
+    a { color: var(--blue); }
+
+    .lede {
+      color: var(--muted);
+      max-width: 820px;
+      margin-top: 12px;
+      font-size: 1.02rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .metric, .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .metric {
+      padding: 16px;
+      min-height: 104px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 1.8rem;
+      letter-spacing: 0;
+    }
+
+    .metric span {
+      color: var(--muted);
+      display: block;
+      margin-top: 4px;
+      font-size: 0.92rem;
+    }
+
+    .panel {
+      padding: 18px;
+      margin-top: 14px;
+    }
+
+    .callout {
+      border-left: 4px solid var(--warn);
+      background: #fff9ed;
+      padding: 14px 16px;
+      margin-top: 16px;
+    }
+
+    .ok { color: var(--good); font-weight: 650; }
+    .warn { color: var(--warn); font-weight: 650; }
+    .bad { color: var(--bad); font-weight: 650; }
+    .muted { color: var(--muted); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      display: table;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+      font-size: 0.92rem;
+    }
+
+    th {
+      background: #eef2f7;
+      color: #354052;
+      font-weight: 650;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.88em;
+      background: #eef2f7;
+      border-radius: 4px;
+      padding: 1px 4px;
+    }
+
+    ul { margin: 10px 0 0; padding-left: 20px; }
+
+    @media (max-width: 860px) {
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      table { display: block; overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Codex Starter Suite Overnight Report</h1>
+  <p class="lede">
+    Local evidence collection for Issue #10, completed on 2026-05-09. This report covers
+    Codex CLI as the local <code>codex</code> agent harness on the nine-task starter suite.
+    It is evidence-scoped: it says what happened under this local harness configuration,
+    not what Codex or any underlying model will always do.
+  </p>
+
+  <div class="grid" aria-label="summary metrics">
+    <div class="metric"><strong>45</strong><span>selected fair trials</span></div>
+    <div class="metric"><strong>45</strong><span>grader-passing fair trials</span></div>
+    <div class="metric"><strong>9/9</strong><span>tasks reached five fair trials</span></div>
+    <div class="metric"><strong>7</strong><span>valid trials flagged resource-inefficient</span></div>
+  </div>
+
+  <section class="panel">
+    <h2>Artifacts</h2>
+    <p>
+      Evidence-set manifest:
+      <a href="../evidence-sets/codex-starter-suite-deep-baseline-2026-05-09.json">
+        <code>evidence-sets/codex-starter-suite-deep-baseline-2026-05-09.json</code>
+      </a>
+    </p>
+    <p>
+      Generated capability evidence digest:
+      <a href="codex-starter-suite-deep-baseline-2026-05-09-digest.md">
+        <code>reports/codex-starter-suite-deep-baseline-2026-05-09-digest.md</code>
+      </a>
+    </p>
+    <p class="muted">
+      The digest is the full drill-down index with per-trial report, transcript, diff, and result links.
+      The raw <code>runs/</code> artifacts are local and intentionally not committed.
+    </p>
+  </section>
+
+  <h2>What Succeeded</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Task</th>
+        <th>Fair Result</th>
+        <th>Review Summary</th>
+        <th>Median Duration</th>
+        <th>Patch Shape</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>2048-advanced-snake-params-001</code></td>
+        <td class="ok">5/5 passed</td>
+        <td><code>success_clean:5</code></td>
+        <td>122.5s</td>
+        <td>2 files, median +11/-7</td>
+      </tr>
+      <tr>
+        <td><code>click-help-option-refactor-001</code></td>
+        <td class="ok">5/5 passed</td>
+        <td><code>success_clean:4</code>, <code>resource_inefficient:1</code>; four clean passes also carry secondary <code>resource_inefficient</code></td>
+        <td>348.3s</td>
+        <td>3 files, median +39/-27</td>
+      </tr>
+      <tr>
+        <td><code>click-default-map-nargs-001</code></td>
+        <td class="ok">5/5 passed</td>
+        <td><code>success_clean:5</code></td>
+        <td>273.7s</td>
+        <td>2 files, median +80/-1</td>
+      </tr>
+      <tr>
+        <td><code>click-help-shadowed-option-001</code></td>
+        <td class="ok">5/5 passed in selected set</td>
+        <td><code>success_clean:5</code></td>
+        <td>274.7s</td>
+        <td>3 files, median +61/-12</td>
+      </tr>
+      <tr>
+        <td><code>click-should-strip-ansi-tests-001</code></td>
+        <td class="ok">5/5 passed</td>
+        <td><code>success_clean:4</code>, <code>success_messy:1</code></td>
+        <td>99.2s</td>
+        <td>1 file, median +34/-2</td>
+      </tr>
+      <tr>
+        <td><code>datawrapper-mcp-docker-requirements-001</code></td>
+        <td class="ok">5/5 passed</td>
+        <td><code>success_clean:5</code></td>
+        <td>46.7s</td>
+        <td>1 file, median +5/-2</td>
+      </tr>
+      <tr>
+        <td><code>httpx-verify-false-client-cert-001</code></td>
+        <td class="ok">5/5 passed</td>
+        <td><code>success_clean:5</code></td>
+        <td>139.5s</td>
+        <td>2 files, median +26/-4</td>
+      </tr>
+      <tr>
+        <td><code>react-tabs-selected-focus-overlay-001</code></td>
+        <td class="ok">5/5 passed</td>
+        <td><code>success_clean:3</code>, <code>resource_inefficient:2</code></td>
+        <td>46.2s</td>
+        <td>3 files, median +0/-30</td>
+      </tr>
+      <tr>
+        <td><code>todomvc-toggle-all-checkbox-001</code></td>
+        <td class="ok">5/5 passed</td>
+        <td><code>success_clean:5</code></td>
+        <td>92.6s</td>
+        <td>4 files, median +6/-8</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>What Failed Or Was Excluded</h2>
+  <div class="panel">
+    <p><span class="ok">No selected fair trial failed.</span> Every trial in the 45-trial evidence set passed its deterministic graders.</p>
+    <p>
+      Excluded invalid artifacts still exist outside the selected fair set:
+      five earlier <code>click-default-map-nargs-001</code> setup failures are marked <code>setup_error</code>,
+      and one earlier <code>click-help-shadowed-option-001</code> failure is marked <code>eval_harness_error</code>.
+      They are preserved as diagnostic evidence, but they do not count toward fair capability metrics.
+    </p>
+  </div>
+
+  <h2>Messy Or Expensive Evidence</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Category</th>
+        <th>Trials</th>
+        <th>What happened</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="warn">Resource inefficient</td>
+        <td>5 Click help-option refactor trials</td>
+        <td>
+          All five passed, but the task was consistently expensive. Durations ranged from 307.7s to
+          403.0s, with input tokens from about 928k to 1.44M. The first reviewed trial was primary
+          <code>resource_inefficient</code>; the four overnight passes were primary <code>success_clean</code>
+          with secondary <code>resource_inefficient</code>.
+        </td>
+      </tr>
+      <tr>
+        <td class="warn">Resource inefficient</td>
+        <td>2 React Tabs trials</td>
+        <td>
+          Both produced the correct tiny three-file style deletion, but took 348.6s and 353.9s,
+          disproportionate to the patch size and to the other React Tabs runs.
+        </td>
+      </tr>
+      <tr>
+        <td class="warn">Messy success</td>
+        <td>1 Click ANSI test trial</td>
+        <td>
+          The trial passed and stayed test-only, but deleted the existing Jupyter-specific smoke test
+          while adding the broader <code>should_strip_ansi</code> matrix. It is valid evidence, but not
+          a clean coverage change.
+        </td>
+      </tr>
+      <tr>
+        <td class="warn">High raw cost, not specially labeled</td>
+        <td>Click default-map and shadowed-help tasks</td>
+        <td>
+          These Click tasks had high token and duration medians, but the reviewed patches were focused
+          and the resource profile matched the established task family rather than showing isolated
+          runaway behavior.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Batch Timeline</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Batch</th>
+        <th>Result</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>click-default-map-nargs-001</code> catch-up</td>
+        <td class="ok">1/1 passed</td>
+        <td>Completed the fifth fair trial for that task.</td>
+      </tr>
+      <tr>
+        <td><code>todomvc-toggle-all-checkbox-001</code></td>
+        <td class="ok">4/4 passed</td>
+        <td>All reviewed <code>success_clean</code>.</td>
+      </tr>
+      <tr>
+        <td><code>react-tabs-selected-focus-overlay-001</code></td>
+        <td class="ok">4/4 passed</td>
+        <td>Two clean, two <code>resource_inefficient</code>.</td>
+      </tr>
+      <tr>
+        <td><code>datawrapper-mcp-docker-requirements-001</code></td>
+        <td class="ok">4/4 passed</td>
+        <td>All reviewed <code>success_clean</code>; two included extra pyproject compatibility deps.</td>
+      </tr>
+      <tr>
+        <td><code>httpx-verify-false-client-cert-001</code></td>
+        <td class="ok">4/4 passed</td>
+        <td>All reviewed <code>success_clean</code>.</td>
+      </tr>
+      <tr>
+        <td><code>click-should-strip-ansi-tests-001</code></td>
+        <td class="ok">4/4 passed</td>
+        <td>Three clean, one <code>success_messy</code>.</td>
+      </tr>
+      <tr>
+        <td><code>click-help-option-refactor-001</code></td>
+        <td class="ok">4/4 passed</td>
+        <td>All passed; all four carry secondary <code>resource_inefficient</code>.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Interpretation</h2>
+  <div class="panel">
+    <p>
+      Under this local harness configuration, Codex showed strong pass consistency on the starter suite:
+      nine tasks, five fair trials per task, and no fair-trial grader failures. The strongest product
+      signal is not merely pass rate; it is that the reviewed patches usually stayed near the intended
+      vertical slice.
+    </p>
+    <p>
+      The main caveat is resource efficiency. Click refactor tasks can be expensive enough that a
+      future capability report should discuss cost and latency separately from correctness. A small
+      number of valid successes also need quality labels rather than green-only reporting.
+    </p>
+    <p>
+      Recommended next step: add more varied starter tasks before making broad claims, especially tasks
+      outside Python libraries and simple frontend fixture patches. The current evidence set is strong
+      enough for a narrow starter-suite Codex baseline, not a general agent capability report.
+    </p>
+  </div>
+</main>
+</body>
+</html>
