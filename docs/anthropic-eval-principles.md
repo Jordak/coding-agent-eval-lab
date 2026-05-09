@@ -8,8 +8,8 @@ January 2026 post, [Demystifying evals for AI agents](https://www.anthropic.com/
 - **Task**: one test case with defined inputs and success criteria.
 - **Trial**: one attempt at a task by an agent harness. Because agent behavior is
   non-deterministic, publishable comparisons should run multiple trials per task.
-- **Fair trial**: a trial whose setup, harness, task definition, and operator
-  conditions are valid enough to count in aggregate capability metrics.
+- **Fair trial**: a trial whose setup, eval-harness, task definition, and
+  operator conditions are valid enough to count in aggregate capability metrics.
 - **Grader**: logic that scores an aspect of performance. Code-based graders are
   the default for coding tasks; model-based and human graders are added when they
   provide signal that deterministic checks cannot.
@@ -19,8 +19,9 @@ January 2026 post, [Demystifying evals for AI agents](https://www.anthropic.com/
   outputs, tool calls, command output, and intermediate state.
 - **Outcome**: the final environment state after the trial. For coding tasks, the
   core outcome is the resulting patch plus whether deterministic graders pass.
-- **Evaluation harness**: this project. It prepares environments, invokes agent
-  harnesses, captures traces/outcomes, runs graders, and aggregates results.
+- **Evaluation (eval) harness**: this project, Agent Eval Lab. It prepares
+  environments, invokes agent harnesses, captures traces/outcomes, runs graders,
+  and aggregates results.
 - **Agent harness / scaffold**: the system being evaluated together with its
   model, such as Codex CLI, Claude Code, Cursor Agent, or the manual adapter.
 - **Evaluation suite**: a collection of tasks designed to measure a capability or

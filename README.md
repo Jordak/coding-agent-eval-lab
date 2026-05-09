@@ -77,9 +77,10 @@ python3 -m agentlab run --agent manual --task path/to/task-bundle
 ```
 
 The manual adapter pauses after workspace setup so a human can edit the cloned
-repo. Press Enter in the terminal when edits are complete; the harness will then
-capture the diff and run the task graders. Use `--no-pause` for a
-negative-control trial where the manual adapter intentionally changes nothing.
+repo. Press Enter in the terminal when edits are complete; the evaluation
+harness will then capture the diff and run the task graders. Use `--no-pause`
+for a negative-control trial where the manual adapter intentionally changes
+nothing.
 
 Run a task through Codex CLI:
 
@@ -143,14 +144,14 @@ python3 -m agentlab trials summarize
 fair trial in the group passed. Trials marked `excluded` by human review remain
 stored but do not count in those fair capability metrics.
 
-Generate a Markdown evidence appendix for capability reports:
+Generate a Markdown capability evidence digest for capability reports:
 
 ```bash
-python3 -m agentlab report evidence-appendix --output reports/evidence-appendix.md
+python3 -m agentlab report capability-evidence-digest --output reports/evidence-digest.md
 ```
 
-The appendix is generated evidence, not final interpretation. Use it as the
-data backbone for hand-authored capability reports. Per-trial rows link to the
+The digest is generated evidence, not final interpretation. Use it as the data
+backbone for hand-authored capability reports. Per-trial rows link to the
 report, transcript, diff, and result artifacts so surprising pass rates can be
 investigated without hunting through `runs/`.
 

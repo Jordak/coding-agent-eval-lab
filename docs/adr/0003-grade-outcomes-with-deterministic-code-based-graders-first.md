@@ -26,7 +26,8 @@ cannot capture and have a clear rubric.
 ## Consequences
 
 - Early trials are reproducible, cheap, and easy to debug.
-- The harness can support positive and negative controls for each task.
+- The evaluation harness can support positive and negative controls for each
+  task.
 - Some patch-quality concerns still require human review labels until richer
   graders exist.
 - Tool-call and transcript graders remain optional and targeted.

@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from agentlab.evidence import render_evidence_appendix
+from agentlab.evidence import render_capability_evidence_digest
 from agentlab.outcome_evidence import (
     load_outcome_evidence,
     normalize_outcome_evidence,
@@ -119,7 +119,7 @@ class OutcomeEvidenceTest(unittest.TestCase):
             self.assertEqual(result["resource_usage"]["total_tokens"], 18)
             self.assertEqual(result["cost_usd"], 0.02)
 
-    def test_human_review_outcome_overlay_feeds_summary_and_appendix(self):
+    def test_human_review_outcome_overlay_feeds_summary_and_digest(self):
         with tempfile.TemporaryDirectory() as temp:
             run_dir = Path(temp) / "trial-reviewed"
             run_dir.mkdir()
@@ -165,7 +165,7 @@ class OutcomeEvidenceTest(unittest.TestCase):
             assert evidence is not None
             result = evidence.to_result_dict()
             summary = summarize_trials([result])[0]
-            appendix = render_evidence_appendix([result])
+            digest = render_capability_evidence_digest([result])
 
             self.assertEqual(result["trial_validity"], "excluded")
             self.assertEqual(result["exclusion_reason"], "setup_error")
@@ -176,7 +176,7 @@ class OutcomeEvidenceTest(unittest.TestCase):
             self.assertIn(
                 "| trial-reviewed | task-a | codex | gpt-test | failed | "
                 "excluded | dependency_issue | setup_error |",
-                appendix,
+                digest,
             )
 
     def test_normalized_count_uses_backfilled_n_files_for_old_artifacts(self):

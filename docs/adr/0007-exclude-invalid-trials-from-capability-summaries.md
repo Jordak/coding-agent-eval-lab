@@ -22,7 +22,8 @@ metadata during human review:
   metrics or median outcome metrics.
 
 Excluded trials must record one exclusion reason: `dependency_issue`,
-`harness_error`, `setup_error`, `operator_error`, `invalid_task`, or `unknown`.
+`eval_harness_error`, `setup_error`, `operator_error`, `invalid_task`, or
+`unknown`.
 
 `agentlab trials summarize` reports total trials, fair trials, excluded trials,
 fair-trial pass rate, pass@k, pass^k, review labels for fair trials, and
@@ -30,8 +31,8 @@ exclusion-reason counts for excluded trials.
 
 ## Consequences
 
-- Capability reports can separate "the agent failed" from "the lab setup was
-  invalid" without losing raw evidence.
+- Capability reports can separate "the agent harness failed" from "the
+  evaluation harness or task setup was invalid" without losing raw evidence.
 - Exclusions require an explicit human-review judgment and are visible in
   summaries.
 - Aggregate metrics are scoped to fair trials only, so reports must mention

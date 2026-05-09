@@ -59,6 +59,23 @@ class ReviewTest(unittest.TestCase):
             self.assertEqual(review["trial_validity"], "excluded")
             self.assertEqual(review["exclusion_reason"], "dependency_issue")
 
+    def test_legacy_harness_error_normalizes_to_eval_harness_error(self):
+        with tempfile.TemporaryDirectory() as temp:
+            run_dir = Path(temp)
+
+            write_review(
+                run_dir,
+                primary_label="dependency_issue",
+                note="The evaluation harness failed before the agent acted.",
+                trial_validity="excluded",
+                exclusion_reason="harness_error",
+            )
+
+            review = load_review(run_dir)
+            self.assertIsNotNone(review)
+            assert review is not None
+            self.assertEqual(review["exclusion_reason"], "eval_harness_error")
+
     def test_review_updates_result_validity_metadata(self):
         with tempfile.TemporaryDirectory() as temp:
             run_dir = Path(temp)

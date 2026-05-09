@@ -5,9 +5,10 @@ Date: 2026-05-07
 ## Context
 
 The first Codex trial for `click-help-shadowed-option-001` failed before the
-agent started because the harness could not find `codex`. The error was written
-to the trial transcript but was not visible enough in the terminal. A later run
-also showed that long-running Codex trials needed better liveness feedback.
+agent started because the evaluation harness could not find `codex`. The error
+was written to the trial transcript but was not visible enough in the terminal.
+A later run also showed that long-running Codex trials needed better liveness
+feedback.
 
 ## What Happened
 
@@ -40,7 +41,7 @@ also showed that long-running Codex trials needed better liveness feedback.
 
 ## Follow-Ups
 
-- Keep future runtime setup issues classified separately from model or harness
-  capability failures.
+- Keep future runtime setup issues classified separately from model or
+  agent-harness capability failures.
 - Consider adding structured setup-failure labels or environment diagnostics if
   similar issues repeat across agent harnesses.

@@ -13,7 +13,7 @@ from agentlab.agents.codex_cli import (
     run_codex_preflight,
 )
 from agentlab.agents.manual import ManualAgentAdapter
-from agentlab.evidence import render_evidence_appendix
+from agentlab.evidence import render_capability_evidence_digest
 from agentlab.outcome_evidence import result_files_changed_count
 from agentlab.reference import (
     ReferenceVerification,
@@ -336,8 +336,9 @@ def build_parser() -> argparse.ArgumentParser:
     report_subcommands = report_parser.add_subparsers(dest="report_command")
 
     evidence_parser = report_subcommands.add_parser(
-        "evidence-appendix",
-        help="Generate a Markdown evidence appendix from stored trial results.",
+        "capability-evidence-digest",
+        aliases=["evidence-appendix"],
+        help="Generate a capability evidence digest from stored trial results.",
     )
     evidence_parser.add_argument(
         "--runs-dir",
@@ -349,7 +350,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Optional Markdown file to write. Defaults to stdout.",
     )
-    evidence_parser.set_defaults(handler=handle_report_evidence_appendix)
+    evidence_parser.set_defaults(handler=handle_report_capability_evidence_digest)
 
     review_parser = subcommands.add_parser(
         "review",
@@ -643,8 +644,9 @@ def _print_smoke_test_result(evaluation: object) -> None:
         print("Next step: inspect the report and diff before repeated trials.")
         return
     print(
-        "If this failure is caused by setup, harness, operator, task-definition, "
-        "or dependency problems, preserve the artifacts and exclude the trial, "
+        "If this failure is caused by setup, eval harness, operator, "
+        "task-definition, or dependency problems, preserve the artifacts and "
+        "exclude the trial, "
         "for example:"
     )
     print(
@@ -816,22 +818,22 @@ def handle_trials_summarize(args: argparse.Namespace) -> int:
     return 0
 
 
-def handle_report_evidence_appendix(args: argparse.Namespace) -> int:
+def handle_report_capability_evidence_digest(args: argparse.Namespace) -> int:
     result_files = discover_result_files(Path(args.runs_dir))
     results = load_results(result_files)
     if not results:
         print("No result.json files found.", file=sys.stderr)
         return 1
 
-    appendix = render_evidence_appendix(results)
+    digest = render_capability_evidence_digest(results)
     if args.output:
         output_path = Path(args.output)
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_text(appendix, encoding="utf-8")
-        print(f"Evidence appendix: {output_path}")
+        output_path.write_text(digest, encoding="utf-8")
+        print(f"Capability evidence digest: {output_path}")
         return 0
 
-    print(appendix)
+    print(digest)
     return 0
 
 

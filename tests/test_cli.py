@@ -60,22 +60,36 @@ class CliOutputTest(unittest.TestCase):
         self.assertTrue(args.exclude)
         self.assertEqual(args.exclusion_reason, "setup_error")
 
-    def test_report_parser_accepts_evidence_appendix_output(self):
+    def test_report_parser_accepts_capability_evidence_digest_output(self):
+        parser = build_parser()
+
+        args = parser.parse_args(
+            [
+                "report",
+                "capability-evidence-digest",
+                "--runs-dir",
+                "runs",
+                "--output",
+                "reports/evidence-digest.md",
+            ]
+        )
+
+        self.assertEqual(args.runs_dir, "runs")
+        self.assertEqual(args.output, "reports/evidence-digest.md")
+
+    def test_report_parser_keeps_evidence_appendix_alias(self):
         parser = build_parser()
 
         args = parser.parse_args(
             [
                 "report",
                 "evidence-appendix",
-                "--runs-dir",
-                "runs",
                 "--output",
-                "reports/evidence.md",
+                "reports/legacy.md",
             ]
         )
 
-        self.assertEqual(args.runs_dir, "runs")
-        self.assertEqual(args.output, "reports/evidence.md")
+        self.assertEqual(args.output, "reports/legacy.md")
 
     def test_task_smoke_test_parser_uses_one_agent_trial(self):
         parser = build_parser()

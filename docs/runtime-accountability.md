@@ -21,7 +21,7 @@ python3 -m agentlab doctor --agent codex
 
 The preflight verifies that `codex` resolves from `PATH`, records the installed
 CLI version, and asks the installed CLI to parse the same non-interactive
-`exec` command shape that trials use. This catches harness/runtime launch
+`exec` command shape that trials use. This catches eval-harness/runtime launch
 problems before a real task trial is created.
 
 Codex trials show terminal liveness while the subprocess is running, including a
@@ -39,14 +39,14 @@ Codex trial `result.json` artifacts also store an `agent_harness_config` object
 with the explicit model and profile when supplied, sandbox mode, approval
 policy, timeout, configured command, resolved command identity when available,
 and CLI version when Agent Lab can read it. Runtime-accountability fields that
-the harness cannot currently provide, such as account and billing context, remain
-explicitly unknown in artifact metadata and report output.
+the evaluation harness cannot currently provide, such as account and billing
+context, remain explicitly unknown in artifact metadata and report output.
 
 This means each Codex trial currently measures **Codex CLI as configured on this
 machine**. Authentication, default model selection, account limits, and token
 budget are handled by the local Codex app/CLI configuration, not by Agent Lab.
 
-That is fine for early harness development, but it is not yet a complete
+That is fine for early eval-harness development, but it is not yet a complete
 model-quality measurement.
 
 ## Risk

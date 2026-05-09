@@ -1,11 +1,11 @@
 import unittest
 
-from agentlab.evidence import render_evidence_appendix
+from agentlab.evidence import render_capability_evidence_digest
 
 
-class EvidenceAppendixTest(unittest.TestCase):
+class CapabilityEvidenceDigestTest(unittest.TestCase):
     def test_renders_aggregate_and_trial_evidence(self):
-        appendix = render_evidence_appendix(
+        digest = render_capability_evidence_digest(
             [
                 {
                     "trial_id": "trial-pass",
@@ -57,15 +57,15 @@ class EvidenceAppendixTest(unittest.TestCase):
             ]
         )
 
-        self.assertIn("# Capability Report Evidence Appendix", appendix)
-        self.assertIn("| starter | regression | task-a | codex | model-a | 2 | 1 | 1 | 1 | 1.00 | 1.00 | 1.00 | 100 | 1 | 5 | 1 | success_clean:1 | setup_error:1 |", appendix)
-        self.assertIn("| trial-pass | task-a | codex | model-a | passed | valid | success_clean |", appendix)
-        self.assertIn("| 1 | 5 | 1 | 10 | 5 | 2 | unknown | 100 |", appendix)
-        self.assertIn("| trial-excluded | task-a | codex | model-a | failed | excluded | dependency_issue | setup_error |", appendix)
-        self.assertIn("[report](runs/trial-pass/report.md)", appendix)
-        self.assertIn("[transcript](runs/trial-pass/transcript.md)", appendix)
-        self.assertIn("[diff](runs/trial-pass/diff.patch)", appendix)
-        self.assertIn("[result](runs/trial-pass/result.json)", appendix)
+        self.assertIn("# Capability Evidence Digest", digest)
+        self.assertIn("| starter | regression | task-a | codex | model-a | 2 | 1 | 1 | 1 | 1.00 | 1.00 | 1.00 | 100 | 1 | 5 | 1 | success_clean:1 | setup_error:1 |", digest)
+        self.assertIn("| trial-pass | task-a | codex | model-a | passed | valid | success_clean |", digest)
+        self.assertIn("| 1 | 5 | 1 | 10 | 5 | 2 | unknown | 100 |", digest)
+        self.assertIn("| trial-excluded | task-a | codex | model-a | failed | excluded | dependency_issue | setup_error |", digest)
+        self.assertIn("[report](runs/trial-pass/report.md)", digest)
+        self.assertIn("[transcript](runs/trial-pass/transcript.md)", digest)
+        self.assertIn("[diff](runs/trial-pass/diff.patch)", digest)
+        self.assertIn("[result](runs/trial-pass/result.json)", digest)
 
 
 if __name__ == "__main__":

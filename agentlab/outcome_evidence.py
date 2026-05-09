@@ -16,6 +16,7 @@ from agentlab.resource_usage import (
 from agentlab.review import load_review
 from agentlab.validity import (
     EXCLUDED_TRIAL_VALIDITY,
+    normalize_exclusion_reason,
     normalize_trial_validity,
 )
 
@@ -240,12 +241,12 @@ def _review_validity(
     review: Mapping[str, Any] | None,
 ) -> tuple[str, str | None]:
     if review is None:
-        return normalize_trial_validity(data.get("trial_validity")), _optional_str(
-            data.get("exclusion_reason")
+        return normalize_trial_validity(data.get("trial_validity")), (
+            normalize_exclusion_reason(data.get("exclusion_reason"))
         )
 
     validity = normalize_trial_validity(review.get("trial_validity"))
-    exclusion_reason = _optional_str(review.get("exclusion_reason"))
+    exclusion_reason = normalize_exclusion_reason(review.get("exclusion_reason"))
     if validity != EXCLUDED_TRIAL_VALIDITY:
         exclusion_reason = None
     return validity, exclusion_reason

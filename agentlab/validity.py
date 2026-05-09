@@ -12,12 +12,16 @@ TRIAL_VALIDITIES = [
 
 EXCLUSION_REASONS = [
     "dependency_issue",
-    "harness_error",
+    "eval_harness_error",
     "setup_error",
     "operator_error",
     "invalid_task",
     "unknown",
 ]
+
+LEGACY_EXCLUSION_REASON_ALIASES = {
+    "harness_error": "eval_harness_error",
+}
 
 
 def normalize_trial_validity(value: object) -> str:
@@ -26,6 +30,15 @@ def normalize_trial_validity(value: object) -> str:
     value = str(value)
     if value not in TRIAL_VALIDITIES:
         raise ValueError(f"unknown trial validity: {value}")
+    return value
+
+
+def normalize_exclusion_reason(value: object) -> str | None:
+    if value is None or value == "":
+        return None
+    value = LEGACY_EXCLUSION_REASON_ALIASES.get(str(value), str(value))
+    if value not in EXCLUSION_REASONS:
+        raise ValueError(f"unknown exclusion reason: {value}")
     return value
 
 
@@ -47,4 +60,4 @@ def exclusion_reason(result: Dict[str, Any]) -> str:
         reason = review.get("exclusion_reason")
     if reason is None:
         reason = result.get("exclusion_reason")
-    return str(reason or "")
+    return normalize_exclusion_reason(reason) or ""

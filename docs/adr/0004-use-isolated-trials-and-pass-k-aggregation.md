@@ -32,4 +32,4 @@ trial-validity metadata and excluded-trial handling.
   solve this consistently?"
 - Trial storage remains append-only and inspectable.
 - Summary statistics are meaningful only when grouped trials share comparable
-  task, harness, model, and runtime configuration.
+  task, agent harness, model, and runtime configuration.

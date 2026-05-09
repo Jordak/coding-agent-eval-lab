@@ -39,8 +39,9 @@ interaction:
 ```
 
 `mode: none` means the agent harness should proceed from the fixed prompt.
-`mode: followup_allowed` means the harness may ask bounded follow-up questions
-before editing. The answer source must be deterministic for publishable trials:
+`mode: followup_allowed` means the agent harness may ask bounded follow-up
+questions before editing. The answer source must be deterministic for
+publishable trials:
 initially a scripted Markdown or JSON artifact committed with the task bundle.
 
 Interactive trial evidence should capture:

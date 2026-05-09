@@ -30,4 +30,6 @@ counts in fair capability metrics.
   harness.
 
 Excluded trials require one exclusion reason: `dependency_issue`,
-`harness_error`, `setup_error`, `operator_error`, `invalid_task`, or `unknown`.
+`eval_harness_error`, `setup_error`, `operator_error`, `invalid_task`, or
+`unknown`. Use `eval_harness_error` when Agent Eval Lab, the evaluation harness,
+failed before the trial could fairly measure the agent harness.

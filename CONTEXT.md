@@ -18,6 +18,9 @@ The project is evaluation infrastructure, not a general coding assistant or IDE.
 
 ## Domain Vocabulary
 
+- **UL**: shorthand for Ubiquitous Language, the canonical project vocabulary
+  in this file. Public docs, issues, reports, and code should prefer UL terms
+  when a concept has one.
 - **Task**: a single eval case with repository, commit, prompt, environment, and
   success criteria.
 - **Task bundle**: the canonical on-disk unit for a task: a directory containing
@@ -43,6 +46,14 @@ The project is evaluation infrastructure, not a general coding assistant or IDE.
   artifact paths.
 - **Evaluation suite**: a group of tasks designed to measure a capability or
   regression surface.
+- **Harness**: a system that surrounds another system to run, constrain,
+  observe, or improve it. Use qualified terms in public docs: **evaluation
+  harness** for Agent Eval Lab and **agent harness** for the product or scaffold
+  being evaluated.
+- **Evaluation (eval) harness**: Agent Eval Lab itself. It prepares isolated
+  environments, invokes agent harnesses through adapters, captures
+  transcripts/traces and outcomes, runs graders, records human review metadata,
+  and aggregates trial results.
 - **Solo Dev Starter Suite**: the first serious evaluation suite for this
   project, focused on small realistic maintenance tasks a solo developer faces
   when starting or stabilizing an AI-assisted project. It should be a curated
@@ -52,6 +63,10 @@ The project is evaluation infrastructure, not a general coding assistant or IDE.
 - **Agent harness**: the product or scaffold being evaluated, such as Codex CLI,
   Claude Code, Cursor Agent, or the manual adapter. Prefer this term over
   "agent", "agent tool", or "agent application" when naming comparison targets.
+- **Tool**: an intentionally generic word. Avoid unqualified "tool" when a UL
+  term is available. Use **evaluation harness** for Agent Eval Lab, **agent
+  harness** for systems such as Codex CLI or Cursor Agent, and "tool call",
+  "shell command", or "dependency" for lower-level actions inside a trial.
 - **Agent harness configuration**: a comparable setup of an agent harness plus
   its explicit model, permissions, sandbox, project rules, and runtime options
   when known.
@@ -77,11 +92,17 @@ The project is evaluation infrastructure, not a general coding assistant or IDE.
   pass^k, and median outcome metrics.
 - **Excluded trial**: a stored trial whose raw artifacts remain inspectable but
   whose result is omitted from fair capability metrics because the attempt was
-  invalidated by setup, harness, operator, task-definition, or dependency
-  problems.
+  invalidated by setup, eval-harness, operator, task-definition, or dependency
+  problems. Eval-harness failures use the exclusion reason
+  `eval_harness_error`.
 - **Outcome evidence**: structured facts used to support an outcome or human
   review, such as changed files, lines added/deleted, commands run, duration,
   token usage, cost, diff excerpts, transcript/trace excerpts, and grader output.
+- **Capability evidence digest**: generated, AI-readable Markdown that
+  summarizes a selected set of trial artifacts for later hand-authored agent
+  capability reports. It reports aggregate metrics, fair/excluded trial counts,
+  review labels, outcome evidence, resource usage, and artifact links without
+  making final interpretive claims.
 - **Edit size metrics**: structured evidence about patch size, especially files
   changed and lines added/deleted.
 - **Resource usage metrics**: structured evidence about runtime cost, especially
@@ -151,5 +172,5 @@ The project is evaluation infrastructure, not a general coding assistant or IDE.
 - Multi-trial summaries group by suite, eval type, task, agent harness, and
   model, then report fair-trial pass rate, pass@k, pass^k, and excluded-trial
   counts.
-- Generated evidence appendices provide AI-readable Markdown tables for
-  capability reports; human-authored interpretation remains separate.
+- Capability evidence digests provide AI-readable Markdown tables for capability
+  reports; human-authored interpretation remains separate.

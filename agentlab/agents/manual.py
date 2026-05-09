@@ -9,7 +9,7 @@ from agentlab.tasks import EvalTask
 
 
 class ManualAgentAdapter:
-    """Human-in-the-loop adapter for proving the harness before SDK integration."""
+    """Human-in-the-loop adapter for proving the eval harness before SDK integration."""
 
     name = "manual"
 

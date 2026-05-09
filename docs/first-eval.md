@@ -21,9 +21,9 @@ The task uses deterministic Python assertions:
 
 ## Negative-Control Trial
 
-Running the manual adapter with `--no-pause` makes no edits. The harness should
-clone the repo, run code-based graders, capture an empty diff, and fail the
-target assertion.
+Running the manual adapter with `--no-pause` makes no edits. The evaluation
+harness should clone the repo, run code-based graders, capture an empty diff,
+and fail the target assertion.
 
 Observed result:
 
@@ -59,8 +59,8 @@ The first trial exposed an adapter bug: `--ask-for-approval` was passed after
 `exec`, but this Codex CLI expects that option before the subcommand. The harness
 captured the runtime error in `transcript.md` and `result.json`. Under the
 current trial-validity vocabulary, this run is reviewed as `tool_misuse` by the
-harness with trial validity `excluded` and exclusion reason `harness_error`,
-because Codex exited before it could attempt the task.
+evaluation harness with trial validity `excluded` and exclusion reason
+`eval_harness_error`, because Codex exited before it could attempt the task.
 
 Run `python3 -m agentlab doctor --agent codex` before new Codex trial batches to
 catch this class of adapter/runtime launch problem before creating task trials.
@@ -82,7 +82,7 @@ and assert the current heuristic metadata.
 This first eval proves the core loop:
 
 - A task can pin an external repo and commit.
-- The harness can isolate a workspace.
+- The evaluation harness can isolate a workspace.
 - The manual adapter can produce both negative and positive control trials.
 - The Codex CLI adapter can run a trial non-interactively and produce a passing
   patch.

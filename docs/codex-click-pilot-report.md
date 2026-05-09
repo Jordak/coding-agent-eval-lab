@@ -43,13 +43,13 @@ Generated from local trial artifacts with:
 
 ```bash
 python3 -m agentlab trials summarize
-python3 -m agentlab report evidence-appendix --output /private/tmp/agentlab-current-evidence.md
+python3 -m agentlab report capability-evidence-digest --output /private/tmp/agentlab-current-evidence.md
 python3 -m agentlab run --agent codex --task tasks/starter/click-default-map-nargs-001 --trials 3 --jobs 3
 ```
 
 | Task | Total Trials | Fair Trials | Excluded Trials | Fair Passes | Fair Pass Rate | pass@k | pass^k | Human Review | Exclusions |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
-| `click-help-shadowed-option-001` | 7 | 6 | 1 | 6 | 1.00 | 1.00 | 1.00 | `success_clean:6` | `harness_error:1` |
+| `click-help-shadowed-option-001` | 7 | 6 | 1 | 6 | 1.00 | 1.00 | 1.00 | `success_clean:6` | `eval_harness_error:1` |
 | `click-default-map-nargs-001` | 9 | 4 | 5 | 4 | 1.00 | 1.00 | 1.00 | `success_clean:4` | `setup_error:5` |
 
 The help-option task has enough fair repeated trials to support a narrow
@@ -79,11 +79,12 @@ for multi-value string defaults.
 
 ## What Was Brittle
 
-The strongest brittleness was not Codex's code generation. It was the harness
-and task environment.
+The strongest brittleness was not Codex's code generation. It was the
+evaluation harness/runtime path and task environment.
 
-- One early help-option run is excluded as `harness_error` because the Codex
-  executable was not discoverable, so Codex did not attempt the task.
+- One early help-option run is excluded as `eval_harness_error` because the
+  evaluation harness could not discover or invoke the local Codex CLI, so Codex
+  did not attempt the task.
 - Five default-map runs are excluded as `setup_error` because the task-local
   environment did not yet expose the local Click checkout to post-agent graders.
 - Those invalid runs still matter as lab evidence: they led to explicit trial
@@ -96,7 +97,7 @@ For technical evaluators:
 
 - Treat Codex Click results as local-runtime, harness-specific evidence.
 - Run `agentlab doctor --agent codex` before spending a repeated trial batch.
-- Keep invalid setup, harness, and operator failures excluded from fair
+- Keep invalid setup, eval-harness, and operator failures excluded from fair
   capability summaries, but preserve their transcripts for diagnosis.
 - Repeat this same pattern before expanding to new task categories: reference
   verification, one-trial smoke test, then a bounded fair batch.
@@ -108,8 +109,8 @@ For solo developers:
 - The main caveat is environment setup. If a project's local install, import
   path, or test command is shaky, agent performance can look worse than it is.
 - The useful question is not "does Codex always solve Click bugs?" It is "with a
-  clean task environment and focused regression prompt, did this harness produce
-  reviewed, grader-passing patches on these tasks?" For this pilot, yes.
+  clean task environment and focused regression prompt, did this agent harness
+  produce reviewed, grader-passing patches on these tasks?" For this pilot, yes.
 
 ## Trial Artifact Index
 
@@ -118,7 +119,7 @@ paths are the evidence used for this report.
 
 | Trial | Task | Outcome | Validity | Report | Transcript | Diff | Result |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `20260507-170846-click-help-shadowed-option-001-codex` | `click-help-shadowed-option-001` | failed | excluded: `harness_error` | `runs/20260507-170846-click-help-shadowed-option-001-codex/report.md` | `runs/20260507-170846-click-help-shadowed-option-001-codex/transcript.md` | `runs/20260507-170846-click-help-shadowed-option-001-codex/diff.patch` | `runs/20260507-170846-click-help-shadowed-option-001-codex/result.json` |
+| `20260507-170846-click-help-shadowed-option-001-codex` | `click-help-shadowed-option-001` | failed | excluded: `eval_harness_error` | `runs/20260507-170846-click-help-shadowed-option-001-codex/report.md` | `runs/20260507-170846-click-help-shadowed-option-001-codex/transcript.md` | `runs/20260507-170846-click-help-shadowed-option-001-codex/diff.patch` | `runs/20260507-170846-click-help-shadowed-option-001-codex/result.json` |
 | `20260507-171508-click-help-shadowed-option-001-codex` | `click-help-shadowed-option-001` | passed | valid | `runs/20260507-171508-click-help-shadowed-option-001-codex/report.md` | `runs/20260507-171508-click-help-shadowed-option-001-codex/transcript.md` | `runs/20260507-171508-click-help-shadowed-option-001-codex/diff.patch` | `runs/20260507-171508-click-help-shadowed-option-001-codex/result.json` |
 | `20260507-175243-click-help-shadowed-option-001-codex` | `click-help-shadowed-option-001` | passed | valid | `runs/20260507-175243-click-help-shadowed-option-001-codex/report.md` | `runs/20260507-175243-click-help-shadowed-option-001-codex/transcript.md` | `runs/20260507-175243-click-help-shadowed-option-001-codex/diff.patch` | `runs/20260507-175243-click-help-shadowed-option-001-codex/result.json` |
 | `20260507-183521-click-help-shadowed-option-001-codex-20f74f8c` | `click-help-shadowed-option-001` | passed | valid | `runs/20260507-183521-click-help-shadowed-option-001-codex-20f74f8c/report.md` | `runs/20260507-183521-click-help-shadowed-option-001-codex-20f74f8c/transcript.md` | `runs/20260507-183521-click-help-shadowed-option-001-codex-20f74f8c/diff.patch` | `runs/20260507-183521-click-help-shadowed-option-001-codex-20f74f8c/result.json` |

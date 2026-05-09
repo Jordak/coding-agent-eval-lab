@@ -81,7 +81,7 @@ target grader commands. This lets a task create `.agentlab/venv` in setup and
 then expose `python`, `pip`, and `pytest` consistently to both the agent and the
 graders.
 
-The current lightweight harness still leaves interpreter/package-manager
+The current lightweight evaluation harness still leaves interpreter/package-manager
 selection inside task setup commands. Candidate curation should record setup
 cost, language runtime requirements, and whether full upstream tests are
 available inside the trial workspace.
@@ -97,9 +97,10 @@ patch, and the same code-based graders as every other adapter.
 
 ## Graders And Outcomes
 
-The current harness uses deterministic code-based graders: setup commands,
-baseline assertions, target assertions, and post-change assertions. These are
-fast, cheap, reproducible, and appropriate for early coding-agent evals.
+The current evaluation harness uses deterministic code-based graders: setup
+commands, baseline assertions, target assertions, and post-change assertions.
+These are fast, cheap, reproducible, and appropriate for early coding-agent
+evals.
 
 Reports emphasize the outcome: the final patch, changed files, command results,
 and grader pass/fail status. Tool-call and transcript graders should be added
@@ -113,7 +114,7 @@ Human review also records **trial validity**. A valid trial is fair to count in
 capability summaries. An excluded trial keeps its raw artifacts and review
 evidence, but its pass/fail result is removed from fair pass-rate, pass@k,
 pass^k, and median outcome metrics. Exclusion reasons use a small vocabulary:
-`dependency_issue`, `harness_error`, `setup_error`, `operator_error`,
+`dependency_issue`, `eval_harness_error`, `setup_error`, `operator_error`,
 `invalid_task`, and `unknown`.
 
 Human review should be backed by structured **outcome evidence** where possible:
@@ -132,12 +133,12 @@ fair-trial pass rate, pass@k, pass^k, median duration, median changed files,
 median line additions/deletions, review-label counts, and exclusion-reason
 counts.
 
-`agentlab report evidence-appendix` renders those summaries plus per-trial
-evidence into Markdown. This generated appendix is intended as the data backbone
-for hand-authored, evidence-scoped capability reports; it does not replace human
-interpretation. Per-trial rows link to the report, transcript, diff, and result
-artifacts so reviewers can inspect surprising pass rates without leaving the
-appendix.
+`agentlab report capability-evidence-digest` renders those summaries plus
+per-trial evidence into Markdown. This generated capability evidence digest is
+intended as the data backbone for hand-authored, evidence-scoped capability
+reports; it does not replace human interpretation. Per-trial rows link to the
+report, transcript, diff, and result artifacts so reviewers can inspect
+surprising pass rates without leaving the digest.
 
 Trial storage remains the append-only file-artifact workflow described above.
 Trial listing, summaries, Human review outcome overlays, and Outcome evidence

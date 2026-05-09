@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from agentlab.evidence import render_evidence_appendix
+from agentlab.evidence import render_capability_evidence_digest
 from agentlab.results import discover_result_files, load_results
 from agentlab.review import write_review
 from agentlab.summary import summarize_trials
@@ -62,10 +62,10 @@ class ResultsTest(unittest.TestCase):
             self.assertEqual(summary.excluded_trials, 1)
             self.assertEqual(summary.passes, 1)
 
-            appendix = render_evidence_appendix(results)
-            self.assertIn("- Agent trials: `2`", appendix)
-            self.assertIn("setup_error:1", appendix)
-            self.assertIn("trial-pass/result.json", appendix)
+            digest = render_capability_evidence_digest(results)
+            self.assertIn("- Agent trials: `2`", digest)
+            self.assertIn("setup_error:1", digest)
+            self.assertIn("trial-pass/result.json", digest)
 
     def test_load_results_backfills_line_metrics_from_diff_patch(self):
         with tempfile.TemporaryDirectory() as temp:

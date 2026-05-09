@@ -11,15 +11,16 @@ from agentlab.summary import summarize_trials
 from agentlab.validity import exclusion_reason, trial_validity
 
 
-def render_evidence_appendix(results: Iterable[Dict[str, Any]]) -> str:
+def render_capability_evidence_digest(results: Iterable[Dict[str, Any]]) -> str:
     results = normalize_result_dicts(results)
     lines = [
-        "# Capability Report Evidence Appendix",
+        "# Capability Evidence Digest",
         "",
         (
-            "This appendix is generated from stored agent-trial results. It "
-            "reports evidence only; human-authored capability reports should "
-            "interpret these observations within the evaluated conditions."
+            "This digest is generated from stored agent-trial results. It "
+            "reports evidence only; hand-authored agent capability reports "
+            "should interpret these observations within the evaluated "
+            "conditions."
         ),
         "",
         f"- Agent trials: `{len(results)}`",
@@ -114,6 +115,10 @@ def render_evidence_appendix(results: Iterable[Dict[str, Any]]) -> str:
 
     lines.append("")
     return "\n".join(lines)
+
+
+def render_evidence_appendix(results: Iterable[Dict[str, Any]]) -> str:
+    return render_capability_evidence_digest(results)
 
 
 def _trial_row(result: Dict[str, Any]) -> List[object]:

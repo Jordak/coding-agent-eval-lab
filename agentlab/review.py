@@ -9,6 +9,7 @@ from agentlab.validity import (
     DEFAULT_TRIAL_VALIDITY,
     EXCLUDED_TRIAL_VALIDITY,
     EXCLUSION_REASONS,
+    normalize_exclusion_reason,
     normalize_trial_validity,
 )
 
@@ -31,7 +32,8 @@ def write_review(
     if trial_validity == EXCLUDED_TRIAL_VALIDITY:
         if exclusion_reason is None and primary_label in EXCLUSION_REASONS:
             exclusion_reason = primary_label
-        if exclusion_reason not in EXCLUSION_REASONS:
+        exclusion_reason = normalize_exclusion_reason(exclusion_reason)
+        if exclusion_reason is None:
             raise ValueError(
                 "excluded trials require an exclusion reason: "
                 + ", ".join(EXCLUSION_REASONS)
