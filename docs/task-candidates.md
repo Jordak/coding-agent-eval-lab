@@ -16,6 +16,20 @@ passing reference verification.
 
 ## Promoted Tasks
 
+### Datawrapper MCP Docker requirements should include app dependencies
+
+- Status: promoted to `tasks/starter/datawrapper-mcp-docker-requirements-001`
+- Repository: <https://github.com/palewire/datawrapper-mcp>
+- Issue: <https://github.com/palewire/datawrapper-mcp/issues/19>
+- PR: <https://github.com/palewire/datawrapper-mcp/pull/21>
+- Start commit: `15b5389e068bf5e673789da82a20f31fe3e81bd7`
+- Reference commit inspected: `3de025e419fee021e648786a3a0aa21bfda84527`
+- Notes: setup/dependency task where the Dockerfile installs
+  `deployment/requirements.txt`, but the deployment manifest drifted from
+  `pyproject.toml` and omitted app runtime dependencies. Graders avoid live
+  package installation by checking the deterministic deployment manifest
+  contract and source imports.
+
 ### TodoMVC toggle-all checkbox should work directly
 
 - Status: promoted to `tasks/starter/todomvc-toggle-all-checkbox-001`
