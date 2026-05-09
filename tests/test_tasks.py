@@ -222,6 +222,7 @@ class TaskLoadingTest(unittest.TestCase):
                 "tasks/starter/2048-advanced-snake-params-001/task.yaml",
                 "tasks/starter/click-default-map-nargs-001/task.yaml",
                 "tasks/starter/click-help-shadowed-option-001/task.yaml",
+                "tasks/starter/click-should-strip-ansi-tests-001/task.yaml",
                 "tasks/starter/todomvc-toggle-all-checkbox-001/task.yaml",
             ],
         )
@@ -235,6 +236,7 @@ class TaskLoadingTest(unittest.TestCase):
                 "2048-advanced-snake-params-001",
                 "click-default-map-nargs-001",
                 "click-help-shadowed-option-001",
+                "click-should-strip-ansi-tests-001",
                 "todomvc-toggle-all-checkbox-001",
             ],
         )
