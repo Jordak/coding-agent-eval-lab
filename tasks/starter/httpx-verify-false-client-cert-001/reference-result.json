@@ -1,0 +1,187 @@
+{
+  "agent_name": "reference",
+  "cached_input_tokens": null,
+  "checks": [
+    {
+      "command": "python3 -m venv .agentlab/venv",
+      "passed": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "command": "python -m pip install --upgrade pip",
+      "passed": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "Requirement already satisfied: pip in ./.agentlab/venv/lib/python3.9/site-packages (21.2.4)\nCollecting pip\n  Downloading pip-26.0.1-py3-none-any.whl (1.8 MB)\nInstalling collected packages: pip\n  Attempting uninstall: pip\n    Found existing installation: pip 21.2.4\n    Uninstalling pip-21.2.4:\n      Successfully uninstalled pip-21.2.4\nSuccessfully installed pip-26.0.1\n"
+    },
+    {
+      "command": "python -m pip install -e . \"pytest<9\"",
+      "passed": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "Obtaining file:///private/var/folders/3m/s27dbmbs1mn8yp8dmfxmtl9h0000gn/T/agentlab-reference-639jo8n6/httpx-verify-false-client-cert-001\n  Installing build dependencies: started\n  Installing build dependencies: finished with status 'done'\n  Checking if build backend supports build_editable: started\n  Checking if build backend supports build_editable: finished with status 'done'\n  Getting requirements to build editable: started\n  Getting requirements to build editable: finished with status 'done'\n  Installing backend dependencies: started\n  Installing backend dependencies: finished with status 'done'\n  Preparing editable metadata (pyproject.toml): started\n  Preparing editable metadata (pyproject.toml): finished with status 'done'\nCollecting pytest<9\n  Using cached pytest-8.4.2-py3-none-any.whl.metadata (7.7 kB)\nCollecting anyio (from httpx==0.28.0)\n  Using cached anyio-4.12.1-py3-none-any.whl.metadata (4.3 kB)\nCollecting certifi (from httpx==0.28.0)\n  Downloading certifi-2026.4.22-py3-none-any.whl.metadata (2.5 kB)\nCollecting httpcore==1.* (from httpx==0.28.0)\n  Using cached httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)\nCollecting idna (from httpx==0.28.0)\n  Downloading idna-3.13-py3-none-any.whl.metadata (8.0 kB)\nCollecting exceptiongroup>=1 (from pytest<9)\n  Downloading exceptiongroup-1.3.1-py3-none-any.whl.metadata (6.7 kB)\nCollecting iniconfig>=1 (from pytest<9)\n  Using cached iniconfig-2.1.0-py3-none-any.whl.metadata (2.7 kB)\nCollecting packaging>=20 (from pytest<9)\n  Using cached packaging-26.2-py3-none-any.whl.metadata (3.5 kB)\nCollecting pluggy<2,>=1.5 (from pytest<9)\n  Using cached pluggy-1.6.0-py3-none-any.whl.metadata (4.8 kB)\nCollecting pygments>=2.7.2 (from pytest<9)\n  Using cached pygments-2.20.0-py3-none-any.whl.metadata (2.5 kB)\nCollecting tomli>=1 (from pytest<9)\n  Using cached tomli-2.4.1-py3-none-any.whl.metadata (10 kB)\nCollecting h11>=0.16 (from httpcore==1.*->httpx==0.28.0)\n  Using cached h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)\nCollecting typing-extensions>=4.6.0 (from exceptiongroup>=1->pytest<9)\n  Downloading typing_extensions-4.15.0-py3-none-any.whl.metadata (3.3 kB)\nUsing cached pytest-8.4.2-py3-none-any.whl (365 kB)\nUsing cached httpcore-1.0.9-py3-none-any.whl (78 kB)\nUsing cached pluggy-1.6.0-py3-none-any.whl (20 kB)\nDownloading exceptiongroup-1.3.1-py3-none-any.whl (16 kB)\nUsing cached h11-0.16.0-py3-none-any.whl (37 kB)\nUsing cached iniconfig-2.1.0-py3-none-any.whl (6.0 kB)\nUsing cached packaging-26.2-py3-none-any.whl (100 kB)\nUsing cached pygments-2.20.0-py3-none-any.whl (1.2 MB)\nUsing cached tomli-2.4.1-py3-none-any.whl (14 kB)\nDownloading typing_extensions-4.15.0-py3-none-any.whl (44 kB)\nUsing cached anyio-4.12.1-py3-none-any.whl (113 kB)\nDownloading idna-3.13-py3-none-any.whl (68 kB)\nDownloading certifi-2026.4.22-py3-none-any.whl (135 kB)\nBuilding wheels for collected packages: httpx\n  Building editable for httpx (pyproject.toml): started\n  Building editable for httpx (pyproject.toml): finished with status 'done'\n  Created wheel for httpx: filename=httpx-0.28.0-py3-none-any.whl size=4920 sha256=d3c18ea2f3c7c8e58cd3926ae873615ef532fc0d6d3afce498b258af0c43c4ca\n  Stored in directory: /private/var/folders/3m/s27dbmbs1mn8yp8dmfxmtl9h0000gn/T/pip-ephem-wheel-cache-qp8yljya/wheels/13/25/26/e47a5b65be87600783d7f8d1bf91da51955a10bc9f1f338cf2\nSuccessfully built httpx\nInstalling collected packages: typing-extensions, tomli, pygments, pluggy, packaging, iniconfig, idna, h11, certifi, httpcore, exceptiongroup, pytest, anyio, httpx\n\nSuccessfully installed anyio-4.12.1 certifi-2026.4.22 exceptiongroup-1.3.1 h11-0.16.0 httpcore-1.0.9 httpx-0.28.0 idna-3.13 iniconfig-2.1.0 packaging-26.2 pluggy-1.6.0 pygments-2.20.0 pytest-8.4.2 tomli-2.4.1 typing-extensions-4.15.0\n"
+    },
+    {
+      "command": "python -c 'import ssl, httpx; calls = []; ssl.SSLContext.load_cert_chain = lambda self, *args, **kwargs: calls.append(args); ctx = httpx.create_ssl_context(verify=False, cert=(\"client.pem\", \"client.key\")); assert ctx.verify_mode == ssl.CERT_NONE, ctx.verify_mode; assert ctx.check_hostname is False, ctx.check_hostname; assert calls == [], calls'",
+      "passed": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "command": "git apply reference.patch",
+      "passed": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "command": "python -c 'import ssl, httpx; calls = []; ssl.SSLContext.load_cert_chain = lambda self, *args, **kwargs: calls.append(args); ctx = httpx.create_ssl_context(verify=False, cert=(\"client.pem\", \"client.key\")); assert ctx.verify_mode == ssl.CERT_NONE, ctx.verify_mode; assert ctx.check_hostname is False, ctx.check_hostname; assert calls == [(\"client.pem\", \"client.key\")], calls'",
+      "passed": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "command": "python -c 'import ssl, httpx; calls = []; ssl.SSLContext.load_cert_chain = lambda self, *args, **kwargs: calls.append(args); ctx = httpx.create_ssl_context(verify=False, cert=\"client.pem\"); assert ctx.verify_mode == ssl.CERT_NONE, ctx.verify_mode; assert ctx.check_hostname is False, ctx.check_hostname; assert calls == [(\"client.pem\",)], calls'",
+      "passed": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "command": "python -c 'import ssl, httpx; calls = []; ssl.SSLContext.load_cert_chain = lambda self, *args, **kwargs: calls.append(args); ctx = httpx.create_ssl_context(verify=False); assert ctx.verify_mode == ssl.CERT_NONE, ctx.verify_mode; assert ctx.check_hostname is False, ctx.check_hostname; assert calls == [], calls'",
+      "passed": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "command": "python -c 'import ssl, httpx; calls = []; ssl.SSLContext.load_cert_chain = lambda self, *args, **kwargs: calls.append(args); ctx = httpx.create_ssl_context(verify=True, cert=(\"client.pem\", \"client.key\")); assert ctx.verify_mode == ssl.CERT_REQUIRED, ctx.verify_mode; assert ctx.check_hostname is True, ctx.check_hostname; assert calls == [(\"client.pem\", \"client.key\")], calls'",
+      "passed": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": ""
+    }
+  ],
+  "commands_run": [
+    "python3 -m venv .agentlab/venv",
+    "python -m pip install --upgrade pip",
+    "python -m pip install -e . \"pytest<9\"",
+    "python -c 'import ssl, httpx; calls = []; ssl.SSLContext.load_cert_chain = lambda self, *args, **kwargs: calls.append(args); ctx = httpx.create_ssl_context(verify=False, cert=(\"client.pem\", \"client.key\")); assert ctx.verify_mode == ssl.CERT_NONE, ctx.verify_mode; assert ctx.check_hostname is False, ctx.check_hostname; assert calls == [], calls'",
+    "git apply reference.patch",
+    "python -c 'import ssl, httpx; calls = []; ssl.SSLContext.load_cert_chain = lambda self, *args, **kwargs: calls.append(args); ctx = httpx.create_ssl_context(verify=False, cert=(\"client.pem\", \"client.key\")); assert ctx.verify_mode == ssl.CERT_NONE, ctx.verify_mode; assert ctx.check_hostname is False, ctx.check_hostname; assert calls == [(\"client.pem\", \"client.key\")], calls'",
+    "python -c 'import ssl, httpx; calls = []; ssl.SSLContext.load_cert_chain = lambda self, *args, **kwargs: calls.append(args); ctx = httpx.create_ssl_context(verify=False, cert=\"client.pem\"); assert ctx.verify_mode == ssl.CERT_NONE, ctx.verify_mode; assert ctx.check_hostname is False, ctx.check_hostname; assert calls == [(\"client.pem\",)], calls'",
+    "python -c 'import ssl, httpx; calls = []; ssl.SSLContext.load_cert_chain = lambda self, *args, **kwargs: calls.append(args); ctx = httpx.create_ssl_context(verify=False); assert ctx.verify_mode == ssl.CERT_NONE, ctx.verify_mode; assert ctx.check_hostname is False, ctx.check_hostname; assert calls == [], calls'",
+    "python -c 'import ssl, httpx; calls = []; ssl.SSLContext.load_cert_chain = lambda self, *args, **kwargs: calls.append(args); ctx = httpx.create_ssl_context(verify=True, cert=(\"client.pem\", \"client.key\")); assert ctx.verify_mode == ssl.CERT_REQUIRED, ctx.verify_mode; assert ctx.check_hostname is True, ctx.check_hostname; assert calls == [(\"client.pem\", \"client.key\")], calls'"
+  ],
+  "cost_usd": null,
+  "diff_path": "reference.diff",
+  "duration_ms": 0,
+  "error": null,
+  "eval_suite": "starter-coding",
+  "eval_type": "regression",
+  "exclusion_reason": null,
+  "files_changed": [
+    "httpx/_config.py"
+  ],
+  "graders": [
+    {
+      "assertion": "python3 -m venv .agentlab/venv",
+      "passed": true,
+      "returncode": 0,
+      "type": "code"
+    },
+    {
+      "assertion": "python -m pip install --upgrade pip",
+      "passed": true,
+      "returncode": 0,
+      "type": "code"
+    },
+    {
+      "assertion": "python -m pip install -e . \"pytest<9\"",
+      "passed": true,
+      "returncode": 0,
+      "type": "code"
+    },
+    {
+      "assertion": "python -c 'import ssl, httpx; calls = []; ssl.SSLContext.load_cert_chain = lambda self, *args, **kwargs: calls.append(args); ctx = httpx.create_ssl_context(verify=False, cert=(\"client.pem\", \"client.key\")); assert ctx.verify_mode == ssl.CERT_NONE, ctx.verify_mode; assert ctx.check_hostname is False, ctx.check_hostname; assert calls == [], calls'",
+      "passed": true,
+      "returncode": 0,
+      "type": "code"
+    },
+    {
+      "assertion": "git apply reference.patch",
+      "passed": true,
+      "returncode": 0,
+      "type": "code"
+    },
+    {
+      "assertion": "python -c 'import ssl, httpx; calls = []; ssl.SSLContext.load_cert_chain = lambda self, *args, **kwargs: calls.append(args); ctx = httpx.create_ssl_context(verify=False, cert=(\"client.pem\", \"client.key\")); assert ctx.verify_mode == ssl.CERT_NONE, ctx.verify_mode; assert ctx.check_hostname is False, ctx.check_hostname; assert calls == [(\"client.pem\", \"client.key\")], calls'",
+      "passed": true,
+      "returncode": 0,
+      "type": "code"
+    },
+    {
+      "assertion": "python -c 'import ssl, httpx; calls = []; ssl.SSLContext.load_cert_chain = lambda self, *args, **kwargs: calls.append(args); ctx = httpx.create_ssl_context(verify=False, cert=\"client.pem\"); assert ctx.verify_mode == ssl.CERT_NONE, ctx.verify_mode; assert ctx.check_hostname is False, ctx.check_hostname; assert calls == [(\"client.pem\",)], calls'",
+      "passed": true,
+      "returncode": 0,
+      "type": "code"
+    },
+    {
+      "assertion": "python -c 'import ssl, httpx; calls = []; ssl.SSLContext.load_cert_chain = lambda self, *args, **kwargs: calls.append(args); ctx = httpx.create_ssl_context(verify=False); assert ctx.verify_mode == ssl.CERT_NONE, ctx.verify_mode; assert ctx.check_hostname is False, ctx.check_hostname; assert calls == [], calls'",
+      "passed": true,
+      "returncode": 0,
+      "type": "code"
+    },
+    {
+      "assertion": "python -c 'import ssl, httpx; calls = []; ssl.SSLContext.load_cert_chain = lambda self, *args, **kwargs: calls.append(args); ctx = httpx.create_ssl_context(verify=True, cert=(\"client.pem\", \"client.key\")); assert ctx.verify_mode == ssl.CERT_REQUIRED, ctx.verify_mode; assert ctx.check_hostname is True, ctx.check_hostname; assert calls == [(\"client.pem\", \"client.key\")], calls'",
+      "passed": true,
+      "returncode": 0,
+      "type": "code"
+    }
+  ],
+  "input_tokens": null,
+  "lines_added": 3,
+  "lines_deleted": 4,
+  "model_name": null,
+  "outcome": {
+    "diff_path": "reference.diff",
+    "files_changed": [
+      "httpx/_config.py"
+    ],
+    "lines_added": 3,
+    "lines_deleted": 4,
+    "n_files_changed": 1,
+    "status": "passed"
+  },
+  "output_tokens": null,
+  "reasoning_output_tokens": null,
+  "reference_artifact": {
+    "commit": null,
+    "path": "reference.patch",
+    "type": "patch"
+  },
+  "report_path": "reference-report.md",
+  "resource_usage": {
+    "cached_input_tokens": null,
+    "cost_usd": null,
+    "input_tokens": null,
+    "output_tokens": null,
+    "reasoning_output_tokens": null,
+    "total_tokens": null
+  },
+  "run_dir": ".",
+  "run_id": "httpx-verify-false-client-cert-001-reference",
+  "score_notes": [],
+  "status": "passed",
+  "success": true,
+  "task_id": "httpx-verify-false-client-cert-001",
+  "task_title": "HTTPX should keep client certs with verify disabled",
+  "transcript_path": null,
+  "trial_id": "httpx-verify-false-client-cert-001-reference",
+  "trial_kind": "reference_verification",
+  "trial_validity": "valid"
+}

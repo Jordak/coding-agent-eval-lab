@@ -92,6 +92,20 @@ passing reference verification.
   structurally exercise color override and stream/Jupyter detection behavior
   without requiring production-code changes.
 
+### HTTPX should keep client certs with verify disabled
+
+- Status: promoted to `tasks/starter/httpx-verify-false-client-cert-001`
+- Repository: <https://github.com/encode/httpx>
+- Related issue: <https://github.com/encode/httpx/issues/3441>
+- PR: <https://github.com/encode/httpx/pull/3442>
+- Start commit: `0cb7e5a2e736628e2f506d259fcf0d48cd2bde82`
+- Reference commit inspected: `b1c39523ae3b5d6a3b8c3e49b0feca21242db2c9`
+- Notes: promoted for the ambiguous product-behavior slice. The prompt asks the
+  agent to make a conservative compatibility choice: `verify=False` disables
+  server certificate checks but should not skip client-certificate loading.
+  Graders assert tuple and single-file cert handling, the no-cert `verify=False`
+  path, and the existing `verify=True` with cert path.
+
 ## Strong Candidates
 
 ### Prettier duplicate dangling comments in experimental ternaries
@@ -118,18 +132,6 @@ passing reference verification.
   behavior.
 - Risks / checks: Vite's package manager and test setup may make repeated trials
   expensive. Candidate should be deferred until the lab handles JS/TS setup well.
-
-### HTTPX verify=False with client-side certs
-
-- Repository: <https://github.com/encode/httpx>
-- Related issue: <https://github.com/encode/httpx/issues/3441>
-- PR: <https://github.com/encode/httpx/pull/3442>
-- Candidate start commit: `0cb7e5a2e736628e2f506d259fcf0d48cd2bde82`
-- Candidate reference commit: `b1c39523ae3b5d6a3b8c3e49b0feca21242db2c9`
-- Candidate category: Python library behavior bugfix
-- Why promising: small production diff and clear behavioral combination.
-- Risks / checks: SSL/cert behavior can be awkward to grade robustly without
-  overfitting or depending on local certificate fixtures.
 
 ## Possible Later Candidates
 
