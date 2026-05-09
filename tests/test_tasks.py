@@ -209,9 +209,10 @@ class TaskLoadingTest(unittest.TestCase):
             with self.assertRaises(TaskLoadError):
                 load_task(bundle)
 
-    def test_starter_task_is_valid(self):
-        task = load_task("tasks/starter/python-bugfix-001")
+    def test_draft_task_is_valid(self):
+        task = load_task("tasks/drafts/python-bugfix-001")
         self.assertEqual(task.id, "python-bugfix-001")
+        self.assertEqual(task.suite, "draft-coding")
 
     def test_discovers_task_bundles_from_directory(self):
         files = discover_task_files(["tasks/starter"])
@@ -221,7 +222,6 @@ class TaskLoadingTest(unittest.TestCase):
                 "tasks/starter/2048-advanced-snake-params-001/task.yaml",
                 "tasks/starter/click-default-map-nargs-001/task.yaml",
                 "tasks/starter/click-help-shadowed-option-001/task.yaml",
-                "tasks/starter/python-bugfix-001/task.yaml",
             ],
         )
 
@@ -234,7 +234,6 @@ class TaskLoadingTest(unittest.TestCase):
                 "2048-advanced-snake-params-001",
                 "click-default-map-nargs-001",
                 "click-help-shadowed-option-001",
-                "python-bugfix-001",
             ],
         )
         self.assertEqual(bundles[0].task_file.name, "task.yaml")

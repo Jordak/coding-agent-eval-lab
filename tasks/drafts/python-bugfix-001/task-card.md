@@ -1,7 +1,7 @@
 # Invalid JSON should return 400
 
 - Task ID: `python-bugfix-001`
-- Suite: `starter-coding`
+- Suite: `draft-coding`
 - Evaluation type: `capability`
 - Language: `python`
 - Repository: `https://github.com/example/small-flask-app`
@@ -45,6 +45,8 @@ No task-local environment configured.
 
 ## Tags
 
+- `draft`
+- `non-publishable`
 - `bugfix`
 - `backend`
 - `error-handling`

@@ -22,7 +22,10 @@ The first scaffold supports:
 
 - Human-editable task bundles with YAML source and generated Markdown cards.
 - `agentlab task validate` for schema checks.
-- Starter task bundles under `tasks/starter/`.
+- Publishable starter task bundles under `tasks/starter/`.
+- Draft or illustrative task bundles under `tasks/drafts/`; these are not part
+  of the publishable baseline until they have real pinned repositories and
+  verified reference artifacts.
 - Task-local environment setup for exposing per-task tools such as `pytest`.
 - `agentlab run --agent manual --task ...` for one manual trial.
 - Git checkout preparation, configured command execution, diff capture, and

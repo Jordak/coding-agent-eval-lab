@@ -3,7 +3,7 @@ title: Invalid JSON should return 400
 repo: https://github.com/example/small-flask-app
 commit: abc123
 language: python
-suite: starter-coding
+suite: draft-coding
 eval_type: capability
 prompt: >
   Fix the bug where invalid JSON request bodies return a 500 instead of a 400.
@@ -20,6 +20,8 @@ success:
   tests_must_pass: true
   max_files_changed: 4
 tags:
+  - draft
+  - non-publishable
   - bugfix
   - backend
   - error-handling
