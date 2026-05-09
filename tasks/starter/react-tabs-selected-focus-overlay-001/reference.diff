@@ -1,0 +1,63 @@
+diff --git a/style/react-tabs.css b/style/react-tabs.css
+index eeddde5..883a24a 100644
+--- a/style/react-tabs.css
++++ b/style/react-tabs.css
+@@ -35,16 +35,6 @@
+   outline: none;
+ }
+ 
+-.react-tabs__tab:focus:after {
+-  content: '';
+-  position: absolute;
+-  height: 5px;
+-  left: -4px;
+-  right: -4px;
+-  bottom: -5px;
+-  background: #fff;
+-}
+-
+ .react-tabs__tab-panel {
+   display: none;
+ }
+diff --git a/style/react-tabs.less b/style/react-tabs.less
+index 73264d4..943b598 100644
+--- a/style/react-tabs.less
++++ b/style/react-tabs.less
+@@ -31,16 +31,6 @@
+ 
+     &:focus {
+       outline: none;
+-
+-      &:after {
+-        content: "";
+-        position: absolute;
+-        height: 5px;
+-        left: -4px;
+-        right: -4px;
+-        bottom: -5px;
+-        background: #fff;
+-      }
+     }
+   }
+ 
+diff --git a/style/react-tabs.scss b/style/react-tabs.scss
+index 73264d4..943b598 100644
+--- a/style/react-tabs.scss
++++ b/style/react-tabs.scss
+@@ -31,16 +31,6 @@
+ 
+     &:focus {
+       outline: none;
+-
+-      &:after {
+-        content: "";
+-        position: absolute;
+-        height: 5px;
+-        left: -4px;
+-        right: -4px;
+-        bottom: -5px;
+-        background: #fff;
+-      }
+     }
+   }
+ 
