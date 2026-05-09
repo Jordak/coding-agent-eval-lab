@@ -91,16 +91,63 @@ This first eval proves the core loop:
 
 ## Next Step
 
-The next meaningful milestone is an automated agent adapter that attempts this
-same task without a human edit pause, so its behavior can be compared against
-the manual positive and negative controls.
+The next meaningful milestone was adding an automated agent adapter that
+attempts this same task without a human edit pause, so its behavior can be
+compared against the manual positive and negative controls. That milestone is
+now complete for Codex CLI.
 
-That milestone is now complete for Codex CLI. The next step is repeated trials:
+## Repeated Codex CLI Batch
+
+On 2026-05-08, a bounded Codex CLI batch was run against the publishable
+`starter-coding` task after the starter suite was cleaned up.
+
+Preflight and reference checks:
 
 ```bash
-python3 -m agentlab run --agent codex --trials 5 --jobs 3 --task tasks/starter/2048-advanced-snake-params-001
-python3 -m agentlab trials summarize
+python3 -m agentlab doctor --agent codex
+python3 -m agentlab task verify-reference tasks/starter/2048-advanced-snake-params-001 --no-write-artifacts
+python3 -m agentlab task smoke-test --task tasks/starter/2048-advanced-snake-params-001 --agent codex
 ```
 
-This turns the one-off success into a consistency measurement using pass@k and
-pass^k.
+Repeated trials:
+
+```bash
+python3 -m agentlab run --agent codex --task tasks/starter/2048-advanced-snake-params-001 --trials 3 --jobs 3
+python3 -m agentlab run --agent codex --task tasks/starter/2048-advanced-snake-params-001 --trials 1 --jobs 1
+```
+
+The selected evidence set is tracked at
+`evidence-sets/codex-2048-advanced-snake-2026-05-08.json` and can be rendered
+with:
+
+```bash
+python3 -m agentlab report capability-evidence-digest \
+  --evidence-set evidence-sets/codex-2048-advanced-snake-2026-05-08.json \
+  --runs-dir runs \
+  --output reports/evidence-digest.md
+```
+
+Selected trial IDs:
+
+- `20260508-192558-2048-advanced-snake-params-001-codex-a24c0d88`
+- `20260508-192836-2048-advanced-snake-params-001-codex-852468e7`
+- `20260508-192836-2048-advanced-snake-params-001-codex-c28086a4`
+- `20260508-192836-2048-advanced-snake-params-001-codex-f9940a53`
+- `20260508-193138-2048-advanced-snake-params-001-codex-036d2392`
+
+Current aggregate for this evidence set:
+
+- Total trials: 5.
+- Fair trials: 5.
+- Excluded trials: 0.
+- Passes: 5.
+- Pass rate: 1.00.
+- pass@k: 1.00.
+- pass^k: 1.00.
+- Human reviews: `success_clean:5`.
+- Median duration: 122522 ms.
+- Median changed files: 2.
+- Median lines added/deleted: 11/7.
+
+This turns the one-off Codex success into a consistency measurement under the
+local Codex CLI runtime captured by the trial artifacts.
