@@ -61,7 +61,8 @@ def render_capability_evidence_digest(
                     "Median Files",
                     "Median +Lines",
                     "Median -Lines",
-                    "Human Reviews",
+                    "Primary Review Labels",
+                    "Secondary Review Labels",
                     "Exclusions",
                 ],
                 [
@@ -83,6 +84,7 @@ def render_capability_evidence_digest(
                         summary.median_lines_added,
                         summary.median_lines_deleted,
                         _format_counts(summary.review_labels),
+                        _format_counts(summary.secondary_review_labels),
                         _format_counts(summary.exclusion_reasons),
                     ]
                     for summary in summaries
@@ -103,7 +105,8 @@ def render_capability_evidence_digest(
                     "Model",
                     "Grader Outcome",
                     "Validity",
-                    "Human Review",
+                    "Primary Review Label",
+                    "Secondary Review Labels",
                     "Exclusion",
                     "Files",
                     "+Lines",
@@ -159,6 +162,7 @@ def _trial_row(result: Dict[str, Any]) -> List[object]:
         result.get("status", ""),
         trial_validity(result),
         _review_label(result),
+        _format_labels(_secondary_review_labels(result)),
         exclusion_reason(result),
         result_files_changed_count(result),
         result.get("lines_added", 0),
@@ -204,6 +208,16 @@ def _review_label(result: Dict[str, Any]) -> str:
     return ""
 
 
+def _secondary_review_labels(result: Dict[str, Any]) -> List[str]:
+    review = result.get("review")
+    if not isinstance(review, dict):
+        return []
+    labels = review.get("secondary_labels")
+    if not isinstance(labels, list):
+        return []
+    return [str(label) for label in labels if label]
+
+
 def _format_rate(value: float) -> str:
     return f"{value:.2f}"
 
@@ -212,6 +226,10 @@ def _format_counts(counts: Dict[str, int]) -> str:
     if not counts:
         return ""
     return ", ".join(f"{label}:{count}" for label, count in counts.items())
+
+
+def _format_labels(labels: List[str]) -> str:
+    return ", ".join(labels)
 
 
 def _unknown_if_none(value: object) -> object:

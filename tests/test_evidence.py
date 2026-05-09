@@ -26,6 +26,7 @@ class CapabilityEvidenceDigestTest(unittest.TestCase):
                     "cost_usd": None,
                     "review": {
                         "primary_label": "success_clean",
+                        "secondary_labels": ["resource_inefficient"],
                         "trial_validity": "valid",
                     },
                     "report_path": "runs/trial-pass/report.md",
@@ -58,10 +59,12 @@ class CapabilityEvidenceDigestTest(unittest.TestCase):
         )
 
         self.assertIn("# Capability Evidence Digest", digest)
-        self.assertIn("| starter | regression | task-a | codex | model-a | 2 | 1 | 1 | 1 | 1.00 | 1.00 | 1.00 | 100 | 1 | 5 | 1 | success_clean:1 | setup_error:1 |", digest)
-        self.assertIn("| trial-pass | task-a | codex | model-a | passed | valid | success_clean |", digest)
+        self.assertIn("Primary Review Labels", digest)
+        self.assertIn("Secondary Review Labels", digest)
+        self.assertIn("| starter | regression | task-a | codex | model-a | 2 | 1 | 1 | 1 | 1.00 | 1.00 | 1.00 | 100 | 1 | 5 | 1 | success_clean:1 | resource_inefficient:1 | setup_error:1 |", digest)
+        self.assertIn("| trial-pass | task-a | codex | model-a | passed | valid | success_clean | resource_inefficient |", digest)
         self.assertIn("| 1 | 5 | 1 | 10 | 5 | 2 | unknown | 100 |", digest)
-        self.assertIn("| trial-excluded | task-a | codex | model-a | failed | excluded | dependency_issue | setup_error |", digest)
+        self.assertIn("| trial-excluded | task-a | codex | model-a | failed | excluded | dependency_issue |  | setup_error |", digest)
         self.assertIn("[report](runs/trial-pass/report.md)", digest)
         self.assertIn("[transcript](runs/trial-pass/transcript.md)", digest)
         self.assertIn("[diff](runs/trial-pass/diff.patch)", digest)

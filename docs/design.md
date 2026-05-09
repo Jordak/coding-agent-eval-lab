@@ -130,8 +130,8 @@ multiple independent trials for the same task and agent harness; `--jobs N`
 controls how many of those trials run concurrently. `agentlab trials summarize`
 groups stored results and reports total trials, fair trials, excluded trials,
 fair-trial pass rate, pass@k, pass^k, median duration, median changed files,
-median line additions/deletions, review-label counts, and exclusion-reason
-counts.
+median line additions/deletions, primary review-label counts, secondary
+review-label counts, and exclusion-reason counts.
 
 `agentlab report capability-evidence-digest` renders those summaries plus
 per-trial evidence into Markdown. For local inspection it can scan a whole runs
@@ -140,7 +140,8 @@ manifest so the selected trials are deliberate and reproducible. This generated
 capability evidence digest is intended as the data backbone for hand-authored,
 evidence-scoped capability reports; it does not replace human interpretation.
 Per-trial rows link to the report, transcript, diff, and result artifacts so
-reviewers can inspect surprising pass rates without leaving the digest.
+reviewers can inspect surprising pass rates without leaving the digest. Digest
+review columns keep primary labels separate from secondary caveat labels.
 
 Trial storage remains the append-only file-artifact workflow described above.
 Trial listing, summaries, human review outcome overlays, and capability evidence

@@ -145,7 +145,8 @@ python3 -m agentlab trials summarize
 
 `pass@k` means at least one fair trial in the group passed. `pass^k` means every
 fair trial in the group passed. Trials marked `excluded` by human review remain
-stored but do not count in those fair capability metrics.
+stored but do not count in those fair capability metrics. Summary tables show
+primary review-label counts separately from secondary review-label caveats.
 
 Generate a Markdown capability evidence digest for capability reports:
 
@@ -156,7 +157,8 @@ python3 -m agentlab report capability-evidence-digest --output reports/evidence-
 The digest is generated evidence, not final interpretation. Use it as the data
 backbone for hand-authored capability reports. Per-trial rows link to the
 report, transcript, diff, and result artifacts so surprising pass rates can be
-investigated without hunting through `runs/`.
+investigated without hunting through `runs/`. Aggregate and per-trial review
+columns distinguish primary labels from secondary labels.
 
 For report prep, make the evidence set explicit instead of relying on every
 local trial artifact:

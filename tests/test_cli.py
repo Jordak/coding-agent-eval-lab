@@ -1,5 +1,6 @@
 import contextlib
 import io
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -9,6 +10,7 @@ from unittest.mock import patch
 from agentlab.cli import (
     handle_doctor,
     handle_run,
+    handle_trials_summarize,
     _codex_config_from_args,
     handle_runs_list,
     _print_run_summaries,
@@ -285,6 +287,48 @@ class CliOutputTest(unittest.TestCase):
         self.assertIn("excluded", output)
         self.assertIn("dependency_issue", output)
         self.assertIn("setup_error", output)
+
+    def test_trials_summarize_shows_primary_and_secondary_review_counts(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runs_dir = Path(temp)
+            for index in range(2):
+                run_dir = runs_dir / f"trial-{index}"
+                run_dir.mkdir()
+                (run_dir / "result.json").write_text(
+                    json.dumps(
+                        {
+                            "trial_id": f"trial-{index}",
+                            "task_id": "task-a",
+                            "eval_suite": "starter",
+                            "eval_type": "capability",
+                            "agent_name": "codex",
+                            "model_name": "gpt-test",
+                            "status": "passed",
+                            "success": True,
+                            "duration_ms": 100,
+                            "files_changed": ["app.py"],
+                            "review": {
+                                "primary_label": "success_clean",
+                                "secondary_labels": ["resource_inefficient"],
+                                "trial_validity": "valid",
+                            },
+                        }
+                    ),
+                    encoding="utf-8",
+                )
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                status = handle_trials_summarize(
+                    SimpleNamespace(runs_dir=str(runs_dir))
+                )
+
+        output = stdout.getvalue()
+        self.assertEqual(status, 0)
+        self.assertIn("primary_reviews", output)
+        self.assertIn("secondary_reviews", output)
+        self.assertIn("success_clean:2", output)
+        self.assertIn("resource_inefficient:2", output)
 
     def test_run_summary_is_quiet_when_all_trials_pass(self):
         evaluation = SimpleNamespace(

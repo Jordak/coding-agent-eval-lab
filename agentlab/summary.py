@@ -31,6 +31,7 @@ class TrialGroupSummary:
     median_lines_added: float
     median_lines_deleted: float
     review_labels: Dict[str, int]
+    secondary_review_labels: Dict[str, int]
     exclusion_reasons: Dict[str, int]
 
 
@@ -77,6 +78,9 @@ def _summarize_group(
     review_labels = Counter(
         label for result in valid_results for label in [_review_label(result)] if label
     )
+    secondary_review_labels = Counter(
+        label for result in valid_results for label in _secondary_review_labels(result)
+    )
     exclusion_reasons = Counter(
         reason
         for result in excluded_results
@@ -102,6 +106,7 @@ def _summarize_group(
         median_lines_added=median(lines_added) if lines_added else 0.0,
         median_lines_deleted=median(lines_deleted) if lines_deleted else 0.0,
         review_labels=dict(sorted(review_labels.items())),
+        secondary_review_labels=dict(sorted(secondary_review_labels.items())),
         exclusion_reasons=dict(sorted(exclusion_reasons.items())),
     )
 
@@ -111,3 +116,13 @@ def _review_label(result: Dict[str, Any]) -> str:
     if isinstance(review, dict):
         return str(review.get("primary_label", ""))
     return ""
+
+
+def _secondary_review_labels(result: Dict[str, Any]) -> List[str]:
+    review = result.get("review")
+    if not isinstance(review, dict):
+        return []
+    labels = review.get("secondary_labels")
+    if not isinstance(labels, list):
+        return []
+    return [str(label) for label in labels if label]

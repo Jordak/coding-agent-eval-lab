@@ -68,6 +68,7 @@ class SummaryTest(unittest.TestCase):
                 lines_deleted=999,
                 review={
                     "primary_label": "dependency_issue",
+                    "secondary_labels": ["resource_inefficient"],
                     "trial_validity": "excluded",
                     "exclusion_reason": "setup_error",
                 },
@@ -88,7 +89,41 @@ class SummaryTest(unittest.TestCase):
         self.assertEqual(summary.median_lines_added, 0)
         self.assertEqual(summary.median_lines_deleted, 0)
         self.assertEqual(summary.review_labels, {})
+        self.assertEqual(summary.secondary_review_labels, {})
         self.assertEqual(summary.exclusion_reasons, {"setup_error": 1})
+
+    def test_counts_secondary_review_labels_separately_from_primary_labels(self):
+        results = [
+            self._result(
+                success=True,
+                review={
+                    "primary_label": "success_clean",
+                    "secondary_labels": ["resource_inefficient"],
+                    "trial_validity": "valid",
+                },
+            ),
+            self._result(
+                success=True,
+                review={
+                    "primary_label": "success_clean",
+                    "secondary_labels": ["resource_inefficient"],
+                    "trial_validity": "valid",
+                },
+            ),
+        ]
+
+        summary = summarize_trials(results)[0]
+
+        self.assertEqual(summary.trials, 2)
+        self.assertEqual(summary.passes, 2)
+        self.assertEqual(summary.pass_rate, 1.0)
+        self.assertEqual(summary.pass_at_k, 1.0)
+        self.assertEqual(summary.pass_caret_k, 1.0)
+        self.assertEqual(summary.review_labels, {"success_clean": 2})
+        self.assertEqual(
+            summary.secondary_review_labels,
+            {"resource_inefficient": 2},
+        )
 
     def _result(
         self,

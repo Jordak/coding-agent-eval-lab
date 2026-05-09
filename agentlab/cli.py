@@ -827,6 +827,7 @@ def handle_trials_summarize(args: argparse.Namespace) -> int:
                 str(summary.median_lines_added),
                 str(summary.median_lines_deleted),
                 _format_review_labels(summary.review_labels),
+                _format_review_labels(summary.secondary_review_labels),
                 _format_review_labels(summary.exclusion_reasons),
             ]
         )
@@ -848,7 +849,8 @@ def handle_trials_summarize(args: argparse.Namespace) -> int:
             "med_files",
             "med_added",
             "med_deleted",
-            "reviews",
+            "primary_reviews",
+            "secondary_reviews",
             "exclusions",
         ],
         rows,
