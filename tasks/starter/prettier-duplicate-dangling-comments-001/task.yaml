@@ -1,0 +1,50 @@
+id: prettier-duplicate-dangling-comments-001
+title: Prettier should not duplicate dangling comments in experimental ternaries
+repo: https://github.com/prettier/prettier.git
+commit: 80a2fdb5e88ce220b88d9122cd74303d71e4d8c0
+language: javascript
+suite: starter-coding
+eval_type: regression
+prompt: >
+  Fix Prettier's JavaScript formatter so `experimentalTernaries` no longer
+  prints a dangling comment twice when an empty array or object appears in a
+  ternary branch. For example, formatting `condition ? ifTrue : [ // comment ]`
+  with the Babel parser, `--experimental-ternaries`, `--tab-width 4`, and
+  `--no-semi` should preserve the comment exactly once rather than also placing
+  it after the consequent. Keep the patch focused on the ternary printer and
+  preserve the existing formatter behavior for the affected empty array/object
+  consequent and alternate branches.
+reference_solution: >
+  In the JavaScript ternary printer, stop separately printing dangling comments
+  from the consequent and alternate branch nodes before printing those branch
+  documents. Those branch printers already own their dangling comments, so the
+  extra collection in `printTernary` causes the duplicate output under
+  `experimentalTernaries`. A focused solution updates
+  `src/language-js/print/ternary.js` without broad parser or CLI changes.
+reference_artifact:
+  type: patch
+  path: reference.patch
+setup:
+  - corepack yarn install --immutable --mode=skip-build
+baseline:
+  - node -e 'const prettier = require("./src/index.cjs"); (async () => { const input = `condition ? ifTrue\n: [\n      // Hello, world!\n  ]\n`; const output = await prettier.format(input, { parser: "babel", tabWidth: 4, semi: false, experimentalTernaries: true }); const count = (output.match(/Hello, world!/g) || []).length; if (count !== 2) { console.error(output); throw new Error(`expected start commit to duplicate the comment twice, saw ${count}`); } })().catch((error) => { console.error(error); process.exit(1); })'
+test:
+  - node -e 'const prettier = require("./src/index.cjs"); (async () => { const cases = [`condition ? ifTrue\n: [\n      // Hello, world!\n  ]\n`, `condition ? [\n      // Hello, world!\n  ]\n: ifFalse\n`, `condition ? ifTrue\n: {\n      // Hello, world!\n  }\n`, `condition ? {\n    // Hello, world!\n  }\n: ifFalse\n`, `condition ? ifTrue\n: [\n      // Hello, world!\n    1,\n  ]\n`]; for (const input of cases) { const output = await prettier.format(input, { parser: "babel", tabWidth: 4, semi: false, experimentalTernaries: true }); const count = (output.match(/Hello, world!/g) || []).length; if (count !== 1) { console.error(output); throw new Error(`expected exactly one preserved comment, saw ${count}`); } } })().catch((error) => { console.error(error); process.exit(1); })'
+  - git diff --check
+success:
+  tests_must_pass: true
+  max_files_changed: 3
+tags:
+  - bugfix
+  - javascript
+  - prettier
+  - formatter
+  - comments
+  - real-issue
+failure_modes:
+  - context_miss
+  - spec_misread
+  - bad_local_fix
+  - test_gap
+  - over_edit
+  - resource_inefficient

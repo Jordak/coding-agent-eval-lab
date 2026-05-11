@@ -1,0 +1,42 @@
+diff --git a/src/language-js/print/ternary.js b/src/language-js/print/ternary.js
+index 98a5b46f4..bf10d0fae 100644
+--- a/src/language-js/print/ternary.js
++++ b/src/language-js/print/ternary.js
+@@ -281,29 +281,12 @@ function printTernary(path, options, print, args) {
+       isSimpleExpressionByNodeCount(node.test, 1)) ||
+     tryToParenthesizeAlternate;
+ 
+-  const consequentComments = [];
+-  if (
+-    !isConsequentTernary &&
+-    hasComment(consequentNode, CommentCheckFlags.Dangling)
+-  ) {
+-    path.call(() => {
+-      consequentComments.push(printDanglingComments(path, options), hardline);
+-    }, "consequent");
+-  }
+   const alternateComments = [];
+   if (hasComment(node.test, CommentCheckFlags.Dangling)) {
+     path.call(() => {
+       alternateComments.push(printDanglingComments(path, options));
+     }, "test");
+   }
+-  if (
+-    !isAlternateTernary &&
+-    hasComment(alternateNode, CommentCheckFlags.Dangling)
+-  ) {
+-    path.call(() => {
+-      alternateComments.push(printDanglingComments(path, options));
+-    }, "alternate");
+-  }
+   if (hasComment(node, CommentCheckFlags.Dangling)) {
+     alternateComments.push(printDanglingComments(path, options));
+   }
+@@ -337,7 +320,6 @@ function printTernary(path, options, print, args) {
+     (isInJsx && (isJsxElement(consequentNode) || isParentTernary || isInChain))
+       ? hardline
+       : line,
+-    consequentComments,
+     printedConsequent,
+   ]);
+ 
