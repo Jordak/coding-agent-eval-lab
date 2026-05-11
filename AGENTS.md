@@ -40,3 +40,8 @@ bundle validation before commits.
 - When testing a new task, grader, environment setup, or agent-harness behavior,
   start with one trial and one job (`--trials 1 --jobs 1`). Scale to parallel
   trial batches only after the single-trial path is known to be fair.
+- When adding tasks in parallel, keep each branch scoped to the task bundle,
+  generated `task-card.md`, reference artifacts, and any task-specific tests.
+  Run the task-card generator with `--no-index`, and leave aggregate files such
+  as suite `README.md` indexes and `docs/task-candidates.md` for a follow-up
+  integration pass.

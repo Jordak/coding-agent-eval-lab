@@ -5,6 +5,11 @@ they do not get lost in chat history. A candidate is not publishable until it ha
 a pinned start commit, deterministic graders, a reviewed reference artifact, and
 passing reference verification.
 
+During parallel task-add batches, do not update this shared backlog from each
+task branch. Promote the task bundle, reference artifacts, task card, and
+task-specific tests first; then reconcile candidate statuses in one integration
+pass after the parallel branches have landed.
+
 ## Selection Criteria
 
 - Public repository with a clear license and accessible history.

@@ -2,7 +2,7 @@
 set -eu
 
 echo "Checking task cards are generated from task.yaml..."
-python3 .agents/skills/task-card/scripts/render_task_cards.py tasks --check
+python3 .agents/skills/task-card/scripts/render_task_cards.py tasks --check --no-index
 
 echo "Validating task bundles..."
 python3 -m agentlab task validate tasks

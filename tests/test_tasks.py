@@ -215,43 +215,53 @@ class TaskLoadingTest(unittest.TestCase):
         self.assertEqual(task.suite, "draft-coding")
 
     def test_discovers_task_bundles_from_directory(self):
-        files = discover_task_files(["tasks/starter"])
+        with tempfile.TemporaryDirectory() as temp:
+            suite_dir = Path(temp) / "example-suite"
+            _write_minimal_task_bundle(suite_dir, "demo-002")
+            _write_minimal_task_bundle(suite_dir, "demo-001")
+
+            files = discover_task_files([suite_dir.as_posix()])
+
         self.assertEqual(
-            [path.as_posix() for path in files],
+            [path.relative_to(suite_dir).as_posix() for path in files],
             [
-                "tasks/starter/2048-advanced-snake-params-001/task.yaml",
-                "tasks/starter/click-default-map-nargs-001/task.yaml",
-                "tasks/starter/click-help-option-refactor-001/task.yaml",
-                "tasks/starter/click-help-shadowed-option-001/task.yaml",
-                "tasks/starter/click-should-strip-ansi-tests-001/task.yaml",
-                "tasks/starter/datawrapper-mcp-docker-requirements-001/task.yaml",
-                "tasks/starter/httpx-verify-false-client-cert-001/task.yaml",
-                "tasks/starter/react-tabs-selected-focus-overlay-001/task.yaml",
-                "tasks/starter/todomvc-toggle-all-checkbox-001/task.yaml",
+                "demo-001/task.yaml",
+                "demo-002/task.yaml",
             ],
         )
 
     def test_discovers_loaded_task_bundle_models_from_directory(self):
-        bundles = discover_task_bundles(["tasks/starter"])
+        with tempfile.TemporaryDirectory() as temp:
+            suite_dir = Path(temp) / "example-suite"
+            _write_minimal_task_bundle(suite_dir, "demo-002")
+            _write_minimal_task_bundle(suite_dir, "demo-001")
+
+            bundles = discover_task_bundles([suite_dir.as_posix()])
 
         self.assertEqual(
             [bundle.task.id for bundle in bundles],
             [
-                "2048-advanced-snake-params-001",
-                "click-default-map-nargs-001",
-                "click-help-option-refactor-001",
-                "click-help-shadowed-option-001",
-                "click-should-strip-ansi-tests-001",
-                "datawrapper-mcp-docker-requirements-001",
-                "httpx-verify-false-client-cert-001",
-                "react-tabs-selected-focus-overlay-001",
-                "todomvc-toggle-all-checkbox-001",
+                "demo-001",
+                "demo-002",
             ],
         )
         self.assertEqual(bundles[0].task_file.name, "task.yaml")
-        self.assertEqual(bundles[0].bundle_dir.name, "2048-advanced-snake-params-001")
-        self.assertEqual(bundles[0].suite_dir.as_posix(), "tasks/starter")
+        self.assertEqual(bundles[0].bundle_dir.name, "demo-001")
+        self.assertEqual(bundles[0].suite_dir, suite_dir)
         self.assertEqual(bundles[0].task_card_path.name, "task-card.md")
+
+    def test_starter_task_bundles_are_valid_without_enumerating_ids(self):
+        bundles = discover_task_bundles(["tasks/starter"])
+
+        self.assertGreater(len(bundles), 0)
+        self.assertEqual(
+            [bundle.task.id for bundle in bundles],
+            sorted(bundle.task.id for bundle in bundles),
+        )
+        for bundle in bundles:
+            self.assertEqual(bundle.task.id, bundle.bundle_dir.name)
+            self.assertEqual(bundle.task.suite, "starter-coding")
+            self.assertIsNotNone(bundle.task.reference_artifact)
 
     def test_loads_task_bundle_directory(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -306,6 +316,25 @@ class TaskLoadingTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             with self.assertRaises(TaskLoadError):
                 load_task(temp)
+
+
+def _write_minimal_task_bundle(suite_dir: Path, task_id: str) -> Path:
+    bundle_dir = suite_dir / task_id
+    bundle_dir.mkdir(parents=True)
+    (bundle_dir / "task.yaml").write_text(
+        textwrap.dedent(
+            f"""
+            id: {task_id}
+            title: Demo task
+            repo: https://github.com/example/demo
+            commit: abc123
+            language: python
+            prompt: Fix it.
+            """
+        ),
+        encoding="utf-8",
+    )
+    return bundle_dir
 
 
 if __name__ == "__main__":

@@ -146,6 +146,34 @@ class TaskCardPublicationTest(unittest.TestCase):
             self.assertEqual(write_result.changed_paths, [card_path, index_path])
             self.assertEqual(clean_result.changed_paths, [])
 
+    def test_no_index_mode_leaves_suite_index_alone(self):
+        with tempfile.TemporaryDirectory() as temp:
+            suite_dir = Path(temp) / "example-suite"
+            bundle_dir = _write_task_bundle(suite_dir, "demo-001")
+            card_path = bundle_dir / "task-card.md"
+            index_path = suite_dir / "README.md"
+            card_path.write_text("stale card\n", encoding="utf-8")
+            index_path.write_text("stale index\n", encoding="utf-8")
+
+            check_result = publish_task_cards(
+                [suite_dir.as_posix()],
+                check=True,
+                render_indexes=False,
+            )
+
+            self.assertEqual(check_result.changed_paths, [card_path])
+            self.assertEqual(card_path.read_text(encoding="utf-8"), "stale card\n")
+            self.assertEqual(index_path.read_text(encoding="utf-8"), "stale index\n")
+
+            write_result = publish_task_cards(
+                [suite_dir.as_posix()],
+                render_indexes=False,
+            )
+
+            self.assertEqual(write_result.changed_paths, [card_path])
+            self.assertNotEqual(card_path.read_text(encoding="utf-8"), "stale card\n")
+            self.assertEqual(index_path.read_text(encoding="utf-8"), "stale index\n")
+
 
 def _write_task_bundle(
     suite_dir: Path,
