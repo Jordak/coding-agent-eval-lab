@@ -27,6 +27,11 @@ under `tasks/`.
 This checkout uses `.githooks/pre-commit` to check generated task cards and task
 bundle validation before commits.
 
+Task candidates and task-curation backlog items live in GitHub Issues, not in a
+local backlog document. Use `needs-triage` for candidates that need curator
+judgment, `ready-for-human` for human curation/design work, and
+`ready-for-agent` only when a task issue is fully specified for an AFK agent.
+
 ## Engineering operating rules
 
 - Do not hard-code user- or machine-specific file locations when a portable
@@ -42,6 +47,5 @@ bundle validation before commits.
   trial batches only after the single-trial path is known to be fair.
 - When adding tasks in parallel, keep each branch scoped to the task bundle,
   generated `task-card.md`, reference artifacts, and any task-specific tests.
-  Run the task-card generator with `--no-index`, and leave aggregate files such
-  as suite `README.md` indexes and `docs/task-candidates.md` for a follow-up
-  integration pass.
+  Do not create or update suite-level task-card indexes or local task-candidate
+  backlog documents.

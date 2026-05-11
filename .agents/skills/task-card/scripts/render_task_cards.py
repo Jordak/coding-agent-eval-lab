@@ -25,19 +25,13 @@ def main(argv: Iterable[str] | None = None) -> int:
     parser.add_argument(
         "--check",
         action="store_true",
-        help="Fail if generated task cards or suite indexes would change.",
-    )
-    parser.add_argument(
-        "--no-index",
-        action="store_true",
-        help="Do not render suite README.md index files.",
+        help="Fail if generated task cards would change.",
     )
     args = parser.parse_args(list(argv) if argv is not None else None)
 
     result = publish_task_cards(
         args.paths,
         check=args.check,
-        render_indexes=not args.no_index,
     )
     if result.matched_bundles == 0:
         print("No task files matched.", file=sys.stderr)

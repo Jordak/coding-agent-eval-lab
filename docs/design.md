@@ -54,9 +54,11 @@ verifies the reference artifact, then runs exactly one agent trial with one job
 and prints the report, result, and diff paths a maintainer should inspect before
 scaling.
 
-Generated task cards and suite indexes are source-adjacent review artifacts, not
-the source of truth. The repo-local pre-commit hook runs the task-card generator
-in `--check` mode so drift is caught before commits.
+Generated task cards are source-adjacent review artifacts, not the source of
+truth. The repo-local pre-commit hook runs the task-card generator in `--check`
+mode so drift is caught before commits. Task candidates and suite-curation
+backlog live in GitHub Issues; do not maintain local task-candidate backlog
+documents or generated suite task-card indexes.
 
 ## Interaction Model
 

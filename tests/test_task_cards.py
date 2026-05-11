@@ -7,7 +7,6 @@ from pathlib import Path
 
 from agentlab.task_cards import (
     publish_task_cards,
-    render_suite_index,
     render_task_card,
 )
 from agentlab.tasks import load_task_bundle
@@ -88,65 +87,26 @@ class TaskCardPublicationTest(unittest.TestCase):
             ),
         )
 
-    def test_renders_suite_index_from_task_bundles(self):
-        with tempfile.TemporaryDirectory() as temp:
-            suite_dir = Path(temp) / "example-suite"
-            b_bundle_dir = _write_task_bundle(
-                suite_dir,
-                "demo-002",
-                title="Second task",
-                tags=["cli"],
-            )
-            a_bundle_dir = _write_task_bundle(
-                suite_dir,
-                "demo-001",
-                title="First task",
-                eval_type="capability",
-                tags=["bugfix", "python"],
-            )
-            bundles = [load_task_bundle(b_bundle_dir), load_task_bundle(a_bundle_dir)]
-
-            index = render_suite_index(suite_dir, bundles)
-
-        self.assertEqual(
-            index,
-            textwrap.dedent(
-                """\
-                # Example Suite Task Cards
-
-                _Generated from task bundles. Do not edit by hand; regenerate with the task-card skill._
-
-                | Task | Type | Language | Tags |
-                | --- | --- | --- | --- |
-                | [First task](demo-001/task-card.md) | `capability` | `python` | `bugfix`, `python` |
-                | [Second task](demo-002/task-card.md) | `regression` | `python` | `cli` |
-                """
-            ),
-        )
-
     def test_check_mode_reports_drift_without_writing(self):
         with tempfile.TemporaryDirectory() as temp:
             suite_dir = Path(temp) / "example-suite"
             bundle_dir = _write_task_bundle(suite_dir, "demo-001")
             card_path = bundle_dir / "task-card.md"
-            index_path = suite_dir / "README.md"
             card_path.write_text("stale card\n", encoding="utf-8")
-            index_path.write_text("stale index\n", encoding="utf-8")
 
             check_result = publish_task_cards([suite_dir.as_posix()], check=True)
 
             self.assertEqual(check_result.matched_bundles, 1)
-            self.assertEqual(check_result.changed_paths, [card_path, index_path])
+            self.assertEqual(check_result.changed_paths, [card_path])
             self.assertEqual(card_path.read_text(encoding="utf-8"), "stale card\n")
-            self.assertEqual(index_path.read_text(encoding="utf-8"), "stale index\n")
 
             write_result = publish_task_cards([suite_dir.as_posix()])
             clean_result = publish_task_cards([suite_dir.as_posix()], check=True)
 
-            self.assertEqual(write_result.changed_paths, [card_path, index_path])
+            self.assertEqual(write_result.changed_paths, [card_path])
             self.assertEqual(clean_result.changed_paths, [])
 
-    def test_no_index_mode_leaves_suite_index_alone(self):
+    def test_publisher_leaves_suite_readme_alone(self):
         with tempfile.TemporaryDirectory() as temp:
             suite_dir = Path(temp) / "example-suite"
             bundle_dir = _write_task_bundle(suite_dir, "demo-001")
@@ -158,7 +118,6 @@ class TaskCardPublicationTest(unittest.TestCase):
             check_result = publish_task_cards(
                 [suite_dir.as_posix()],
                 check=True,
-                render_indexes=False,
             )
 
             self.assertEqual(check_result.changed_paths, [card_path])
@@ -167,7 +126,6 @@ class TaskCardPublicationTest(unittest.TestCase):
 
             write_result = publish_task_cards(
                 [suite_dir.as_posix()],
-                render_indexes=False,
             )
 
             self.assertEqual(write_result.changed_paths, [card_path])

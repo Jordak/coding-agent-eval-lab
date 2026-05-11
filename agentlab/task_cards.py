@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, List
@@ -19,11 +18,9 @@ def publish_task_cards(
     paths: Iterable[str],
     *,
     check: bool = False,
-    render_indexes: bool = True,
 ) -> TaskCardPublicationResult:
     bundles = discover_task_bundles(paths)
     changed: List[Path] = []
-    bundles_by_suite: dict[Path, list[TaskBundle]] = defaultdict(list)
 
     for bundle in bundles:
         changed.extend(
@@ -33,18 +30,6 @@ def publish_task_cards(
                 check,
             )
         )
-        bundles_by_suite[bundle.suite_dir].append(bundle)
-
-    if render_indexes:
-        for suite_dir, suite_bundles in sorted(bundles_by_suite.items()):
-            index_path = suite_dir / "README.md"
-            changed.extend(
-                _write_or_check(
-                    index_path,
-                    render_suite_index(suite_dir, suite_bundles),
-                    check,
-                )
-            )
 
     return TaskCardPublicationResult(
         matched_bundles=len(bundles),
@@ -114,33 +99,6 @@ def render_task_card(bundle: TaskBundle) -> str:
     return "\n".join(lines)
 
 
-def render_suite_index(
-    suite_dir: Path,
-    bundles: list[TaskBundle],
-) -> str:
-    rows = [
-        "| Task | Type | Language | Tags |",
-        "| --- | --- | --- | --- |",
-    ]
-    for bundle in sorted(bundles, key=lambda item: item.task.id):
-        task = bundle.task
-        rel_card = bundle.task_card_path.relative_to(suite_dir)
-        tags = ", ".join(f"`{tag}`" for tag in task.tags) or ""
-        rows.append(
-            f"| [{task.title}]({rel_card.as_posix()}) | `{task.eval_type}` | `{task.language}` | {tags} |"
-        )
-    return "\n".join(
-        [
-            f"# {_display_name(suite_dir.name)} Task Cards",
-            "",
-            "_Generated from task bundles. Do not edit by hand; regenerate with the task-card skill._",
-            "",
-            *rows,
-            "",
-        ]
-    )
-
-
 def _write_or_check(path: Path, content: str, check: bool) -> List[Path]:
     current = path.read_text(encoding="utf-8") if path.exists() else None
     if current == content:
@@ -191,7 +149,3 @@ def _reference_artifact_text(task: EvalTask, bundle_dir: Path) -> str:
             ]
         )
     return f"Unsupported reference artifact type: `{artifact.type}`"
-
-
-def _display_name(value: str) -> str:
-    return value.replace("-", " ").replace("_", " ").title()

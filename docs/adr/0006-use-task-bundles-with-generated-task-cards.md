@@ -4,6 +4,9 @@ Status: Accepted
 
 Date: 2026-05-07
 
+Updated: 2026-05-11 by [ADR 0009](0009-use-github-issues-for-task-candidates.md),
+which removed generated suite `README.md` indexes from the task-card workflow.
+
 ## Context
 
 Tasks are no longer just standalone YAML files. Publishable tasks need metadata,
@@ -23,8 +26,7 @@ tasks/<suite>/<task-id>/
 ```
 
 `task.yaml` remains the source of truth. `task-card.md` is generated Markdown
-for humans and AI assistants, committed next to the task YAML. Suite directories
-may include generated `README.md` indexes that link to task cards.
+for humans and AI assistants, committed next to the task YAML.
 
 ## Consequences
 
@@ -32,5 +34,4 @@ may include generated `README.md` indexes that link to task cards.
 - `docs/` remains focused on project-level explanation rather than per-task
   material.
 - The task loader should accept both task YAML paths and task bundle directories.
-- Generated task cards and suite indexes must be refreshed from task metadata,
-  not edited by hand.
+- Generated task cards must be refreshed from task metadata, not edited by hand.

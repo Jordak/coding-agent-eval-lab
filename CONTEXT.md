@@ -28,11 +28,14 @@ The project is evaluation infrastructure, not a general coding assistant or IDE.
 - **Task card**: generated Markdown summary of a task bundle for humans and AI
   assistants. It is committed next to `task.yaml` but regenerated from task
   metadata rather than hand-edited.
-- **Task-card drift**: mismatch between `task.yaml` and generated task cards or
-  suite indexes. The repo-local pre-commit hook should catch drift before
-  commits.
-- **Suite index**: generated Markdown index at the suite directory level linking
-  to task cards in that suite.
+- **Task-card drift**: mismatch between `task.yaml` and generated task cards.
+  The repo-local pre-commit hook should catch drift before commits.
+- **Task candidate issue**: a GitHub Issue that records a possible future task
+  or task-curation slice. Use issue labels for workflow state: `needs-triage`
+  for candidates needing curator judgment, `ready-for-human` for human-led
+  curation/design work, and `ready-for-agent` only when the task is fully
+  specified for an AFK agent. Do not maintain local task-candidate backlog
+  documents.
 - **Prompt ambiguity**: realistic user-level imprecision in a task prompt. It is
   acceptable only when the task's expected behavior, graders, reference solution,
   and human-review rubric remain unambiguous.

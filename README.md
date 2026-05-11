@@ -218,14 +218,6 @@ python3 -m agentlab task validate tasks/starter/2048-advanced-snake-params-001
 Regenerate task cards after changing task metadata or reference artifacts:
 
 ```bash
-python3 .agents/skills/task-card/scripts/render_task_cards.py tasks --no-index
-```
-
-For parallel task-add branches, keep generated changes scoped to each task
-bundle and leave suite `README.md` indexes for an integration pass. After the
-parallel branches land, refresh the aggregate suite indexes with:
-
-```bash
 python3 .agents/skills/task-card/scripts/render_task_cards.py tasks
 ```
 
@@ -236,8 +228,8 @@ git config core.hooksPath .githooks
 ```
 
 The hook fails commits when generated task cards drift from `task.yaml`, and it
-validates all task bundles. Suite indexes are aggregate artifacts and should be
-refreshed after merging parallel task branches.
+validates all task bundles. Task candidates and curation backlog live in GitHub
+Issues rather than in local aggregate Markdown files.
 
 ## MVP Path
 
