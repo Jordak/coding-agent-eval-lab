@@ -9,6 +9,9 @@ from agentlab.review import write_review
 from agentlab.summary import summarize_trials
 
 
+MODEL_IDENTITY_FIXTURES = Path(__file__).parent / "fixtures" / "model_identity"
+
+
 class ResultsTest(unittest.TestCase):
     def test_file_artifacts_feed_trial_listing_summaries_reviews_and_evidence(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -175,10 +178,11 @@ class ResultsTest(unittest.TestCase):
             run_dir = Path(temp) / "run-1"
             run_dir.mkdir()
             (run_dir / "claude-events.jsonl").write_text(
-                '{"type":"system","model":"claude-sonnet-4-6"}\n'
-                '{"type":"result","modelUsage":{'
-                '"claude-haiku-4-5-20251001":{"costUSD":0.1},'
-                '"claude-sonnet-4-6":{"costUSD":0.2}}}\n',
+                (
+                    MODEL_IDENTITY_FIXTURES
+                    / "claude"
+                    / "system-init-assistant-result.jsonl"
+                ).read_text(encoding="utf-8"),
                 encoding="utf-8",
             )
             result_path = run_dir / "result.json"
@@ -208,6 +212,45 @@ class ResultsTest(unittest.TestCase):
                 "claude-sonnet-4-6",
             )
             self.assertEqual(result["agent_harness_config"]["model_source"], "events")
+
+    def test_load_results_does_not_infer_model_from_codex_usage_only_fixture(self):
+        with tempfile.TemporaryDirectory() as temp:
+            run_dir = Path(temp) / "run-1"
+            run_dir.mkdir()
+            (run_dir / "codex-events.jsonl").write_text(
+                (
+                    MODEL_IDENTITY_FIXTURES
+                    / "codex"
+                    / "thread-turn-usage-only.jsonl"
+                ).read_text(encoding="utf-8"),
+                encoding="utf-8",
+            )
+            result_path = run_dir / "result.json"
+            result_path.write_text(
+                json.dumps(
+                    {
+                        "trial_kind": "agent_trial",
+                        "run_dir": str(run_dir),
+                        "agent_name": "codex",
+                        "model_name": "gpt-requested",
+                        "agent_harness_config": {
+                            "agent_harness": "codex",
+                            "agent_adapter": "codex_cli",
+                            "model_name": "gpt-requested",
+                            "model_source": "explicit",
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = load_results([result_path])[0]
+
+            self.assertEqual(result["model_name"], "gpt-requested")
+            harness_config = result["agent_harness_config"]
+            self.assertEqual(harness_config["model_name"], "gpt-requested")
+            self.assertEqual(harness_config["model_source"], "explicit")
+            self.assertEqual(harness_config["requested_model_name"], "gpt-requested")
 
     def test_load_results_backfills_codex_event_model_over_requested_model(self):
         with tempfile.TemporaryDirectory() as temp:
