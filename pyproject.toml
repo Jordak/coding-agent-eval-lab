@@ -17,4 +17,4 @@ dev = ["pytest>=8", "pyyaml>=6"]
 agentlab = "agentlab.cli:main"
 
 [tool.setuptools]
-packages = ["agentlab", "agentlab.agents"]
+packages = ["agentlab", "agentlab.agents", "agentlab.cli"]
