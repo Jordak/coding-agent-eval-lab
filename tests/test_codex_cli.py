@@ -287,7 +287,9 @@ class CodexCliAdapterTest(unittest.TestCase):
             self.assertEqual(evaluation.agent_run.output_tokens, 5)
             self.assertEqual(evaluation.agent_run.reasoning_output_tokens, 2)
             self.assertIsNone(evaluation.agent_run.cost_usd)
+            self.assertEqual(evaluation.agent_run.model_name, "gpt-event")
             result = json.loads(evaluation.result_path.read_text(encoding="utf-8"))
+            self.assertEqual(result["model_name"], "gpt-event")
             self.assertEqual(result["input_tokens"], 10)
             self.assertEqual(result["resource_usage"]["total_tokens"], 15)
             self.assertIsNone(result["resource_usage"]["cost_usd"])
@@ -296,8 +298,9 @@ class CodexCliAdapterTest(unittest.TestCase):
             self.assertEqual(harness_config["agent_adapter"], "codex_cli")
             self.assertEqual(harness_config["command"], "codex-test")
             self.assertIsNone(harness_config["command_identity"])
-            self.assertIsNone(harness_config["model_name"])
-            self.assertEqual(harness_config["model_source"], "unknown")
+            self.assertEqual(harness_config["model_name"], "gpt-event")
+            self.assertEqual(harness_config["model_source"], "events")
+            self.assertIsNone(harness_config["requested_model_name"])
             self.assertEqual(harness_config["sandbox"], "workspace-write")
             self.assertEqual(harness_config["approval_policy"], "never")
             self.assertEqual(harness_config["timeout_seconds"], 30)
@@ -311,7 +314,7 @@ class CodexCliAdapterTest(unittest.TestCase):
             report = evaluation.report_path.read_text(encoding="utf-8")
             self.assertIn("## Agent Harness Configuration", report)
             self.assertIn("- Command: `codex-test`", report)
-            self.assertIn("- Model: `unknown`", report)
+            self.assertIn("- Model: `gpt-event`", report)
             self.assertIn("- Account: `unknown`", report)
             self.assertIn("- Input tokens: `10`", report)
             self.assertIn("- Cost USD: `unknown`", report)
@@ -333,7 +336,8 @@ class CodexCliAdapterTest(unittest.TestCase):
             args=command,
             returncode=0,
             stdout=(
-                '{"type":"turn.completed","usage":{"input_tokens":10,'
+                '{"type":"turn.completed","model":"gpt-event",'
+                '"usage":{"input_tokens":10,'
                 '"cached_input_tokens":4,"output_tokens":5,'
                 '"reasoning_output_tokens":2}}\n'
             ),

@@ -32,7 +32,7 @@ The first scaffold supports:
   Markdown/JSON trial artifacts.
 - Outcome evidence including changed files and line additions/deletions.
 - Codex token usage capture when `codex-events.jsonl` exposes usage metadata.
-- Codex CLI and manual agent adapters.
+- Codex CLI, Claude Code, and manual agent adapters.
 - Multi-trial execution, concurrent trial jobs, and pass@k/pass^k summaries.
 - Human review labels, trial-validity metadata, and excluded-trial summaries.
 - Standard-library unit tests.
@@ -120,12 +120,38 @@ python3 -m agentlab run \
 The Codex adapter stores `codex-events.jsonl`, `codex-last-message.md`,
 `transcript.md`, `diff.patch`, `report.md`, and `result.json` in the run
 directory. Reports and result metadata include changed-file counts plus line
-additions/deletions from the captured patch. By default it resolves `codex` from
-`PATH`. If the CLI is installed outside `PATH`, fix the shell environment or use
-`--codex-command
-/path/to/codex` for that run. While the agent process is running, the terminal
-shows a small progress bar such as `waiting for agent response`; agent launch
-errors are also printed to stderr instead of only appearing in the transcript.
+additions/deletions from the captured patch. When JSON events expose the actual
+model used, `result.json` and reports derive `model_name` and `model_source`
+from those events; an explicit CLI `--model` is retained as the requested model
+rather than treated as authoritative runtime identity. By default it resolves
+`codex` from `PATH`. If the CLI is installed outside `PATH`, fix the shell
+environment or use `--codex-command /path/to/codex` for that run. While the
+agent process is running, the terminal shows a small progress bar such as
+`waiting for agent response`; agent launch errors are also printed to stderr
+instead of only appearing in the transcript.
+
+Run a task through Claude Code:
+
+```bash
+python3 -m agentlab doctor --agent claude
+python3 -m agentlab run \
+  --agent claude \
+  --task tasks/starter/2048-advanced-snake-params-001 \
+  --trials 1 \
+  --jobs 1
+```
+
+The Claude Code adapter invokes `claude -p` in print mode, writes
+`claude-events.jsonl`, `claude-final-message.md`, `transcript.md`,
+`diff.patch`, `report.md`, and `result.json`, and records the CLI version,
+auth preflight status, selected model, permission mode, output format, max
+turns, and allowed/disallowed tool rules when configured. By default it uses
+`--permission-mode acceptEdits`, `--output-format stream-json`, `--verbose`, and
+`--no-session-persistence` for isolated trials. Like Codex, actual model
+identity is derived from Claude Code events when present. Use `--claude-command`
+when the executable is outside `PATH`, `--claude-model` to request a model, and
+repeated `--claude-allowed-tool` / `--claude-disallowed-tool` flags to tune the
+tool surface for a smoke-tested task.
 
 Reference verification uses the same report/result shape, marked with
 `trial_kind: reference_verification`, and writes `reference-report.md`,
@@ -238,7 +264,7 @@ Issues rather than in local aggregate Markdown files.
 3. Add a manual adapter that lets a human edit the checkout for positive-control trials.
 4. Capture diffs and command results.
 5. Generate a Markdown report.
-6. Add Cursor SDK, Claude Code, and Codex CLI adapters.
+6. Add Cursor SDK and additional agent adapters.
 
 See [CONTEXT.md](CONTEXT.md) for project vocabulary,
 [docs/design.md](docs/design.md) for architecture notes,

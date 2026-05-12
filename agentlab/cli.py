@@ -7,6 +7,11 @@ import tempfile
 from pathlib import Path
 from typing import Callable, Iterable, List
 
+from agentlab.agents.claude_code import (
+    ClaudeCodeAdapter,
+    ClaudeCodeConfig,
+    run_claude_code_preflight,
+)
 from agentlab.agents.codex_cli import (
     CodexCliAdapter,
     CodexCliConfig,
@@ -121,7 +126,7 @@ def build_parser() -> argparse.ArgumentParser:
     smoke_test_parser.add_argument(
         "--agent",
         default="manual",
-        choices=["manual", "codex"],
+        choices=["manual", "codex", "claude"],
         help="Agent backend to use for the one-trial smoke test.",
     )
     smoke_test_parser.add_argument(
@@ -167,6 +172,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=1800,
         help="Maximum wall time for `codex exec`.",
     )
+    _add_claude_options(smoke_test_parser, timeout_default=1800)
     smoke_test_parser.set_defaults(handler=handle_task_smoke_test)
 
     doctor_parser = subcommands.add_parser(
@@ -176,7 +182,7 @@ def build_parser() -> argparse.ArgumentParser:
     doctor_parser.add_argument(
         "--agent",
         default="codex",
-        choices=["codex"],
+        choices=["codex", "claude"],
         help="Agent harness to check.",
     )
     doctor_parser.add_argument(
@@ -212,6 +218,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=15,
         help="Maximum wall time for each Codex preflight command.",
     )
+    _add_claude_options(doctor_parser, timeout_default=15)
     doctor_parser.set_defaults(handler=handle_doctor)
 
     run_parser = subcommands.add_parser(
@@ -226,7 +233,7 @@ def build_parser() -> argparse.ArgumentParser:
     run_parser.add_argument(
         "--agent",
         default="manual",
-        choices=["manual", "codex"],
+        choices=["manual", "codex", "claude"],
         help="Agent backend to use.",
     )
     run_parser.add_argument(
@@ -284,6 +291,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=1800,
         help="Maximum wall time for `codex exec`.",
     )
+    _add_claude_options(run_parser, timeout_default=1800)
     run_parser.set_defaults(handler=handle_run)
 
     runs_parser = subcommands.add_parser(
@@ -609,6 +617,11 @@ def handle_doctor(args: argparse.Namespace) -> int:
             _codex_config_from_args(args, show_progress=False),
             timeout_seconds=args.codex_timeout_seconds,
         )
+    elif args.agent == "claude":
+        result = run_claude_code_preflight(
+            _claude_code_config_from_args(args, show_progress=False),
+            timeout_seconds=args.claude_timeout_seconds,
+        )
     else:
         print_error(f"unknown agent: {args.agent}")
         return 1
@@ -698,7 +711,7 @@ def _print_smoke_test_result(evaluation: object) -> None:
 
 
 def _print_preflight_result(result: object) -> None:
-    print(f"Doctor: {result.agent_name}")
+    print(f"Doctor: {result.agent_name}", flush=True)
     for check in result.checks:
         if check.passed:
             print(f"OK {check.name}: {check.message}")
@@ -722,6 +735,8 @@ def _build_agent(args: argparse.Namespace, show_progress: bool = True) -> object
         return ManualAgentAdapter(pause=not args.no_pause)
     if args.agent == "codex":
         return CodexCliAdapter(_codex_config_from_args(args, show_progress))
+    if args.agent == "claude":
+        return ClaudeCodeAdapter(_claude_code_config_from_args(args, show_progress))
     raise RuntimeError(f"unknown agent: {args.agent}")
 
 
@@ -740,11 +755,103 @@ def _codex_config_from_args(
     )
 
 
+def _claude_code_config_from_args(
+    args: argparse.Namespace,
+    show_progress: bool = True,
+) -> ClaudeCodeConfig:
+    return ClaudeCodeConfig(
+        command=args.claude_command,
+        model=args.claude_model,
+        permission_mode=args.claude_permission_mode,
+        output_format=args.claude_output_format,
+        max_turns=args.claude_max_turns,
+        allowed_tools=tuple(args.claude_allowed_tool),
+        disallowed_tools=tuple(args.claude_disallowed_tool),
+        timeout_seconds=args.claude_timeout_seconds,
+        show_progress=show_progress,
+        no_session_persistence=not args.claude_session_persistence,
+    )
+
+
 def _agent_factory(args: argparse.Namespace) -> Callable[[bool], object]:
     def build(show_progress: bool) -> object:
         return _build_agent(args, show_progress=show_progress)
 
     return build
+
+
+def _add_claude_options(
+    parser: argparse.ArgumentParser,
+    *,
+    timeout_default: int,
+) -> None:
+    parser.add_argument(
+        "--claude-command",
+        default="claude",
+        help="Claude Code CLI executable to use when --agent claude.",
+    )
+    parser.add_argument(
+        "--claude-model",
+        default=None,
+        help="Optional model passed to `claude --model`.",
+    )
+    parser.add_argument(
+        "--claude-permission-mode",
+        default="acceptEdits",
+        choices=[
+            "default",
+            "acceptEdits",
+            "plan",
+            "auto",
+            "dontAsk",
+            "bypassPermissions",
+        ],
+        help="Permission mode passed to Claude Code.",
+    )
+    parser.add_argument(
+        "--claude-output-format",
+        default="stream-json",
+        choices=["text", "json", "stream-json"],
+        help="Print-mode output format passed to Claude Code.",
+    )
+    parser.add_argument(
+        "--claude-max-turns",
+        type=int,
+        default=None,
+        help="Optional maximum agentic turns for Claude Code print mode.",
+    )
+    parser.add_argument(
+        "--claude-allowed-tool",
+        action="append",
+        default=[],
+        help=(
+            "Tool permission rule passed as `--allowedTools`. Can be repeated, "
+            "for example `Read` or `Bash(pytest *)`."
+        ),
+    )
+    parser.add_argument(
+        "--claude-disallowed-tool",
+        action="append",
+        default=[],
+        help=(
+            "Tool permission rule passed as `--disallowedTools`. Can be "
+            "repeated, for example `Bash(git push *)`."
+        ),
+    )
+    parser.add_argument(
+        "--claude-timeout-seconds",
+        type=int,
+        default=timeout_default,
+        help="Maximum wall time for `claude -p`.",
+    )
+    parser.add_argument(
+        "--claude-session-persistence",
+        action="store_true",
+        help=(
+            "Allow Claude Code to persist its local session. By default "
+            "agentlab passes `--no-session-persistence` for isolated trials."
+        ),
+    )
 
 
 def handle_runs_list(args: argparse.Namespace) -> int:

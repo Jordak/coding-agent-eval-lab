@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Dict
 
 from agentlab.agent_harness_config import normalize_agent_harness_config
+from agentlab.model_identity import model_identity_from_events
 from agentlab.patches import count_patch_lines
 from agentlab.resource_usage import (
     ResourceUsage,
@@ -127,6 +128,7 @@ def normalize_outcome_evidence(
 
     _backfill_edit_size(data, resolved_run_dir)
     _backfill_resource_usage(data, resolved_run_dir)
+    _backfill_model_identity(data, resolved_run_dir)
     _backfill_agent_harness_config(data)
 
     status, success = _grader_status(data)
@@ -363,6 +365,53 @@ def _backfill_agent_harness_config(data: Dict[str, Any]) -> None:
         model_name=_optional_str(data.get("model_name")),
         cost_usd=_optional_float(data.get("cost_usd")),
     )
+
+
+def _backfill_model_identity(data: Dict[str, Any], run_dir: Path | None) -> None:
+    events_text = _model_events_text(run_dir)
+    if events_text is None:
+        return
+
+    config = _optional_dict(data.get("agent_harness_config")) or {}
+    requested_model = _requested_model_name(data, config)
+    identity = model_identity_from_events(
+        events_text,
+        requested_model_name=requested_model,
+    )
+    if not identity.model_name:
+        return
+
+    data["model_name"] = identity.model_name
+    config["model_name"] = identity.model_name
+    config["model_source"] = identity.model_source
+    config["requested_model_name"] = identity.requested_model_name
+    data["agent_harness_config"] = config
+
+
+def _requested_model_name(
+    data: Mapping[str, Any],
+    config: Mapping[str, Any],
+) -> str | None:
+    requested = _optional_str(config.get("requested_model_name"))
+    if requested is not None:
+        return requested
+    if config.get("model_source") == "explicit":
+        return _optional_str(config.get("model_name"))
+    return _optional_str(data.get("requested_model_name"))
+
+
+def _model_events_text(run_dir: Path | None) -> str | None:
+    if run_dir is None:
+        return None
+    for filename in ["claude-events.jsonl", "codex-events.jsonl"]:
+        path = run_dir / filename
+        if not path.exists():
+            continue
+        try:
+            return path.read_text(encoding="utf-8")
+        except OSError:
+            return None
+    return None
 
 
 def _resource_usage_from_events(run_dir: Path | None) -> ResourceUsage | None:
