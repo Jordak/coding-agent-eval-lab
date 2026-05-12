@@ -63,6 +63,48 @@ class CliOutputTest(unittest.TestCase):
         self.assertEqual(args.trials, 5)
         self.assertEqual(args.jobs, 3)
 
+    def test_top_level_help_keeps_existing_command_families(self):
+        parser = build_parser()
+
+        help_text = parser.format_help()
+
+        for command in ["task", "doctor", "run", "runs", "trials", "report", "review"]:
+            self.assertIn(command, help_text)
+
+    def test_documented_command_examples_continue_to_parse(self):
+        parser = build_parser()
+
+        commands = [
+            ["run", "--agent", "manual", "--task", "tasks/starter/example"],
+            ["doctor", "--agent", "codex"],
+            ["doctor", "--agent", "claude"],
+            [
+                "task",
+                "smoke-test",
+                "--task",
+                "tasks/starter/example",
+                "--agent",
+                "codex",
+            ],
+            ["trials", "list"],
+            ["trials", "summarize"],
+            [
+                "review",
+                "--trial",
+                "latest",
+                "--label",
+                "success_clean",
+                "--note",
+                "Focused one-line fix; graders pass.",
+            ],
+            ["report", "capability-evidence-digest"],
+        ]
+
+        for command in commands:
+            with self.subTest(command=command):
+                args = parser.parse_args(command)
+                self.assertTrue(hasattr(args, "handler"))
+
     def test_review_parser_accepts_excluded_trial_validity(self):
         parser = build_parser()
 
@@ -238,7 +280,7 @@ class CliOutputTest(unittest.TestCase):
         stdout = io.StringIO()
 
         with patch(
-            "agentlab.cli.run_codex_preflight",
+            "agentlab.cli.doctor.run_codex_preflight",
             return_value=result,
         ) as preflight:
             with contextlib.redirect_stdout(stdout):
@@ -283,7 +325,7 @@ class CliOutputTest(unittest.TestCase):
         stdout = io.StringIO()
 
         with patch(
-            "agentlab.cli.run_claude_code_preflight",
+            "agentlab.cli.doctor.run_claude_code_preflight",
             return_value=result,
         ) as preflight:
             with contextlib.redirect_stdout(stdout):
@@ -375,7 +417,7 @@ class CliOutputTest(unittest.TestCase):
         stdout = io.StringIO()
         stderr = io.StringIO()
 
-        with patch("agentlab.cli.run_codex_preflight", return_value=result):
+        with patch("agentlab.cli.doctor.run_codex_preflight", return_value=result):
             with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
                 status = handle_doctor(args)
 
@@ -534,8 +576,8 @@ class CliOutputTest(unittest.TestCase):
         ]
         stdout = io.StringIO()
 
-        with patch("agentlab.cli.load_task", return_value=task):
-            with patch("agentlab.cli.execute_trials", return_value=evaluations) as execute:
+        with patch("agentlab.cli.run.load_task", return_value=task):
+            with patch("agentlab.cli.run.execute_trials", return_value=evaluations) as execute:
                 with contextlib.redirect_stdout(stdout):
                     status = handle_run(args)
 
@@ -588,8 +630,8 @@ class CliOutputTest(unittest.TestCase):
             )
         ]
 
-        with patch("agentlab.cli.load_task", return_value=task):
-            with patch("agentlab.cli.execute_trials", return_value=evaluations) as execute:
+        with patch("agentlab.cli.run.load_task", return_value=task):
+            with patch("agentlab.cli.run.execute_trials", return_value=evaluations) as execute:
                 status = handle_run(args)
 
         self.assertEqual(status, 0)
@@ -638,10 +680,10 @@ class CliOutputTest(unittest.TestCase):
         )
         stdout = io.StringIO()
 
-        with patch("agentlab.cli.load_task", return_value=task):
-            with patch("agentlab.cli.verify_reference", return_value=verification):
+        with patch("agentlab.cli.task.load_task", return_value=task):
+            with patch("agentlab.cli.task.verify_reference", return_value=verification):
                 with patch(
-                    "agentlab.cli.execute_trials",
+                    "agentlab.cli.task.execute_trials",
                     return_value=[evaluation],
                 ) as execute:
                     with contextlib.redirect_stdout(stdout):
@@ -667,10 +709,10 @@ class CliOutputTest(unittest.TestCase):
         stdout = io.StringIO()
         stderr = io.StringIO()
 
-        with patch("agentlab.cli.load_task", return_value=task):
-            with patch("agentlab.cli.verify_reference", return_value=verification):
-                with patch("agentlab.cli._print_failed_reference_checks"):
-                    with patch("agentlab.cli.execute_trials") as execute:
+        with patch("agentlab.cli.task.load_task", return_value=task):
+            with patch("agentlab.cli.task.verify_reference", return_value=verification):
+                with patch("agentlab.cli.task._print_failed_reference_checks"):
+                    with patch("agentlab.cli.task.execute_trials") as execute:
                         with contextlib.redirect_stdout(stdout):
                             with contextlib.redirect_stderr(stderr):
                                 status = handle_task_smoke_test(args)
