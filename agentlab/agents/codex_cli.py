@@ -10,8 +10,9 @@ from typing import Any, Callable, Dict, List, Optional
 
 from agentlab.agent_harness_config import normalize_agent_harness_config
 from agentlab.agents.base import AgentRun
+from agentlab.agents.prompts import build_agent_prompt
 from agentlab.environment import build_task_environment
-from agentlab.environment import describe_task_environment
+from agentlab.model_identity import ModelIdentity, model_identity_from_events
 from agentlab.preflight import PreflightCheck, PreflightResult
 from agentlab.resource_usage import ResourceUsage, parse_resource_usage_events
 from agentlab.terminal import ProgressBar
@@ -58,13 +59,14 @@ class CodexCliAdapter:
         events_path = run_dir / "codex-events.jsonl"
         last_message_path = run_dir / "codex-last-message.md"
 
-        prompt = _build_prompt(task)
+        prompt = build_agent_prompt(task)
         command = self._build_command(workspace, last_message_path, prompt)
         task_env = build_task_environment(task, workspace)
         runtime_facts = self._collect_runtime_facts()
 
         error = None
         completed: subprocess.CompletedProcess[str] | None = None
+        events_text = ""
         try:
             completed = self._run_command(
                 command,
@@ -75,11 +77,13 @@ class CodexCliAdapter:
             error = _missing_cli_message(self.config.command)
         except subprocess.TimeoutExpired as exc:
             error = f"Codex CLI timed out after {self.config.timeout_seconds}s"
-            events_path.write_text(exc.stdout or "", encoding="utf-8")
+            events_text = exc.stdout or ""
+            events_path.write_text(events_text, encoding="utf-8")
 
         if completed is not None:
-            events_path.write_text(completed.stdout, encoding="utf-8")
-            usage = parse_resource_usage_events(completed.stdout)
+            events_text = completed.stdout
+            events_path.write_text(events_text, encoding="utf-8")
+            usage = parse_resource_usage_events(events_text)
             if completed.returncode != 0:
                 error = (
                     f"Codex CLI exited with status {completed.returncode}: "
@@ -87,6 +91,10 @@ class CodexCliAdapter:
                 ).strip()
         else:
             usage = ResourceUsage()
+        model_identity = model_identity_from_events(
+            events_text,
+            requested_model_name=self.config.model,
+        )
 
         transcript_path.write_text(
             _render_transcript(
@@ -109,10 +117,11 @@ class CodexCliAdapter:
             transcript_path=transcript_path,
             diff_path=diff_path,
             duration_ms=duration_ms,
-            model_name=self.config.model,
+            model_name=model_identity.model_name,
             agent_harness_config=codex_agent_harness_config(
                 self.config,
                 runtime_facts=runtime_facts,
+                model_identity=model_identity,
                 cost_usd=usage.cost_usd,
             ),
             input_tokens=usage.input_tokens,
@@ -228,17 +237,23 @@ def codex_agent_harness_config(
     config: CodexCliConfig,
     *,
     runtime_facts: CodexRuntimeFacts | None = None,
+    model_identity: ModelIdentity | None = None,
     cost_usd: float | None = None,
 ) -> Dict[str, Any]:
     runtime_facts = runtime_facts or CodexRuntimeFacts()
+    model_identity = model_identity or model_identity_from_events(
+        "",
+        requested_model_name=config.model,
+    )
     return normalize_agent_harness_config(
         {
             "agent_harness": "codex",
             "agent_adapter": "codex_cli",
             "command": config.command,
             "command_identity": runtime_facts.command_identity,
-            "model_name": config.model,
-            "model_source": "explicit" if config.model else "unknown",
+            "model_name": model_identity.model_name,
+            "model_source": model_identity.model_source,
+            "requested_model_name": model_identity.requested_model_name,
             "profile": config.profile,
             "sandbox": config.sandbox,
             "approval_policy": config.approval_policy,
@@ -246,7 +261,7 @@ def codex_agent_harness_config(
             "cli_version": runtime_facts.cli_version,
         },
         agent_name="codex",
-        model_name=config.model,
+        model_name=model_identity.model_name,
         cost_usd=cost_usd,
     )
 
@@ -410,37 +425,6 @@ def _first_output_line(stdout: str, stderr: str) -> str:
     if not output:
         return ""
     return output.splitlines()[0]
-
-
-def _build_prompt(task: EvalTask) -> str:
-    lines = [
-        f"Task ID: {task.id}",
-        f"Title: {task.title}",
-        "",
-        "You are running inside a clean checkout for this task.",
-        "Modify the repository to satisfy the task prompt.",
-        "Keep the patch focused. Do not commit changes.",
-        "",
-        "Task prompt:",
-        task.prompt,
-        "",
-    ]
-    if task.test:
-        lines.extend(["Validation commands that will be run after you finish:"])
-        lines.extend(f"- {command}" for command in task.test)
-        lines.append("")
-    environment_lines = describe_task_environment(task)
-    if environment_lines:
-        lines.extend(
-            [
-                "Task-local environment used by setup, grader, and agent commands:",
-            ]
-        )
-        lines.extend(f"- {line}" for line in environment_lines)
-        lines.append("")
-    if task.success.max_files_changed is not None:
-        lines.append(f"Expected max files changed: {task.success.max_files_changed}")
-    return "\n".join(lines)
 
 
 def _render_transcript(

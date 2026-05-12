@@ -17,7 +17,9 @@ Represent agent harness and underlying model as separate dimensions.
 
 - `agent_name` identifies the agent harness or scaffold, such as `manual` or
   `codex`.
-- `model_name` records the explicit model when known.
+- `model_name` records the actual runtime model when the agent event stream
+  exposes it. Explicit CLI model flags are retained as requested model metadata
+  rather than treated as authoritative when runtime events disagree.
 - Reports and summaries group by agent harness and model separately.
 - Runtime accountability gaps belong in `docs/runtime-accountability.md` until
   the agent harness can capture exact model, account, token, and cost metadata.

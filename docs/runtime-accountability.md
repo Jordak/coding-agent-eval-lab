@@ -31,16 +31,19 @@ do not require opening `transcript.md`.
 
 When `codex-events.jsonl` includes `turn.completed` usage metadata, Agent Lab
 captures input tokens, cached input tokens, output tokens, and reasoning output
-tokens as outcome evidence. Current local Codex traces do not expose dollar cost,
-so cost remains `unknown` unless a future event stream includes a reliable cost
-field.
+tokens as outcome evidence. When Codex events expose the actual model used,
+Agent Lab records that model as `model_name` with `model_source: events`; an
+explicit `--codex-model` value is retained as `requested_model_name`. Current
+local Codex traces do not expose dollar cost, so cost remains `unknown` unless a
+future event stream includes a reliable cost field.
 
 Codex trial `result.json` artifacts also store an `agent_harness_config` object
-with the explicit model and profile when supplied, sandbox mode, approval
-policy, timeout, configured command, resolved command identity when available,
-and CLI version when Agent Lab can read it. Runtime-accountability fields that
-the evaluation harness cannot currently provide, such as account and billing
-context, remain explicitly unknown in artifact metadata and report output.
+with event-derived model identity when available, requested model and profile
+when supplied, sandbox mode, approval policy, timeout, configured command,
+resolved command identity when available, and CLI version when Agent Lab can
+read it. Runtime-accountability fields that the evaluation harness cannot
+currently provide, such as account and billing context, remain explicitly
+unknown in artifact metadata and report output.
 
 This means each Codex trial currently measures **Codex CLI as configured on this
 machine**. Authentication, default model selection, account limits, and token
@@ -63,7 +66,8 @@ Trial reports can currently answer:
 
 Reports cannot yet reliably answer:
 
-- Which exact model was used if `--codex-model` was omitted.
+- Which exact model was used if the Codex event stream does not expose runtime
+  model identity.
 - Which account or billing context paid for the trial.
 - What the trial cost.
 - Whether an apparently correct patch was unusually expensive in cost or runtime.

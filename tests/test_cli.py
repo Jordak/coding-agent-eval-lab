@@ -1,6 +1,8 @@
 import contextlib
 import io
 import json
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -11,6 +13,7 @@ from agentlab.cli import (
     handle_doctor,
     handle_run,
     handle_trials_summarize,
+    _claude_code_config_from_args,
     _codex_config_from_args,
     handle_runs_list,
     _print_run_summaries,
@@ -21,6 +24,25 @@ from agentlab.preflight import PreflightCheck, PreflightResult
 
 
 class CliOutputTest(unittest.TestCase):
+    def test_module_entrypoint_returns_cli_status(self):
+        completed = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "agentlab",
+                "doctor",
+                "--agent",
+                "claude",
+                "--claude-command",
+                "agentlab-claude-missing",
+            ],
+            text=True,
+            capture_output=True,
+        )
+
+        self.assertNotEqual(completed.returncode, 0)
+        self.assertIn("Claude Code CLI not found", completed.stderr)
+
     def test_run_parser_accepts_jobs(self):
         parser = build_parser()
 
@@ -155,6 +177,44 @@ class CliOutputTest(unittest.TestCase):
         self.assertEqual(args.codex_approval, "never")
         self.assertEqual(args.codex_timeout_seconds, 3)
 
+    def test_run_parser_accepts_claude_options(self):
+        parser = build_parser()
+
+        args = parser.parse_args(
+            [
+                "run",
+                "--agent",
+                "claude",
+                "--task",
+                "tasks/starter/example",
+                "--claude-command",
+                "claude-test",
+                "--claude-model",
+                "sonnet",
+                "--claude-permission-mode",
+                "acceptEdits",
+                "--claude-max-turns",
+                "6",
+                "--claude-allowed-tool",
+                "Read",
+                "--claude-allowed-tool",
+                "Edit",
+                "--claude-disallowed-tool",
+                "Bash(git push *)",
+                "--claude-timeout-seconds",
+                "9",
+            ]
+        )
+
+        self.assertEqual(args.agent, "claude")
+        self.assertEqual(args.claude_command, "claude-test")
+        self.assertEqual(args.claude_model, "sonnet")
+        self.assertEqual(args.claude_permission_mode, "acceptEdits")
+        self.assertEqual(args.claude_max_turns, 6)
+        self.assertEqual(args.claude_allowed_tool, ["Read", "Edit"])
+        self.assertEqual(args.claude_disallowed_tool, ["Bash(git push *)"])
+        self.assertEqual(args.claude_timeout_seconds, 9)
+
     def test_handle_doctor_runs_codex_preflight(self):
         args = SimpleNamespace(
             agent="codex",
@@ -197,6 +257,54 @@ class CliOutputTest(unittest.TestCase):
         self.assertIn("Doctor: codex", stdout.getvalue())
         self.assertIn("Preflight passed.", stdout.getvalue())
 
+    def test_handle_doctor_runs_claude_preflight(self):
+        args = SimpleNamespace(
+            agent="claude",
+            claude_command="claude-test",
+            claude_model="sonnet",
+            claude_permission_mode="acceptEdits",
+            claude_output_format="stream-json",
+            claude_max_turns=3,
+            claude_allowed_tool=["Read"],
+            claude_disallowed_tool=["Bash(git push *)"],
+            claude_timeout_seconds=3,
+            claude_session_persistence=True,
+        )
+        result = PreflightResult(
+            agent_name="claude",
+            checks=[
+                PreflightCheck(
+                    name="Claude Code executable",
+                    passed=True,
+                    message="found /tmp/claude-test",
+                )
+            ],
+        )
+        stdout = io.StringIO()
+
+        with patch(
+            "agentlab.cli.run_claude_code_preflight",
+            return_value=result,
+        ) as preflight:
+            with contextlib.redirect_stdout(stdout):
+                status = handle_doctor(args)
+
+        self.assertEqual(status, 0)
+        self.assertEqual(preflight.call_count, 1)
+        config = preflight.call_args.args[0]
+        self.assertEqual(config.command, "claude-test")
+        self.assertEqual(config.model, "sonnet")
+        self.assertEqual(config.permission_mode, "acceptEdits")
+        self.assertEqual(config.output_format, "stream-json")
+        self.assertEqual(config.max_turns, 3)
+        self.assertEqual(config.allowed_tools, ("Read",))
+        self.assertEqual(config.disallowed_tools, ("Bash(git push *)",))
+        self.assertEqual(config.timeout_seconds, 3)
+        self.assertFalse(config.show_progress)
+        self.assertFalse(config.no_session_persistence)
+        self.assertIn("Doctor: claude", stdout.getvalue())
+        self.assertIn("Preflight passed.", stdout.getvalue())
+
     def test_codex_config_builder_centralizes_cli_options(self):
         args = SimpleNamespace(
             codex_command="codex-test",
@@ -216,6 +324,32 @@ class CliOutputTest(unittest.TestCase):
         self.assertEqual(config.approval_policy, "on-failure")
         self.assertEqual(config.timeout_seconds, 42)
         self.assertFalse(config.show_progress)
+
+    def test_claude_config_builder_centralizes_cli_options(self):
+        args = SimpleNamespace(
+            claude_command="claude-test",
+            claude_model="sonnet",
+            claude_permission_mode="acceptEdits",
+            claude_output_format="stream-json",
+            claude_max_turns=6,
+            claude_allowed_tool=["Read", "Edit"],
+            claude_disallowed_tool=["Bash(git push *)"],
+            claude_timeout_seconds=42,
+            claude_session_persistence=True,
+        )
+
+        config = _claude_code_config_from_args(args, show_progress=False)
+
+        self.assertEqual(config.command, "claude-test")
+        self.assertEqual(config.model, "sonnet")
+        self.assertEqual(config.permission_mode, "acceptEdits")
+        self.assertEqual(config.output_format, "stream-json")
+        self.assertEqual(config.max_turns, 6)
+        self.assertEqual(config.allowed_tools, ("Read", "Edit"))
+        self.assertEqual(config.disallowed_tools, ("Bash(git push *)",))
+        self.assertEqual(config.timeout_seconds, 42)
+        self.assertFalse(config.show_progress)
+        self.assertFalse(config.no_session_persistence)
 
     def test_handle_doctor_returns_failure_when_preflight_fails(self):
         args = SimpleNamespace(
@@ -424,6 +558,52 @@ class CliOutputTest(unittest.TestCase):
             "Summary: 2/2 passed; pass@2=1.00; pass^2=1.00",
             stdout.getvalue(),
         )
+
+    def test_handle_run_builds_claude_agent(self):
+        args = SimpleNamespace(
+            task="tasks/starter/example",
+            agent="claude",
+            runs_dir="runs",
+            trials=1,
+            jobs=1,
+            no_pause=True,
+            claude_command="claude-test",
+            claude_model="sonnet",
+            claude_permission_mode="acceptEdits",
+            claude_output_format="stream-json",
+            claude_max_turns=6,
+            claude_allowed_tool=["Read"],
+            claude_disallowed_tool=["Bash(git push *)"],
+            claude_timeout_seconds=9,
+            claude_session_persistence=True,
+        )
+        task = SimpleNamespace(id="task-a")
+        evaluations = [
+            SimpleNamespace(
+                agent_run=SimpleNamespace(agent_name="claude", error=None),
+                run_dir=Path("runs/trial-0"),
+                report_path=Path("runs/trial-0/report.md"),
+                result_path=Path("runs/trial-0/result.json"),
+                score=SimpleNamespace(tests_passed=True),
+            )
+        ]
+
+        with patch("agentlab.cli.load_task", return_value=task):
+            with patch("agentlab.cli.execute_trials", return_value=evaluations) as execute:
+                status = handle_run(args)
+
+        self.assertEqual(status, 0)
+        agent = execute.call_args.args[1](show_progress=False)
+        self.assertEqual(agent.config.command, "claude-test")
+        self.assertEqual(agent.config.model, "sonnet")
+        self.assertEqual(agent.config.permission_mode, "acceptEdits")
+        self.assertEqual(agent.config.max_turns, 6)
+        self.assertEqual(agent.config.allowed_tools, ("Read",))
+        self.assertEqual(agent.config.disallowed_tools, ("Bash(git push *)",))
+        self.assertEqual(agent.config.timeout_seconds, 9)
+        self.assertFalse(agent.config.show_progress)
+        config = execute.call_args.args[2]
+        self.assertEqual(config.agent_name, "claude")
 
     def test_task_smoke_test_verifies_reference_before_one_trial(self):
         args = SimpleNamespace(

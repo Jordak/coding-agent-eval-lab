@@ -170,6 +170,81 @@ class ResultsTest(unittest.TestCase):
             self.assertIsNone(runtime_accountability["cost_usd"])
             self.assertIsNone(runtime_accountability["future_runtime_fact"])
 
+    def test_load_results_backfills_model_identity_from_claude_events(self):
+        with tempfile.TemporaryDirectory() as temp:
+            run_dir = Path(temp) / "run-1"
+            run_dir.mkdir()
+            (run_dir / "claude-events.jsonl").write_text(
+                '{"type":"system","model":"claude-sonnet-4-6"}\n'
+                '{"type":"result","modelUsage":{'
+                '"claude-haiku-4-5-20251001":{"costUSD":0.1},'
+                '"claude-sonnet-4-6":{"costUSD":0.2}}}\n',
+                encoding="utf-8",
+            )
+            result_path = run_dir / "result.json"
+            result_path.write_text(
+                json.dumps(
+                    {
+                        "trial_kind": "agent_trial",
+                        "run_dir": str(run_dir),
+                        "agent_name": "claude",
+                        "model_name": None,
+                        "agent_harness_config": {
+                            "agent_harness": "claude_code",
+                            "agent_adapter": "claude_code_cli",
+                            "model_name": None,
+                            "model_source": "unknown",
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = load_results([result_path])[0]
+
+            self.assertEqual(result["model_name"], "claude-sonnet-4-6")
+            self.assertEqual(
+                result["agent_harness_config"]["model_name"],
+                "claude-sonnet-4-6",
+            )
+            self.assertEqual(result["agent_harness_config"]["model_source"], "events")
+
+    def test_load_results_backfills_codex_event_model_over_requested_model(self):
+        with tempfile.TemporaryDirectory() as temp:
+            run_dir = Path(temp) / "run-1"
+            run_dir.mkdir()
+            (run_dir / "codex-events.jsonl").write_text(
+                '{"type":"turn.completed","model":"gpt-actual",'
+                '"usage":{"input_tokens":1,"output_tokens":2}}\n',
+                encoding="utf-8",
+            )
+            result_path = run_dir / "result.json"
+            result_path.write_text(
+                json.dumps(
+                    {
+                        "trial_kind": "agent_trial",
+                        "run_dir": str(run_dir),
+                        "agent_name": "codex",
+                        "model_name": "gpt-requested",
+                        "agent_harness_config": {
+                            "agent_harness": "codex",
+                            "agent_adapter": "codex_cli",
+                            "model_name": "gpt-requested",
+                            "model_source": "explicit",
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = load_results([result_path])[0]
+
+            self.assertEqual(result["model_name"], "gpt-actual")
+            harness_config = result["agent_harness_config"]
+            self.assertEqual(harness_config["model_name"], "gpt-actual")
+            self.assertEqual(harness_config["model_source"], "events")
+            self.assertEqual(harness_config["requested_model_name"], "gpt-requested")
+
     def _write_result(
         self,
         run_dir: Path,
