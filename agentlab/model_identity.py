@@ -10,6 +10,11 @@ class ModelIdentity:
     model_name: str | None = None
     model_source: str = "unknown"
     requested_model_name: str | None = None
+    reasoning_effort: str | None = None
+    model_provider: str | None = None
+    codex_thread_id: str | None = None
+    codex_thread_source: str | None = None
+    cli_version: str | None = None
 
 
 def model_identity_from_events(

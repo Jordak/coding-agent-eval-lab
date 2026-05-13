@@ -11,8 +11,12 @@ from typing import Any, Callable, Dict, List, Optional
 from agentlab.agent_harness_config import normalize_agent_harness_config
 from agentlab.agents.base import AgentRun
 from agentlab.agents.prompts import build_agent_prompt
+from agentlab.codex_runtime_metadata import (
+    codex_model_identity_from_events_and_state,
+    default_codex_state_db_path,
+)
 from agentlab.environment import build_task_environment
-from agentlab.model_identity import ModelIdentity, model_identity_from_events
+from agentlab.model_identity import ModelIdentity
 from agentlab.preflight import PreflightCheck, PreflightResult
 from agentlab.resource_usage import ResourceUsage, parse_resource_usage_events
 from agentlab.terminal import ProgressBar
@@ -32,6 +36,7 @@ class CodexCliConfig:
     approval_policy: str = "never"
     timeout_seconds: int = 1800
     show_progress: bool = True
+    codex_state_db: Path | None = None
 
 
 @dataclass(frozen=True)
@@ -91,9 +96,10 @@ class CodexCliAdapter:
                 ).strip()
         else:
             usage = ResourceUsage()
-        model_identity = model_identity_from_events(
+        model_identity = codex_model_identity_from_events_and_state(
             events_text,
             requested_model_name=self.config.model,
+            codex_state_db=self._codex_state_db_path(),
         )
 
         transcript_path.write_text(
@@ -224,6 +230,14 @@ class CodexCliAdapter:
             cli_version=_codex_cli_version(executable),
         )
 
+    def _codex_state_db_path(self) -> Path | None:
+        if self.config.codex_state_db is not None:
+            return Path(self.config.codex_state_db).expanduser()
+        default_path = default_codex_state_db_path()
+        if default_path.is_file():
+            return default_path
+        return None
+
 
 def _missing_cli_message(command: str) -> str:
     return (
@@ -241,7 +255,7 @@ def codex_agent_harness_config(
     cost_usd: float | None = None,
 ) -> Dict[str, Any]:
     runtime_facts = runtime_facts or CodexRuntimeFacts()
-    model_identity = model_identity or model_identity_from_events(
+    model_identity = model_identity or codex_model_identity_from_events_and_state(
         "",
         requested_model_name=config.model,
     )
@@ -254,6 +268,10 @@ def codex_agent_harness_config(
             "model_name": model_identity.model_name,
             "model_source": model_identity.model_source,
             "requested_model_name": model_identity.requested_model_name,
+            "reasoning_effort": model_identity.reasoning_effort,
+            "model_provider": model_identity.model_provider,
+            "codex_thread_id": model_identity.codex_thread_id,
+            "codex_thread_source": model_identity.codex_thread_source,
             "profile": config.profile,
             "sandbox": config.sandbox,
             "approval_policy": config.approval_policy,

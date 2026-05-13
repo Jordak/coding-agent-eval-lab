@@ -33,8 +33,11 @@ When `codex-events.jsonl` includes `turn.completed` usage metadata, Agent Lab
 captures input tokens, cached input tokens, output tokens, and reasoning output
 tokens as outcome evidence. When Codex events expose the actual model used,
 Agent Lab records that model as `model_name` with `model_source: events`; an
-explicit `--codex-model` value is retained as `requested_model_name`. Current
-local Codex traces do not expose dollar cost, so cost remains `unknown` unless a
+explicit `--codex-model` value is retained as `requested_model_name`. When
+events expose a Codex `thread_id` but not the runtime model, future Codex runs
+also try a failure-tolerant lookup in the local Codex state database and record
+recovered model metadata with `model_source: local_codex_state`. Current local
+Codex traces do not expose dollar cost, so cost remains `unknown` unless a
 future event stream includes a reliable cost field.
 
 Codex trial `result.json` artifacts also store an `agent_harness_config` object
@@ -52,6 +55,27 @@ budget are handled by the local Codex app/CLI configuration, not by Agent Lab.
 That is fine for early eval-harness development, but it is not yet a complete
 model-quality measurement.
 
+## Historical Codex Metadata Recovery
+
+Historical Codex runs can be updated explicitly from a selected evidence set and
+a supplied local Codex state database:
+
+```bash
+python3 -m agentlab recover codex-runtime-metadata \
+  --evidence-set evidence-sets/codex-starter-suite-12-task-baseline-2026-05-11.json \
+  --runs-dir /path/to/runs \
+  --codex-state-db ~/.codex/state_5.sqlite \
+  --dry-run
+```
+
+The command defaults to a dry run. Re-run with `--apply` to write recovered
+fields such as `model_name`, `model_source`, `reasoning_effort`,
+`model_provider`, and `codex_thread_id` into selected `result.json` artifacts.
+If the run artifacts are in another checkout, pass that checkout's `runs`
+directory with `--runs-dir`.
+This is intentionally separate from normal result loading so reports do not
+silently depend on a mutable machine-local database.
+
 ## Risk
 
 Trial reports can currently answer:
@@ -66,8 +90,8 @@ Trial reports can currently answer:
 
 Reports cannot yet reliably answer:
 
-- Which exact model was used if the Codex event stream does not expose runtime
-  model identity.
+- Which exact model was used if neither the Codex event stream nor explicit
+  recovered local thread metadata identifies runtime model identity.
 - Which account or billing context paid for the trial.
 - What the trial cost.
 - Whether an apparently correct patch was unusually expensive in cost or runtime.

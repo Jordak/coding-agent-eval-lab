@@ -1,6 +1,7 @@
 import contextlib
 import io
 import json
+import sqlite3
 import subprocess
 import sys
 import tempfile
@@ -11,6 +12,7 @@ from unittest.mock import patch
 
 from agentlab.cli import (
     handle_doctor,
+    handle_recover_codex_runtime_metadata,
     handle_run,
     handle_trials_summarize,
     _claude_code_config_from_args,
@@ -68,7 +70,16 @@ class CliOutputTest(unittest.TestCase):
 
         help_text = parser.format_help()
 
-        for command in ["task", "doctor", "run", "runs", "trials", "report", "review"]:
+        for command in [
+            "task",
+            "doctor",
+            "run",
+            "runs",
+            "trials",
+            "report",
+            "review",
+            "recover",
+        ]:
             self.assertIn(command, help_text)
 
     def test_documented_command_examples_continue_to_parse(self):
@@ -98,6 +109,15 @@ class CliOutputTest(unittest.TestCase):
                 "Focused one-line fix; graders pass.",
             ],
             ["report", "capability-evidence-digest"],
+            [
+                "recover",
+                "codex-runtime-metadata",
+                "--evidence-set",
+                "evidence-sets/example.json",
+                "--codex-state-db",
+                "state.sqlite",
+                "--dry-run",
+            ],
         ]
 
         for command in commands:
@@ -159,6 +179,28 @@ class CliOutputTest(unittest.TestCase):
         )
 
         self.assertEqual(args.output, "reports/legacy.md")
+
+    def test_recover_parser_accepts_codex_runtime_metadata_options(self):
+        parser = build_parser()
+
+        args = parser.parse_args(
+            [
+                "recover",
+                "codex-runtime-metadata",
+                "--runs-dir",
+                "runs",
+                "--evidence-set",
+                "evidence-sets/codex.json",
+                "--codex-state-db",
+                "~/.codex/state_5.sqlite",
+                "--apply",
+            ]
+        )
+
+        self.assertEqual(args.runs_dir, "runs")
+        self.assertEqual(args.evidence_set, "evidence-sets/codex.json")
+        self.assertEqual(args.codex_state_db, "~/.codex/state_5.sqlite")
+        self.assertTrue(args.apply)
 
     def test_task_smoke_test_parser_uses_one_agent_trial(self):
         parser = build_parser()
@@ -298,6 +340,87 @@ class CliOutputTest(unittest.TestCase):
         self.assertFalse(config.show_progress)
         self.assertIn("Doctor: codex", stdout.getvalue())
         self.assertIn("Preflight passed.", stdout.getvalue())
+
+    def test_handle_recover_codex_runtime_metadata_defaults_to_dry_run(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            runs_dir = root / "runs"
+            run_dir = runs_dir / "trial-1"
+            run_dir.mkdir(parents=True)
+            state_db = root / "state.sqlite"
+            self._write_codex_state_db(state_db, thread_id="thread-1")
+            (run_dir / "codex-events.jsonl").write_text(
+                '{"type":"thread.started","thread_id":"thread-1"}\n',
+                encoding="utf-8",
+            )
+            result_path = run_dir / "result.json"
+            result_path.write_text(
+                json.dumps(
+                    {
+                        "trial_kind": "agent_trial",
+                        "trial_id": "trial-1",
+                        "run_id": "trial-1",
+                        "run_dir": str(run_dir),
+                        "agent_name": "codex",
+                        "model_name": None,
+                        "agent_harness_config": {
+                            "agent_harness": "codex",
+                            "agent_adapter": "codex_cli",
+                            "model_source": "unknown",
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            before = result_path.read_text(encoding="utf-8")
+            evidence_set = root / "evidence.json"
+            evidence_set.write_text(
+                json.dumps({"name": "codex evidence", "trials": ["trial-1"]}),
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                status = handle_recover_codex_runtime_metadata(
+                    SimpleNamespace(
+                        evidence_set=str(evidence_set),
+                        runs_dir=str(runs_dir),
+                        codex_state_db=str(state_db),
+                        apply=False,
+                    )
+                )
+
+            self.assertEqual(result_path.read_text(encoding="utf-8"), before)
+
+        self.assertEqual(status, 0)
+        self.assertIn("would_update", stdout.getvalue())
+        self.assertIn("Dry run only", stdout.getvalue())
+
+    def test_handle_recover_codex_runtime_metadata_hints_when_runs_dir_missing(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            state_db = root / "state.sqlite"
+            self._write_codex_state_db(state_db, thread_id="thread-1")
+            evidence_set = root / "evidence.json"
+            evidence_set.write_text(
+                json.dumps({"name": "codex evidence", "trials": ["trial-1"]}),
+                encoding="utf-8",
+            )
+            stderr = io.StringIO()
+
+            with contextlib.redirect_stderr(stderr):
+                status = handle_recover_codex_runtime_metadata(
+                    SimpleNamespace(
+                        evidence_set=str(evidence_set),
+                        runs_dir=str(root / "missing-runs"),
+                        codex_state_db=str(state_db),
+                        apply=False,
+                    )
+                )
+
+        self.assertEqual(status, 1)
+        self.assertIn("evidence set trial result not found", stderr.getvalue())
+        self.assertIn("--runs-dir does not exist", stderr.getvalue())
 
     def test_handle_doctor_runs_claude_preflight(self):
         args = SimpleNamespace(
@@ -720,6 +843,41 @@ class CliOutputTest(unittest.TestCase):
         self.assertEqual(status, 1)
         self.assertEqual(execute.call_count, 0)
         self.assertIn("ERROR reference verification failed", stderr.getvalue())
+
+    def _write_codex_state_db(self, path, *, thread_id):
+        with sqlite3.connect(path) as connection:
+            connection.execute(
+                """
+                create table threads (
+                  id text primary key,
+                  model text,
+                  reasoning_effort text,
+                  model_provider text,
+                  source text,
+                  cli_version text
+                )
+                """
+            )
+            connection.execute(
+                """
+                insert into threads (
+                  id,
+                  model,
+                  reasoning_effort,
+                  model_provider,
+                  source,
+                  cli_version
+                ) values (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    thread_id,
+                    "gpt-5.5",
+                    "xhigh",
+                    "openai",
+                    "exec",
+                    "0.130.0-alpha.5",
+                ),
+            )
 
 
 if __name__ == "__main__":

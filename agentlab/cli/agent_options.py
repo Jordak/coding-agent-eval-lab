@@ -81,6 +81,14 @@ def add_codex_options(
         default=timeout_default,
         help=timeout_help,
     )
+    parser.add_argument(
+        "--codex-state-db",
+        default=None,
+        help=(
+            "Optional Codex state SQLite database for recovering thread model "
+            "metadata when Codex events do not expose it."
+        ),
+    )
 
 
 def add_claude_options(
@@ -182,6 +190,7 @@ def _codex_config_from_args(
         approval_policy=args.codex_approval,
         timeout_seconds=args.codex_timeout_seconds,
         show_progress=show_progress,
+        codex_state_db=getattr(args, "codex_state_db", None),
     )
 
 

@@ -1,5 +1,6 @@
 import json
 import shutil
+import sqlite3
 import subprocess
 import sys
 import tempfile
@@ -134,6 +135,52 @@ class CodexCliAdapterTest(unittest.TestCase):
             assert agent_run.error is not None
             self.assertIn("Codex CLI not found", agent_run.error)
             self.assertIn("--codex-command", agent_run.error)
+
+    def test_codex_adapter_recovers_model_from_state_db_when_events_omit_model(self):
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            state_db = temp_path / "state.sqlite"
+            self._write_codex_state_db(state_db, thread_id="thread-1")
+            task = EvalTask(
+                id="codex-state-model",
+                title="Codex state model",
+                repo=str(temp_path),
+                commit="unused",
+                language="text",
+                prompt="No-op.",
+            )
+
+            def fake_runner(command, timeout_seconds):
+                last_message = Path(command[command.index("--output-last-message") + 1])
+                last_message.write_text("Done.", encoding="utf-8")
+                return subprocess.CompletedProcess(
+                    args=command,
+                    returncode=0,
+                    stdout=(
+                        '{"type":"thread.started","thread_id":"thread-1"}\n'
+                        '{"type":"turn.completed","usage":{}}\n'
+                    ),
+                    stderr="",
+                )
+
+            adapter = CodexCliAdapter(
+                CodexCliConfig(
+                    command="codex-test",
+                    timeout_seconds=5,
+                    codex_state_db=state_db,
+                ),
+                command_runner=fake_runner,
+            )
+
+            agent_run = adapter.run(task, temp_path, temp_path / "run")
+
+        self.assertEqual(agent_run.model_name, "gpt-5.5")
+        config = agent_run.agent_harness_config
+        self.assertEqual(config["model_name"], "gpt-5.5")
+        self.assertEqual(config["model_source"], "local_codex_state")
+        self.assertEqual(config["codex_thread_id"], "thread-1")
+        self.assertEqual(config["reasoning_effort"], "xhigh")
+        self.assertEqual(config["model_provider"], "openai")
 
     def test_codex_preflight_runs_version_and_exec_help_shape(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -354,6 +401,41 @@ class CodexCliAdapterTest(unittest.TestCase):
         if completed.returncode != 0:
             self.fail(completed.stderr)
         return completed
+
+    def _write_codex_state_db(self, path, *, thread_id):
+        with sqlite3.connect(path) as connection:
+            connection.execute(
+                """
+                create table threads (
+                  id text primary key,
+                  model text,
+                  reasoning_effort text,
+                  model_provider text,
+                  source text,
+                  cli_version text
+                )
+                """
+            )
+            connection.execute(
+                """
+                insert into threads (
+                  id,
+                  model,
+                  reasoning_effort,
+                  model_provider,
+                  source,
+                  cli_version
+                ) values (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    thread_id,
+                    "gpt-5.5",
+                    "xhigh",
+                    "openai",
+                    "exec",
+                    "0.130.0-alpha.5",
+                ),
+            )
 
 
 if __name__ == "__main__":
