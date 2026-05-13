@@ -68,7 +68,7 @@ python3 -m agentlab recover codex-runtime-metadata \
   --dry-run
 ```
 
-The command defaults to a dry run. Re-run with `--dry-run=false` to write
+The command defaults to a dry run. Re-run with `--no-dry-run` to write
 recovered fields such as `model_name`, `model_source`, `reasoning_effort`,
 `model_provider`, and `codex_thread_id` into selected `result.json` artifacts.
 If the run artifacts are in another checkout, pass that checkout's `runs`

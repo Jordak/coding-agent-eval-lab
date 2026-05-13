@@ -36,14 +36,11 @@ def add_recover_command(subcommands: argparse._SubParsersAction) -> None:
     )
     codex_parser.add_argument(
         "--dry-run",
-        nargs="?",
-        const=True,
+        action=argparse.BooleanOptionalAction,
         default=True,
-        type=_parse_bool,
-        metavar="{true,false}",
         help=(
             "Preview changes without writing result.json files. Defaults to "
-            "true; pass --dry-run=false to write recovered metadata."
+            "true; pass --no-dry-run to write recovered metadata."
         ),
     )
     codex_parser.set_defaults(handler=handle_recover_codex_runtime_metadata)
@@ -88,23 +85,10 @@ def handle_recover_codex_runtime_metadata(args: argparse.Namespace) -> int:
     )
     if not apply_changes:
         print(
-            "Dry run only. Re-run with --dry-run=false to write result.json files."
+            "Dry run only. Re-run with --no-dry-run to write result.json files."
         )
 
     return 1 if summary.error_entries else 0
-
-
-def _parse_bool(value: str | bool) -> bool:
-    if isinstance(value, bool):
-        return value
-    normalized = value.strip().lower()
-    if normalized in {"1", "true", "t", "yes", "y", "on"}:
-        return True
-    if normalized in {"0", "false", "f", "no", "n", "off"}:
-        return False
-    raise argparse.ArgumentTypeError(
-        "expected one of true, false, yes, no, 1, or 0"
-    )
 
 
 def _print_evidence_set_error(exc: Exception, runs_dir: Path) -> None:

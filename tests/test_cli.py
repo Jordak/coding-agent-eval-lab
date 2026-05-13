@@ -193,7 +193,7 @@ class CliOutputTest(unittest.TestCase):
                 "evidence-sets/codex.json",
                 "--codex-state-db",
                 "~/.codex/state_5.sqlite",
-                "--dry-run=false",
+                "--no-dry-run",
             ]
         )
 
