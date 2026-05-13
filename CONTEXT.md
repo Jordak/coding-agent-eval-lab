@@ -141,11 +141,20 @@ The project is evaluation infrastructure, not a general coding assistant or IDE.
 - **Evidence-scoped recommendation**: practical guidance whose scope is limited
   to the evidence behind it. Use recommendations to help readers act, but do not
   imply broader certainty than the trials support.
+- **Agent harness baseline**: repeated fair trials for one agent harness
+  configuration across an evaluation suite, collected before making
+  multi-harness comparison claims. A baseline is scoped to the suite, runtime
+  conditions, model identity when known, permissions, graders, and human-review
+  protocol.
 - **Codex deep baseline**: the first agent capability report for the Solo Dev
   Starter Suite, focused on evaluating one Codex CLI agent harness configuration
   deeply before comparing multiple harnesses. Initial depth target: six task
   categories, one task per category, five independent trials per task using the
   same prompt and same agent harness configuration.
+- **Claude Code baseline**: the next agent harness baseline for the Solo Dev
+  Starter Suite, focused on evaluating one Claude Code agent harness
+  configuration before comparing Claude Code against the existing Codex evidence
+  set.
 - **Solo developer**: an individual choosing an AI coding tool for a project
   based on task fit, reliability, risk tolerance, validation quality, runtime,
   and cost.
