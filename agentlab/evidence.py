@@ -71,7 +71,7 @@ def render_capability_evidence_digest(
                         summary.eval_type,
                         summary.task_id,
                         summary.agent_name,
-                        summary.model_name,
+                        _display_model_name(summary.model_name),
                         summary.total_trials,
                         summary.trials,
                         summary.excluded_trials,
@@ -158,7 +158,7 @@ def _trial_row(result: Dict[str, Any]) -> List[object]:
         result.get("trial_id", result.get("run_id", "")),
         result.get("task_id", ""),
         result.get("agent_name", ""),
-        result.get("model_name") or "",
+        _display_model_name(result.get("model_name")),
         result.get("status", ""),
         trial_validity(result),
         _review_label(result),
@@ -236,6 +236,15 @@ def _unknown_if_none(value: object) -> object:
     if value is None:
         return "unknown"
     return value
+
+
+def _display_model_name(value: object) -> str:
+    if value is None:
+        return "unknown"
+    text = str(value)
+    if not text:
+        return "unknown"
+    return text
 
 
 def _escape_cell(value: object) -> str:

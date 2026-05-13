@@ -70,6 +70,36 @@ class CapabilityEvidenceDigestTest(unittest.TestCase):
         self.assertIn("[diff](runs/trial-pass/diff.patch)", digest)
         self.assertIn("[result](runs/trial-pass/result.json)", digest)
 
+    def test_renders_missing_model_identity_as_unknown(self):
+        digest = render_capability_evidence_digest(
+            [
+                {
+                    "trial_id": "trial-unknown-model",
+                    "task_id": "task-a",
+                    "eval_suite": "starter",
+                    "eval_type": "regression",
+                    "agent_name": "codex",
+                    "model_name": None,
+                    "status": "passed",
+                    "success": True,
+                    "duration_ms": 100,
+                    "files_changed": [],
+                    "lines_added": 0,
+                    "lines_deleted": 0,
+                    "run_dir": "runs/trial-unknown-model",
+                }
+            ]
+        )
+
+        self.assertIn(
+            "| starter | regression | task-a | codex | unknown | 1 |",
+            digest,
+        )
+        self.assertIn(
+            "| trial-unknown-model | task-a | codex | unknown | passed |",
+            digest,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
