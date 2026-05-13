@@ -34,16 +34,17 @@ def add_recover_command(subcommands: argparse._SubParsersAction) -> None:
         required=True,
         help="Codex state SQLite database, for example ~/.codex/state_5.sqlite.",
     )
-    mode = codex_parser.add_mutually_exclusive_group()
-    mode.add_argument(
+    codex_parser.add_argument(
         "--dry-run",
-        action="store_true",
-        help="Preview changes without writing result.json files. This is the default.",
-    )
-    mode.add_argument(
-        "--apply",
-        action="store_true",
-        help="Write recovered metadata into selected result.json files.",
+        nargs="?",
+        const=True,
+        default=True,
+        type=_parse_bool,
+        metavar="{true,false}",
+        help=(
+            "Preview changes without writing result.json files. Defaults to "
+            "true; pass --dry-run=false to write recovered metadata."
+        ),
     )
     codex_parser.set_defaults(handler=handle_recover_codex_runtime_metadata)
 
@@ -63,7 +64,8 @@ def handle_recover_codex_runtime_metadata(args: argparse.Namespace) -> int:
         _print_evidence_set_error(exc, Path(args.runs_dir))
         return 1
 
-    apply_changes = bool(args.apply)
+    dry_run = bool(args.dry_run)
+    apply_changes = not dry_run
     summary = recover_codex_runtime_metadata(
         evidence_set.result_files,
         codex_state_db=state_db,
@@ -85,9 +87,24 @@ def handle_recover_codex_runtime_metadata(args: argparse.Namespace) -> int:
         f"{len(summary.entries)} selected."
     )
     if not apply_changes:
-        print("Dry run only. Re-run with --apply to write result.json files.")
+        print(
+            "Dry run only. Re-run with --dry-run=false to write result.json files."
+        )
 
     return 1 if summary.error_entries else 0
+
+
+def _parse_bool(value: str | bool) -> bool:
+    if isinstance(value, bool):
+        return value
+    normalized = value.strip().lower()
+    if normalized in {"1", "true", "t", "yes", "y", "on"}:
+        return True
+    if normalized in {"0", "false", "f", "no", "n", "off"}:
+        return False
+    raise argparse.ArgumentTypeError(
+        "expected one of true, false, yes, no, 1, or 0"
+    )
 
 
 def _print_evidence_set_error(exc: Exception, runs_dir: Path) -> None:

@@ -193,14 +193,30 @@ class CliOutputTest(unittest.TestCase):
                 "evidence-sets/codex.json",
                 "--codex-state-db",
                 "~/.codex/state_5.sqlite",
-                "--apply",
+                "--dry-run=false",
             ]
         )
 
         self.assertEqual(args.runs_dir, "runs")
         self.assertEqual(args.evidence_set, "evidence-sets/codex.json")
         self.assertEqual(args.codex_state_db, "~/.codex/state_5.sqlite")
-        self.assertTrue(args.apply)
+        self.assertFalse(args.dry_run)
+
+    def test_recover_parser_defaults_to_dry_run(self):
+        parser = build_parser()
+
+        args = parser.parse_args(
+            [
+                "recover",
+                "codex-runtime-metadata",
+                "--evidence-set",
+                "evidence-sets/codex.json",
+                "--codex-state-db",
+                "~/.codex/state_5.sqlite",
+            ]
+        )
+
+        self.assertTrue(args.dry_run)
 
     def test_task_smoke_test_parser_uses_one_agent_trial(self):
         parser = build_parser()
@@ -386,7 +402,7 @@ class CliOutputTest(unittest.TestCase):
                         evidence_set=str(evidence_set),
                         runs_dir=str(runs_dir),
                         codex_state_db=str(state_db),
-                        apply=False,
+                        dry_run=True,
                     )
                 )
 
@@ -414,7 +430,7 @@ class CliOutputTest(unittest.TestCase):
                         evidence_set=str(evidence_set),
                         runs_dir=str(root / "missing-runs"),
                         codex_state_db=str(state_db),
-                        apply=False,
+                        dry_run=True,
                     )
                 )
 
