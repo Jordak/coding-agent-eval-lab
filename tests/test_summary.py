@@ -46,16 +46,37 @@ class SummaryTest(unittest.TestCase):
         self.assertEqual(summary.pass_at_k, 1.0)
         self.assertEqual(summary.pass_caret_k, 1.0)
 
-    def test_groups_by_task_agent_and_model(self):
+    def test_groups_by_task_agent_model_and_effort(self):
         results = [
-            self._result(task_id="task-a", agent_name="codex", model_name="m1"),
-            self._result(task_id="task-a", agent_name="codex", model_name="m2"),
-            self._result(task_id="task-b", agent_name="codex", model_name="m1"),
+            self._result(
+                task_id="task-a",
+                agent_name="codex",
+                model_name="m1",
+                reasoning_effort="high",
+            ),
+            self._result(
+                task_id="task-a",
+                agent_name="codex",
+                model_name="m1",
+                reasoning_effort="xhigh",
+            ),
+            self._result(
+                task_id="task-a",
+                agent_name="codex",
+                model_name="m2",
+                reasoning_effort="high",
+            ),
+            self._result(
+                task_id="task-b",
+                agent_name="codex",
+                model_name="m1",
+                reasoning_effort="high",
+            ),
         ]
 
         summaries = summarize_trials(results)
 
-        self.assertEqual(len(summaries), 3)
+        self.assertEqual(len(summaries), 4)
 
     def test_excludes_invalid_trials_from_pass_metrics(self):
         results = [
@@ -133,6 +154,7 @@ class SummaryTest(unittest.TestCase):
         task_id="task-a",
         agent_name="codex",
         model_name="m1",
+        reasoning_effort=None,
         lines_added=0,
         lines_deleted=0,
         review=None,
@@ -143,6 +165,7 @@ class SummaryTest(unittest.TestCase):
             "task_id": task_id,
             "agent_name": agent_name,
             "model_name": model_name,
+            "agent_harness_config": {"reasoning_effort": reasoning_effort},
             "success": success,
             "duration_ms": duration_ms,
             "files_changed": files_changed or [],

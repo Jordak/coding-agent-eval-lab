@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from statistics import median
-from typing import Any, Dict, Iterable, List, Tuple
+from typing import Any, Dict, Iterable, List, Mapping, Tuple
 
 from agentlab.outcome_evidence import (
     normalize_result_dicts,
@@ -19,6 +19,7 @@ class TrialGroupSummary:
     task_id: str
     agent_name: str
     model_name: str
+    reasoning_effort: str
     total_trials: int
     trials: int
     excluded_trials: int
@@ -37,9 +38,10 @@ class TrialGroupSummary:
 
 def summarize_trials(results: Iterable[Dict[str, Any]]) -> List[TrialGroupSummary]:
     results = normalize_result_dicts(results)
-    groups: Dict[Tuple[str, str, str, str, str], List[Dict[str, Any]]] = defaultdict(
-        list
-    )
+    groups: Dict[
+        Tuple[str, str, str, str, str, str],
+        List[Dict[str, Any]],
+    ] = defaultdict(list)
     for result in results:
         groups[_group_key(result)].append(result)
 
@@ -50,18 +52,33 @@ def summarize_trials(results: Iterable[Dict[str, Any]]) -> List[TrialGroupSummar
     return summaries
 
 
-def _group_key(result: Dict[str, Any]) -> Tuple[str, str, str, str, str]:
+def result_reasoning_effort(result: Mapping[str, Any]) -> str:
+    direct_value = _optional_str(result.get("reasoning_effort"))
+    if direct_value is not None:
+        return direct_value
+
+    config = result.get("agent_harness_config")
+    if isinstance(config, Mapping):
+        config_value = _optional_str(config.get("reasoning_effort"))
+        if config_value is not None:
+            return config_value
+
+    return ""
+
+
+def _group_key(result: Dict[str, Any]) -> Tuple[str, str, str, str, str, str]:
     return (
         str(result.get("eval_suite", "")),
         str(result.get("eval_type", "")),
         str(result.get("task_id", "")),
         str(result.get("agent_name", "")),
         str(result.get("model_name") or ""),
+        result_reasoning_effort(result),
     )
 
 
 def _summarize_group(
-    key: Tuple[str, str, str, str, str],
+    key: Tuple[str, str, str, str, str, str],
     results: List[Dict[str, Any]],
 ) -> TrialGroupSummary:
     valid_results = [result for result in results if trial_is_valid(result)]
@@ -86,7 +103,7 @@ def _summarize_group(
         for result in excluded_results
         for reason in [exclusion_reason(result) or "unknown"]
     )
-    eval_suite, eval_type, task_id, agent_name, model_name = key
+    eval_suite, eval_type, task_id, agent_name, model_name, reasoning_effort = key
     pass_rate = passes / trials if trials else 0.0
     return TrialGroupSummary(
         eval_suite=eval_suite,
@@ -94,6 +111,7 @@ def _summarize_group(
         task_id=task_id,
         agent_name=agent_name,
         model_name=model_name,
+        reasoning_effort=reasoning_effort,
         total_trials=len(results),
         trials=trials,
         excluded_trials=len(excluded_results),
@@ -126,3 +144,12 @@ def _secondary_review_labels(result: Dict[str, Any]) -> List[str]:
     if not isinstance(labels, list):
         return []
     return [str(label) for label in labels if label]
+
+
+def _optional_str(value: object) -> str | None:
+    if value is None:
+        return None
+    text = str(value)
+    if not text:
+        return None
+    return text

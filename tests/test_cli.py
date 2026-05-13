@@ -618,6 +618,9 @@ class CliOutputTest(unittest.TestCase):
                             "eval_type": "capability",
                             "agent_name": "codex",
                             "model_name": "gpt-test",
+                            "agent_harness_config": {
+                                "reasoning_effort": "xhigh",
+                            },
                             "status": "passed",
                             "success": True,
                             "duration_ms": 100,
@@ -642,6 +645,8 @@ class CliOutputTest(unittest.TestCase):
         self.assertEqual(status, 0)
         self.assertIn("primary_reviews", output)
         self.assertIn("secondary_reviews", output)
+        self.assertIn("effort", output)
+        self.assertIn("xhigh", output)
         self.assertIn("success_clean:2", output)
         self.assertIn("resource_inefficient:2", output)
 

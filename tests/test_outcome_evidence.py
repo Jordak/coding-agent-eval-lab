@@ -174,7 +174,7 @@ class OutcomeEvidenceTest(unittest.TestCase):
             self.assertEqual(summary.excluded_trials, 1)
             self.assertEqual(summary.exclusion_reasons, {"setup_error": 1})
             self.assertIn(
-                "| trial-reviewed | task-a | codex | gpt-test | failed | "
+                "| trial-reviewed | task-a | codex | gpt-test | unknown | failed | "
                 "excluded | dependency_issue |  | setup_error |",
                 digest,
             )

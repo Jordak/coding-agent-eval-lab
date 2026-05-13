@@ -7,7 +7,7 @@ from agentlab.outcome_evidence import (
     normalize_result_dicts,
     result_files_changed_count,
 )
-from agentlab.summary import summarize_trials
+from agentlab.summary import result_reasoning_effort, summarize_trials
 from agentlab.validity import exclusion_reason, trial_validity
 
 
@@ -50,6 +50,7 @@ def render_capability_evidence_digest(
                     "Task",
                     "Agent Harness",
                     "Model",
+                    "Effort",
                     "Total",
                     "Fair",
                     "Excluded",
@@ -72,6 +73,7 @@ def render_capability_evidence_digest(
                         summary.task_id,
                         summary.agent_name,
                         _display_model_name(summary.model_name),
+                        _display_effort(summary.reasoning_effort),
                         summary.total_trials,
                         summary.trials,
                         summary.excluded_trials,
@@ -103,6 +105,7 @@ def render_capability_evidence_digest(
                     "Task",
                     "Agent Harness",
                     "Model",
+                    "Effort",
                     "Grader Outcome",
                     "Validity",
                     "Primary Review Label",
@@ -159,6 +162,7 @@ def _trial_row(result: Dict[str, Any]) -> List[object]:
         result.get("task_id", ""),
         result.get("agent_name", ""),
         _display_model_name(result.get("model_name")),
+        _display_effort(result_reasoning_effort(result)),
         result.get("status", ""),
         trial_validity(result),
         _review_label(result),
@@ -239,6 +243,15 @@ def _unknown_if_none(value: object) -> object:
 
 
 def _display_model_name(value: object) -> str:
+    if value is None:
+        return "unknown"
+    text = str(value)
+    if not text:
+        return "unknown"
+    return text
+
+
+def _display_effort(value: object) -> str:
     if value is None:
         return "unknown"
     text = str(value)
