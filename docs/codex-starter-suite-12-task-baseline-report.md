@@ -39,23 +39,28 @@ The selected fair evidence set contains 60 Codex trials: five fair trials for
 each of twelve starter-suite tasks. All 60 selected fair trials passed their
 deterministic graders.
 
-| Task | Fair Trials | Passes | Review Summary |
-| --- | ---: | ---: | --- |
-| [2048-advanced-snake-params-001](../tasks/starter/2048-advanced-snake-params-001/task-card.md) | 5 | 5 | `success_clean:5` |
-| [click-help-option-refactor-001](../tasks/starter/click-help-option-refactor-001/task-card.md) | 5 | 5 | `success_clean:4`, `resource_inefficient:1`; four successes also carry secondary `resource_inefficient` |
-| [click-default-map-nargs-001](../tasks/starter/click-default-map-nargs-001/task-card.md) | 5 | 5 | `success_clean:5` |
-| [click-help-shadowed-option-001](../tasks/starter/click-help-shadowed-option-001/task-card.md) | 5 | 5 | `success_clean:5` |
-| [click-should-strip-ansi-tests-001](../tasks/starter/click-should-strip-ansi-tests-001/task-card.md) | 5 | 5 | `success_clean:4`, `success_messy:1` |
-| [datawrapper-mcp-docker-requirements-001](../tasks/starter/datawrapper-mcp-docker-requirements-001/task-card.md) | 5 | 5 | `success_clean:5` |
-| [httpx-verify-false-client-cert-001](../tasks/starter/httpx-verify-false-client-cert-001/task-card.md) | 5 | 5 | `success_clean:5` |
-| [prettier-duplicate-dangling-comments-001](../tasks/starter/prettier-duplicate-dangling-comments-001/task-card.md) | 5 | 5 | `success_clean:5`; all five successes carry secondary `resource_inefficient` |
-| [react-tabs-selected-focus-overlay-001](../tasks/starter/react-tabs-selected-focus-overlay-001/task-card.md) | 5 | 5 | `success_clean:3`, `resource_inefficient:2` |
-| [remotion-audio-context-autoplay-muted-001](../tasks/starter/remotion-audio-context-autoplay-muted-001/task-card.md) | 5 | 5 | `success_clean:5`; all five successes carry secondary `resource_inefficient` |
-| [todomvc-toggle-all-checkbox-001](../tasks/starter/todomvc-toggle-all-checkbox-001/task-card.md) | 5 | 5 | `success_clean:5` |
-| [vite-deno-workspace-root-001](../tasks/starter/vite-deno-workspace-root-001/task-card.md) | 5 | 5 | `success_clean:5` |
+| Task | Fair Trials | Passes | Min Tokens | Max Tokens | Mean Tokens | Median Tokens | Review Summary |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| [2048-advanced-snake-params-001](../tasks/starter/2048-advanced-snake-params-001/task-card.md) | 5 | 5 | 268,240 | 411,238 | 366,351 | 381,095 | `success_clean:5` |
+| [click-help-option-refactor-001](../tasks/starter/click-help-option-refactor-001/task-card.md) | 5 | 5 | 943,087 | 1,457,954 | 1,271,460 | 1,346,975 | `success_clean:4`, `resource_inefficient:1`; four successes also carry secondary `resource_inefficient` |
+| [click-default-map-nargs-001](../tasks/starter/click-default-map-nargs-001/task-card.md) | 5 | 5 | 1,033,731 | 2,633,274 | 1,439,604 | 1,172,964 | `success_clean:5` |
+| [click-help-shadowed-option-001](../tasks/starter/click-help-shadowed-option-001/task-card.md) | 5 | 5 | 871,139 | 1,388,262 | 1,139,998 | 1,251,156 | `success_clean:5` |
+| [click-should-strip-ansi-tests-001](../tasks/starter/click-should-strip-ansi-tests-001/task-card.md) | 5 | 5 | 173,833 | 263,159 | 214,517 | 218,181 | `success_clean:4`, `success_messy:1` |
+| [datawrapper-mcp-docker-requirements-001](../tasks/starter/datawrapper-mcp-docker-requirements-001/task-card.md) | 5 | 5 | 96,750 | 160,424 | 115,318 | 99,050 | `success_clean:5` |
+| [httpx-verify-false-client-cert-001](../tasks/starter/httpx-verify-false-client-cert-001/task-card.md) | 5 | 5 | 337,334 | 492,890 | 422,981 | 454,487 | `success_clean:5` |
+| [prettier-duplicate-dangling-comments-001](../tasks/starter/prettier-duplicate-dangling-comments-001/task-card.md) | 5 | 5 | 1,266,853 | 2,255,681 | 1,879,731 | 2,040,878 | `success_clean:5`; all five successes carry secondary `resource_inefficient` |
+| [react-tabs-selected-focus-overlay-001](../tasks/starter/react-tabs-selected-focus-overlay-001/task-card.md) | 5 | 5 | 86,318 | 133,722 | 104,893 | 108,012 | `success_clean:3`, `resource_inefficient:2` |
+| [remotion-audio-context-autoplay-muted-001](../tasks/starter/remotion-audio-context-autoplay-muted-001/task-card.md) | 5 | 5 | 544,950 | 1,066,964 | 798,024 | 876,546 | `success_clean:5`; all five successes carry secondary `resource_inefficient` |
+| [todomvc-toggle-all-checkbox-001](../tasks/starter/todomvc-toggle-all-checkbox-001/task-card.md) | 5 | 5 | 140,101 | 374,510 | 221,222 | 199,938 | `success_clean:5` |
+| [vite-deno-workspace-root-001](../tasks/starter/vite-deno-workspace-root-001/task-card.md) | 5 | 5 | 303,865 | 453,661 | 391,216 | 396,890 | `success_clean:5` |
 
 Every aggregate task row has pass rate `1.00`, pass@k `1.00`, and pass^k
 `1.00` across the selected fair trials.
+
+Token columns report per-trial `input_tokens + output_tokens` after applying
+the same event backfills used by the generated digest. Cached-input and
+reasoning-token details are available in the linked digest, but are not added
+separately here to avoid double counting.
 
 ## Interpretation
 
@@ -103,9 +108,9 @@ metadata.
 
 The selected runs used `xhigh` reasoning effort. That matters: a cheaper or
 lower-effort Codex configuration might have different pass rates, latency, and
-review burden. Token usage is available in the linked digest; billed cost is not
-interpreted here because the stored Codex events captured token counts but no
-billed cost or credit-consumption field.
+review burden. Token usage is reported above; billed cost is not interpreted
+here because the stored Codex events captured token counts but no billed cost or
+credit-consumption field.
 
 Finally, deterministic grader success does not prove that every patch is ideal.
 The human review labels are part of the evidence precisely because a
