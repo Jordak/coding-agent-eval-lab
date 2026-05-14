@@ -4,12 +4,15 @@ Date: 2026-05-13
 
 ## Scope
 
-This report covers Codex CLI as the local `codex` agent harness on the
-twelve-task `starter-coding` suite selected for
-[Issue #10](https://github.com/Jordak/coding-agent-eval-lab/issues/10). It is
-evidence-scoped: these are observations about this local harness configuration,
-task set, deterministic graders, and human review protocol, not global claims
-about Codex or any underlying model.
+This report answers a narrow question: how did Codex CLI perform on a small
+suite of realistic starter maintenance tasks? The answer is scoped to this
+twelve-task `starter-coding` suite, the local `codex` agent harness, the
+deterministic graders, and the human review labels captured for these runs.
+
+It should not be read as a universal Codex ranking or as a guarantee about how
+Codex will behave on every software project. It is a practical evidence summary
+for readers who want to understand how Codex did on these tasks and what caveats
+showed up in review.
 
 The selected evidence set is tracked at
 [`evidence-sets/codex-starter-suite-12-task-baseline-2026-05-11.json`](../evidence-sets/codex-starter-suite-12-task-baseline-2026-05-11.json).
@@ -26,7 +29,7 @@ The evaluated runtime metadata recovered from local Codex thread state is:
 - Model source: `local_codex_state`
 - Provider: `openai`
 
-The model and effort metadata were recovered from Jordan's local Codex state
+The model and effort metadata were recovered from the local Codex state
 database. The saved `codex-events.jsonl` streams expose thread IDs and usage, but
 not portable event-derived model identity for these historical runs.
 
@@ -100,21 +103,21 @@ metadata.
 
 The selected runs used `xhigh` reasoning effort. That matters: a cheaper or
 lower-effort Codex configuration might have different pass rates, latency, and
-review burden. Cost is still not interpreted here because selected result rows
-record cost as `unknown`.
+review burden. Cost is still not interpreted here because the stored Codex
+events captured token counts but no billed cost or credit-consumption field.
 
 Finally, deterministic grader success does not prove that every patch is ideal.
 The human review labels are part of the evidence precisely because a
 grader-passing patch can still be resource-heavy, messy, over-edited, or risky.
 
-## Recommendation
+## Reader Takeaway
 
-Treat this as a strong Codex starter-suite baseline and a clean closeout
-artifact for Issue #10. The evidence supports saying that this Codex CLI
-configuration was highly reliable on these twelve bounded maintenance tasks
-under fair trial conditions.
+This is a strong result for Codex on this suite. It passed every selected fair
+trial across twelve bounded maintenance tasks, including Python CLI regressions,
+dependency/setup fixes, frontend behavior repairs, and JavaScript/TypeScript
+ecosystem regressions.
 
-The next product step should not be to broaden the Codex claim further from this
-same evidence. It should be to run a comparable Claude Code baseline on the same
-starter-suite tasks, then write a separate comparison report that references
-both baselines and keeps model, effort, harness, and review caveats visible.
+The main caveat is efficiency, not correctness. Several tasks passed while
+carrying `resource_inefficient` review labels, so a reader should treat Codex as
+highly capable on these tasks but still worth monitoring for runtime, token
+usage, and review burden.

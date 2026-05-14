@@ -2,7 +2,7 @@
 
 Date: 2026-05-09
 
-Note: this nine-task report is superseded for Issue #10 closeout by
+Note: this nine-task report is superseded by
 [`docs/codex-starter-suite-12-task-baseline-report.md`](codex-starter-suite-12-task-baseline-report.md),
 which extends the selected fair evidence set to twelve tasks and 60 Codex
 trials.
