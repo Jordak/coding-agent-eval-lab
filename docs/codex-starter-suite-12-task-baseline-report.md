@@ -41,18 +41,18 @@ deterministic graders.
 
 | Task | Fair Trials | Passes | Review Summary |
 | --- | ---: | ---: | --- |
-| `2048-advanced-snake-params-001` | 5 | 5 | `success_clean:5` |
-| `click-help-option-refactor-001` | 5 | 5 | `success_clean:4`, `resource_inefficient:1`; four successes also carry secondary `resource_inefficient` |
-| `click-default-map-nargs-001` | 5 | 5 | `success_clean:5` |
-| `click-help-shadowed-option-001` | 5 | 5 | `success_clean:5` |
-| `click-should-strip-ansi-tests-001` | 5 | 5 | `success_clean:4`, `success_messy:1` |
-| `datawrapper-mcp-docker-requirements-001` | 5 | 5 | `success_clean:5` |
-| `httpx-verify-false-client-cert-001` | 5 | 5 | `success_clean:5` |
-| `prettier-duplicate-dangling-comments-001` | 5 | 5 | `success_clean:5`; all five successes carry secondary `resource_inefficient` |
-| `react-tabs-selected-focus-overlay-001` | 5 | 5 | `success_clean:3`, `resource_inefficient:2` |
-| `remotion-audio-context-autoplay-muted-001` | 5 | 5 | `success_clean:5`; all five successes carry secondary `resource_inefficient` |
-| `todomvc-toggle-all-checkbox-001` | 5 | 5 | `success_clean:5` |
-| `vite-deno-workspace-root-001` | 5 | 5 | `success_clean:5` |
+| [2048-advanced-snake-params-001](../tasks/starter/2048-advanced-snake-params-001/task-card.md) | 5 | 5 | `success_clean:5` |
+| [click-help-option-refactor-001](../tasks/starter/click-help-option-refactor-001/task-card.md) | 5 | 5 | `success_clean:4`, `resource_inefficient:1`; four successes also carry secondary `resource_inefficient` |
+| [click-default-map-nargs-001](../tasks/starter/click-default-map-nargs-001/task-card.md) | 5 | 5 | `success_clean:5` |
+| [click-help-shadowed-option-001](../tasks/starter/click-help-shadowed-option-001/task-card.md) | 5 | 5 | `success_clean:5` |
+| [click-should-strip-ansi-tests-001](../tasks/starter/click-should-strip-ansi-tests-001/task-card.md) | 5 | 5 | `success_clean:4`, `success_messy:1` |
+| [datawrapper-mcp-docker-requirements-001](../tasks/starter/datawrapper-mcp-docker-requirements-001/task-card.md) | 5 | 5 | `success_clean:5` |
+| [httpx-verify-false-client-cert-001](../tasks/starter/httpx-verify-false-client-cert-001/task-card.md) | 5 | 5 | `success_clean:5` |
+| [prettier-duplicate-dangling-comments-001](../tasks/starter/prettier-duplicate-dangling-comments-001/task-card.md) | 5 | 5 | `success_clean:5`; all five successes carry secondary `resource_inefficient` |
+| [react-tabs-selected-focus-overlay-001](../tasks/starter/react-tabs-selected-focus-overlay-001/task-card.md) | 5 | 5 | `success_clean:3`, `resource_inefficient:2` |
+| [remotion-audio-context-autoplay-muted-001](../tasks/starter/remotion-audio-context-autoplay-muted-001/task-card.md) | 5 | 5 | `success_clean:5`; all five successes carry secondary `resource_inefficient` |
+| [todomvc-toggle-all-checkbox-001](../tasks/starter/todomvc-toggle-all-checkbox-001/task-card.md) | 5 | 5 | `success_clean:5` |
+| [vite-deno-workspace-root-001](../tasks/starter/vite-deno-workspace-root-001/task-card.md) | 5 | 5 | `success_clean:5` |
 
 Every aggregate task row has pass rate `1.00`, pass@k `1.00`, and pass^k
 `1.00` across the selected fair trials.
@@ -78,7 +78,7 @@ label or as a secondary caveat. The most visible resource caveats appear on
 `react-tabs-selected-focus-overlay-001`, and
 `remotion-audio-context-autoplay-muted-001`. These trials still passed their
 graders, but pass rate alone would overstate the usefulness of the harness if a
-reader cares about latency, token budget, review burden, or cost.
+reader cares about latency, token usage, or review burden.
 
 There is also one `success_messy` trial on
 `click-should-strip-ansi-tests-001`. That task still passed 5/5, but the review
@@ -103,8 +103,9 @@ metadata.
 
 The selected runs used `xhigh` reasoning effort. That matters: a cheaper or
 lower-effort Codex configuration might have different pass rates, latency, and
-review burden. Cost is still not interpreted here because the stored Codex
-events captured token counts but no billed cost or credit-consumption field.
+review burden. Token usage is available in the linked digest; billed cost is not
+interpreted here because the stored Codex events captured token counts but no
+billed cost or credit-consumption field.
 
 Finally, deterministic grader success does not prove that every patch is ideal.
 The human review labels are part of the evidence precisely because a
