@@ -1,5 +1,7 @@
 # First Eval: 2048 Advanced-Snake Params
 
+Date: 2026-05-08
+
 ## Task
 
 The first real task targets `Jordak/2048-game` at commit

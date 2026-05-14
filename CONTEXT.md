@@ -168,6 +168,14 @@ The project is evaluation infrastructure, not a general coding assistant or IDE.
   conventions.
 - Use `docs/runtime-accountability.md` for open questions around model identity,
   token usage, billing context, and cost.
+- Use `docs/agents/` for project-local instructions consumed by agent skills and
+  referenced from `AGENTS.md`. Use `.agents/` for executable skill bundles and
+  other agent runtime assets.
+- Use `docs/retrospectives/` for historical notes about completed pilots,
+  first attempts, and operating lessons.
+- Use `reports/<report-slug>/` for published capability-report bundles. Keep the
+  hand-authored `report.md`, generated `digest.md`, and supporting notes such as
+  `model-attribution.md` together when they describe the same evidence set.
 
 ## Current Architectural Shape
 

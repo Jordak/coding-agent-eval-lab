@@ -2,8 +2,8 @@
 
 Date: 2026-05-09
 
-Note: this nine-task report is superseded by
-[`docs/codex-starter-suite-12-task-baseline-report.md`](codex-starter-suite-12-task-baseline-report.md),
+Note: this nine-task report is superseded by the
+[12-task baseline report](../codex-starter-suite-12-task-baseline-2026-05-11/report.md),
 which extends the selected fair evidence set to twelve tasks and 60 Codex
 trials.
 
@@ -15,9 +15,8 @@ observations about this local harness configuration and task set, not global
 claims about Codex or any underlying model.
 
 The selected evidence set is tracked at
-`evidence-sets/codex-starter-suite-deep-baseline-2026-05-09.json`. The generated
-capability evidence digest is
-`reports/codex-starter-suite-deep-baseline-2026-05-09-digest.md`, and the
+[`evidence-sets/codex-starter-suite-deep-baseline-2026-05-09.json`](../../evidence-sets/codex-starter-suite-deep-baseline-2026-05-09.json).
+The generated capability evidence digest is [`digest.md`](digest.md), and the
 overnight HTML dashboard is
 `reports/codex-starter-suite-overnight-report-2026-05-09.html`.
 

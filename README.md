@@ -274,5 +274,7 @@ terminology and practices this project follows,
 [docs/failure-taxonomy.md](docs/failure-taxonomy.md) for the initial review
 taxonomy, and [docs/runtime-accountability.md](docs/runtime-accountability.md)
 for open work around model identity, account context, token usage, and cost. See
-[docs/first-eval.md](docs/first-eval.md) for the first completed
-positive/negative control evaluation.
+[reports/codex-starter-suite-12-task-baseline-2026-05-11/report.md](reports/codex-starter-suite-12-task-baseline-2026-05-11/report.md)
+for the current Codex starter-suite baseline and
+[docs/retrospectives/2026-05-08-first-eval-2048-advanced-snake.md](docs/retrospectives/2026-05-08-first-eval-2048-advanced-snake.md)
+for the first completed positive/negative control evaluation.
