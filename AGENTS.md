@@ -4,12 +4,12 @@
 
 ### Issue tracker
 
-Issues and PRDs are tracked in GitHub Issues for `Jordak/coding-agent-eval-lab`. See `docs/agents/issue-tracker.md`.
+Issues and PRDs are tracked in GitHub Issues for `Jordak/coding-agent-eval-lab`.
+See `docs/agents/issue-tracker.md`.
 
-Current planning anchor: GitHub Issue #10, "PRD: Codex deep baseline and
-evidence-scoped capability reports"
-(`https://github.com/Jordak/coding-agent-eval-lab/issues/10`). After context
-compaction, read that PRD before choosing the next implementation slice.
+For current or next implementation steps, inspect open GitHub Issues, read the
+relevant PRD issue and latest comments, then choose the next slice from the live
+issue tracker. Do not rely on a hard-coded planning-anchor issue in this file.
 
 ### Triage labels
 
