@@ -2,7 +2,7 @@
 
 Date: 2026-05-16
 
-Review status: draft for Jordan review.
+Review status: reviewed and published.
 
 ## Scope
 
