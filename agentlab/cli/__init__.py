@@ -11,7 +11,10 @@ from agentlab.cli.agent_options import (
 from agentlab.cli.doctor import handle_doctor
 from agentlab.cli.parser import build_parser
 from agentlab.cli.recover import handle_recover_codex_runtime_metadata
-from agentlab.cli.reports import handle_report_capability_evidence_digest
+from agentlab.cli.reports import (
+    handle_report_capability_evidence_digest,
+    handle_report_comparison_evidence_digest,
+)
 from agentlab.cli.review import handle_review
 from agentlab.cli.run import handle_run, _print_run_summaries
 from agentlab.cli.task import (
@@ -47,6 +50,7 @@ __all__ = [
     "handle_doctor",
     "handle_recover_codex_runtime_metadata",
     "handle_report_capability_evidence_digest",
+    "handle_report_comparison_evidence_digest",
     "handle_review",
     "handle_run",
     "handle_runs_list",

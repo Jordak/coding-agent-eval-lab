@@ -110,6 +110,14 @@ class CliOutputTest(unittest.TestCase):
             ],
             ["report", "capability-evidence-digest"],
             [
+                "report",
+                "comparison-evidence-digest",
+                "--evidence-set",
+                "evidence-sets/codex.json",
+                "--evidence-set",
+                "evidence-sets/claude.json",
+            ],
+            [
                 "recover",
                 "codex-runtime-metadata",
                 "--evidence-set",
@@ -179,6 +187,31 @@ class CliOutputTest(unittest.TestCase):
         )
 
         self.assertEqual(args.output, "reports/legacy.md")
+
+    def test_report_parser_accepts_comparison_evidence_digest_inputs(self):
+        parser = build_parser()
+
+        args = parser.parse_args(
+            [
+                "report",
+                "comparison-evidence-digest",
+                "--runs-dir",
+                "runs",
+                "--evidence-set",
+                "evidence-sets/codex.json",
+                "--evidence-set",
+                "evidence-sets/claude.json",
+                "--output",
+                "reports/comparison-evidence-digest.md",
+            ]
+        )
+
+        self.assertEqual(args.runs_dir, "runs")
+        self.assertEqual(
+            args.evidence_set,
+            ["evidence-sets/codex.json", "evidence-sets/claude.json"],
+        )
+        self.assertEqual(args.output, "reports/comparison-evidence-digest.md")
 
     def test_recover_parser_accepts_codex_runtime_metadata_options(self):
         parser = build_parser()

@@ -206,6 +206,18 @@ python3 -m agentlab report capability-evidence-digest \
   --output reports/evidence-digest.md
 ```
 
+Generate a comparison evidence digest from two or more selected evidence sets:
+
+```bash
+python3 -m agentlab report comparison-evidence-digest \
+  --evidence-set evidence-sets/codex-starter-suite-12-task-baseline-2026-05-11.json \
+  --evidence-set evidence-sets/claude-code-starter-suite-baseline-2026-05-14.json \
+  --output reports/codex-vs-claude-starter-suite-comparison-2026-05-16/comparison-evidence-digest.md
+```
+
+The comparison digest aligns rows by task and agent harness configuration while
+keeping generated evidence separate from hand-authored interpretation.
+
 Attach a human review label to a trial:
 
 ```bash

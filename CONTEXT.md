@@ -106,6 +106,10 @@ The project is evaluation infrastructure, not a general coding assistant or IDE.
   capability reports. It reports aggregate metrics, fair/excluded trial counts,
   review labels, outcome evidence, resource usage, and artifact links without
   making final interpretive claims.
+- **Comparison evidence digest**: generated, AI-readable Markdown that compares
+  two or more selected evidence sets by task and agent harness configuration.
+  It is the evidence layer for multi-config comparison reports, not the
+  hand-authored interpretation itself.
 - **Edit size metrics**: structured evidence about patch size, especially files
   changed and lines added/deleted.
 - **Resource usage metrics**: structured evidence about runtime cost, especially
@@ -194,3 +198,5 @@ The project is evaluation infrastructure, not a general coding assistant or IDE.
   counts.
 - Capability evidence digests provide AI-readable Markdown tables for capability
   reports; human-authored interpretation remains separate.
+- Comparison evidence digests align multiple selected evidence sets by task and
+  agent harness configuration for multi-config comparison reports.

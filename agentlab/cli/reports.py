@@ -4,6 +4,10 @@ import argparse
 import sys
 from pathlib import Path
 
+from agentlab.comparison import (
+    ComparisonEvidenceSource,
+    render_comparison_evidence_digest,
+)
 from agentlab.evidence import render_capability_evidence_digest
 from agentlab.evidence_sets import load_evidence_set
 from agentlab.results import discover_result_files, load_results
@@ -41,6 +45,34 @@ def add_report_commands(subcommands: argparse._SubParsersAction) -> None:
     )
     evidence_parser.set_defaults(handler=handle_report_capability_evidence_digest)
 
+    comparison_parser = report_subcommands.add_parser(
+        "comparison-evidence-digest",
+        help=(
+            "Generate a comparison evidence digest from multiple evidence-set "
+            "manifests."
+        ),
+    )
+    comparison_parser.add_argument(
+        "--runs-dir",
+        default="runs",
+        help="Directory where trial artifacts are stored.",
+    )
+    comparison_parser.add_argument(
+        "--evidence-set",
+        action="append",
+        default=[],
+        help=(
+            "JSON file selecting trial result files to include. Provide this "
+            "option two or more times."
+        ),
+    )
+    comparison_parser.add_argument(
+        "--output",
+        default=None,
+        help="Optional Markdown file to write. Defaults to stdout.",
+    )
+    comparison_parser.set_defaults(handler=handle_report_comparison_evidence_digest)
+
 
 def handle_report_capability_evidence_digest(args: argparse.Namespace) -> int:
     selection_context = None
@@ -68,6 +100,48 @@ def handle_report_capability_evidence_digest(args: argparse.Namespace) -> int:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(digest, encoding="utf-8")
         print(f"Capability evidence digest: {output_path}")
+        return 0
+
+    print(digest)
+    return 0
+
+
+def handle_report_comparison_evidence_digest(args: argparse.Namespace) -> int:
+    if len(args.evidence_set) < 2:
+        print(
+            "ERROR comparison evidence digest requires at least two "
+            "--evidence-set values",
+            file=sys.stderr,
+        )
+        return 1
+
+    sources: list[ComparisonEvidenceSource] = []
+    for evidence_set_path in args.evidence_set:
+        try:
+            evidence_set = load_evidence_set(
+                Path(evidence_set_path),
+                Path(args.runs_dir),
+            )
+        except (OSError, ValueError) as exc:
+            print(f"ERROR {exc}", file=sys.stderr)
+            return 1
+        results = load_results(evidence_set.result_files)
+        if not results:
+            print(
+                f"ERROR no agent-trial result files found for {evidence_set_path}",
+                file=sys.stderr,
+            )
+            return 1
+        sources.append(
+            ComparisonEvidenceSource.from_evidence_set(evidence_set, results)
+        )
+
+    digest = render_comparison_evidence_digest(sources)
+    if args.output:
+        output_path = Path(args.output)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(digest, encoding="utf-8")
+        print(f"Comparison evidence digest: {output_path}")
         return 0
 
     print(digest)
