@@ -7,14 +7,11 @@ from pathlib import Path
 
 from agentlab.agents.base import AgentAdapter
 from agentlab.agents.base import AgentRun
-from agentlab.commands import run_commands
-from agentlab.environment import build_task_environment
-from agentlab.patches import count_patch_lines
 from agentlab.reporting import render_markdown_report
 from agentlab.scoring import Score
-from agentlab.scoring import calculate_grader_outcome
+from agentlab.task_execution import TaskActionResult
+from agentlab.task_execution import execute_task_phases
 from agentlab.tasks import EvalTask
-from agentlab.workspace import capture_diff, prepare_workspace
 
 
 @dataclass(frozen=True)
@@ -32,33 +29,31 @@ def run_task(task: EvalTask, agent: AgentAdapter, runs_dir: Path) -> EvaluationR
     run_dir = (runs_dir / run_id).resolve()
     run_dir.mkdir(parents=True, exist_ok=False)
 
-    prepared = prepare_workspace(task, run_dir / "workspace")
-    task_env = build_task_environment(task, prepared.path)
-    setup_checks = run_commands(task.setup, prepared.path, env=task_env)
-    baseline_checks = run_commands(task.baseline, prepared.path, env=task_env)
+    agent_run: AgentRun | None = None
 
-    agent_run = agent.run(task, prepared.path, run_dir)
-    test_checks = run_commands(task.test, prepared.path, env=task_env)
+    def run_agent(workspace: Path, _task_env: object) -> TaskActionResult:
+        nonlocal agent_run
+        agent_run = agent.run(task, workspace, run_dir)
+        return TaskActionResult(agent_error=agent_run.error)
 
     diff_path = run_dir / "diff.patch"
-    files_changed = capture_diff(prepared.path, diff_path)
-    patch_stats = count_patch_lines(diff_path.read_text(encoding="utf-8"))
-    all_checks = setup_checks + baseline_checks + test_checks
-    score = calculate_grader_outcome(
+    execution = execute_task_phases(
         task,
-        all_checks,
-        files_changed,
-        agent_error=agent_run.error,
+        run_dir / "workspace",
+        run_agent,
+        diff_path,
     )
+    if agent_run is None:
+        raise RuntimeError("agent did not return a run result")
 
     agent_run = replace(
         agent_run,
-        diff_path=diff_path,
-        files_changed=files_changed,
-        commands_run=[check.command for check in all_checks],
-        lines_added=patch_stats.lines_added,
-        lines_deleted=patch_stats.lines_deleted,
-        success=score.tests_passed,
+        diff_path=execution.diff_path,
+        files_changed=execution.files_changed,
+        commands_run=[check.command for check in execution.all_checks],
+        lines_added=execution.lines_added,
+        lines_deleted=execution.lines_deleted,
+        success=execution.score.tests_passed,
     )
 
     report_path = run_dir / "report.md"
@@ -66,7 +61,7 @@ def run_task(task: EvalTask, agent: AgentAdapter, runs_dir: Path) -> EvaluationR
     evaluation = EvaluationRun(
         task=task,
         agent_run=agent_run,
-        score=score,
+        score=execution.score,
         run_dir=run_dir,
         report_path=report_path,
         result_path=result_path,
