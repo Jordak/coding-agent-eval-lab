@@ -4,18 +4,17 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping
 
 from agentlab.outcome_evidence import (
-    normalize_result_dicts,
-    result_files_changed_count,
+    OutcomeEvidence,
+    normalize_outcome_evidences,
 )
-from agentlab.summary import result_reasoning_effort, summarize_trials
-from agentlab.validity import exclusion_reason, trial_validity
+from agentlab.summary import summarize_trials
 
 
 def render_capability_evidence_digest(
-    results: Iterable[Dict[str, Any]],
+    results: Iterable[Mapping[str, Any] | OutcomeEvidence],
     selection_context: Mapping[str, object] | None = None,
 ) -> str:
-    results = normalize_result_dicts(results)
+    results = normalize_outcome_evidences(results)
     lines = [
         "# Capability Evidence Digest",
         "",
@@ -72,8 +71,8 @@ def render_capability_evidence_digest(
                         summary.eval_type,
                         summary.task_id,
                         summary.agent_name,
-                        _display_model_name(summary.model_name),
-                        _display_effort(summary.reasoning_effort),
+                        summary.model_name_display,
+                        summary.reasoning_effort_display,
                         summary.total_trials,
                         summary.trials,
                         summary.excluded_trials,
@@ -156,30 +155,30 @@ def _selection_context_lines(context: Mapping[str, object]) -> list[str]:
     return lines
 
 
-def _trial_row(result: Dict[str, Any]) -> List[object]:
+def _trial_row(result: OutcomeEvidence) -> List[object]:
     return [
-        result.get("trial_id", result.get("run_id", "")),
-        result.get("task_id", ""),
-        result.get("agent_name", ""),
-        _display_model_name(result.get("model_name")),
-        _display_effort(result_reasoning_effort(result)),
-        result.get("status", ""),
-        trial_validity(result),
-        _review_label(result),
-        _format_labels(_secondary_review_labels(result)),
-        exclusion_reason(result),
-        result_files_changed_count(result),
-        result.get("lines_added", 0),
-        result.get("lines_deleted", 0),
-        _unknown_if_none(result.get("input_tokens")),
-        _unknown_if_none(result.get("output_tokens")),
-        _unknown_if_none(result.get("reasoning_output_tokens")),
-        _unknown_if_none(result.get("cost_usd")),
-        result.get("duration_ms", 0),
-        _markdown_link("report", result.get("report_path")),
-        _markdown_link("transcript", result.get("transcript_path")),
-        _markdown_link("diff", result.get("diff_path")),
-        _markdown_link("result", result.get("run_dir"), "result.json"),
+        result.trial_id,
+        result.task_id,
+        result.agent_name,
+        result.model_name_display,
+        result.reasoning_effort_display,
+        result.status,
+        result.trial_validity,
+        result.primary_review_label,
+        _format_labels(result.secondary_review_labels),
+        result.exclusion_reason_display,
+        result.files_changed_count,
+        result.lines_added,
+        result.lines_deleted,
+        _unknown_if_none(result.input_tokens),
+        _unknown_if_none(result.output_tokens),
+        _unknown_if_none(result.reasoning_output_tokens),
+        _unknown_if_none(result.cost_usd),
+        result.duration_ms,
+        _markdown_link("report", result.report_path),
+        _markdown_link("transcript", result.transcript_path),
+        _markdown_link("diff", result.diff_path),
+        _markdown_link("result", result.result_path),
     ]
 
 
@@ -193,33 +192,14 @@ def _markdown_table(headers: List[str], rows: List[List[object]]) -> List[str]:
     return table
 
 
-def _markdown_link(label: str, path: object, child: str | None = None) -> str:
+def _markdown_link(label: str, path: object) -> str:
     if not path:
         return ""
     target = Path(str(path))
-    if child is not None:
-        target = target / child
     target_text = str(target)
     if " " in target_text:
         target_text = f"<{target_text}>"
     return f"[{label}]({target_text})"
-
-
-def _review_label(result: Dict[str, Any]) -> str:
-    review = result.get("review")
-    if isinstance(review, dict):
-        return str(review.get("primary_label", ""))
-    return ""
-
-
-def _secondary_review_labels(result: Dict[str, Any]) -> List[str]:
-    review = result.get("review")
-    if not isinstance(review, dict):
-        return []
-    labels = review.get("secondary_labels")
-    if not isinstance(labels, list):
-        return []
-    return [str(label) for label in labels if label]
 
 
 def _format_rate(value: float) -> str:
@@ -240,24 +220,6 @@ def _unknown_if_none(value: object) -> object:
     if value is None:
         return "unknown"
     return value
-
-
-def _display_model_name(value: object) -> str:
-    if value is None:
-        return "unknown"
-    text = str(value)
-    if not text:
-        return "unknown"
-    return text
-
-
-def _display_effort(value: object) -> str:
-    if value is None:
-        return "unknown"
-    text = str(value)
-    if not text:
-        return "unknown"
-    return text
 
 
 def _escape_cell(value: object) -> str:

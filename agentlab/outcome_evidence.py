@@ -9,6 +9,7 @@ from typing import Any, Dict
 from agentlab.result_backfills import apply_result_backfills
 from agentlab.review import load_review
 from agentlab.validity import (
+    DEFAULT_TRIAL_VALIDITY,
     EXCLUDED_TRIAL_VALIDITY,
     normalize_exclusion_reason,
     normalize_trial_validity,
@@ -50,6 +51,77 @@ class OutcomeEvidence:
     run_dir: str
     review: Dict[str, Any] | None = None
     raw: Dict[str, Any] = field(default_factory=dict)
+
+    @property
+    def is_valid_trial(self) -> bool:
+        return self.trial_validity == DEFAULT_TRIAL_VALIDITY
+
+    @property
+    def primary_review_label(self) -> str:
+        if self.review is None:
+            return ""
+        return str(self.review.get("primary_label") or "")
+
+    @property
+    def secondary_review_labels(self) -> list[str]:
+        if self.review is None:
+            return []
+        labels = self.review.get("secondary_labels")
+        if not isinstance(labels, list):
+            return []
+        return [str(label) for label in labels if label]
+
+    @property
+    def exclusion_reason_display(self) -> str:
+        return self.exclusion_reason or ""
+
+    @property
+    def model_name_display(self) -> str:
+        return _display_unknown(self.model_name)
+
+    @property
+    def reasoning_effort(self) -> str:
+        direct_value = _optional_nonempty_str(self.raw.get("reasoning_effort"))
+        if direct_value is not None:
+            return direct_value
+
+        config_value = _optional_nonempty_str(
+            self.agent_harness_config.get("reasoning_effort")
+        )
+        if config_value is not None:
+            return config_value
+
+        return ""
+
+    @property
+    def reasoning_effort_display(self) -> str:
+        return _display_unknown(self.reasoning_effort)
+
+    @property
+    def files_changed_count(self) -> int:
+        return self.n_files_changed
+
+    @property
+    def input_tokens(self) -> int | None:
+        return _optional_int(self.raw.get("input_tokens"))
+
+    @property
+    def output_tokens(self) -> int | None:
+        return _optional_int(self.raw.get("output_tokens"))
+
+    @property
+    def reasoning_output_tokens(self) -> int | None:
+        return _optional_int(self.raw.get("reasoning_output_tokens"))
+
+    @property
+    def cost_usd(self) -> float | None:
+        return _optional_float(self.raw.get("cost_usd"))
+
+    @property
+    def result_path(self) -> str | None:
+        if not self.run_dir:
+            return None
+        return str(Path(self.run_dir) / "result.json")
 
     def to_result_dict(self) -> Dict[str, Any]:
         result = dict(self.raw)
@@ -192,12 +264,25 @@ def normalize_result_dicts(
     results: Iterable[Mapping[str, Any]],
 ) -> list[Dict[str, Any]]:
     return [
-        normalize_outcome_evidence(result).to_result_dict()
+        evidence.to_result_dict()
+        for evidence in normalize_outcome_evidences(results)
+    ]
+
+
+def normalize_outcome_evidences(
+    results: Iterable[Mapping[str, Any] | OutcomeEvidence],
+) -> list[OutcomeEvidence]:
+    return [
+        result
+        if isinstance(result, OutcomeEvidence)
+        else normalize_outcome_evidence(result)
         for result in results
     ]
 
 
-def result_files_changed_count(result: Mapping[str, Any]) -> int:
+def result_files_changed_count(result: Mapping[str, Any] | OutcomeEvidence) -> int:
+    if isinstance(result, OutcomeEvidence):
+        return result.files_changed_count
     value = _optional_int(result.get("n_files_changed"))
     if value is not None:
         return value
@@ -313,6 +398,15 @@ def _optional_str(value: object) -> str | None:
     return str(value)
 
 
+def _optional_nonempty_str(value: object) -> str | None:
+    if value is None:
+        return None
+    text = str(value)
+    if not text:
+        return None
+    return text
+
+
 def _optional_int(value: object) -> int | None:
     if isinstance(value, bool):
         return None
@@ -333,3 +427,12 @@ def _list(value: object) -> list[Any]:
     if isinstance(value, list):
         return list(value)
     return []
+
+
+def _display_unknown(value: object) -> str:
+    if value is None:
+        return "unknown"
+    text = str(value)
+    if not text:
+        return "unknown"
+    return text

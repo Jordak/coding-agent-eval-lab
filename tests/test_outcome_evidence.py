@@ -190,6 +190,45 @@ class OutcomeEvidenceTest(unittest.TestCase):
 
         self.assertEqual(result_files_changed_count(result), 3)
 
+    def test_exposes_reporting_facts_without_raw_review_shape(self):
+        evidence = normalize_outcome_evidence(
+            {
+                "trial_id": "trial-reporting",
+                "success": True,
+                "agent_harness_config": {"reasoning_effort": "xhigh"},
+                "files_changed": ["app.py", "tests.py"],
+                "input_tokens": 10,
+                "output_tokens": 5,
+                "reasoning_output_tokens": 2,
+                "cost_usd": 0.01,
+                "run_dir": "runs/trial-reporting",
+                "review": {
+                    "primary_label": "success_clean",
+                    "secondary_labels": ["resource_inefficient"],
+                    "trial_validity": "valid",
+                },
+            }
+        )
+
+        self.assertTrue(evidence.is_valid_trial)
+        self.assertEqual(evidence.primary_review_label, "success_clean")
+        self.assertEqual(
+            evidence.secondary_review_labels,
+            ["resource_inefficient"],
+        )
+        self.assertEqual(evidence.reasoning_effort, "xhigh")
+        self.assertEqual(evidence.reasoning_effort_display, "xhigh")
+        self.assertEqual(evidence.model_name_display, "unknown")
+        self.assertEqual(evidence.files_changed_count, 2)
+        self.assertEqual(evidence.input_tokens, 10)
+        self.assertEqual(evidence.output_tokens, 5)
+        self.assertEqual(evidence.reasoning_output_tokens, 2)
+        self.assertEqual(evidence.cost_usd, 0.01)
+        self.assertEqual(
+            evidence.result_path,
+            "runs/trial-reporting/result.json",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
