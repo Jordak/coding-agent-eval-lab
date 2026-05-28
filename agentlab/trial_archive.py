@@ -6,8 +6,8 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
-from agentlab.results import discover_result_files, load_results
-from agentlab.validity import exclusion_reason, trial_is_valid
+from agentlab.outcome_evidence import load_outcome_evidence
+from agentlab.results import discover_result_files
 
 
 @dataclass(frozen=True)
@@ -44,22 +44,21 @@ def plan_excluded_trial_archive(
         run_dir = result_path.parent
         if not (run_dir / "review.json").is_file():
             continue
-        loaded = load_results([result_path])
-        if not loaded:
+        evidence = load_outcome_evidence(result_path)
+        if evidence is None:
             continue
-        result = loaded[0]
-        if trial_is_valid(result):
+        if evidence.is_valid_trial:
             continue
-        reason = exclusion_reason(result) or "unknown"
+        reason = evidence.exclusion_reason_display or "unknown"
         if reason_filter and reason not in reason_filter:
             continue
         candidates.append(
             ArchiveCandidate(
                 run_dir=run_dir,
                 archive_dir=archive_root,
-                trial_id=str(result.get("trial_id") or result.get("run_id") or run_dir.name),
-                task_id=str(result.get("task_id") or ""),
-                agent_name=str(result.get("agent_name") or ""),
+                trial_id=evidence.trial_id or run_dir.name,
+                task_id=evidence.task_id,
+                agent_name=evidence.agent_name,
                 exclusion_reason=reason,
             )
         )

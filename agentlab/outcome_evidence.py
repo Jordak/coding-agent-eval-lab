@@ -6,9 +6,11 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict
 
+from agentlab.resource_usage import ResourceUsage, resource_usage_to_dict
 from agentlab.result_backfills import apply_result_backfills
 from agentlab.review import load_review
 from agentlab.validity import (
+    DEFAULT_TRIAL_VALIDITY,
     EXCLUDED_TRIAL_VALIDITY,
     normalize_exclusion_reason,
     normalize_trial_validity,
@@ -36,7 +38,7 @@ class OutcomeEvidence:
     score_notes: list[Any]
     duration_ms: int
     error: Any
-    resource_usage: Dict[str, Any]
+    resource_usage: ResourceUsage
     files_changed: list[str]
     n_files_changed: int
     lines_added: int
@@ -50,6 +52,81 @@ class OutcomeEvidence:
     run_dir: str
     review: Dict[str, Any] | None = None
     raw: Dict[str, Any] = field(default_factory=dict)
+
+    @property
+    def is_valid_trial(self) -> bool:
+        return self.trial_validity == DEFAULT_TRIAL_VALIDITY
+
+    @property
+    def primary_review_label(self) -> str:
+        if self.review is None:
+            return ""
+        return str(self.review.get("primary_label") or "")
+
+    @property
+    def secondary_review_labels(self) -> list[str]:
+        if self.review is None:
+            return []
+        labels = self.review.get("secondary_labels")
+        if not isinstance(labels, list):
+            return []
+        return [str(label) for label in labels if label]
+
+    @property
+    def exclusion_reason_display(self) -> str:
+        return self.exclusion_reason or ""
+
+    @property
+    def model_name_display(self) -> str:
+        return _display_unknown(self.model_name)
+
+    @property
+    def reasoning_effort(self) -> str:
+        direct_value = _optional_nonempty_str(self.raw.get("reasoning_effort"))
+        if direct_value is not None:
+            return direct_value
+
+        config_value = _optional_nonempty_str(
+            self.agent_harness_config.get("reasoning_effort")
+        )
+        if config_value is not None:
+            return config_value
+
+        return ""
+
+    @property
+    def reasoning_effort_display(self) -> str:
+        return _display_unknown(self.reasoning_effort)
+
+    @property
+    def files_changed_count(self) -> int:
+        return self.n_files_changed
+
+    @property
+    def input_tokens(self) -> int | None:
+        return self.resource_usage.input_tokens
+
+    @property
+    def cached_input_tokens(self) -> int | None:
+        return self.resource_usage.cached_input_tokens
+
+    @property
+    def output_tokens(self) -> int | None:
+        return self.resource_usage.output_tokens
+
+    @property
+    def reasoning_output_tokens(self) -> int | None:
+        return self.resource_usage.reasoning_output_tokens
+
+    @property
+    def cost_usd(self) -> float | None:
+        return self.resource_usage.cost_usd
+
+    @property
+    def result_path(self) -> str | None:
+        if not self.run_dir:
+            return None
+        return str(Path(self.run_dir) / "result.json")
 
     def to_result_dict(self) -> Dict[str, Any]:
         result = dict(self.raw)
@@ -74,7 +151,12 @@ class OutcomeEvidence:
                 "score_notes": list(self.score_notes),
                 "duration_ms": self.duration_ms,
                 "error": self.error,
-                "resource_usage": dict(self.resource_usage),
+                "input_tokens": self.input_tokens,
+                "cached_input_tokens": self.cached_input_tokens,
+                "output_tokens": self.output_tokens,
+                "reasoning_output_tokens": self.reasoning_output_tokens,
+                "cost_usd": self.cost_usd,
+                "resource_usage": resource_usage_to_dict(self.resource_usage),
                 "files_changed": list(self.files_changed),
                 "n_files_changed": self.n_files_changed,
                 "lines_added": self.lines_added,
@@ -108,6 +190,15 @@ def load_outcome_evidence(path: Path) -> OutcomeEvidence | None:
         run_dir=run_dir,
         review=load_review(run_dir),
     )
+
+
+def load_outcome_evidences(paths: Iterable[Path]) -> list[OutcomeEvidence]:
+    evidences: list[OutcomeEvidence] = []
+    for path in paths:
+        evidence = load_outcome_evidence(path)
+        if evidence is not None:
+            evidences.append(evidence)
+    return evidences
 
 
 def normalize_outcome_evidence(
@@ -171,7 +262,7 @@ def normalize_outcome_evidence(
         score_notes=_list(data.get("score_notes")),
         duration_ms=_optional_int(data.get("duration_ms")) or 0,
         error=data.get("error"),
-        resource_usage=dict(data.get("resource_usage") or {}),
+        resource_usage=_resource_usage(data),
         files_changed=files_changed,
         n_files_changed=n_files_changed,
         lines_added=lines_added,
@@ -186,22 +277,6 @@ def normalize_outcome_evidence(
         review=dict(loaded_review) if loaded_review is not None else None,
         raw=data,
     )
-
-
-def normalize_result_dicts(
-    results: Iterable[Mapping[str, Any]],
-) -> list[Dict[str, Any]]:
-    return [
-        normalize_outcome_evidence(result).to_result_dict()
-        for result in results
-    ]
-
-
-def result_files_changed_count(result: Mapping[str, Any]) -> int:
-    value = _optional_int(result.get("n_files_changed"))
-    if value is not None:
-        return value
-    return len(_files_changed(result))
 
 
 def _resolve_run_dir(
@@ -301,6 +376,16 @@ def _files_changed_count(
     return len(files_changed)
 
 
+def _resource_usage(data: Mapping[str, Any]) -> ResourceUsage:
+    return ResourceUsage(
+        input_tokens=_optional_int(data.get("input_tokens")),
+        cached_input_tokens=_optional_int(data.get("cached_input_tokens")),
+        output_tokens=_optional_int(data.get("output_tokens")),
+        reasoning_output_tokens=_optional_int(data.get("reasoning_output_tokens")),
+        cost_usd=_optional_float(data.get("cost_usd")),
+    )
+
+
 def _optional_dict(value: object) -> Dict[str, Any] | None:
     if isinstance(value, Mapping):
         return dict(value)
@@ -311,6 +396,15 @@ def _optional_str(value: object) -> str | None:
     if value is None:
         return None
     return str(value)
+
+
+def _optional_nonempty_str(value: object) -> str | None:
+    if value is None:
+        return None
+    text = str(value)
+    if not text:
+        return None
+    return text
 
 
 def _optional_int(value: object) -> int | None:
@@ -333,3 +427,12 @@ def _list(value: object) -> list[Any]:
     if isinstance(value, list):
         return list(value)
     return []
+
+
+def _display_unknown(value: object) -> str:
+    if value is None:
+        return "unknown"
+    text = str(value)
+    if not text:
+        return "unknown"
+    return text

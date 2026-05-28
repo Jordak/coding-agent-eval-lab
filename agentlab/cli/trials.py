@@ -5,12 +5,11 @@ import sys
 from pathlib import Path
 
 from agentlab.cli.output import _print_table
-from agentlab.outcome_evidence import result_files_changed_count
-from agentlab.results import discover_result_files, load_results
-from agentlab.review import load_review
+from agentlab.outcome_evidence import load_outcome_evidences
+from agentlab.results import discover_result_files
 from agentlab.summary import summarize_trials
 from agentlab.trial_archive import archive_excluded_trials
-from agentlab.validity import EXCLUSION_REASONS, exclusion_reason, trial_validity
+from agentlab.validity import EXCLUSION_REASONS
 
 
 def add_trial_commands(subcommands: argparse._SubParsersAction) -> None:
@@ -86,29 +85,29 @@ def add_runs_dir_argument(parser: argparse.ArgumentParser) -> None:
 
 def handle_runs_list(args: argparse.Namespace) -> int:
     result_files = discover_result_files(Path(args.runs_dir))
-    results = load_results(result_files)
+    results = load_outcome_evidences(result_files)
     if not results:
         print("No result.json files found.")
         return 0
 
     rows = [
         [
-            result.get("trial_id", result.get("run_id", "")),
-            result.get("eval_suite", ""),
-            result.get("eval_type", ""),
-            result.get("status", ""),
-            trial_validity(result),
-            _review_label(result),
-            exclusion_reason(result),
-            result.get("agent_name", ""),
-            result.get("task_id", ""),
-            str(result_files_changed_count(result)),
-            str(result.get("lines_added", 0)),
-            str(result.get("lines_deleted", 0)),
-            _format_optional(result.get("input_tokens")),
-            _format_optional(result.get("output_tokens")),
-            _format_optional(result.get("reasoning_output_tokens")),
-            _format_optional(result.get("cost_usd")),
+            result.trial_id,
+            result.eval_suite,
+            result.eval_type,
+            result.status,
+            result.trial_validity,
+            result.primary_review_label,
+            result.exclusion_reason_display,
+            result.agent_name,
+            result.task_id,
+            str(result.files_changed_count),
+            str(result.lines_added),
+            str(result.lines_deleted),
+            _format_optional(result.input_tokens),
+            _format_optional(result.output_tokens),
+            _format_optional(result.reasoning_output_tokens),
+            _format_optional(result.cost_usd),
         ]
         for result in results
     ]
@@ -138,7 +137,7 @@ def handle_runs_list(args: argparse.Namespace) -> int:
 
 def handle_trials_summarize(args: argparse.Namespace) -> int:
     result_files = discover_result_files(Path(args.runs_dir))
-    results = load_results(result_files)
+    results = load_outcome_evidences(result_files)
     if not results:
         print("No result.json files found.")
         return 0
@@ -151,8 +150,8 @@ def handle_trials_summarize(args: argparse.Namespace) -> int:
                 summary.eval_type,
                 summary.task_id,
                 summary.agent_name,
-                summary.model_name,
-                summary.reasoning_effort or "unknown",
+                summary.model_name_display,
+                summary.reasoning_effort_display,
                 str(summary.total_trials),
                 str(summary.trials),
                 str(summary.excluded_trials),
@@ -224,21 +223,6 @@ def handle_trials_archive_excluded(args: argparse.Namespace) -> int:
     elif result.manifest_path:
         print(f"Archive manifest: {result.manifest_path}")
     return 0
-
-
-def _review_label(result: object) -> str:
-    if not isinstance(result, dict):
-        return ""
-    review = result.get("review")
-    if isinstance(review, dict):
-        return str(review.get("primary_label", ""))
-    run_dir = result.get("run_dir")
-    if not run_dir:
-        return ""
-    review = load_review(Path(str(run_dir)))
-    if not review:
-        return ""
-    return str(review.get("primary_label", ""))
 
 
 def _format_rate(value: float) -> str:

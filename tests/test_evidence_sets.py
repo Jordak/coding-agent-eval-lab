@@ -5,7 +5,7 @@ from pathlib import Path
 
 from agentlab.evidence import render_capability_evidence_digest
 from agentlab.evidence_sets import load_evidence_set
-from agentlab.results import load_results
+from agentlab.outcome_evidence import load_outcome_evidences
 from agentlab.review import write_review
 
 
@@ -46,7 +46,7 @@ class EvidenceSetTest(unittest.TestCase):
             )
 
             evidence_set = load_evidence_set(manifest, runs_dir)
-            results = load_results(evidence_set.result_files)
+            results = load_outcome_evidences(evidence_set.result_files)
             digest = render_capability_evidence_digest(
                 results,
                 evidence_set.digest_context(),
@@ -57,7 +57,7 @@ class EvidenceSetTest(unittest.TestCase):
             ["trial-pass", "trial-excluded"],
         )
         self.assertEqual(
-            [result["trial_id"] for result in results],
+            [result.trial_id for result in results],
             ["trial-pass", "trial-excluded"],
         )
         self.assertIn("- Evidence set: `codex selected evidence`", digest)

@@ -6,7 +6,8 @@ from pathlib import Path
 
 from agentlab.evidence import render_capability_evidence_digest
 from agentlab.evidence_sets import load_evidence_set
-from agentlab.results import discover_result_files, load_results
+from agentlab.outcome_evidence import load_outcome_evidences
+from agentlab.results import discover_result_files
 
 
 def add_report_commands(subcommands: argparse._SubParsersAction) -> None:
@@ -57,7 +58,7 @@ def handle_report_capability_evidence_digest(args: argparse.Namespace) -> int:
         selection_context = evidence_set.digest_context()
     else:
         result_files = discover_result_files(Path(args.runs_dir))
-    results = load_results(result_files)
+    results = load_outcome_evidences(result_files)
     if not results:
         print("No result.json files found.", file=sys.stderr)
         return 1
