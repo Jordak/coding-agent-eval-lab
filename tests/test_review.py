@@ -22,10 +22,10 @@ class ReviewTest(unittest.TestCase):
             review = load_review(run_dir)
             self.assertIsNotNone(review)
             assert review is not None
-            self.assertEqual(review["primary_label"], "success_clean")
-            self.assertEqual(review["secondary_labels"], ["resource_inefficient"])
-            self.assertEqual(review["trial_validity"], "valid")
-            self.assertIsNone(review["exclusion_reason"])
+            self.assertEqual(review.primary_label, "success_clean")
+            self.assertEqual(review.secondary_labels, ["resource_inefficient"])
+            self.assertEqual(review.trial_validity, "valid")
+            self.assertIsNone(review.exclusion_reason)
 
     def test_rejects_unknown_label(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -56,8 +56,8 @@ class ReviewTest(unittest.TestCase):
             review = load_review(run_dir)
             self.assertIsNotNone(review)
             assert review is not None
-            self.assertEqual(review["trial_validity"], "excluded")
-            self.assertEqual(review["exclusion_reason"], "dependency_issue")
+            self.assertEqual(review.trial_validity, "excluded")
+            self.assertEqual(review.exclusion_reason, "dependency_issue")
 
     def test_legacy_harness_error_normalizes_to_eval_harness_error(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -74,9 +74,9 @@ class ReviewTest(unittest.TestCase):
             review = load_review(run_dir)
             self.assertIsNotNone(review)
             assert review is not None
-            self.assertEqual(review["exclusion_reason"], "eval_harness_error")
+            self.assertEqual(review.exclusion_reason, "eval_harness_error")
 
-    def test_review_updates_result_validity_metadata(self):
+    def test_review_does_not_update_result_validity_metadata(self):
         with tempfile.TemporaryDirectory() as temp:
             run_dir = Path(temp)
             result_path = run_dir / "result.json"
@@ -100,9 +100,9 @@ class ReviewTest(unittest.TestCase):
             )
 
             result = json.loads(result_path.read_text(encoding="utf-8"))
-            self.assertEqual(result["trial_validity"], "excluded")
-            self.assertEqual(result["exclusion_reason"], "setup_error")
-            self.assertEqual(result["review"]["primary_label"], "dependency_issue")
+            self.assertEqual(result["trial_validity"], "valid")
+            self.assertIsNone(result["exclusion_reason"])
+            self.assertNotIn("review", result)
 
     def test_resolves_latest_run(self):
         with tempfile.TemporaryDirectory() as temp:

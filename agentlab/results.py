@@ -10,7 +10,6 @@ from agentlab.resource_usage import (
     resource_usage_to_dict,
 )
 from agentlab.scoring import CheckResult
-from agentlab.validity import DEFAULT_TRIAL_VALIDITY
 
 
 def write_result_json(run: Any) -> None:
@@ -42,8 +41,6 @@ def to_result_dict(run: Any) -> Dict[str, Any]:
         ),
         "status": "passed" if run.score.tests_passed else "failed",
         "success": run.score.tests_passed,
-        "trial_validity": DEFAULT_TRIAL_VALIDITY,
-        "exclusion_reason": None,
         "outcome": {
             "status": "passed" if run.score.tests_passed else "failed",
             "files_changed": run.agent_run.files_changed,
@@ -100,8 +97,6 @@ def reference_verification_to_result_dict(verification: Any) -> Dict[str, Any]:
         "model_name": None,
         "status": status,
         "success": verification.success,
-        "trial_validity": DEFAULT_TRIAL_VALIDITY,
-        "exclusion_reason": None,
         "outcome": {
             "status": status,
             "files_changed": verification.files_changed,

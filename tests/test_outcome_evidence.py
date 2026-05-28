@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 from agentlab.evidence import render_capability_evidence_digest
+from agentlab.human_review import create_human_review_outcome
 from agentlab.outcome_evidence import (
     load_outcome_evidence,
     normalize_outcome_evidence,
@@ -201,12 +202,12 @@ class OutcomeEvidenceTest(unittest.TestCase):
                 "reasoning_output_tokens": 2,
                 "cost_usd": 0.01,
                 "run_dir": "runs/trial-reporting",
-                "review": {
-                    "primary_label": "success_clean",
-                    "secondary_labels": ["resource_inefficient"],
-                    "trial_validity": "valid",
-                },
-            }
+            },
+            human_review_outcome=create_human_review_outcome(
+                primary_label="success_clean",
+                note="Focused patch.",
+                secondary_labels=["resource_inefficient"],
+            ),
         )
 
         self.assertTrue(evidence.is_valid_trial)
@@ -227,6 +228,42 @@ class OutcomeEvidenceTest(unittest.TestCase):
             evidence.result_path,
             "runs/trial-reporting/result.json",
         )
+        self.assertNotIn("review", evidence.to_result_dict())
+
+    def test_embedded_result_review_is_ignored_without_review_json(self):
+        with tempfile.TemporaryDirectory() as temp:
+            run_dir = Path(temp) / "trial-embedded-review"
+            run_dir.mkdir()
+            result_path = run_dir / "result.json"
+            result_path.write_text(
+                json.dumps(
+                    {
+                        "trial_id": "trial-embedded-review",
+                        "success": False,
+                        "trial_validity": "excluded",
+                        "exclusion_reason": "setup_error",
+                        "review": {
+                            "primary_label": "dependency_issue",
+                            "secondary_labels": [],
+                            "note": "Old embedded review.",
+                            "evidence": [],
+                            "trial_validity": "excluded",
+                            "exclusion_reason": "setup_error",
+                        },
+                        "run_dir": str(run_dir),
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            evidence = load_outcome_evidence(result_path)
+
+        self.assertIsNotNone(evidence)
+        assert evidence is not None
+        self.assertTrue(evidence.is_valid_trial)
+        self.assertEqual(evidence.trial_validity, "valid")
+        self.assertIsNone(evidence.exclusion_reason)
+        self.assertEqual(evidence.primary_review_label, "")
 
 
 if __name__ == "__main__":

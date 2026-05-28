@@ -1,5 +1,6 @@
 import unittest
 
+from agentlab.human_review import create_human_review_outcome
 from agentlab.outcome_evidence import normalize_outcome_evidence
 from agentlab.summary import summarize_trials
 
@@ -88,12 +89,13 @@ class SummaryTest(unittest.TestCase):
                 files_changed=["a.py", "b.py", "c.py"],
                 lines_added=999,
                 lines_deleted=999,
-                review={
-                    "primary_label": "dependency_issue",
-                    "secondary_labels": ["resource_inefficient"],
-                    "trial_validity": "excluded",
-                    "exclusion_reason": "setup_error",
-                },
+                human_review_outcome=create_human_review_outcome(
+                    primary_label="dependency_issue",
+                    note="Task setup failed before the Trial was fair.",
+                    secondary_labels=["resource_inefficient"],
+                    trial_validity="excluded",
+                    exclusion_reason="setup_error",
+                ),
             ),
         ]
 
@@ -118,19 +120,19 @@ class SummaryTest(unittest.TestCase):
         results = [
             self._result(
                 success=True,
-                review={
-                    "primary_label": "success_clean",
-                    "secondary_labels": ["resource_inefficient"],
-                    "trial_validity": "valid",
-                },
+                human_review_outcome=create_human_review_outcome(
+                    primary_label="success_clean",
+                    note="Focused patch.",
+                    secondary_labels=["resource_inefficient"],
+                ),
             ),
             self._result(
                 success=True,
-                review={
-                    "primary_label": "success_clean",
-                    "secondary_labels": ["resource_inefficient"],
-                    "trial_validity": "valid",
-                },
+                human_review_outcome=create_human_review_outcome(
+                    primary_label="success_clean",
+                    note="Focused patch.",
+                    secondary_labels=["resource_inefficient"],
+                ),
             ),
         ]
 
@@ -158,7 +160,7 @@ class SummaryTest(unittest.TestCase):
         reasoning_effort=None,
         lines_added=0,
         lines_deleted=0,
-        review=None,
+        human_review_outcome=None,
     ):
         return normalize_outcome_evidence(
             {
@@ -173,8 +175,8 @@ class SummaryTest(unittest.TestCase):
                 "files_changed": files_changed or [],
                 "lines_added": lines_added,
                 "lines_deleted": lines_deleted,
-                "review": review,
-            }
+            },
+            human_review_outcome=human_review_outcome,
         )
 
 

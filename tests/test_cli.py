@@ -625,11 +625,19 @@ class CliOutputTest(unittest.TestCase):
                             "success": True,
                             "duration_ms": 100,
                             "files_changed": ["app.py"],
-                            "review": {
-                                "primary_label": "success_clean",
-                                "secondary_labels": ["resource_inefficient"],
-                                "trial_validity": "valid",
-                            },
+                        }
+                    ),
+                    encoding="utf-8",
+                )
+                (run_dir / "review.json").write_text(
+                    json.dumps(
+                        {
+                            "primary_label": "success_clean",
+                            "secondary_labels": ["resource_inefficient"],
+                            "note": "Focused patch.",
+                            "evidence": [],
+                            "trial_validity": "valid",
+                            "exclusion_reason": None,
                         }
                     ),
                     encoding="utf-8",
