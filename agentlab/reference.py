@@ -5,18 +5,14 @@ from dataclasses import dataclass, field
 import json
 from pathlib import Path
 
-from agentlab.commands import run_commands
 from agentlab.commands import run_git
-from agentlab.environment import build_task_environment
-from agentlab.patches import count_patch_lines
 from agentlab.reporting import render_reference_report
 from agentlab.results import reference_verification_to_result_dict
 from agentlab.scoring import CheckResult
 from agentlab.scoring import Score
-from agentlab.scoring import calculate_grader_outcome
+from agentlab.task_execution import TaskActionResult
+from agentlab.task_execution import execute_task_phases
 from agentlab.tasks import EvalTask
-from agentlab.workspace import capture_diff
-from agentlab.workspace import prepare_workspace
 
 
 class ReferenceVerificationError(RuntimeError):
@@ -63,40 +59,54 @@ def verify_reference(
             f"task has no reference_artifact: {task.id}"
         )
 
-    prepared = prepare_workspace(task, workspace_root)
-    task_env = build_task_environment(task, prepared.path)
-    setup_checks = run_commands(task.setup, prepared.path, env=task_env)
-    baseline_checks = run_commands(task.baseline, prepared.path, env=task_env)
+    artifact_check: CheckResult | None = None
 
-    if artifact.type == "patch":
-        artifact_check = _apply_patch_artifact(task, prepared.path)
-    elif artifact.type == "commit":
-        artifact_check = _checkout_commit_artifact(task, prepared.path)
-    else:
-        raise ReferenceVerificationError(
-            f"unsupported reference artifact type: {artifact.type}"
-        )
+    def apply_reference_artifact(
+        workspace: Path,
+        _task_env: object,
+    ) -> TaskActionResult:
+        nonlocal artifact_check
+        if artifact.type == "patch":
+            artifact_check = _apply_patch_artifact(task, workspace)
+        elif artifact.type == "commit":
+            artifact_check = _checkout_commit_artifact(task, workspace)
+        else:
+            raise ReferenceVerificationError(
+                f"unsupported reference artifact type: {artifact.type}"
+            )
+        return TaskActionResult(checks=[artifact_check])
 
-    target_checks = run_commands(task.test, prepared.path, env=task_env)
-    output_dir = _reference_output_dir(task, workspace_root, write_artifacts)
-    diff_path = output_dir / "reference.diff"
-    files_changed = _reference_files_changed(task, prepared.path, diff_path)
-    patch_stats = count_patch_lines(diff_path.read_text(encoding="utf-8"))
-    all_checks = setup_checks + baseline_checks + [artifact_check] + target_checks
-    score = calculate_grader_outcome(task, all_checks, files_changed)
+    output_dir: Path | None = None
+
+    def reference_diff_path(_workspace: Path) -> Path:
+        nonlocal output_dir
+        output_dir = _reference_output_dir(task, workspace_root, write_artifacts)
+        return output_dir / "reference.diff"
+
+    execution = execute_task_phases(
+        task,
+        workspace_root,
+        apply_reference_artifact,
+        reference_diff_path,
+        diff_base_ref=_reference_diff_base_ref(task),
+    )
+    if artifact_check is None:
+        raise RuntimeError("reference artifact did not produce a check")
+    if output_dir is None:
+        output_dir = execution.diff_path.parent
 
     verification = ReferenceVerification(
         task=task,
-        workspace=prepared.path,
+        workspace=execution.workspace,
         artifact_check=artifact_check,
-        score=score,
-        setup_checks=setup_checks,
-        baseline_checks=baseline_checks,
-        target_checks=target_checks,
-        files_changed=files_changed,
-        lines_added=patch_stats.lines_added,
-        lines_deleted=patch_stats.lines_deleted,
-        diff_path=diff_path,
+        score=execution.score,
+        setup_checks=execution.setup_checks,
+        baseline_checks=execution.baseline_checks,
+        target_checks=execution.target_checks,
+        files_changed=execution.files_changed,
+        lines_added=execution.lines_added,
+        lines_deleted=execution.lines_deleted,
+        diff_path=execution.diff_path,
         report_path=output_dir / "reference-report.md",
         result_path=output_dir / "reference-result.json",
     )
@@ -145,14 +155,10 @@ def _checkout_commit_artifact(task: EvalTask, workspace: Path) -> CheckResult:
     return _git_check_result(completed, f"git checkout {artifact.commit}")
 
 
-def _reference_files_changed(
-    task: EvalTask,
-    workspace: Path,
-    diff_path: Path,
-) -> list[str]:
+def _reference_diff_base_ref(task: EvalTask) -> str | None:
     if task.reference_artifact and task.reference_artifact.type == "commit":
-        return capture_diff(workspace, diff_path, base_ref=task.commit)
-    return capture_diff(workspace, diff_path)
+        return task.commit
+    return None
 
 
 def _git_check_result(
