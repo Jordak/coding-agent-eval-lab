@@ -7,8 +7,8 @@ import json
 import unittest
 from pathlib import Path
 
+from agentlab.outcome_evidence import load_outcome_evidences
 from agentlab.reference import ReferenceVerificationError, verify_reference
-from agentlab.results import load_results
 from agentlab.scoring import calculate_grader_outcome
 from agentlab.tasks import EvalTask, load_task
 
@@ -208,7 +208,7 @@ class ReferenceVerificationTest(unittest.TestCase):
             self.assertEqual(result["outcome"]["lines_deleted"], 1)
             self.assertEqual(result["run_dir"], ".")
 
-    def test_load_results_excludes_reference_verification_results(self):
+    def test_load_outcome_evidences_excludes_reference_verification_results(self):
         with tempfile.TemporaryDirectory() as temp:
             result_path = Path(temp) / "reference-result.json"
             result_path.write_text(
@@ -221,7 +221,7 @@ class ReferenceVerificationTest(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            self.assertEqual(load_results([result_path]), [])
+            self.assertEqual(load_outcome_evidences([result_path]), [])
 
     def _git(self, args, cwd):
         completed = subprocess.run(

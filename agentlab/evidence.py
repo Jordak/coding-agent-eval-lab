@@ -1,20 +1,17 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Mapping
+from typing import Dict, Iterable, List, Mapping
 
-from agentlab.outcome_evidence import (
-    OutcomeEvidence,
-    normalize_outcome_evidences,
-)
+from agentlab.outcome_evidence import OutcomeEvidence
 from agentlab.summary import summarize_trials
 
 
 def render_capability_evidence_digest(
-    results: Iterable[Mapping[str, Any] | OutcomeEvidence],
+    results: Iterable[OutcomeEvidence],
     selection_context: Mapping[str, object] | None = None,
 ) -> str:
-    results = normalize_outcome_evidences(results)
+    results = list(results)
     lines = [
         "# Capability Evidence Digest",
         "",
@@ -131,7 +128,7 @@ def render_capability_evidence_digest(
     return "\n".join(lines)
 
 
-def render_evidence_appendix(results: Iterable[Dict[str, Any]]) -> str:
+def render_evidence_appendix(results: Iterable[OutcomeEvidence]) -> str:
     return render_capability_evidence_digest(results)
 
 

@@ -1,5 +1,6 @@
 import unittest
 
+from agentlab.outcome_evidence import normalize_outcome_evidence
 from agentlab.summary import summarize_trials
 
 
@@ -159,20 +160,22 @@ class SummaryTest(unittest.TestCase):
         lines_deleted=0,
         review=None,
     ):
-        return {
-            "eval_suite": "starter",
-            "eval_type": "capability",
-            "task_id": task_id,
-            "agent_name": agent_name,
-            "model_name": model_name,
-            "agent_harness_config": {"reasoning_effort": reasoning_effort},
-            "success": success,
-            "duration_ms": duration_ms,
-            "files_changed": files_changed or [],
-            "lines_added": lines_added,
-            "lines_deleted": lines_deleted,
-            "review": review,
-        }
+        return normalize_outcome_evidence(
+            {
+                "eval_suite": "starter",
+                "eval_type": "capability",
+                "task_id": task_id,
+                "agent_name": agent_name,
+                "model_name": model_name,
+                "agent_harness_config": {"reasoning_effort": reasoning_effort},
+                "success": success,
+                "duration_ms": duration_ms,
+                "files_changed": files_changed or [],
+                "lines_added": lines_added,
+                "lines_deleted": lines_deleted,
+                "review": review,
+            }
+        )
 
 
 if __name__ == "__main__":

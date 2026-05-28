@@ -2,10 +2,9 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Dict, Iterable, List
+from typing import Any, Dict, List
 
 from agentlab.agent_harness_config import normalize_agent_harness_config
-from agentlab.outcome_evidence import load_outcome_evidence
 from agentlab.resource_usage import (
     ResourceUsage,
     resource_usage_to_dict,
@@ -139,15 +138,6 @@ def discover_result_files(runs_dir: Path) -> List[Path]:
     if not runs_dir.exists():
         return []
     return sorted(runs_dir.glob("*/result.json"))
-
-
-def load_results(paths: Iterable[Path]) -> List[Dict[str, Any]]:
-    results: List[Dict[str, Any]] = []
-    for path in paths:
-        evidence = load_outcome_evidence(path)
-        if evidence is not None:
-            results.append(evidence.to_result_dict())
-    return results
 
 
 def _check_to_dict(check: CheckResult) -> Dict[str, Any]:

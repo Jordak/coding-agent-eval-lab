@@ -3,12 +3,9 @@ from __future__ import annotations
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from statistics import median
-from typing import Any, Dict, Iterable, List, Mapping, Tuple
+from typing import Dict, Iterable, List, Tuple
 
-from agentlab.outcome_evidence import (
-    OutcomeEvidence,
-    normalize_outcome_evidences,
-)
+from agentlab.outcome_evidence import OutcomeEvidence
 
 
 @dataclass(frozen=True)
@@ -44,9 +41,8 @@ class TrialGroupSummary:
 
 
 def summarize_trials(
-    results: Iterable[Mapping[str, Any] | OutcomeEvidence],
+    results: Iterable[OutcomeEvidence],
 ) -> List[TrialGroupSummary]:
-    results = normalize_outcome_evidences(results)
     groups: Dict[
         Tuple[str, str, str, str, str, str],
         List[OutcomeEvidence],
@@ -59,23 +55,6 @@ def summarize_trials(
         for key, grouped_results in sorted(groups.items())
     ]
     return summaries
-
-
-def result_reasoning_effort(result: Mapping[str, Any]) -> str:
-    if isinstance(result, OutcomeEvidence):
-        return result.reasoning_effort
-
-    direct_value = _optional_str(result.get("reasoning_effort"))
-    if direct_value is not None:
-        return direct_value
-
-    config = result.get("agent_harness_config")
-    if isinstance(config, Mapping):
-        config_value = _optional_str(config.get("reasoning_effort"))
-        if config_value is not None:
-            return config_value
-
-    return ""
 
 
 def _group_key(result: OutcomeEvidence) -> Tuple[str, str, str, str, str, str]:
@@ -141,15 +120,6 @@ def _summarize_group(
         secondary_review_labels=dict(sorted(secondary_review_labels.items())),
         exclusion_reasons=dict(sorted(exclusion_reasons.items())),
     )
-
-
-def _optional_str(value: object) -> str | None:
-    if value is None:
-        return None
-    text = str(value)
-    if not text:
-        return None
-    return text
 
 
 def _display_unknown(value: object) -> str:

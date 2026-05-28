@@ -4,7 +4,8 @@ import unittest
 from pathlib import Path
 
 from agentlab.evidence import render_capability_evidence_digest
-from agentlab.results import discover_result_files, load_results
+from agentlab.outcome_evidence import load_outcome_evidences
+from agentlab.results import discover_result_files
 from agentlab.review import write_review
 from agentlab.summary import summarize_trials
 
@@ -49,15 +50,15 @@ class ResultsTest(unittest.TestCase):
                 ],
             )
 
-            results = load_results(result_files)
+            results = load_outcome_evidences(result_files)
             self.assertEqual(
-                [result["trial_id"] for result in results],
+                [result.trial_id for result in results],
                 ["trial-excluded", "trial-pass"],
             )
             excluded = results[0]
-            self.assertEqual(excluded["review"]["primary_label"], "dependency_issue")
-            self.assertEqual(excluded["trial_validity"], "excluded")
-            self.assertEqual(excluded["exclusion_reason"], "setup_error")
+            self.assertEqual(excluded.primary_review_label, "dependency_issue")
+            self.assertEqual(excluded.trial_validity, "excluded")
+            self.assertEqual(excluded.exclusion_reason, "setup_error")
 
             summary = summarize_trials(results)[0]
             self.assertEqual(summary.total_trials, 2)
@@ -70,7 +71,7 @@ class ResultsTest(unittest.TestCase):
             self.assertIn("setup_error:1", digest)
             self.assertIn("trial-pass/result.json", digest)
 
-    def test_load_results_backfills_line_metrics_from_diff_patch(self):
+    def test_load_outcome_evidences_backfills_line_metrics_from_diff_patch(self):
         with tempfile.TemporaryDirectory() as temp:
             run_dir = Path(temp) / "run-1"
             run_dir.mkdir()
@@ -98,14 +99,14 @@ class ResultsTest(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            result = load_results([result_path])[0]
+            result = load_outcome_evidences([result_path])[0]
 
-            self.assertEqual(result["lines_added"], 2)
-            self.assertEqual(result["lines_deleted"], 1)
-            self.assertEqual(result["outcome"]["lines_added"], 2)
-            self.assertEqual(result["outcome"]["lines_deleted"], 1)
+            self.assertEqual(result.lines_added, 2)
+            self.assertEqual(result.lines_deleted, 1)
+            self.assertEqual(result.outcome["lines_added"], 2)
+            self.assertEqual(result.outcome["lines_deleted"], 1)
 
-    def test_load_results_backfills_resource_usage_from_codex_events(self):
+    def test_load_outcome_evidences_backfills_resource_usage_from_codex_events(self):
         with tempfile.TemporaryDirectory() as temp:
             run_dir = Path(temp) / "run-1"
             run_dir.mkdir()
@@ -126,16 +127,16 @@ class ResultsTest(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            result = load_results([result_path])[0]
+            result = load_outcome_evidences([result_path])[0]
 
-            self.assertEqual(result["input_tokens"], 10)
-            self.assertEqual(result["cached_input_tokens"], 4)
-            self.assertEqual(result["output_tokens"], 5)
-            self.assertEqual(result["reasoning_output_tokens"], 2)
-            self.assertEqual(result["resource_usage"]["total_tokens"], 15)
-            self.assertIsNone(result["cost_usd"])
+            self.assertEqual(result.input_tokens, 10)
+            self.assertEqual(result.cached_input_tokens, 4)
+            self.assertEqual(result.output_tokens, 5)
+            self.assertEqual(result.reasoning_output_tokens, 2)
+            self.assertEqual(result.resource_usage.total_tokens, 15)
+            self.assertIsNone(result.cost_usd)
 
-    def test_load_results_backfills_and_preserves_agent_harness_config(self):
+    def test_load_outcome_evidences_backfills_and_preserves_agent_harness_config(self):
         with tempfile.TemporaryDirectory() as temp:
             run_dir = Path(temp) / "run-1"
             run_dir.mkdir()
@@ -161,9 +162,9 @@ class ResultsTest(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            result = load_results([result_path])[0]
+            result = load_outcome_evidences([result_path])[0]
 
-            harness_config = result["agent_harness_config"]
+            harness_config = result.agent_harness_config
             self.assertEqual(harness_config["agent_harness"], "codex")
             self.assertEqual(harness_config["agent_adapter"], "codex_cli")
             self.assertIsNone(harness_config["model_name"])
@@ -173,7 +174,7 @@ class ResultsTest(unittest.TestCase):
             self.assertIsNone(runtime_accountability["cost_usd"])
             self.assertIsNone(runtime_accountability["future_runtime_fact"])
 
-    def test_load_results_backfills_model_identity_from_claude_events(self):
+    def test_load_outcome_evidences_backfills_model_identity_from_claude_events(self):
         with tempfile.TemporaryDirectory() as temp:
             run_dir = Path(temp) / "run-1"
             run_dir.mkdir()
@@ -204,16 +205,16 @@ class ResultsTest(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            result = load_results([result_path])[0]
+            result = load_outcome_evidences([result_path])[0]
 
-            self.assertEqual(result["model_name"], "claude-sonnet-4-6")
+            self.assertEqual(result.model_name, "claude-sonnet-4-6")
             self.assertEqual(
-                result["agent_harness_config"]["model_name"],
+                result.agent_harness_config["model_name"],
                 "claude-sonnet-4-6",
             )
-            self.assertEqual(result["agent_harness_config"]["model_source"], "events")
+            self.assertEqual(result.agent_harness_config["model_source"], "events")
 
-    def test_load_results_does_not_infer_model_from_codex_usage_only_fixture(self):
+    def test_load_outcome_evidences_does_not_infer_model_from_codex_usage_only_fixture(self):
         with tempfile.TemporaryDirectory() as temp:
             run_dir = Path(temp) / "run-1"
             run_dir.mkdir()
@@ -244,15 +245,15 @@ class ResultsTest(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            result = load_results([result_path])[0]
+            result = load_outcome_evidences([result_path])[0]
 
-            self.assertEqual(result["model_name"], "gpt-requested")
-            harness_config = result["agent_harness_config"]
+            self.assertEqual(result.model_name, "gpt-requested")
+            harness_config = result.agent_harness_config
             self.assertEqual(harness_config["model_name"], "gpt-requested")
             self.assertEqual(harness_config["model_source"], "explicit")
             self.assertEqual(harness_config["requested_model_name"], "gpt-requested")
 
-    def test_load_results_backfills_codex_event_model_over_requested_model(self):
+    def test_load_outcome_evidences_backfills_codex_event_model_over_requested_model(self):
         with tempfile.TemporaryDirectory() as temp:
             run_dir = Path(temp) / "run-1"
             run_dir.mkdir()
@@ -280,10 +281,10 @@ class ResultsTest(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            result = load_results([result_path])[0]
+            result = load_outcome_evidences([result_path])[0]
 
-            self.assertEqual(result["model_name"], "gpt-actual")
-            harness_config = result["agent_harness_config"]
+            self.assertEqual(result.model_name, "gpt-actual")
+            harness_config = result.agent_harness_config
             self.assertEqual(harness_config["model_name"], "gpt-actual")
             self.assertEqual(harness_config["model_source"], "events")
             self.assertEqual(harness_config["requested_model_name"], "gpt-requested")

@@ -5,8 +5,8 @@ import sys
 from pathlib import Path
 
 from agentlab.cli.output import _print_table
-from agentlab.outcome_evidence import normalize_outcome_evidences
-from agentlab.results import discover_result_files, load_results
+from agentlab.outcome_evidence import load_outcome_evidences
+from agentlab.results import discover_result_files
 from agentlab.summary import summarize_trials
 from agentlab.trial_archive import archive_excluded_trials
 from agentlab.validity import EXCLUSION_REASONS
@@ -85,7 +85,7 @@ def add_runs_dir_argument(parser: argparse.ArgumentParser) -> None:
 
 def handle_runs_list(args: argparse.Namespace) -> int:
     result_files = discover_result_files(Path(args.runs_dir))
-    results = normalize_outcome_evidences(load_results(result_files))
+    results = load_outcome_evidences(result_files)
     if not results:
         print("No result.json files found.")
         return 0
@@ -137,7 +137,7 @@ def handle_runs_list(args: argparse.Namespace) -> int:
 
 def handle_trials_summarize(args: argparse.Namespace) -> int:
     result_files = discover_result_files(Path(args.runs_dir))
-    results = load_results(result_files)
+    results = load_outcome_evidences(result_files)
     if not results:
         print("No result.json files found.")
         return 0

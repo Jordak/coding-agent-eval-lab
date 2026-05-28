@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Any, Dict
-
 DEFAULT_TRIAL_VALIDITY = "valid"
 EXCLUDED_TRIAL_VALIDITY = "excluded"
 
@@ -40,24 +38,3 @@ def normalize_exclusion_reason(value: object) -> str | None:
     if value not in EXCLUSION_REASONS:
         raise ValueError(f"unknown exclusion reason: {value}")
     return value
-
-
-def trial_validity(result: Dict[str, Any]) -> str:
-    review = result.get("review")
-    if isinstance(review, dict) and review.get("trial_validity"):
-        return normalize_trial_validity(review.get("trial_validity"))
-    return normalize_trial_validity(result.get("trial_validity"))
-
-
-def trial_is_valid(result: Dict[str, Any]) -> bool:
-    return trial_validity(result) == DEFAULT_TRIAL_VALIDITY
-
-
-def exclusion_reason(result: Dict[str, Any]) -> str:
-    review = result.get("review")
-    reason = None
-    if isinstance(review, dict):
-        reason = review.get("exclusion_reason")
-    if reason is None:
-        reason = result.get("exclusion_reason")
-    return normalize_exclusion_reason(reason) or ""

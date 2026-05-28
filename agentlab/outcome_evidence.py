@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict
 
+from agentlab.resource_usage import ResourceUsage, resource_usage_to_dict
 from agentlab.result_backfills import apply_result_backfills
 from agentlab.review import load_review
 from agentlab.validity import (
@@ -37,7 +38,7 @@ class OutcomeEvidence:
     score_notes: list[Any]
     duration_ms: int
     error: Any
-    resource_usage: Dict[str, Any]
+    resource_usage: ResourceUsage
     files_changed: list[str]
     n_files_changed: int
     lines_added: int
@@ -103,19 +104,23 @@ class OutcomeEvidence:
 
     @property
     def input_tokens(self) -> int | None:
-        return _optional_int(self.raw.get("input_tokens"))
+        return self.resource_usage.input_tokens
+
+    @property
+    def cached_input_tokens(self) -> int | None:
+        return self.resource_usage.cached_input_tokens
 
     @property
     def output_tokens(self) -> int | None:
-        return _optional_int(self.raw.get("output_tokens"))
+        return self.resource_usage.output_tokens
 
     @property
     def reasoning_output_tokens(self) -> int | None:
-        return _optional_int(self.raw.get("reasoning_output_tokens"))
+        return self.resource_usage.reasoning_output_tokens
 
     @property
     def cost_usd(self) -> float | None:
-        return _optional_float(self.raw.get("cost_usd"))
+        return self.resource_usage.cost_usd
 
     @property
     def result_path(self) -> str | None:
@@ -146,7 +151,12 @@ class OutcomeEvidence:
                 "score_notes": list(self.score_notes),
                 "duration_ms": self.duration_ms,
                 "error": self.error,
-                "resource_usage": dict(self.resource_usage),
+                "input_tokens": self.input_tokens,
+                "cached_input_tokens": self.cached_input_tokens,
+                "output_tokens": self.output_tokens,
+                "reasoning_output_tokens": self.reasoning_output_tokens,
+                "cost_usd": self.cost_usd,
+                "resource_usage": resource_usage_to_dict(self.resource_usage),
                 "files_changed": list(self.files_changed),
                 "n_files_changed": self.n_files_changed,
                 "lines_added": self.lines_added,
@@ -180,6 +190,15 @@ def load_outcome_evidence(path: Path) -> OutcomeEvidence | None:
         run_dir=run_dir,
         review=load_review(run_dir),
     )
+
+
+def load_outcome_evidences(paths: Iterable[Path]) -> list[OutcomeEvidence]:
+    evidences: list[OutcomeEvidence] = []
+    for path in paths:
+        evidence = load_outcome_evidence(path)
+        if evidence is not None:
+            evidences.append(evidence)
+    return evidences
 
 
 def normalize_outcome_evidence(
@@ -243,7 +262,7 @@ def normalize_outcome_evidence(
         score_notes=_list(data.get("score_notes")),
         duration_ms=_optional_int(data.get("duration_ms")) or 0,
         error=data.get("error"),
-        resource_usage=dict(data.get("resource_usage") or {}),
+        resource_usage=_resource_usage(data),
         files_changed=files_changed,
         n_files_changed=n_files_changed,
         lines_added=lines_added,
@@ -258,35 +277,6 @@ def normalize_outcome_evidence(
         review=dict(loaded_review) if loaded_review is not None else None,
         raw=data,
     )
-
-
-def normalize_result_dicts(
-    results: Iterable[Mapping[str, Any]],
-) -> list[Dict[str, Any]]:
-    return [
-        evidence.to_result_dict()
-        for evidence in normalize_outcome_evidences(results)
-    ]
-
-
-def normalize_outcome_evidences(
-    results: Iterable[Mapping[str, Any] | OutcomeEvidence],
-) -> list[OutcomeEvidence]:
-    return [
-        result
-        if isinstance(result, OutcomeEvidence)
-        else normalize_outcome_evidence(result)
-        for result in results
-    ]
-
-
-def result_files_changed_count(result: Mapping[str, Any] | OutcomeEvidence) -> int:
-    if isinstance(result, OutcomeEvidence):
-        return result.files_changed_count
-    value = _optional_int(result.get("n_files_changed"))
-    if value is not None:
-        return value
-    return len(_files_changed(result))
 
 
 def _resolve_run_dir(
@@ -384,6 +374,16 @@ def _files_changed_count(
     if raw_count is not None:
         return raw_count
     return len(files_changed)
+
+
+def _resource_usage(data: Mapping[str, Any]) -> ResourceUsage:
+    return ResourceUsage(
+        input_tokens=_optional_int(data.get("input_tokens")),
+        cached_input_tokens=_optional_int(data.get("cached_input_tokens")),
+        output_tokens=_optional_int(data.get("output_tokens")),
+        reasoning_output_tokens=_optional_int(data.get("reasoning_output_tokens")),
+        cost_usd=_optional_float(data.get("cost_usd")),
+    )
 
 
 def _optional_dict(value: object) -> Dict[str, Any] | None:
