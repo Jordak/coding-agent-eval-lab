@@ -648,6 +648,23 @@ class CliOutputTest(unittest.TestCase):
         self.assertIn("requires trial_validity", stderr.getvalue())
         self.assertNotIn("Traceback", stderr.getvalue())
 
+    def test_main_reports_non_utf8_review_artifacts_without_traceback(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runs_dir = Path(temp)
+            run_dir = runs_dir / "trial-non-utf8"
+            self._write_invalid_review_trial(run_dir)
+            (run_dir / "review.json").write_bytes(b"\xff")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                status = main(["trials", "list", "--runs-dir", str(runs_dir)])
+
+        self.assertEqual(status, 1)
+        self.assertEqual("", stdout.getvalue())
+        self.assertIn("ERROR review artifact must be UTF-8 JSON", stderr.getvalue())
+        self.assertNotIn("Traceback", stderr.getvalue())
+
     def test_report_digest_reports_invalid_review_artifacts_without_traceback(self):
         with tempfile.TemporaryDirectory() as temp:
             runs_dir = Path(temp)

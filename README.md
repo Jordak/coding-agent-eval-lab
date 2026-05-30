@@ -39,6 +39,12 @@ The first scaffold supports:
 
 ## Quick Start
 
+Install the package and runtime dependencies:
+
+```bash
+python3 -m pip install -e .
+```
+
 Validate the starter task:
 
 ```bash

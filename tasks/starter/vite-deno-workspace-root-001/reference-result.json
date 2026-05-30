@@ -67,7 +67,6 @@
   "error": null,
   "eval_suite": "starter-coding",
   "eval_type": "regression",
-  "exclusion_reason": null,
   "files_changed": [
     "packages/vite/src/node/server/__tests__/fixtures/deno/deno.json",
     "packages/vite/src/node/server/__tests__/fixtures/deno/nested/package.json",
@@ -162,6 +161,5 @@
   "task_title": "Vite should detect Deno workspace roots",
   "transcript_path": null,
   "trial_id": "vite-deno-workspace-root-001-reference",
-  "trial_kind": "reference_verification",
-  "trial_validity": "valid"
+  "trial_kind": "reference_verification"
 }

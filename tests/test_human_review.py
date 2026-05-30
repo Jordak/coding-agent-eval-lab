@@ -88,6 +88,30 @@ class HumanReviewOutcomeTest(unittest.TestCase):
                 }
             )
 
+    def test_mapping_requires_explicit_exclusion_reason_for_excluded_trial(self):
+        with self.assertRaisesRegex(ValueError, "requires exclusion_reason"):
+            human_review_outcome_from_mapping(
+                {
+                    "primary_label": "dependency_issue",
+                    "secondary_labels": [],
+                    "note": "Missing persisted exclusion reason.",
+                    "evidence": [],
+                    "trial_validity": "excluded",
+                }
+            )
+
+        with self.assertRaisesRegex(ValueError, "requires exclusion_reason"):
+            human_review_outcome_from_mapping(
+                {
+                    "primary_label": "dependency_issue",
+                    "secondary_labels": [],
+                    "note": "Null persisted exclusion reason.",
+                    "evidence": [],
+                    "trial_validity": "excluded",
+                    "exclusion_reason": None,
+                }
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

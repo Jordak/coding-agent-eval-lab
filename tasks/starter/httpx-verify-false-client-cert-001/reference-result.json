@@ -83,7 +83,6 @@
   "error": null,
   "eval_suite": "starter-coding",
   "eval_type": "regression",
-  "exclusion_reason": null,
   "files_changed": [
     "httpx/_config.py"
   ],
@@ -182,6 +181,5 @@
   "task_title": "HTTPX should keep client certs with verify disabled",
   "transcript_path": null,
   "trial_id": "httpx-verify-false-client-cert-001-reference",
-  "trial_kind": "reference_verification",
-  "trial_validity": "valid"
+  "trial_kind": "reference_verification"
 }

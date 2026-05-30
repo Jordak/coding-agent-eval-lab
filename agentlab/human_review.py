@@ -70,8 +70,12 @@ def human_review_outcome_from_mapping(
     primary_label = review.get("primary_label")
     if not isinstance(primary_label, str) or not primary_label:
         raise ValueError("human review outcome requires primary_label")
-    if not review.get("trial_validity"):
+    trial_validity = review.get("trial_validity")
+    if not trial_validity:
         raise ValueError("human review outcome requires trial_validity")
+    exclusion_reason = review.get("exclusion_reason")
+    if trial_validity == EXCLUDED_TRIAL_VALIDITY and not exclusion_reason:
+        raise ValueError("excluded human review outcome requires exclusion_reason")
 
     return create_human_review_outcome(
         primary_label=primary_label,
@@ -81,8 +85,8 @@ def human_review_outcome_from_mapping(
             field_name="secondary_labels",
         ),
         evidence=_optional_string_list(review.get("evidence"), field_name="evidence"),
-        trial_validity=review.get("trial_validity"),
-        exclusion_reason=review.get("exclusion_reason"),
+        trial_validity=trial_validity,
+        exclusion_reason=exclusion_reason,
     )
 
 

@@ -58,6 +58,10 @@ def load_review(run_dir: Path) -> HumanReviewOutcome | None:
         raw = json.loads(review_path.read_text(encoding="utf-8"))
     except OSError as exc:
         raise ReviewArtifactError(f"could not read review artifact: {review_path}") from exc
+    except UnicodeDecodeError as exc:
+        raise ReviewArtifactError(
+            f"review artifact must be UTF-8 JSON: {review_path}"
+        ) from exc
     except json.JSONDecodeError as exc:
         raise ReviewArtifactError(f"review artifact must be JSON: {review_path}") from exc
     if not isinstance(raw, dict):

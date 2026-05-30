@@ -121,6 +121,14 @@ class ReviewTest(unittest.TestCase):
             with self.assertRaises(ReviewArtifactError):
                 load_review(run_dir)
 
+    def test_non_utf8_review_artifact_raises_review_artifact_error(self):
+        with tempfile.TemporaryDirectory() as temp:
+            run_dir = Path(temp)
+            (run_dir / "review.json").write_bytes(b"\xff")
+
+            with self.assertRaisesRegex(ReviewArtifactError, "UTF-8 JSON"):
+                load_review(run_dir)
+
     def test_missing_review_validity_raises(self):
         with tempfile.TemporaryDirectory() as temp:
             run_dir = Path(temp)
@@ -140,6 +148,28 @@ class ReviewTest(unittest.TestCase):
             with self.assertRaisesRegex(
                 ReviewArtifactError,
                 "requires trial_validity",
+            ):
+                load_review(run_dir)
+
+    def test_missing_excluded_review_reason_raises(self):
+        with tempfile.TemporaryDirectory() as temp:
+            run_dir = Path(temp)
+            (run_dir / "review.json").write_text(
+                json.dumps(
+                    {
+                        "primary_label": "dependency_issue",
+                        "secondary_labels": [],
+                        "note": "Missing persisted exclusion reason.",
+                        "evidence": [],
+                        "trial_validity": "excluded",
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(
+                ReviewArtifactError,
+                "requires exclusion_reason",
             ):
                 load_review(run_dir)
 

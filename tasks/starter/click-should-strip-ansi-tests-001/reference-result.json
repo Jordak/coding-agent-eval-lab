@@ -67,7 +67,6 @@
   "error": null,
   "eval_suite": "starter-coding",
   "eval_type": "regression",
-  "exclusion_reason": null,
   "files_changed": [
     "tests/test_compat.py"
   ],
@@ -154,6 +153,5 @@
   "task_title": "Click should cover should_strip_ansi color and stream behavior",
   "transcript_path": null,
   "trial_id": "click-should-strip-ansi-tests-001-reference",
-  "trial_kind": "reference_verification",
-  "trial_validity": "valid"
+  "trial_kind": "reference_verification"
 }
