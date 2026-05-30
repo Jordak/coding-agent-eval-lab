@@ -70,6 +70,8 @@ def human_review_outcome_from_mapping(
     primary_label = review.get("primary_label")
     if not isinstance(primary_label, str) or not primary_label:
         raise ValueError("human review outcome requires primary_label")
+    if not review.get("trial_validity"):
+        raise ValueError("human review outcome requires trial_validity")
 
     return create_human_review_outcome(
         primary_label=primary_label,

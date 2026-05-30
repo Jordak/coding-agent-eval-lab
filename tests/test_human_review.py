@@ -64,6 +64,30 @@ class HumanReviewOutcomeTest(unittest.TestCase):
             },
         )
 
+    def test_mapping_requires_explicit_trial_validity(self):
+        with self.assertRaisesRegex(ValueError, "requires trial_validity"):
+            human_review_outcome_from_mapping(
+                {
+                    "primary_label": "success_clean",
+                    "secondary_labels": [],
+                    "note": "Missing persisted validity.",
+                    "evidence": [],
+                    "exclusion_reason": None,
+                }
+            )
+
+        with self.assertRaisesRegex(ValueError, "requires trial_validity"):
+            human_review_outcome_from_mapping(
+                {
+                    "primary_label": "success_clean",
+                    "secondary_labels": [],
+                    "note": "Null persisted validity.",
+                    "evidence": [],
+                    "trial_validity": None,
+                    "exclusion_reason": None,
+                }
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

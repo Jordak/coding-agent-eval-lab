@@ -8,10 +8,10 @@ version = "0.1.0"
 description = "A reproducible evaluation harness for coding agents."
 readme = "README.md"
 requires-python = ">=3.9"
-dependencies = []
+dependencies = ["pyyaml>=6"]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "pyyaml>=6"]
+dev = ["pytest>=8"]
 
 [project.scripts]
 agentlab = "agentlab.cli:main"

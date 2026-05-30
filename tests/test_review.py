@@ -121,6 +121,28 @@ class ReviewTest(unittest.TestCase):
             with self.assertRaises(ReviewArtifactError):
                 load_review(run_dir)
 
+    def test_missing_review_validity_raises(self):
+        with tempfile.TemporaryDirectory() as temp:
+            run_dir = Path(temp)
+            (run_dir / "review.json").write_text(
+                json.dumps(
+                    {
+                        "primary_label": "success_clean",
+                        "secondary_labels": [],
+                        "note": "Missing persisted validity.",
+                        "evidence": [],
+                        "exclusion_reason": None,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(
+                ReviewArtifactError,
+                "requires trial_validity",
+            ):
+                load_review(run_dir)
+
     def test_resolves_latest_run(self):
         with tempfile.TemporaryDirectory() as temp:
             runs_dir = Path(temp)

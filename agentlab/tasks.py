@@ -6,6 +6,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, Optional
 
+import yaml  # type: ignore
+
 from agentlab.taxonomy import FAILURE_LABELS
 
 EVAL_TYPES = ["capability", "regression"]
@@ -217,159 +219,12 @@ def load_task_mapping(raw_text: str) -> Mapping[str, Any]:
 
 def _load_yaml(raw_text: str) -> Mapping[str, Any]:
     try:
-        import yaml  # type: ignore
-    except ImportError:
-        return _load_yaml_subset(raw_text)
-
-    parsed = yaml.safe_load(raw_text)
+        parsed = yaml.safe_load(raw_text)
+    except yaml.YAMLError as exc:
+        raise TaskLoadError(str(exc)) from exc
     if parsed is None:
         return {}
     return parsed
-
-
-def _load_yaml_subset(raw_text: str) -> Dict[str, Any]:
-    lines = raw_text.splitlines()
-    result: Dict[str, Any] = {}
-    index = 0
-
-    while index < len(lines):
-        line = lines[index]
-        stripped = line.strip()
-        if not stripped or stripped.startswith("#"):
-            index += 1
-            continue
-
-        indent = _indent_of(line)
-        if indent != 0:
-            raise TaskLoadError(f"unexpected indentation on line {index + 1}")
-
-        key, rest = _split_key_value(stripped, index + 1)
-        if rest in {">", "|"}:
-            value, index = _parse_block_scalar(lines, index + 1, rest)
-        elif rest == "":
-            value, index = _parse_indented_value(lines, index + 1)
-        else:
-            value = _parse_scalar(rest)
-            index += 1
-
-        result[key] = value
-
-    return result
-
-
-def _parse_indented_value(lines: List[str], index: int) -> tuple[Any, int]:
-    while index < len(lines) and not lines[index].strip():
-        index += 1
-
-    if index >= len(lines):
-        return None, index
-
-    line = lines[index]
-    indent = _indent_of(line)
-    if indent == 0:
-        return None, index
-
-    stripped = line.strip()
-    if stripped.startswith("- "):
-        values: List[Any] = []
-        while index < len(lines):
-            current = lines[index]
-            current_stripped = current.strip()
-            if not current_stripped:
-                index += 1
-                continue
-            if _indent_of(current) < indent or _indent_of(current) == 0:
-                break
-            if _indent_of(current) != indent or not current_stripped.startswith("- "):
-                raise TaskLoadError(f"unsupported list syntax on line {index + 1}")
-            values.append(_parse_scalar(current_stripped[2:].strip()))
-            index += 1
-        return values, index
-
-    values_dict: Dict[str, Any] = {}
-    while index < len(lines):
-        current = lines[index]
-        current_stripped = current.strip()
-        if not current_stripped:
-            index += 1
-            continue
-        if _indent_of(current) < indent or _indent_of(current) == 0:
-            break
-        if _indent_of(current) != indent:
-            raise TaskLoadError(f"unsupported nested mapping syntax on line {index + 1}")
-        key, rest = _split_key_value(current_stripped, index + 1)
-        values_dict[key] = _parse_scalar(rest)
-        index += 1
-
-    return values_dict, index
-
-
-def _parse_block_scalar(
-    lines: List[str],
-    index: int,
-    style: str,
-) -> tuple[str, int]:
-    block_lines: List[str] = []
-    block_indent: Optional[int] = None
-
-    while index < len(lines):
-        line = lines[index]
-        stripped = line.strip()
-        if not stripped:
-            block_lines.append("")
-            index += 1
-            continue
-
-        indent = _indent_of(line)
-        if indent == 0:
-            break
-        if block_indent is None:
-            block_indent = indent
-        if indent < block_indent:
-            break
-        block_lines.append(line[block_indent:])
-        index += 1
-
-    if style == ">":
-        return " ".join(part.strip() for part in block_lines if part.strip()), index
-    return "\n".join(block_lines), index
-
-
-def _split_key_value(line: str, line_number: int) -> tuple[str, str]:
-    if ":" not in line:
-        raise TaskLoadError(f"expected key/value pair on line {line_number}")
-    key, value = line.split(":", 1)
-    key = key.strip()
-    if not key:
-        raise TaskLoadError(f"empty key on line {line_number}")
-    return key, value.strip()
-
-
-def _parse_scalar(value: str) -> Any:
-    if value == "":
-        return ""
-
-    lowered = value.lower()
-    if lowered == "true":
-        return True
-    if lowered == "false":
-        return False
-    if lowered in {"null", "none", "~"}:
-        return None
-
-    if (value.startswith('"') and value.endswith('"')) or (
-        value.startswith("'") and value.endswith("'")
-    ):
-        return value[1:-1]
-
-    try:
-        return int(value)
-    except ValueError:
-        return value
-
-
-def _indent_of(line: str) -> int:
-    return len(line) - len(line.lstrip(" "))
 
 
 def _present(value: Any) -> bool:

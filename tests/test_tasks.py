@@ -15,7 +15,7 @@ from agentlab.tasks import (
 
 
 class TaskLoadingTest(unittest.TestCase):
-    def test_loads_yaml_subset_task(self):
+    def test_loads_yaml_task(self):
         task = EvalTask.from_mapping(
             load_task_mapping(
                 textwrap.dedent(
@@ -78,6 +78,34 @@ class TaskLoadingTest(unittest.TestCase):
         self.assertEqual(task.failure_modes, ["context_miss", "resource_inefficient"])
         self.assertTrue(task.success.tests_must_pass)
         self.assertEqual(task.success.max_files_changed, 2)
+
+    def test_loads_folded_command_list_items(self):
+        task = EvalTask.from_mapping(
+            load_task_mapping(
+                textwrap.dedent(
+                    """
+                    id: demo-001
+                    title: Demo task
+                    repo: https://github.com/example/demo
+                    commit: abc123
+                    language: python
+                    prompt: Fix it.
+                    baseline:
+                      - >-
+                        python -c "assert {'key': 'value'}['key'] == 'value'"
+                    test:
+                      - >-
+                        python -c "print('still one command')"
+                    """
+                )
+            )
+        )
+
+        self.assertEqual(
+            task.baseline,
+            ['python -c "assert {\'key\': \'value\'}[\'key\'] == \'value\'"'],
+        )
+        self.assertEqual(task.test, ['python -c "print(\'still one command\')"'])
 
     def test_requires_core_fields(self):
         with self.assertRaises(TaskLoadError):

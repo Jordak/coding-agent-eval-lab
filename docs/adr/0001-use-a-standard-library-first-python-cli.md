@@ -19,15 +19,18 @@ entrypoint:
 python3 -m agentlab
 ```
 
-Avoid mandatory third-party runtime dependencies for the core loop. If PyYAML is
-available, task loading can use it; otherwise a small built-in parser supports
-the task-schema subset this project uses.
+Keep the core harness simple and local-first, but require PyYAML for `task.yaml`
+loading. Task bundles are authored YAML artifacts, and real-world task commands
+need YAML features such as folded scalars, quoting, nested mappings, and `:`
+inside shell/Python/JavaScript snippets. Maintaining a parallel YAML subset
+parser would make task loading less predictable than the generated tasks it is
+supposed to validate.
 
 ## Consequences
 
-- The project can run on a stock macOS Python install.
+- A fresh checkout must install package dependencies before using the CLI.
 - Tests can use `unittest` without extra setup.
-- The YAML fallback parser should stay intentionally small; advanced YAML
-  features are out of scope unless the project adopts a required dependency.
+- Task loading has one parser path, so pre-commit, local CLI use, and installed
+  package use agree on YAML semantics.
 - Future web dashboards or richer storage should be added around the CLI, not in
   place of it.

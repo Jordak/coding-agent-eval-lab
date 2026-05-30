@@ -163,9 +163,9 @@ summaries or capability evidence digests.
 See [runtime-accountability.md](runtime-accountability.md) for open work around
 model identity, account context, token usage, and cost tracking.
 
-## Early Constraint
+## Dependency Policy
 
-The first implementation avoids mandatory third-party dependencies so the lab is
-usable immediately in a fresh local folder. If PyYAML is installed, task loading
-uses it. Otherwise, a small fallback parser supports the task-schema subset used
-by this project.
+The first implementation avoided mandatory third-party runtime dependencies, but
+task bundles are now rich YAML authoring artifacts. The lab requires PyYAML for
+`task.yaml` loading so pre-commit, local CLI use, and installed-package behavior
+share one parser path instead of a fragile YAML-subset fallback.
