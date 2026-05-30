@@ -625,6 +625,8 @@ class CliOutputTest(unittest.TestCase):
                             "success": True,
                             "duration_ms": 100,
                             "files_changed": ["app.py"],
+                            "input_tokens": 10 + (index * 10),
+                            "output_tokens": 5,
                         }
                     ),
                     encoding="utf-8",
@@ -653,6 +655,9 @@ class CliOutputTest(unittest.TestCase):
         self.assertEqual(status, 0)
         self.assertIn("primary_reviews", output)
         self.assertIn("secondary_reviews", output)
+        self.assertIn("accepted", output)
+        self.assertIn("io_tok_per_verified", output)
+        self.assertIn("20", output)
         self.assertIn("effort", output)
         self.assertIn("xhigh", output)
         self.assertIn("success_clean:2", output)

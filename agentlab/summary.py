@@ -7,6 +7,8 @@ from typing import Dict, Iterable, List, Tuple
 
 from agentlab.outcome_evidence import OutcomeEvidence
 
+ACCEPTED_PRIMARY_REVIEW_LABELS = {"success_clean"}
+
 
 @dataclass(frozen=True)
 class TrialGroupSummary:
@@ -20,9 +22,17 @@ class TrialGroupSummary:
     trials: int
     excluded_trials: int
     passes: int
+    accepted_results: int
     pass_rate: float
     pass_at_k: float
     pass_caret_k: float
+    total_input_output_tokens: int | None
+    total_cached_input_tokens: int | None
+    total_reasoning_output_tokens: int | None
+    input_output_tokens_per_verified_result: float | None
+    input_output_tokens_per_accepted_result: float | None
+    cached_input_tokens_per_verified_result: float | None
+    reasoning_output_tokens_per_verified_result: float | None
     median_duration_ms: int
     median_files_changed: float
     median_lines_added: float
@@ -75,7 +85,21 @@ def _summarize_group(
     valid_results = [result for result in results if result.is_valid_trial]
     excluded_results = [result for result in results if not result.is_valid_trial]
     passes = sum(1 for result in valid_results if result.success)
+    accepted_results = sum(
+        1
+        for result in valid_results
+        if _accepted_result(result)
+    )
     trials = len(valid_results)
+    total_input_output_tokens = _sum_required(
+        _input_output_tokens(result) for result in valid_results
+    )
+    total_cached_input_tokens = _sum_required(
+        result.cached_input_tokens for result in valid_results
+    )
+    total_reasoning_output_tokens = _sum_required(
+        result.reasoning_output_tokens for result in valid_results
+    )
     durations = [result.duration_ms for result in valid_results]
     files_changed = [result.files_changed_count for result in valid_results]
     lines_added = [result.lines_added for result in valid_results]
@@ -109,9 +133,29 @@ def _summarize_group(
         trials=trials,
         excluded_trials=len(excluded_results),
         passes=passes,
+        accepted_results=accepted_results,
         pass_rate=pass_rate,
         pass_at_k=1.0 if passes > 0 else 0.0,
         pass_caret_k=1.0 if passes == trials and trials > 0 else 0.0,
+        total_input_output_tokens=total_input_output_tokens,
+        total_cached_input_tokens=total_cached_input_tokens,
+        total_reasoning_output_tokens=total_reasoning_output_tokens,
+        input_output_tokens_per_verified_result=_per_result(
+            total_input_output_tokens,
+            passes,
+        ),
+        input_output_tokens_per_accepted_result=_per_result(
+            total_input_output_tokens,
+            accepted_results,
+        ),
+        cached_input_tokens_per_verified_result=_per_result(
+            total_cached_input_tokens,
+            passes,
+        ),
+        reasoning_output_tokens_per_verified_result=_per_result(
+            total_reasoning_output_tokens,
+            passes,
+        ),
         median_duration_ms=int(median(durations)) if durations else 0,
         median_files_changed=median(files_changed) if files_changed else 0.0,
         median_lines_added=median(lines_added) if lines_added else 0.0,
@@ -120,6 +164,35 @@ def _summarize_group(
         secondary_review_labels=dict(sorted(secondary_review_labels.items())),
         exclusion_reasons=dict(sorted(exclusion_reasons.items())),
     )
+
+
+def _accepted_result(result: OutcomeEvidence) -> bool:
+    return result.success and result.primary_review_label in (
+        ACCEPTED_PRIMARY_REVIEW_LABELS
+    )
+
+
+def _input_output_tokens(result: OutcomeEvidence) -> int | None:
+    input_tokens = result.input_tokens
+    output_tokens = result.output_tokens
+    if input_tokens is None or output_tokens is None:
+        return None
+    return input_tokens + output_tokens
+
+
+def _sum_required(values: Iterable[int | None]) -> int | None:
+    total = 0
+    for value in values:
+        if value is None:
+            return None
+        total += value
+    return total
+
+
+def _per_result(total: int | None, results: int) -> float | None:
+    if total is None or results == 0:
+        return None
+    return total / results
 
 
 def _display_unknown(value: object) -> str:

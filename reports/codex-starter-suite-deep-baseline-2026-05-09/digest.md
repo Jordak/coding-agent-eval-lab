@@ -11,17 +11,17 @@ This digest is generated from stored agent-trial results. It reports evidence on
 
 ## Aggregate Summaries
 
-| Suite | Type | Task | Agent Harness | Model | Effort | Total | Fair | Excluded | Passes | Pass Rate | pass@k | pass^k | Median ms | Median Files | Median +Lines | Median -Lines | Primary Review Labels | Secondary Review Labels | Exclusions |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| starter-coding | capability | 2048-advanced-snake-params-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 1.00 | 1.00 | 1.00 | 122522 | 2 | 11 | 7 | success_clean:5 |  |  |
-| starter-coding | capability | click-help-option-refactor-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 1.00 | 1.00 | 1.00 | 348321 | 3 | 39 | 27 | resource_inefficient:1, success_clean:4 | resource_inefficient:4 |  |
-| starter-coding | regression | click-default-map-nargs-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 1.00 | 1.00 | 1.00 | 273731 | 2 | 80 | 1 | success_clean:5 |  |  |
-| starter-coding | regression | click-help-shadowed-option-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 1.00 | 1.00 | 1.00 | 274698 | 3 | 61 | 12 | success_clean:5 |  |  |
-| starter-coding | regression | click-should-strip-ansi-tests-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 1.00 | 1.00 | 1.00 | 99158 | 1 | 34 | 2 | success_clean:4, success_messy:1 |  |  |
-| starter-coding | regression | datawrapper-mcp-docker-requirements-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 1.00 | 1.00 | 1.00 | 46696 | 1 | 5 | 2 | success_clean:5 |  |  |
-| starter-coding | regression | httpx-verify-false-client-cert-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 1.00 | 1.00 | 1.00 | 139464 | 2 | 26 | 4 | success_clean:5 |  |  |
-| starter-coding | regression | react-tabs-selected-focus-overlay-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 1.00 | 1.00 | 1.00 | 46198 | 3 | 0 | 30 | resource_inefficient:2, success_clean:3 |  |  |
-| starter-coding | regression | todomvc-toggle-all-checkbox-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 1.00 | 1.00 | 1.00 | 92557 | 4 | 6 | 8 | success_clean:5 |  |  |
+| Suite | Type | Task | Agent Harness | Model | Effort | Total | Fair | Excluded | Passes | Accepted | Pass Rate | pass@k | pass^k | IO Tokens | IO Tok / Verified | IO Tok / Accepted | Cached Tok / Verified | Reason Tok / Verified | Median ms | Median Files | Median +Lines | Median -Lines | Primary Review Labels | Secondary Review Labels | Exclusions |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| starter-coding | capability | 2048-advanced-snake-params-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 5 | 1.00 | 1.00 | 1.00 | 1831753 | 366350.60 | 366350.60 | 316083.20 | 1700.80 | 122522 | 2 | 11 | 7 | success_clean:5 |  |  |
+| starter-coding | capability | click-help-option-refactor-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 4 | 1.00 | 1.00 | 1.00 | 6357302 | 1271460.40 | 1589325.50 | 1184716.80 | 7223 | 348321 | 3 | 39 | 27 | resource_inefficient:1, success_clean:4 | resource_inefficient:4 |  |
+| starter-coding | regression | click-default-map-nargs-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 5 | 1.00 | 1.00 | 1.00 | 7198021 | 1439604.20 | 1439604.20 | 1344486.40 | 6298.40 | 273731 | 2 | 80 | 1 | success_clean:5 |  |  |
+| starter-coding | regression | click-help-shadowed-option-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 5 | 1.00 | 1.00 | 1.00 | 5699991 | 1139998.20 | 1139998.20 | 1045273.60 | 4165.20 | 274698 | 3 | 61 | 12 | success_clean:5 |  |  |
+| starter-coding | regression | click-should-strip-ansi-tests-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 4 | 1.00 | 1.00 | 1.00 | 1072584 | 214516.80 | 268146 | 166220.80 | 1300.40 | 99158 | 1 | 34 | 2 | success_clean:4, success_messy:1 |  |  |
+| starter-coding | regression | datawrapper-mcp-docker-requirements-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 5 | 1.00 | 1.00 | 1.00 | 576588 | 115317.60 | 115317.60 | 90547.20 | 474.20 | 46696 | 1 | 5 | 2 | success_clean:5 |  |  |
+| starter-coding | regression | httpx-verify-false-client-cert-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 5 | 1.00 | 1.00 | 1.00 | 2114903 | 422980.60 | 422980.60 | 372940.80 | 2040.80 | 139464 | 2 | 26 | 4 | success_clean:5 |  |  |
+| starter-coding | regression | react-tabs-selected-focus-overlay-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 3 | 1.00 | 1.00 | 1.00 | 524466 | 104893.20 | 174822 | 75673.60 | 132.60 | 46198 | 3 | 0 | 30 | resource_inefficient:2, success_clean:3 |  |  |
+| starter-coding | regression | todomvc-toggle-all-checkbox-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 5 | 1.00 | 1.00 | 1.00 | 1106108 | 221221.60 | 221221.60 | 189542.40 | 928.80 | 92557 | 4 | 6 | 8 | success_clean:5 |  |  |
 
 ## Trial Evidence
 

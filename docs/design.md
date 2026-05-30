@@ -111,6 +111,9 @@ only when they evaluate behavior that outcome graders cannot capture.
 The project keeps the deterministic **grader outcome** separate from the
 **human review outcome**. A trial can pass code-based graders and still receive a
 human review label such as `success_messy`, `over_edit`, or `test_gap`.
+A valid trial with passing graders is a **verified result**. A valid
+grader-passing trial with a primary `success_clean` review label is an
+**accepted result**; `success_messy` remains verified but not accepted.
 
 Human review also records **trial validity**. A valid trial is fair to count in
 capability summaries. An excluded trial keeps its raw artifacts and review
@@ -131,11 +134,15 @@ because agent behavior is non-deterministic. `agentlab run --trials N` executes
 multiple independent trials for the same task and agent harness; `--jobs N`
 controls how many of those trials run concurrently. `agentlab trials summarize`
 groups stored results and reports total trials, fair trials, excluded trials,
-fair-trial pass rate, pass@k, pass^k, median duration, median changed files,
-median line additions/deletions, primary review-label counts, secondary
-review-label counts, and exclusion-reason counts. Summary groups include the
-agent harness, runtime model, and reasoning effort so materially different
-runtime configurations are not collapsed into one evidence row.
+fair-trial pass rate, pass@k, pass^k, accepted-result counts,
+token-normalized outcome metrics, median duration, median changed files, median
+line additions/deletions, primary review-label counts, secondary review-label
+counts, and exclusion-reason counts. Token-normalized metrics include failed
+valid trials in the token numerator, divide by verified or accepted results, and
+keep input-plus-output, cached-input, and reasoning-output token buckets
+separate. Summary groups include the agent harness, runtime model, and reasoning
+effort so materially different runtime configurations are not collapsed into one
+evidence row.
 
 `agentlab report capability-evidence-digest` renders those summaries plus
 per-trial evidence into Markdown. For local inspection it can scan a whole runs

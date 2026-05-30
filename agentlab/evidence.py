@@ -51,9 +51,15 @@ def render_capability_evidence_digest(
                     "Fair",
                     "Excluded",
                     "Passes",
+                    "Accepted",
                     "Pass Rate",
                     "pass@k",
                     "pass^k",
+                    "IO Tokens",
+                    "IO Tok / Verified",
+                    "IO Tok / Accepted",
+                    "Cached Tok / Verified",
+                    "Reason Tok / Verified",
                     "Median ms",
                     "Median Files",
                     "Median +Lines",
@@ -74,9 +80,23 @@ def render_capability_evidence_digest(
                         summary.trials,
                         summary.excluded_trials,
                         summary.passes,
+                        summary.accepted_results,
                         _format_rate(summary.pass_rate),
                         _format_rate(summary.pass_at_k),
                         _format_rate(summary.pass_caret_k),
+                        _format_optional_number(summary.total_input_output_tokens),
+                        _format_optional_number(
+                            summary.input_output_tokens_per_verified_result
+                        ),
+                        _format_optional_number(
+                            summary.input_output_tokens_per_accepted_result
+                        ),
+                        _format_optional_number(
+                            summary.cached_input_tokens_per_verified_result
+                        ),
+                        _format_optional_number(
+                            summary.reasoning_output_tokens_per_verified_result
+                        ),
                         summary.median_duration_ms,
                         summary.median_files_changed,
                         summary.median_lines_added,
@@ -201,6 +221,16 @@ def _markdown_link(label: str, path: object) -> str:
 
 def _format_rate(value: float) -> str:
     return f"{value:.2f}"
+
+
+def _format_optional_number(value: object) -> str:
+    if value is None:
+        return "unknown"
+    if isinstance(value, float):
+        if value.is_integer():
+            return str(int(value))
+        return f"{value:.2f}"
+    return str(value)
 
 
 def _format_counts(counts: Dict[str, int]) -> str:

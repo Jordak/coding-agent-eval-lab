@@ -62,6 +62,13 @@ reviewed as `success_clean`. The five excluded setup-error trials remain useful
 diagnostic evidence about the earlier environment, but they do not count in fair
 capability metrics.
 
+Under the current token-normalized outcome semantics, the ten fair passing
+trials in this pilot are both verified and accepted results because each has a
+primary `success_clean` review label. Those fair trials used 12,788,931 reported
+input-plus-output tokens, or about 1,278,893 tokens per verified/accepted
+result. This pilot predates the later model-attribution cleanup, so the newer
+12-task report should be preferred for broader Codex resource interpretation.
+
 ## What Codex Did Well
 
 On these Click tasks, Codex consistently found the relevant production area and

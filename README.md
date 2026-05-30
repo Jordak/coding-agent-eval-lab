@@ -179,6 +179,12 @@ python3 -m agentlab trials summarize
 fair trial in the group passed. Trials marked `excluded` by human review remain
 stored but do not count in those fair capability metrics. Summary tables show
 primary review-label counts separately from secondary review-label caveats.
+Summary tables also report accepted-result counts and token-normalized outcome
+metrics. A verified result is a valid grader-passing trial; an accepted result is
+a valid grader-passing trial with a primary `success_clean` review label. Token
+spend includes failed valid trials in the numerator, so wasted attempts remain
+visible. Input-plus-output tokens are the primary portable bucket, with cached
+input and reasoning-output token buckets kept separate.
 
 Generate a Markdown capability evidence digest for capability reports:
 
@@ -190,7 +196,9 @@ The digest is generated evidence, not final interpretation. Use it as the data
 backbone for hand-authored capability reports. Per-trial rows link to the
 report, transcript, diff, and result artifacts so surprising pass rates can be
 investigated without hunting through `runs/`. Aggregate and per-trial review
-columns distinguish primary labels from secondary labels.
+columns distinguish primary labels from secondary labels, and aggregate resource
+columns show token spend per verified or accepted result when the selected trial
+artifacts have complete token data.
 
 For report prep, make the evidence set explicit instead of relying on every
 local trial artifact:
