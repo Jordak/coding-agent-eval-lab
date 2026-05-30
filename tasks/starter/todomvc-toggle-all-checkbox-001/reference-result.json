@@ -59,7 +59,6 @@
   "error": null,
   "eval_suite": "starter-coding",
   "eval_type": "regression",
-  "exclusion_reason": null,
   "files_changed": [
     "examples/javascript-es5/dist/index.html",
     "examples/javascript-es5/dist/view.js",
@@ -146,6 +145,5 @@
   "task_title": "TodoMVC toggle-all checkbox should work directly",
   "transcript_path": null,
   "trial_id": "todomvc-toggle-all-checkbox-001-reference",
-  "trial_kind": "reference_verification",
-  "trial_validity": "valid"
+  "trial_kind": "reference_verification"
 }

@@ -1,6 +1,7 @@
 import unittest
 
 from agentlab.evidence import render_capability_evidence_digest
+from agentlab.human_review import create_human_review_outcome
 from agentlab.outcome_evidence import normalize_outcome_evidence
 
 
@@ -27,16 +28,16 @@ class CapabilityEvidenceDigestTest(unittest.TestCase):
                         "output_tokens": 5,
                         "reasoning_output_tokens": 2,
                         "cost_usd": None,
-                        "review": {
-                            "primary_label": "success_clean",
-                            "secondary_labels": ["resource_inefficient"],
-                            "trial_validity": "valid",
-                        },
                         "report_path": "runs/trial-pass/report.md",
                         "transcript_path": "runs/trial-pass/transcript.md",
                         "diff_path": "runs/trial-pass/diff.patch",
                         "run_dir": "runs/trial-pass",
-                    }
+                    },
+                    human_review_outcome=create_human_review_outcome(
+                        primary_label="success_clean",
+                        note="Focused patch with passing checks.",
+                        secondary_labels=["resource_inefficient"],
+                    ),
                 ),
                 normalize_outcome_evidence(
                     {
@@ -53,14 +54,15 @@ class CapabilityEvidenceDigestTest(unittest.TestCase):
                         "files_changed": ["app.py", "env.py"],
                         "lines_added": 500,
                         "lines_deleted": 200,
-                        "review": {
-                            "primary_label": "dependency_issue",
-                            "trial_validity": "excluded",
-                            "exclusion_reason": "setup_error",
-                        },
                         "report_path": "runs/trial-excluded/report.md",
                         "run_dir": "runs/trial-excluded",
-                    }
+                    },
+                    human_review_outcome=create_human_review_outcome(
+                        primary_label="dependency_issue",
+                        note="Task setup failed before the Trial was fair.",
+                        trial_validity="excluded",
+                        exclusion_reason="setup_error",
+                    ),
                 ),
             ]
         )

@@ -223,6 +223,14 @@ class ReferenceVerificationTest(unittest.TestCase):
 
             self.assertEqual(load_outcome_evidences([result_path]), [])
 
+    def test_checked_in_reference_results_do_not_embed_review_validity(self):
+        for result_path in Path("tasks/starter").glob("*/reference-result.json"):
+            with self.subTest(result=result_path.as_posix()):
+                result = json.loads(result_path.read_text(encoding="utf-8"))
+
+                self.assertNotIn("trial_validity", result)
+                self.assertNotIn("exclusion_reason", result)
+
     def _git(self, args, cwd):
         completed = subprocess.run(
             ["git"] + args,

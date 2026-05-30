@@ -83,7 +83,6 @@
   "error": null,
   "eval_suite": "starter-coding",
   "eval_type": "capability",
-  "exclusion_reason": null,
   "files_changed": [
     "src/click/__init__.py",
     "src/click/core.py",
@@ -186,6 +185,5 @@
   "task_title": "Click should deduplicate help option construction",
   "transcript_path": null,
   "trial_id": "click-help-option-refactor-001-reference",
-  "trial_kind": "reference_verification",
-  "trial_validity": "valid"
+  "trial_kind": "reference_verification"
 }

@@ -95,9 +95,11 @@ def handle_review(args: argparse.Namespace) -> int:
         print(f"ERROR {exc}", file=sys.stderr)
         return 1
 
-    review = load_review(run_dir) or {}
+    review = load_review(run_dir)
     print(f"Review: {review_path}")
-    print(f"Validity: {review.get('trial_validity', validity)}")
-    if review.get("trial_validity") == EXCLUDED_TRIAL_VALIDITY:
-        print(f"Exclusion: {review.get('exclusion_reason', 'unknown')}")
+    trial_validity = review.trial_validity if review is not None else validity
+    print(f"Validity: {trial_validity}")
+    if trial_validity == EXCLUDED_TRIAL_VALIDITY:
+        exclusion_reason = review.exclusion_reason if review is not None else "unknown"
+        print(f"Exclusion: {exclusion_reason or 'unknown'}")
     return 0

@@ -6,15 +6,11 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict
 
+from agentlab.human_review import HumanReviewOutcome
 from agentlab.resource_usage import ResourceUsage, resource_usage_to_dict
 from agentlab.result_backfills import apply_result_backfills
 from agentlab.review import load_review
-from agentlab.validity import (
-    DEFAULT_TRIAL_VALIDITY,
-    EXCLUDED_TRIAL_VALIDITY,
-    normalize_exclusion_reason,
-    normalize_trial_validity,
-)
+from agentlab.validity import DEFAULT_TRIAL_VALIDITY
 
 
 @dataclass(frozen=True)
@@ -32,8 +28,6 @@ class OutcomeEvidence:
     agent_harness_config: Dict[str, Any]
     status: str
     success: bool
-    trial_validity: str
-    exclusion_reason: str | None
     outcome: Dict[str, Any]
     score_notes: list[Any]
     duration_ms: int
@@ -50,7 +44,7 @@ class OutcomeEvidence:
     transcript_path: str | None
     diff_path: str | None
     run_dir: str
-    review: Dict[str, Any] | None = None
+    human_review_outcome: HumanReviewOutcome | None = None
     raw: Dict[str, Any] = field(default_factory=dict)
 
     @property
@@ -58,19 +52,28 @@ class OutcomeEvidence:
         return self.trial_validity == DEFAULT_TRIAL_VALIDITY
 
     @property
+    def trial_validity(self) -> str:
+        if self.human_review_outcome is None:
+            return DEFAULT_TRIAL_VALIDITY
+        return self.human_review_outcome.trial_validity
+
+    @property
+    def exclusion_reason(self) -> str | None:
+        if self.human_review_outcome is None:
+            return None
+        return self.human_review_outcome.exclusion_reason
+
+    @property
     def primary_review_label(self) -> str:
-        if self.review is None:
+        if self.human_review_outcome is None:
             return ""
-        return str(self.review.get("primary_label") or "")
+        return self.human_review_outcome.primary_label_display
 
     @property
     def secondary_review_labels(self) -> list[str]:
-        if self.review is None:
+        if self.human_review_outcome is None:
             return []
-        labels = self.review.get("secondary_labels")
-        if not isinstance(labels, list):
-            return []
-        return [str(label) for label in labels if label]
+        return list(self.human_review_outcome.secondary_labels)
 
     @property
     def exclusion_reason_display(self) -> str:
@@ -130,6 +133,9 @@ class OutcomeEvidence:
 
     def to_result_dict(self) -> Dict[str, Any]:
         result = dict(self.raw)
+        result.pop("review", None)
+        result.pop("trial_validity", None)
+        result.pop("exclusion_reason", None)
         result.update(
             {
                 "trial_kind": self.trial_kind,
@@ -145,8 +151,6 @@ class OutcomeEvidence:
                 "agent_harness_config": dict(self.agent_harness_config),
                 "status": self.status,
                 "success": self.success,
-                "trial_validity": self.trial_validity,
-                "exclusion_reason": self.exclusion_reason,
                 "outcome": dict(self.outcome),
                 "score_notes": list(self.score_notes),
                 "duration_ms": self.duration_ms,
@@ -170,8 +174,6 @@ class OutcomeEvidence:
                 "run_dir": self.run_dir,
             }
         )
-        if self.review is not None:
-            result["review"] = dict(self.review)
         return result
 
 
@@ -184,11 +186,11 @@ def load_outcome_evidence(path: Path) -> OutcomeEvidence | None:
     if result.get("trial_kind", "agent_trial") != "agent_trial":
         return None
 
-    run_dir = Path(str(result.get("run_dir") or path.parent))
+    run_dir = path.parent
     return normalize_outcome_evidence(
         result,
         run_dir=run_dir,
-        review=load_review(run_dir),
+        human_review_outcome=load_review(run_dir),
     )
 
 
@@ -204,23 +206,14 @@ def load_outcome_evidences(paths: Iterable[Path]) -> list[OutcomeEvidence]:
 def normalize_outcome_evidence(
     result: Mapping[str, Any],
     run_dir: Path | str | None = None,
-    review: Mapping[str, Any] | None = None,
+    human_review_outcome: HumanReviewOutcome | None = None,
 ) -> OutcomeEvidence:
     data = dict(result)
     resolved_run_dir = _resolve_run_dir(data, run_dir)
-    loaded_review = _review_overlay(data, review)
 
     apply_result_backfills(data, resolved_run_dir)
 
     status, success = _grader_status(data)
-    trial_validity, review_exclusion_reason = _review_validity(
-        data,
-        loaded_review,
-    )
-    if loaded_review is not None:
-        exclusion_reason = review_exclusion_reason
-    else:
-        exclusion_reason = _optional_str(data.get("exclusion_reason"))
 
     files_changed = _files_changed(data)
     n_files_changed = _files_changed_count(data, files_changed)
@@ -256,8 +249,6 @@ def normalize_outcome_evidence(
         agent_harness_config=dict(data.get("agent_harness_config") or {}),
         status=status,
         success=success,
-        trial_validity=trial_validity,
-        exclusion_reason=exclusion_reason,
         outcome=outcome,
         score_notes=_list(data.get("score_notes")),
         duration_ms=_optional_int(data.get("duration_ms")) or 0,
@@ -274,7 +265,7 @@ def normalize_outcome_evidence(
         transcript_path=_optional_str(data.get("transcript_path")),
         diff_path=_optional_str(data.get("diff_path")),
         run_dir=str(resolved_run_dir) if resolved_run_dir is not None else "",
-        review=dict(loaded_review) if loaded_review is not None else None,
+        human_review_outcome=human_review_outcome,
         raw=data,
     )
 
@@ -289,35 +280,6 @@ def _resolve_run_dir(
     if raw_run_dir:
         return Path(str(raw_run_dir))
     return None
-
-
-def _review_overlay(
-    data: Mapping[str, Any],
-    review: Mapping[str, Any] | None,
-) -> Dict[str, Any] | None:
-    if review is not None:
-        return dict(review)
-    embedded = data.get("review")
-    if isinstance(embedded, Mapping):
-        return dict(embedded)
-    return None
-
-
-def _review_validity(
-    data: Mapping[str, Any],
-    review: Mapping[str, Any] | None,
-) -> tuple[str, str | None]:
-    if review is None:
-        return normalize_trial_validity(data.get("trial_validity")), (
-            normalize_exclusion_reason(data.get("exclusion_reason"))
-        )
-
-    validity = normalize_trial_validity(review.get("trial_validity"))
-    exclusion_reason = normalize_exclusion_reason(review.get("exclusion_reason"))
-    if validity != EXCLUDED_TRIAL_VALIDITY:
-        exclusion_reason = None
-    return validity, exclusion_reason
-
 
 def _grader_status(data: Mapping[str, Any]) -> tuple[str, bool]:
     outcome = data.get("outcome")

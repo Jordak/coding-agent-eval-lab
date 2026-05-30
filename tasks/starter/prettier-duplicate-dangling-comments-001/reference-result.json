@@ -51,7 +51,6 @@
   "error": null,
   "eval_suite": "starter-coding",
   "eval_type": "regression",
-  "exclusion_reason": null,
   "files_changed": [
     "src/language-js/print/ternary.js"
   ],
@@ -126,6 +125,5 @@
   "task_title": "Prettier should not duplicate dangling comments in experimental ternaries",
   "transcript_path": null,
   "trial_id": "prettier-duplicate-dangling-comments-001-reference",
-  "trial_kind": "reference_verification",
-  "trial_validity": "valid"
+  "trial_kind": "reference_verification"
 }

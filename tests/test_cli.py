@@ -625,11 +625,19 @@ class CliOutputTest(unittest.TestCase):
                             "success": True,
                             "duration_ms": 100,
                             "files_changed": ["app.py"],
-                            "review": {
-                                "primary_label": "success_clean",
-                                "secondary_labels": ["resource_inefficient"],
-                                "trial_validity": "valid",
-                            },
+                        }
+                    ),
+                    encoding="utf-8",
+                )
+                (run_dir / "review.json").write_text(
+                    json.dumps(
+                        {
+                            "primary_label": "success_clean",
+                            "secondary_labels": ["resource_inefficient"],
+                            "note": "Focused patch.",
+                            "evidence": [],
+                            "trial_validity": "valid",
+                            "exclusion_reason": None,
                         }
                     ),
                     encoding="utf-8",
@@ -690,7 +698,6 @@ class CliOutputTest(unittest.TestCase):
         self.assertIn("ERROR example-agent: agent executable not found", stderr.getvalue())
         self.assertIn("Failed trials:", stdout.getvalue())
         self.assertIn("- example: failed", stdout.getvalue())
-        self.assertIn("Report: runs/example/report.md", stdout.getvalue())
 
     def test_handle_run_preserves_cli_summary_from_trial_execution(self):
         args = SimpleNamespace(

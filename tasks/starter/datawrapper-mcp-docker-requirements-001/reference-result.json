@@ -51,7 +51,6 @@
   "error": null,
   "eval_suite": "starter-coding",
   "eval_type": "regression",
-  "exclusion_reason": null,
   "files_changed": [
     "deployment/requirements.txt"
   ],
@@ -126,6 +125,5 @@
   "task_title": "Datawrapper MCP Docker requirements should include app dependencies",
   "transcript_path": null,
   "trial_id": "datawrapper-mcp-docker-requirements-001-reference",
-  "trial_kind": "reference_verification",
-  "trial_validity": "valid"
+  "trial_kind": "reference_verification"
 }

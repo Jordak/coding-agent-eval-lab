@@ -3,7 +3,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from agentlab.review import load_review, resolve_run_dir, write_review
+from agentlab.review import (
+    ReviewArtifactError,
+    load_review,
+    resolve_run_dir,
+    write_review,
+)
 
 
 class ReviewTest(unittest.TestCase):
@@ -22,10 +27,10 @@ class ReviewTest(unittest.TestCase):
             review = load_review(run_dir)
             self.assertIsNotNone(review)
             assert review is not None
-            self.assertEqual(review["primary_label"], "success_clean")
-            self.assertEqual(review["secondary_labels"], ["resource_inefficient"])
-            self.assertEqual(review["trial_validity"], "valid")
-            self.assertIsNone(review["exclusion_reason"])
+            self.assertEqual(review.primary_label, "success_clean")
+            self.assertEqual(review.secondary_labels, ("resource_inefficient",))
+            self.assertEqual(review.trial_validity, "valid")
+            self.assertIsNone(review.exclusion_reason)
 
     def test_rejects_unknown_label(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -56,8 +61,8 @@ class ReviewTest(unittest.TestCase):
             review = load_review(run_dir)
             self.assertIsNotNone(review)
             assert review is not None
-            self.assertEqual(review["trial_validity"], "excluded")
-            self.assertEqual(review["exclusion_reason"], "dependency_issue")
+            self.assertEqual(review.trial_validity, "excluded")
+            self.assertEqual(review.exclusion_reason, "dependency_issue")
 
     def test_legacy_harness_error_normalizes_to_eval_harness_error(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -74,9 +79,9 @@ class ReviewTest(unittest.TestCase):
             review = load_review(run_dir)
             self.assertIsNotNone(review)
             assert review is not None
-            self.assertEqual(review["exclusion_reason"], "eval_harness_error")
+            self.assertEqual(review.exclusion_reason, "eval_harness_error")
 
-    def test_review_updates_result_validity_metadata(self):
+    def test_review_does_not_update_result_validity_metadata(self):
         with tempfile.TemporaryDirectory() as temp:
             run_dir = Path(temp)
             result_path = run_dir / "result.json"
@@ -100,9 +105,73 @@ class ReviewTest(unittest.TestCase):
             )
 
             result = json.loads(result_path.read_text(encoding="utf-8"))
-            self.assertEqual(result["trial_validity"], "excluded")
-            self.assertEqual(result["exclusion_reason"], "setup_error")
-            self.assertEqual(result["review"]["primary_label"], "dependency_issue")
+            self.assertEqual(result["trial_validity"], "valid")
+            self.assertIsNone(result["exclusion_reason"])
+            self.assertNotIn("review", result)
+
+    def test_missing_review_returns_none(self):
+        with tempfile.TemporaryDirectory() as temp:
+            self.assertIsNone(load_review(Path(temp)))
+
+    def test_invalid_review_artifact_raises(self):
+        with tempfile.TemporaryDirectory() as temp:
+            run_dir = Path(temp)
+            (run_dir / "review.json").write_text("{not json", encoding="utf-8")
+
+            with self.assertRaises(ReviewArtifactError):
+                load_review(run_dir)
+
+    def test_non_utf8_review_artifact_raises_review_artifact_error(self):
+        with tempfile.TemporaryDirectory() as temp:
+            run_dir = Path(temp)
+            (run_dir / "review.json").write_bytes(b"\xff")
+
+            with self.assertRaisesRegex(ReviewArtifactError, "UTF-8 JSON"):
+                load_review(run_dir)
+
+    def test_missing_review_validity_raises(self):
+        with tempfile.TemporaryDirectory() as temp:
+            run_dir = Path(temp)
+            (run_dir / "review.json").write_text(
+                json.dumps(
+                    {
+                        "primary_label": "success_clean",
+                        "secondary_labels": [],
+                        "note": "Missing persisted validity.",
+                        "evidence": [],
+                        "exclusion_reason": None,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(
+                ReviewArtifactError,
+                "requires trial_validity",
+            ):
+                load_review(run_dir)
+
+    def test_missing_excluded_review_reason_raises(self):
+        with tempfile.TemporaryDirectory() as temp:
+            run_dir = Path(temp)
+            (run_dir / "review.json").write_text(
+                json.dumps(
+                    {
+                        "primary_label": "dependency_issue",
+                        "secondary_labels": [],
+                        "note": "Missing persisted exclusion reason.",
+                        "evidence": [],
+                        "trial_validity": "excluded",
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(
+                ReviewArtifactError,
+                "requires exclusion_reason",
+            ):
+                load_review(run_dir)
 
     def test_resolves_latest_run(self):
         with tempfile.TemporaryDirectory() as temp:

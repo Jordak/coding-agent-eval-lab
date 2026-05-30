@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from typing import Iterable
 
 from agentlab.cli.agent_options import (
@@ -24,6 +25,7 @@ from agentlab.cli.trials import (
     handle_trials_archive_excluded,
     handle_trials_summarize,
 )
+from agentlab.review import ReviewArtifactError
 
 
 def main(argv: Iterable[str] | None = None) -> int:
@@ -34,7 +36,11 @@ def main(argv: Iterable[str] | None = None) -> int:
         parser.print_help()
         return 2
 
-    return args.handler(args)
+    try:
+        return args.handler(args)
+    except ReviewArtifactError as exc:
+        print(exc.cli_message(), file=sys.stderr)
+        return exc.exit_code
 
 
 __all__ = [

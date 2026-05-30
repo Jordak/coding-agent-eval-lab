@@ -43,7 +43,6 @@
   "error": null,
   "eval_suite": "starter-coding",
   "eval_type": "regression",
-  "exclusion_reason": null,
   "files_changed": [
     "style/react-tabs.css",
     "style/react-tabs.less",
@@ -116,6 +115,5 @@
   "task_title": "React Tabs selected-tab focus overlay should not mask custom borders",
   "transcript_path": null,
   "trial_id": "react-tabs-selected-focus-overlay-001-reference",
-  "trial_kind": "reference_verification",
-  "trial_validity": "valid"
+  "trial_kind": "reference_verification"
 }
