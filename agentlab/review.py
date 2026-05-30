@@ -15,7 +15,10 @@ from agentlab.validity import DEFAULT_TRIAL_VALIDITY
 
 
 class ReviewArtifactError(ValueError):
-    pass
+    exit_code = 1
+
+    def cli_message(self) -> str:
+        return f"ERROR {self}"
 
 
 def write_review(

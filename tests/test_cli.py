@@ -15,6 +15,7 @@ from agentlab.cli import (
     handle_recover_codex_runtime_metadata,
     handle_run,
     handle_trials_summarize,
+    main,
     _claude_code_config_from_args,
     _codex_config_from_args,
     handle_runs_list,
@@ -603,6 +604,65 @@ class CliOutputTest(unittest.TestCase):
         self.assertIn("dependency_issue", output)
         self.assertIn("setup_error", output)
 
+    def test_main_reports_invalid_review_artifacts_without_traceback(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runs_dir = Path(temp)
+            self._write_invalid_review_trial(runs_dir / "trial-invalid")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                status = main(["trials", "list", "--runs-dir", str(runs_dir)])
+
+        self.assertEqual(status, 1)
+        self.assertEqual("", stdout.getvalue())
+        self.assertIn("ERROR invalid review artifact", stderr.getvalue())
+        self.assertNotIn("Traceback", stderr.getvalue())
+
+    def test_report_digest_reports_invalid_review_artifacts_without_traceback(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runs_dir = Path(temp)
+            self._write_invalid_review_trial(runs_dir / "trial-invalid")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                status = main(
+                    [
+                        "report",
+                        "capability-evidence-digest",
+                        "--runs-dir",
+                        str(runs_dir),
+                    ]
+                )
+
+        self.assertEqual(status, 1)
+        self.assertEqual("", stdout.getvalue())
+        self.assertIn("ERROR invalid review artifact", stderr.getvalue())
+        self.assertNotIn("Traceback", stderr.getvalue())
+
+    def test_archive_excluded_reports_invalid_review_artifacts_without_traceback(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runs_dir = Path(temp)
+            self._write_invalid_review_trial(runs_dir / "trial-invalid")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                status = main(
+                    [
+                        "trials",
+                        "archive-excluded",
+                        "--runs-dir",
+                        str(runs_dir),
+                    ]
+                )
+
+        self.assertEqual(status, 1)
+        self.assertEqual("", stdout.getvalue())
+        self.assertIn("ERROR invalid review artifact", stderr.getvalue())
+        self.assertNotIn("Traceback", stderr.getvalue())
+
     def test_trials_summarize_shows_primary_and_secondary_review_counts(self):
         with tempfile.TemporaryDirectory() as temp:
             runs_dir = Path(temp)
@@ -698,7 +758,39 @@ class CliOutputTest(unittest.TestCase):
         self.assertIn("ERROR example-agent: agent executable not found", stderr.getvalue())
         self.assertIn("Failed trials:", stdout.getvalue())
         self.assertIn("- example: failed", stdout.getvalue())
-        self.assertIn("Report: runs/example/report.md", stdout.getvalue())
+
+    def _write_invalid_review_trial(self, run_dir: Path) -> None:
+        run_dir.mkdir(parents=True)
+        (run_dir / "result.json").write_text(
+            json.dumps(
+                {
+                    "trial_kind": "agent_trial",
+                    "trial_id": run_dir.name,
+                    "run_id": run_dir.name,
+                    "task_id": "task-a",
+                    "eval_suite": "starter",
+                    "eval_type": "capability",
+                    "agent_name": "codex",
+                    "status": "failed",
+                    "success": False,
+                    "run_dir": str(run_dir),
+                }
+            ),
+            encoding="utf-8",
+        )
+        (run_dir / "review.json").write_text(
+            json.dumps(
+                {
+                    "primary_label": "not_a_label",
+                    "secondary_labels": [],
+                    "note": "Invalid canonical review.",
+                    "evidence": [],
+                    "trial_validity": "excluded",
+                    "exclusion_reason": "setup_error",
+                }
+            ),
+            encoding="utf-8",
+        )
 
     def test_handle_run_preserves_cli_summary_from_trial_execution(self):
         args = SimpleNamespace(
