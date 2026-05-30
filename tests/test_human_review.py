@@ -18,7 +18,8 @@ class HumanReviewOutcomeTest(unittest.TestCase):
 
         self.assertTrue(outcome.is_valid_trial)
         self.assertEqual(outcome.primary_label_display, "success_clean")
-        self.assertEqual(outcome.secondary_labels, ["resource_inefficient"])
+        self.assertEqual(outcome.secondary_labels, ("resource_inefficient",))
+        self.assertEqual(outcome.evidence, ("diff.patch",))
         self.assertIsNone(outcome.exclusion_reason)
 
     def test_excluded_review_defaults_matching_exclusion_reason(self):
@@ -63,6 +64,19 @@ class HumanReviewOutcomeTest(unittest.TestCase):
                 "exclusion_reason": "eval_harness_error",
             },
         )
+
+    def test_canonical_collections_are_immutable(self):
+        outcome = create_human_review_outcome(
+            primary_label="success_clean",
+            note="Focused patch.",
+            secondary_labels=["resource_inefficient"],
+            evidence=["diff.patch"],
+        )
+
+        with self.assertRaises(AttributeError):
+            outcome.secondary_labels.append("not_a_label")
+        with self.assertRaises(AttributeError):
+            outcome.evidence.append("mutated")
 
     def test_mapping_requires_explicit_trial_validity(self):
         with self.assertRaisesRegex(ValueError, "requires trial_validity"):

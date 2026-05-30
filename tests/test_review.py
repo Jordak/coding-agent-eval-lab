@@ -28,7 +28,7 @@ class ReviewTest(unittest.TestCase):
             self.assertIsNotNone(review)
             assert review is not None
             self.assertEqual(review.primary_label, "success_clean")
-            self.assertEqual(review.secondary_labels, ["resource_inefficient"])
+            self.assertEqual(review.secondary_labels, ("resource_inefficient",))
             self.assertEqual(review.trial_validity, "valid")
             self.assertIsNone(review.exclusion_reason)
 

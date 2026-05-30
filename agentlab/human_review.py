@@ -17,9 +17,9 @@ from agentlab.validity import (
 @dataclass(frozen=True)
 class HumanReviewOutcome:
     primary_label: str
-    secondary_labels: list[str] = field(default_factory=list)
+    secondary_labels: tuple[str, ...] = field(default_factory=tuple)
     note: str = ""
-    evidence: list[str] = field(default_factory=list)
+    evidence: tuple[str, ...] = field(default_factory=tuple)
     trial_validity: str = DEFAULT_TRIAL_VALIDITY
     exclusion_reason: str | None = None
 
@@ -40,9 +40,9 @@ def create_human_review_outcome(
     trial_validity: object = DEFAULT_TRIAL_VALIDITY,
     exclusion_reason: object = None,
 ) -> HumanReviewOutcome:
-    secondary_label_list = _string_list(secondary_labels)
-    evidence_list = _string_list(evidence)
-    labels = [primary_label] + secondary_label_list
+    secondary_label_tuple = _string_tuple(secondary_labels)
+    evidence_tuple = _string_tuple(evidence)
+    labels = [primary_label] + list(secondary_label_tuple)
     invalid = [label for label in labels if label not in FAILURE_LABELS]
     if invalid:
         raise ValueError(f"unknown review label(s): {', '.join(invalid)}")
@@ -56,9 +56,9 @@ def create_human_review_outcome(
 
     return HumanReviewOutcome(
         primary_label=primary_label,
-        secondary_labels=secondary_label_list,
+        secondary_labels=secondary_label_tuple,
         note=str(note),
-        evidence=evidence_list,
+        evidence=evidence_tuple,
         trial_validity=normalized_validity,
         exclusion_reason=normalized_exclusion_reason,
     )
@@ -80,11 +80,11 @@ def human_review_outcome_from_mapping(
     return create_human_review_outcome(
         primary_label=primary_label,
         note=str(review.get("note") or ""),
-        secondary_labels=_optional_string_list(
+        secondary_labels=_optional_string_tuple(
             review.get("secondary_labels"),
             field_name="secondary_labels",
         ),
-        evidence=_optional_string_list(review.get("evidence"), field_name="evidence"),
+        evidence=_optional_string_tuple(review.get("evidence"), field_name="evidence"),
         trial_validity=trial_validity,
         exclusion_reason=exclusion_reason,
     )
@@ -124,13 +124,13 @@ def _normalize_exclusion_for_validity(
     return None
 
 
-def _optional_string_list(value: object, *, field_name: str) -> list[str]:
+def _optional_string_tuple(value: object, *, field_name: str) -> tuple[str, ...]:
     if value is None:
-        return []
+        return ()
     if not isinstance(value, list):
         raise ValueError(f"human review outcome {field_name} must be a list")
-    return _string_list(value)
+    return _string_tuple(value)
 
 
-def _string_list(values: Iterable[object]) -> list[str]:
-    return [str(value) for value in values if value]
+def _string_tuple(values: Iterable[object]) -> tuple[str, ...]:
+    return tuple(str(value) for value in values if value)
