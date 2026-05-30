@@ -28,8 +28,6 @@ class OutcomeEvidence:
     agent_harness_config: Dict[str, Any]
     status: str
     success: bool
-    trial_validity: str
-    exclusion_reason: str | None
     outcome: Dict[str, Any]
     score_notes: list[Any]
     duration_ms: int
@@ -51,9 +49,19 @@ class OutcomeEvidence:
 
     @property
     def is_valid_trial(self) -> bool:
+        return self.trial_validity == DEFAULT_TRIAL_VALIDITY
+
+    @property
+    def trial_validity(self) -> str:
         if self.human_review_outcome is None:
-            return True
-        return self.human_review_outcome.is_valid_trial
+            return DEFAULT_TRIAL_VALIDITY
+        return self.human_review_outcome.trial_validity
+
+    @property
+    def exclusion_reason(self) -> str | None:
+        if self.human_review_outcome is None:
+            return None
+        return self.human_review_outcome.exclusion_reason
 
     @property
     def primary_review_label(self) -> str:
@@ -126,6 +134,8 @@ class OutcomeEvidence:
     def to_result_dict(self) -> Dict[str, Any]:
         result = dict(self.raw)
         result.pop("review", None)
+        result.pop("trial_validity", None)
+        result.pop("exclusion_reason", None)
         result.update(
             {
                 "trial_kind": self.trial_kind,
@@ -141,8 +151,6 @@ class OutcomeEvidence:
                 "agent_harness_config": dict(self.agent_harness_config),
                 "status": self.status,
                 "success": self.success,
-                "trial_validity": self.trial_validity,
-                "exclusion_reason": self.exclusion_reason,
                 "outcome": dict(self.outcome),
                 "score_notes": list(self.score_notes),
                 "duration_ms": self.duration_ms,
@@ -178,7 +186,7 @@ def load_outcome_evidence(path: Path) -> OutcomeEvidence | None:
     if result.get("trial_kind", "agent_trial") != "agent_trial":
         return None
 
-    run_dir = Path(str(result.get("run_dir") or path.parent))
+    run_dir = path.parent
     return normalize_outcome_evidence(
         result,
         run_dir=run_dir,
@@ -206,7 +214,6 @@ def normalize_outcome_evidence(
     apply_result_backfills(data, resolved_run_dir)
 
     status, success = _grader_status(data)
-    trial_validity, exclusion_reason = _human_review_validity(human_review_outcome)
 
     files_changed = _files_changed(data)
     n_files_changed = _files_changed_count(data, files_changed)
@@ -242,8 +249,6 @@ def normalize_outcome_evidence(
         agent_harness_config=dict(data.get("agent_harness_config") or {}),
         status=status,
         success=success,
-        trial_validity=trial_validity,
-        exclusion_reason=exclusion_reason,
         outcome=outcome,
         score_notes=_list(data.get("score_notes")),
         duration_ms=_optional_int(data.get("duration_ms")) or 0,
@@ -275,15 +280,6 @@ def _resolve_run_dir(
     if raw_run_dir:
         return Path(str(raw_run_dir))
     return None
-
-
-def _human_review_validity(
-    human_review_outcome: HumanReviewOutcome | None,
-) -> tuple[str, str | None]:
-    if human_review_outcome is None:
-        return DEFAULT_TRIAL_VALIDITY, None
-    return human_review_outcome.trial_validity, human_review_outcome.exclusion_reason
-
 
 def _grader_status(data: Mapping[str, Any]) -> tuple[str, bool]:
     outcome = data.get("outcome")

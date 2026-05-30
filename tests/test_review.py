@@ -3,7 +3,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from agentlab.review import load_review, resolve_run_dir, write_review
+from agentlab.review import (
+    ReviewArtifactError,
+    load_review,
+    resolve_run_dir,
+    write_review,
+)
 
 
 class ReviewTest(unittest.TestCase):
@@ -103,6 +108,18 @@ class ReviewTest(unittest.TestCase):
             self.assertEqual(result["trial_validity"], "valid")
             self.assertIsNone(result["exclusion_reason"])
             self.assertNotIn("review", result)
+
+    def test_missing_review_returns_none(self):
+        with tempfile.TemporaryDirectory() as temp:
+            self.assertIsNone(load_review(Path(temp)))
+
+    def test_invalid_review_artifact_raises(self):
+        with tempfile.TemporaryDirectory() as temp:
+            run_dir = Path(temp)
+            (run_dir / "review.json").write_text("{not json", encoding="utf-8")
+
+            with self.assertRaises(ReviewArtifactError):
+                load_review(run_dir)
 
     def test_resolves_latest_run(self):
         with tempfile.TemporaryDirectory() as temp:

@@ -9,6 +9,7 @@ from agentlab.outcome_evidence import (
     load_outcome_evidence,
     normalize_outcome_evidence,
 )
+from agentlab.review import ReviewArtifactError
 from agentlab.summary import summarize_trials
 
 
@@ -59,6 +60,8 @@ class OutcomeEvidenceTest(unittest.TestCase):
             assert evidence is not None
             result = evidence.to_result_dict()
             self.assertEqual(result["trial_id"], "trial-current")
+            self.assertNotIn("trial_validity", result)
+            self.assertNotIn("exclusion_reason", result)
             self.assertEqual(result["outcome"]["status"], "passed")
             self.assertEqual(result["files_changed"], ["app.py"])
             self.assertEqual(result["n_files_changed"], 1)
@@ -167,8 +170,10 @@ class OutcomeEvidenceTest(unittest.TestCase):
             summary = summarize_trials([evidence])[0]
             digest = render_capability_evidence_digest([evidence])
 
-            self.assertEqual(result["trial_validity"], "excluded")
-            self.assertEqual(result["exclusion_reason"], "setup_error")
+            self.assertNotIn("trial_validity", result)
+            self.assertNotIn("exclusion_reason", result)
+            self.assertEqual(evidence.trial_validity, "excluded")
+            self.assertEqual(evidence.exclusion_reason, "setup_error")
             self.assertEqual(summary.total_trials, 1)
             self.assertEqual(summary.trials, 0)
             self.assertEqual(summary.excluded_trials, 1)
@@ -229,6 +234,8 @@ class OutcomeEvidenceTest(unittest.TestCase):
             "runs/trial-reporting/result.json",
         )
         self.assertNotIn("review", evidence.to_result_dict())
+        self.assertNotIn("trial_validity", evidence.to_result_dict())
+        self.assertNotIn("exclusion_reason", evidence.to_result_dict())
 
     def test_embedded_result_review_is_ignored_without_review_json(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -264,6 +271,71 @@ class OutcomeEvidenceTest(unittest.TestCase):
         self.assertEqual(evidence.trial_validity, "valid")
         self.assertIsNone(evidence.exclusion_reason)
         self.assertEqual(evidence.primary_review_label, "")
+
+    def test_review_json_loads_from_selected_result_parent(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            old_run_dir = root / "old-run-dir"
+            old_run_dir.mkdir()
+            selected_dir = root / "selected-run-dir"
+            selected_dir.mkdir()
+            result_path = selected_dir / "result.json"
+            result_path.write_text(
+                json.dumps(
+                    {
+                        "trial_id": "trial-relocated",
+                        "success": False,
+                        "run_dir": str(old_run_dir),
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (selected_dir / "review.json").write_text(
+                json.dumps(
+                    {
+                        "primary_label": "dependency_issue",
+                        "secondary_labels": [],
+                        "note": "Selected artifact has the canonical review.",
+                        "evidence": [],
+                        "trial_validity": "excluded",
+                        "exclusion_reason": "setup_error",
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            evidence = load_outcome_evidence(result_path)
+
+        self.assertIsNotNone(evidence)
+        assert evidence is not None
+        self.assertEqual(evidence.run_dir, str(selected_dir))
+        self.assertEqual(evidence.trial_validity, "excluded")
+        self.assertEqual(evidence.exclusion_reason, "setup_error")
+
+    def test_invalid_review_json_raises_instead_of_becoming_valid(self):
+        with tempfile.TemporaryDirectory() as temp:
+            run_dir = Path(temp) / "trial-invalid-review"
+            run_dir.mkdir()
+            (run_dir / "result.json").write_text(
+                json.dumps({"trial_id": "trial-invalid-review", "success": False}),
+                encoding="utf-8",
+            )
+            (run_dir / "review.json").write_text(
+                json.dumps(
+                    {
+                        "primary_label": "not_a_label",
+                        "secondary_labels": [],
+                        "note": "Invalid canonical review.",
+                        "evidence": [],
+                        "trial_validity": "excluded",
+                        "exclusion_reason": "setup_error",
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            with self.assertRaises(ReviewArtifactError):
+                load_outcome_evidence(run_dir / "result.json")
 
 
 if __name__ == "__main__":

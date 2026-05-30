@@ -14,6 +14,10 @@ from agentlab.taxonomy import FAILURE_LABELS
 from agentlab.validity import DEFAULT_TRIAL_VALIDITY
 
 
+class ReviewArtifactError(ValueError):
+    pass
+
+
 def write_review(
     run_dir: Path,
     primary_label: str,
@@ -49,14 +53,16 @@ def load_review(run_dir: Path) -> HumanReviewOutcome | None:
         return None
     try:
         raw = json.loads(review_path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return None
+    except OSError as exc:
+        raise ReviewArtifactError(f"could not read review artifact: {review_path}") from exc
+    except json.JSONDecodeError as exc:
+        raise ReviewArtifactError(f"review artifact must be JSON: {review_path}") from exc
     if not isinstance(raw, dict):
-        return None
+        raise ReviewArtifactError(f"review artifact must contain an object: {review_path}")
     try:
         return human_review_outcome_from_mapping(raw)
-    except ValueError:
-        return None
+    except ValueError as exc:
+        raise ReviewArtifactError(f"invalid review artifact: {review_path}: {exc}") from exc
 
 
 def resolve_run_dir(runs_dir: Path, run: str) -> Path:
