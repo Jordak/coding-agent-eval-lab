@@ -604,8 +604,11 @@ class CliOutputTest(unittest.TestCase):
         self.assertIn("excluded", output)
         self.assertIn("dependency_issue", output)
         self.assertIn("setup_error", output)
-        self.assertIn("cached_tok", output)
-        self.assertIn("4", output)
+        row = _first_table_row(output)
+        self.assertEqual(row["in_tok"], "10")
+        self.assertEqual(row["cached_tok"], "4")
+        self.assertEqual(row["out_tok"], "5")
+        self.assertEqual(row["reason_tok"], "2")
 
     def test_trials_summarize_shows_primary_and_secondary_review_counts(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -662,14 +665,20 @@ class CliOutputTest(unittest.TestCase):
         self.assertIn("primary_reviews", output)
         self.assertIn("secondary_reviews", output)
         self.assertIn("accepted", output)
-        self.assertIn("cached_tok", output)
         self.assertIn("reason_tok", output)
         self.assertIn("io_tok_per_verified", output)
-        self.assertIn("20", output)
         self.assertIn("effort", output)
         self.assertIn("xhigh", output)
         self.assertIn("success_clean:2", output)
         self.assertIn("resource_inefficient:2", output)
+        row = _first_table_row(output)
+        self.assertEqual(row["io_tok"], "40")
+        self.assertEqual(row["cached_tok"], "4")
+        self.assertEqual(row["reason_tok"], "6")
+        self.assertEqual(row["io_tok_per_verified"], "20")
+        self.assertEqual(row["io_tok_per_accepted"], "20")
+        self.assertEqual(row["cached_tok_per_verified"], "2")
+        self.assertEqual(row["reason_tok_per_verified"], "3")
 
     def test_trials_summarize_shows_token_totals_when_no_trials_pass(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -979,6 +988,13 @@ class CliOutputTest(unittest.TestCase):
                     "0.130.0-alpha.5",
                 ),
             )
+
+
+def _first_table_row(output: str) -> dict[str, str]:
+    lines = [line for line in output.splitlines() if line.strip()]
+    headers = lines[0].split()
+    values = lines[2].split()
+    return dict(zip(headers, values))
 
 
 if __name__ == "__main__":
