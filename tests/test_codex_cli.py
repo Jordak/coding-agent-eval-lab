@@ -182,6 +182,41 @@ class CodexCliAdapterTest(unittest.TestCase):
         self.assertEqual(config["reasoning_effort"], "xhigh")
         self.assertEqual(config["model_provider"], "openai")
 
+    def test_codex_timeout_persists_partial_events(self):
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            task = EvalTask(
+                id="codex-timeout",
+                title="Codex timeout",
+                repo=str(temp_path),
+                commit="unused",
+                language="text",
+                prompt="No-op.",
+            )
+
+            def timeout_runner(command, timeout_seconds):
+                raise subprocess.TimeoutExpired(
+                    command,
+                    timeout_seconds,
+                    output='{"type":"thread.started","thread_id":"thread-1"}\n',
+                    stderr="still running",
+                )
+
+            adapter = CodexCliAdapter(
+                CodexCliConfig(command="codex-test", timeout_seconds=1),
+                command_runner=timeout_runner,
+            )
+
+            agent_run = adapter.run(task, temp_path, temp_path / "run")
+
+            self.assertEqual(agent_run.error, "Codex CLI timed out after 1s")
+            self.assertEqual(
+                (temp_path / "run" / "codex-events.jsonl").read_text(
+                    encoding="utf-8"
+                ),
+                '{"type":"thread.started","thread_id":"thread-1"}\n',
+            )
+
     def test_codex_preflight_runs_version_and_exec_help_shape(self):
         with tempfile.TemporaryDirectory() as temp:
             temp_path = Path(temp)

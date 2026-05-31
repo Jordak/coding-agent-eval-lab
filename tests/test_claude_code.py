@@ -110,6 +110,45 @@ class ClaudeCodeAdapterTest(unittest.TestCase):
             self.assertIn("Claude Code CLI not found", agent_run.error)
             self.assertIn("--claude-command", agent_run.error)
 
+    def test_claude_timeout_persists_partial_events(self):
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            task = EvalTask(
+                id="claude-timeout",
+                title="Claude timeout",
+                repo=str(temp_path),
+                commit="unused",
+                language="text",
+                prompt="No-op.",
+            )
+
+            def timeout_runner(command, timeout_seconds, cwd, env):
+                raise subprocess.TimeoutExpired(
+                    command,
+                    timeout_seconds,
+                    output=(
+                        '{"type":"assistant","message":{"id":"msg_1",'
+                        '"model":"claude-sonnet-4-6"}}\n'
+                    ),
+                    stderr="still running",
+                )
+
+            adapter = ClaudeCodeAdapter(
+                ClaudeCodeConfig(command="claude-test", timeout_seconds=1),
+                command_runner=timeout_runner,
+            )
+
+            agent_run = adapter.run(task, temp_path, temp_path / "run")
+
+            self.assertEqual(agent_run.error, "Claude Code CLI timed out after 1s")
+            self.assertEqual(
+                (temp_path / "run" / "claude-events.jsonl").read_text(
+                    encoding="utf-8"
+                ),
+                '{"type":"assistant","message":{"id":"msg_1",'
+                '"model":"claude-sonnet-4-6"}}\n',
+            )
+
     def test_claude_preflight_runs_version_auth_and_print_help_shape(self):
         with tempfile.TemporaryDirectory() as temp:
             temp_path = Path(temp)
