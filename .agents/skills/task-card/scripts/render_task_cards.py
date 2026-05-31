@@ -9,7 +9,7 @@ from typing import Iterable
 REPO_ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(REPO_ROOT))
 
-from agentlab.task_cards import publish_task_cards  # noqa: E402
+from agentlab.task_bundle_integrity import publish_task_cards  # noqa: E402
 
 
 def main(argv: Iterable[str] | None = None) -> int:
@@ -33,6 +33,11 @@ def main(argv: Iterable[str] | None = None) -> int:
         args.paths,
         check=args.check,
     )
+    if result.failures:
+        for failure in result.failures:
+            print(f"ERROR {failure.path}: {failure.message}", file=sys.stderr)
+        return 1
+
     if result.matched_bundles == 0:
         print("No task files matched.", file=sys.stderr)
         return 1

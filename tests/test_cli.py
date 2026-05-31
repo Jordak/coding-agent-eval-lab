@@ -19,8 +19,11 @@ from agentlab.cli import (
     _print_run_summaries,
     build_parser,
     handle_task_smoke_test,
+    handle_task_validate,
+    handle_task_verify_reference,
 )
 from agentlab.preflight import PreflightCheck, PreflightResult
+from agentlab.task_bundle_integrity import publish_task_cards
 
 
 class CliOutputTest(unittest.TestCase):
@@ -234,6 +237,23 @@ class CliOutputTest(unittest.TestCase):
         self.assertEqual(args.agent, "codex")
         self.assertFalse(hasattr(args, "trials"))
         self.assertFalse(hasattr(args, "jobs"))
+
+    def test_task_validate_parser_accepts_integrity_flags(self):
+        parser = build_parser()
+
+        args = parser.parse_args(
+            [
+                "task",
+                "validate",
+                "--check-task-cards",
+                "--require-reference-artifacts",
+                "tasks/starter",
+            ]
+        )
+
+        self.assertTrue(args.check_task_cards)
+        self.assertTrue(args.require_reference_artifacts)
+        self.assertEqual(args.paths, ["tasks/starter"])
 
     def test_trials_archive_excluded_parser_defaults_to_dry_run(self):
         parser = build_parser()
@@ -717,6 +737,7 @@ class CliOutputTest(unittest.TestCase):
             codex_timeout_seconds=1,
         )
         task = SimpleNamespace(id="task-a")
+        bundle = SimpleNamespace(task=task)
         verification = SimpleNamespace(
             success=True,
             files_changed=["app.py"],
@@ -736,8 +757,14 @@ class CliOutputTest(unittest.TestCase):
         )
         stdout = io.StringIO()
 
-        with patch("agentlab.cli.task.load_task", return_value=task):
-            with patch("agentlab.cli.task.verify_reference", return_value=verification):
+        with patch(
+            "agentlab.cli.task.load_smoke_test_ready_bundle",
+            return_value=bundle,
+        ):
+            with patch(
+                "agentlab.cli.task.verify_reference_for_bundle",
+                return_value=verification,
+            ):
                 with patch(
                     "agentlab.cli.task.execute_trials",
                     return_value=[evaluation],
@@ -761,12 +788,19 @@ class CliOutputTest(unittest.TestCase):
     def test_task_smoke_test_stops_when_reference_fails(self):
         args = SimpleNamespace(task="tasks/starter/example")
         task = SimpleNamespace(id="task-a")
+        bundle = SimpleNamespace(task=task)
         verification = SimpleNamespace(success=False)
         stdout = io.StringIO()
         stderr = io.StringIO()
 
-        with patch("agentlab.cli.task.load_task", return_value=task):
-            with patch("agentlab.cli.task.verify_reference", return_value=verification):
+        with patch(
+            "agentlab.cli.task.load_smoke_test_ready_bundle",
+            return_value=bundle,
+        ):
+            with patch(
+                "agentlab.cli.task.verify_reference_for_bundle",
+                return_value=verification,
+            ):
                 with patch("agentlab.cli.task._print_failed_reference_checks"):
                     with patch("agentlab.cli.task.execute_trials") as execute:
                         with contextlib.redirect_stdout(stdout):
@@ -776,6 +810,160 @@ class CliOutputTest(unittest.TestCase):
         self.assertEqual(status, 1)
         self.assertEqual(execute.call_count, 0)
         self.assertIn("ERROR reference verification failed", stderr.getvalue())
+
+    def test_handle_task_validate_reports_no_matches(self):
+        args = SimpleNamespace(
+            paths=["does-not-exist"],
+            check_task_cards=False,
+            require_reference_artifacts=False,
+        )
+        stderr = io.StringIO()
+
+        with contextlib.redirect_stderr(stderr):
+            status = handle_task_validate(args)
+
+        self.assertEqual(status, 1)
+        self.assertIn("No task files matched.", stderr.getvalue())
+
+    def test_handle_task_validate_reports_source_failures(self):
+        with tempfile.TemporaryDirectory() as temp:
+            bundle_dir = Path(temp) / "task"
+            bundle_dir.mkdir()
+            (bundle_dir / "task.yaml").write_text(
+                "\n".join(
+                    [
+                        "id: task-a",
+                        "repo: https://github.com/example/demo",
+                        "commit: abc123",
+                        "language: python",
+                        "prompt: Fix it.",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            args = SimpleNamespace(
+                paths=[bundle_dir.as_posix()],
+                check_task_cards=False,
+                require_reference_artifacts=False,
+            )
+            stderr = io.StringIO()
+
+            with contextlib.redirect_stderr(stderr):
+                status = handle_task_validate(args)
+
+        self.assertEqual(status, 1)
+        self.assertIn("missing required field(s): title", stderr.getvalue())
+
+    def test_handle_task_validate_reports_task_card_drift(self):
+        with tempfile.TemporaryDirectory() as temp:
+            suite_dir = Path(temp) / "suite"
+            bundle_dir = _write_cli_task_bundle(suite_dir, "task-a")
+            (bundle_dir / "task-card.md").write_text("stale card\n", encoding="utf-8")
+            args = SimpleNamespace(
+                paths=[suite_dir.as_posix()],
+                check_task_cards=True,
+                require_reference_artifacts=False,
+            )
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                with contextlib.redirect_stderr(stderr):
+                    status = handle_task_validate(args)
+
+        self.assertEqual(status, 1)
+        self.assertIn("OK", stdout.getvalue())
+        self.assertIn("task-card drift", stderr.getvalue())
+
+    def test_handle_task_validate_requires_reference_artifacts(self):
+        with tempfile.TemporaryDirectory() as temp:
+            suite_dir = Path(temp) / "suite"
+            _write_cli_task_bundle(suite_dir, "task-a", reference_artifact=False)
+            args = SimpleNamespace(
+                paths=[suite_dir.as_posix()],
+                check_task_cards=False,
+                require_reference_artifacts=True,
+            )
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                with contextlib.redirect_stderr(stderr):
+                    status = handle_task_validate(args)
+
+        self.assertEqual(status, 1)
+        self.assertIn("task has no reference_artifact: task-a", stderr.getvalue())
+
+    def test_handle_task_validate_reports_clean_task_cards(self):
+        with tempfile.TemporaryDirectory() as temp:
+            suite_dir = Path(temp) / "suite"
+            _write_cli_task_bundle(suite_dir, "task-a")
+            publish_task_cards([suite_dir.as_posix()])
+            args = SimpleNamespace(
+                paths=[suite_dir.as_posix()],
+                check_task_cards=True,
+                require_reference_artifacts=False,
+            )
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                status = handle_task_validate(args)
+
+        self.assertEqual(status, 0)
+        self.assertIn("Validated 1 task file(s).", stdout.getvalue())
+        self.assertIn("Task cards are up to date.", stdout.getvalue())
+
+    def test_task_verify_reference_reports_failed_reference_result(self):
+        with tempfile.TemporaryDirectory() as temp:
+            bundle_dir = Path(temp) / "task"
+            bundle_dir.mkdir()
+            (bundle_dir / "reference.patch").write_text(
+                "diff --git a/demo.py b/demo.py\n",
+                encoding="utf-8",
+            )
+            (bundle_dir / "task.yaml").write_text(
+                "\n".join(
+                    [
+                        "id: task-a",
+                        "title: Task A",
+                        "repo: https://github.com/example/demo",
+                        "commit: abc123",
+                        "language: python",
+                        "prompt: Fix it.",
+                        "reference_artifact:",
+                        "  type: patch",
+                        "  path: reference.patch",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            args = SimpleNamespace(
+                paths=[bundle_dir.as_posix()],
+                workspace_root=None,
+                skip_missing=False,
+                write_artifacts=False,
+            )
+            verification = SimpleNamespace(
+                success=False,
+                files_changed=[],
+            )
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            with patch(
+                "agentlab.cli.task.verify_reference_for_bundle",
+                return_value=verification,
+            ):
+                with patch("agentlab.cli.task._print_failed_reference_checks"):
+                    with contextlib.redirect_stdout(stdout):
+                        with contextlib.redirect_stderr(stderr):
+                            status = handle_task_verify_reference(args)
+
+        self.assertEqual(status, 1)
+        self.assertIn("FAIL", stdout.getvalue())
+        self.assertIn("reference verification failed", stderr.getvalue())
 
     def _write_codex_state_db(self, path, *, thread_id):
         with sqlite3.connect(path) as connection:
@@ -811,6 +999,41 @@ class CliOutputTest(unittest.TestCase):
                     "0.130.0-alpha.5",
                 ),
             )
+
+
+def _write_cli_task_bundle(
+    suite_dir: Path,
+    task_id: str,
+    *,
+    reference_artifact: bool = True,
+) -> Path:
+    bundle_dir = suite_dir / task_id
+    bundle_dir.mkdir(parents=True)
+    lines = [
+        f"id: {task_id}",
+        "title: Task A",
+        "repo: https://github.com/example/demo",
+        "commit: abc123",
+        "language: python",
+        "prompt: Fix it.",
+    ]
+    if reference_artifact:
+        (bundle_dir / "reference.patch").write_text(
+            "diff --git a/demo.py b/demo.py\n",
+            encoding="utf-8",
+        )
+        lines.extend(
+            [
+                "reference_artifact:",
+                "  type: patch",
+                "  path: reference.patch",
+            ]
+        )
+    (bundle_dir / "task.yaml").write_text(
+        "\n".join(lines) + "\n",
+        encoding="utf-8",
+    )
+    return bundle_dir
 
 
 if __name__ == "__main__":
