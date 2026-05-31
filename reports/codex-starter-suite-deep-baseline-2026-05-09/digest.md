@@ -9,6 +9,8 @@ This digest is generated from stored agent-trial results. It reports evidence on
 - Selected entries: `45`
 - Selected result files: `45`
 
+Historical snapshot note: cached-token aggregate totals are available for this evidence set, but this checked-in digest does not include the original per-trial cached-input values. The per-trial `Cached Input Tokens` cells therefore use `unknown` rather than inventing values; current regenerated digests show exact values whenever result artifacts expose `cached_input_tokens`.
+
 ## Aggregate Summaries
 
 ### Outcome Summary

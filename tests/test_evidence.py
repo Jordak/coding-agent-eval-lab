@@ -1,3 +1,4 @@
+from pathlib import Path
 import unittest
 
 from agentlab.evidence import render_capability_evidence_digest
@@ -159,6 +160,60 @@ class CapabilityEvidenceDigestTest(unittest.TestCase):
             "| trial-unknown-model | task-a | codex | unknown | unknown | passed |",
             digest,
         )
+
+    def test_historical_digest_snapshots_disclose_missing_cached_trial_values(self):
+        note = "Historical snapshot note: cached-token aggregate totals are available"
+        repo_root = Path(__file__).resolve().parents[1]
+        digest_paths = [
+            "reports/codex-starter-suite-12-task-baseline-2026-05-11/digest.md",
+            "reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md",
+            (
+                "reports/claude-code-starter-suite-baseline-2026-05-14/"
+                "capability-evidence-digest.md"
+            ),
+        ]
+
+        for rel_path in digest_paths:
+            digest = (repo_root / rel_path).read_text(encoding="utf-8")
+            if not self._has_cached_aggregate_with_only_unknown_trial_values(digest):
+                continue
+
+            with self.subTest(path=rel_path):
+                self.assertIn(note, digest)
+
+    def _has_cached_aggregate_with_only_unknown_trial_values(self, digest: str) -> bool:
+        token_section = digest.split("### Token Summary", 1)[1].split(
+            "### Review and Patch Summary",
+            1,
+        )[0]
+        token_lines = [
+            line for line in token_section.splitlines() if line.startswith("| ")
+        ]
+        token_header = self._markdown_cells(token_lines[0])
+        cached_total_index = token_header.index("Cached Tokens")
+        token_rows = [self._markdown_cells(line) for line in token_lines[2:]]
+        has_cached_total = any(
+            row[cached_total_index] not in {"", "0", "unknown"}
+            for row in token_rows
+        )
+        if not has_cached_total:
+            return False
+
+        trial_section = digest.split("## Trial Evidence", 1)[1]
+        trial_lines = [
+            line for line in trial_section.splitlines() if line.startswith("| ")
+        ]
+        trial_header = self._markdown_cells(trial_lines[0])
+        cached_trial_index = trial_header.index("Cached Input Tokens")
+        cached_trial_values = [
+            self._markdown_cells(line)[cached_trial_index] for line in trial_lines[2:]
+        ]
+        return bool(cached_trial_values) and all(
+            value == "unknown" for value in cached_trial_values
+        )
+
+    def _markdown_cells(self, row: str) -> list[str]:
+        return [cell.strip() for cell in row.strip().strip("|").split("|")]
 
 
 if __name__ == "__main__":
