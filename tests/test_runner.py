@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 
 from agentlab.agents.manual import ManualAgentAdapter
-from agentlab.runner import _run_id, run_task
+from agentlab.execution.runner import _run_id, run_task
 from agentlab.tasks import EvalTask, SuccessCriteria
 
 

@@ -4,7 +4,7 @@ import subprocess
 from pathlib import Path
 from typing import Iterable, List, Mapping, Optional
 
-from agentlab.scoring import CheckResult
+from agentlab.execution.scoring import CheckResult
 
 
 def run_command(

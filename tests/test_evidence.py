@@ -1,9 +1,9 @@
 from pathlib import Path
 import unittest
 
-from agentlab.evidence import render_capability_evidence_digest
-from agentlab.human_review import create_human_review_outcome
-from agentlab.outcome_evidence import normalize_outcome_evidence
+from agentlab.reports.capability_digest import render_capability_evidence_digest
+from agentlab.evidence.human_review import create_human_review_outcome
+from agentlab.evidence.outcome import normalize_outcome_evidence
 
 
 class CapabilityEvidenceDigestTest(unittest.TestCase):

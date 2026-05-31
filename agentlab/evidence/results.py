@@ -4,12 +4,12 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List
 
-from agentlab.agent_harness_config import normalize_agent_harness_config
-from agentlab.resource_usage import (
+from agentlab.runtime.agent_harness_config import normalize_agent_harness_config
+from agentlab.runtime.resource_usage import (
     ResourceUsage,
     resource_usage_to_dict,
 )
-from agentlab.scoring import CheckResult
+from agentlab.execution.scoring import CheckResult
 
 
 def write_result_json(run: Any) -> None:

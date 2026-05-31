@@ -9,7 +9,7 @@ from typing import Iterable
 REPO_ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(REPO_ROOT))
 
-from agentlab.task_bundle_integrity import publish_task_cards  # noqa: E402
+from agentlab.tasks.integrity import publish_task_cards  # noqa: E402
 
 
 def main(argv: Iterable[str] | None = None) -> int:

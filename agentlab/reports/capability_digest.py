@@ -3,8 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Dict, Iterable, List, Mapping
 
-from agentlab.outcome_evidence import OutcomeEvidence
-from agentlab.summary import TrialGroupSummary, summarize_trials
+from agentlab.evidence.outcome import OutcomeEvidence
+from agentlab.evidence.summary import TrialGroupSummary, summarize_trials
 
 
 def render_capability_evidence_digest(

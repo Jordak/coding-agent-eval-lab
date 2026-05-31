@@ -3,14 +3,14 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from agentlab.evidence import render_capability_evidence_digest
-from agentlab.human_review import create_human_review_outcome
-from agentlab.outcome_evidence import (
+from agentlab.reports.capability_digest import render_capability_evidence_digest
+from agentlab.evidence.human_review import create_human_review_outcome
+from agentlab.evidence.outcome import (
     load_outcome_evidence,
     normalize_outcome_evidence,
 )
-from agentlab.review import ReviewArtifactError
-from agentlab.summary import summarize_trials
+from agentlab.evidence.review_artifacts import ReviewArtifactError
+from agentlab.evidence.summary import summarize_trials
 
 
 class OutcomeEvidenceTest(unittest.TestCase):

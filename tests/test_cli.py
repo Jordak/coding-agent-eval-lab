@@ -22,8 +22,8 @@ from agentlab.cli import (
     handle_task_validate,
     handle_task_verify_reference,
 )
-from agentlab.preflight import PreflightCheck, PreflightResult
-from agentlab.task_bundle_integrity import publish_task_cards
+from agentlab.agents.preflight import PreflightCheck, PreflightResult
+from agentlab.tasks.integrity import publish_task_cards
 
 
 class CliOutputTest(unittest.TestCase):

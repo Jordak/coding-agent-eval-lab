@@ -18,14 +18,26 @@ harness/scaffold, and evaluation suites.
 ## MVP Architecture
 
 - `agentlab.tasks` loads task YAML into domain objects.
-- `agentlab.task_bundle_integrity` is the shared task-bundle integrity boundary
+- `agentlab.tasks.integrity` is the shared task-bundle integrity boundary
   for source YAML validation, generated task-card drift checks, reference
   artifact readiness, and smoke-test readiness.
-- `agentlab.workspace` prepares clean checkouts for each trial.
+- `agentlab.execution.workspace` prepares clean checkouts for each trial.
 - `agentlab.agents` defines agent harness adapters.
-- `agentlab.runner` coordinates workspace setup, agent execution, code-based
+- `agentlab.execution.runner` coordinates workspace setup, agent execution, code-based
   graders, outcome capture, and artifact writing.
-- `agentlab.reporting` renders Markdown trial reports and later static HTML.
+- `agentlab.reports.trial_markdown` renders Markdown trial reports and later static HTML.
+
+## Package Layout
+
+The `agentlab` package is organized by domain module:
+
+- `agentlab.agents` contains agent harness adapters plus shared adapter infrastructure.
+- `agentlab.tasks` contains task bundle loading, task-card generation, task environment helpers, reference verification, and integrity checks.
+- `agentlab.execution` contains command execution, workspace preparation, trial phases, scoring, and run orchestration.
+- `agentlab.evidence` contains result artifacts, human review outcomes, validity metadata, evidence sets, summaries, backfills, and archival helpers.
+- `agentlab.reports` contains human-facing report renderers.
+- `agentlab.runtime` contains runtime metadata normalization such as model identity, token usage, harness configuration, and patch metrics.
+- `agentlab.cli` contains command-line parsing and command handlers.
 
 ## Task Bundles
 
@@ -37,7 +49,7 @@ The task loader accepts either a direct task YAML path or a task bundle
 directory. Suite directories can be passed to validation commands to discover
 all bundled `task.yaml` files below them.
 
-`agentlab.task_bundle_integrity` owns the source-to-validation contract for a
+`agentlab.tasks.integrity` owns the source-to-validation contract for a
 single task bundle. CLI task commands, generated task-card checks, reference
 artifact workflows, smoke-test preflight, and the repo-local pre-commit hook
 should call this shared interface instead of each rebuilding its own

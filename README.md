@@ -268,7 +268,7 @@ git config core.hooksPath .githooks
 ```
 
 The hook fails commits when generated task cards drift from `task.yaml`, and it
-validates all task bundles through `agentlab.task_bundle_integrity`. Task
+validates all task bundles through `agentlab.tasks.integrity`. Task
 candidates and curation backlog live in GitHub Issues rather than in local
 aggregate Markdown files.
 

@@ -4,8 +4,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterable, List
 
-from agentlab.reference import ReferenceVerification, verify_reference
-from agentlab.task_cards import render_task_card
+from agentlab.tasks.reference import ReferenceVerification, verify_reference
+from agentlab.tasks.cards import render_task_card
 from agentlab.tasks import (
     TaskBundle,
     TaskLoadError,

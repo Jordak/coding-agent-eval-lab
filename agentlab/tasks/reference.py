@@ -5,13 +5,13 @@ from dataclasses import dataclass, field
 import json
 from pathlib import Path
 
-from agentlab.commands import run_git
-from agentlab.reporting import render_reference_report
-from agentlab.results import reference_verification_to_result_dict
-from agentlab.scoring import CheckResult
-from agentlab.scoring import Score
-from agentlab.task_execution import TaskActionResult
-from agentlab.task_execution import execute_task_phases
+from agentlab.execution.commands import run_git
+from agentlab.reports.trial_markdown import render_reference_report
+from agentlab.evidence.results import reference_verification_to_result_dict
+from agentlab.execution.scoring import CheckResult
+from agentlab.execution.scoring import Score
+from agentlab.execution.phases import TaskActionResult
+from agentlab.execution.phases import execute_task_phases
 from agentlab.tasks import EvalTask
 
 

@@ -3,10 +3,10 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from agentlab.evidence import render_capability_evidence_digest
-from agentlab.evidence_sets import load_evidence_set
-from agentlab.outcome_evidence import load_outcome_evidences
-from agentlab.review import write_review
+from agentlab.reports.capability_digest import render_capability_evidence_digest
+from agentlab.evidence.sets import load_evidence_set
+from agentlab.evidence.outcome import load_outcome_evidences
+from agentlab.evidence.review_artifacts import write_review
 
 
 class EvidenceSetTest(unittest.TestCase):

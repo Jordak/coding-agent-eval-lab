@@ -5,7 +5,7 @@ import textwrap
 import unittest
 from pathlib import Path
 
-from agentlab.task_cards import (
+from agentlab.tasks.cards import (
     publish_task_cards,
     render_task_card,
 )

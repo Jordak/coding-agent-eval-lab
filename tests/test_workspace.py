@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 from agentlab.tasks import EvalTask
-from agentlab.workspace import prepare_workspace
+from agentlab.execution.workspace import prepare_workspace
 
 
 class WorkspaceTest(unittest.TestCase):

@@ -5,9 +5,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from agentlab.scoring import CheckResult
-from agentlab.task_execution import TaskActionResult
-from agentlab.task_execution import execute_task_phases
+from agentlab.execution.scoring import CheckResult
+from agentlab.execution.phases import TaskActionResult
+from agentlab.execution.phases import execute_task_phases
 from agentlab.tasks import EvalTask
 
 

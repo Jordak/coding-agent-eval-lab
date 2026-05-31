@@ -4,8 +4,8 @@ import argparse
 import sys
 from pathlib import Path
 
-from agentlab.codex_runtime_metadata import recover_codex_runtime_metadata
-from agentlab.evidence_sets import load_evidence_set
+from agentlab.runtime.codex_metadata import recover_codex_runtime_metadata
+from agentlab.evidence.sets import load_evidence_set
 
 
 def add_recover_command(subcommands: argparse._SubParsersAction) -> None:

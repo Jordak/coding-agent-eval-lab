@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from agentlab.scoring import CheckResult
+from agentlab.execution.scoring import CheckResult
 
 if TYPE_CHECKING:
-    from agentlab.reference import ReferenceVerification
-    from agentlab.runner import EvaluationRun
+    from agentlab.tasks.reference import ReferenceVerification
+    from agentlab.execution.runner import EvaluationRun
 
 
 def render_markdown_report(run: "EvaluationRun") -> str:

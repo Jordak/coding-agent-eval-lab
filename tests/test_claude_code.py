@@ -15,7 +15,7 @@ from agentlab.agents.claude_code import (
     claude_code_agent_harness_config,
     run_claude_code_preflight,
 )
-from agentlab.runner import run_task
+from agentlab.execution.runner import run_task
 from agentlab.tasks import EvalTask
 
 
