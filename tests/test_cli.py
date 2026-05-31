@@ -578,7 +578,9 @@ class CliOutputTest(unittest.TestCase):
                     '"status":"failed","success":false,'
                     '"trial_validity":"valid","exclusion_reason":null,'
                     '"files_changed":["app.py"],"lines_added":1,'
-                    '"lines_deleted":0}'
+                    '"lines_deleted":0,"input_tokens":10,'
+                    '"cached_input_tokens":4,"output_tokens":5,'
+                    '"reasoning_output_tokens":2}'
                 ),
                 encoding="utf-8",
             )
@@ -602,6 +604,8 @@ class CliOutputTest(unittest.TestCase):
         self.assertIn("excluded", output)
         self.assertIn("dependency_issue", output)
         self.assertIn("setup_error", output)
+        self.assertIn("cached_tok", output)
+        self.assertIn("4", output)
 
     def test_trials_summarize_shows_primary_and_secondary_review_counts(self):
         with tempfile.TemporaryDirectory() as temp:
