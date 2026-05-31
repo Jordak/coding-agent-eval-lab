@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Optional
 
-from agentlab.agent_harness_config import normalize_agent_harness_config
+from agentlab.runtime.agent_harness_config import normalize_agent_harness_config
 from agentlab.agents.base import AgentRun
 from agentlab.agents.process_execution import (
     AgentProcessRequest,
@@ -16,10 +16,10 @@ from agentlab.agents.process_execution import (
     timeout_stdout,
 )
 from agentlab.agents.prompts import build_agent_prompt
-from agentlab.environment import build_task_environment
-from agentlab.model_identity import ModelIdentity, model_identity_from_events
-from agentlab.preflight import PreflightCheck, PreflightResult
-from agentlab.resource_usage import ResourceUsage
+from agentlab.tasks.environment import build_task_environment
+from agentlab.runtime.model_identity import ModelIdentity, model_identity_from_events
+from agentlab.agents.preflight import PreflightCheck, PreflightResult
+from agentlab.runtime.resource_usage import ResourceUsage
 from agentlab.tasks import EvalTask
 
 

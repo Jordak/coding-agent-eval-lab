@@ -4,8 +4,8 @@ import argparse
 import sys
 from pathlib import Path
 
-from agentlab.review import FAILURE_LABELS, load_review, resolve_run_dir, write_review
-from agentlab.validity import (
+from agentlab.evidence.review_artifacts import FAILURE_LABELS, load_review, resolve_run_dir, write_review
+from agentlab.evidence.validity import (
     DEFAULT_TRIAL_VALIDITY,
     EXCLUDED_TRIAL_VALIDITY,
     EXCLUSION_REASONS,

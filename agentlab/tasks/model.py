@@ -8,7 +8,7 @@ from typing import Any, Dict, Iterable, List, Mapping, Optional
 
 import yaml  # type: ignore
 
-from agentlab.taxonomy import FAILURE_LABELS
+from agentlab.evidence.taxonomy import FAILURE_LABELS
 
 EVAL_TYPES = ["capability", "regression"]
 TASK_BUNDLE_FILENAMES = ("task.yaml", "task.yml")

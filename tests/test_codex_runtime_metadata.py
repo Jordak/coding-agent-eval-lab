@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from agentlab.codex_runtime_metadata import (
+from agentlab.runtime.codex_metadata import (
     LOCAL_CODEX_STATE_SOURCE,
     codex_model_identity_from_events_and_state,
     parse_codex_thread_id_from_events,

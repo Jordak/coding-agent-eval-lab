@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from statistics import median
 from typing import Dict, Iterable, List, Tuple
 
-from agentlab.outcome_evidence import OutcomeEvidence
+from agentlab.evidence.outcome import OutcomeEvidence
 
 ACCEPTED_PRIMARY_REVIEW_LABELS = {"success_clean"}
 

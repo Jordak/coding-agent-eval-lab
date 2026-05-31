@@ -5,7 +5,7 @@ import textwrap
 import unittest
 from pathlib import Path
 
-from agentlab.task_bundle_integrity import (
+from agentlab.tasks.integrity import (
     TaskBundleIntegrityError,
     check_reference_artifact_ready,
     check_task_bundle_integrity,

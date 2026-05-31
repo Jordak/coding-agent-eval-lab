@@ -4,10 +4,10 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any, Dict
 
-from agentlab.agent_harness_config import normalize_agent_harness_config
-from agentlab.model_identity import model_identity_from_events
-from agentlab.patches import count_patch_lines
-from agentlab.resource_usage import (
+from agentlab.runtime.agent_harness_config import normalize_agent_harness_config
+from agentlab.runtime.model_identity import model_identity_from_events
+from agentlab.runtime.patches import count_patch_lines
+from agentlab.runtime.resource_usage import (
     ResourceUsage,
     parse_resource_usage_events,
     resource_usage_to_dict,

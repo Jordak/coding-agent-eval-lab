@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 from types import SimpleNamespace
 
-from agentlab.trial_execution import TrialExecutionConfig, execute_trials
+from agentlab.execution.trials import TrialExecutionConfig, execute_trials
 
 
 class TrialExecutionTest(unittest.TestCase):

@@ -3,11 +3,11 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from agentlab.evidence import render_capability_evidence_digest
-from agentlab.outcome_evidence import load_outcome_evidences
-from agentlab.results import discover_result_files
-from agentlab.review import write_review
-from agentlab.summary import summarize_trials
+from agentlab.reports.capability_digest import render_capability_evidence_digest
+from agentlab.evidence.outcome import load_outcome_evidences
+from agentlab.evidence.results import discover_result_files
+from agentlab.evidence.review_artifacts import write_review
+from agentlab.evidence.summary import summarize_trials
 
 
 MODEL_IDENTITY_FIXTURES = Path(__file__).parent / "fixtures" / "model_identity"

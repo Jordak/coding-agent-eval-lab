@@ -11,7 +11,7 @@ from agentlab.cli.agent_options import (
 )
 from agentlab.tasks import TaskLoadError, load_task
 from agentlab.terminal import print_error
-from agentlab.trial_execution import TrialExecutionConfig, execute_trials
+from agentlab.execution.trials import TrialExecutionConfig, execute_trials
 
 
 def add_run_command(subcommands: argparse._SubParsersAction) -> None:

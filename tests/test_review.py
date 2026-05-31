@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from agentlab.review import (
+from agentlab.evidence.review_artifacts import (
     ReviewArtifactError,
     load_review,
     resolve_run_dir,

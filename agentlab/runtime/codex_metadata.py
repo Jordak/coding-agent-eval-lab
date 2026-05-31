@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable, Mapping
 
-from agentlab.model_identity import ModelIdentity, parse_model_name_from_events
+from agentlab.runtime.model_identity import ModelIdentity, parse_model_name_from_events
 
 
 LOCAL_CODEX_STATE_SOURCE = "local_codex_state"

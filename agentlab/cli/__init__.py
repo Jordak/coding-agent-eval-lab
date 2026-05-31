@@ -25,7 +25,7 @@ from agentlab.cli.trials import (
     handle_trials_archive_excluded,
     handle_trials_summarize,
 )
-from agentlab.review import ReviewArtifactError
+from agentlab.evidence.review_artifacts import ReviewArtifactError
 
 
 def main(argv: Iterable[str] | None = None) -> int:

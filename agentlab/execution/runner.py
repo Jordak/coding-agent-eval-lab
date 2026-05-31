@@ -7,10 +7,10 @@ from pathlib import Path
 
 from agentlab.agents.base import AgentAdapter
 from agentlab.agents.base import AgentRun
-from agentlab.reporting import render_markdown_report
-from agentlab.scoring import Score
-from agentlab.task_execution import TaskActionResult
-from agentlab.task_execution import execute_task_phases
+from agentlab.reports.trial_markdown import render_markdown_report
+from agentlab.execution.scoring import Score
+from agentlab.execution.phases import TaskActionResult
+from agentlab.execution.phases import execute_task_phases
 from agentlab.tasks import EvalTask
 
 
@@ -67,7 +67,7 @@ def run_task(task: EvalTask, agent: AgentAdapter, runs_dir: Path) -> EvaluationR
         result_path=result_path,
     )
     report_path.write_text(render_markdown_report(evaluation), encoding="utf-8")
-    from agentlab.results import write_result_json
+    from agentlab.evidence.results import write_result_json
 
     write_result_json(evaluation)
     return evaluation

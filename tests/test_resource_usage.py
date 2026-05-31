@@ -1,6 +1,6 @@
 import unittest
 
-from agentlab.resource_usage import parse_resource_usage_events
+from agentlab.runtime.resource_usage import parse_resource_usage_events
 
 
 class ResourceUsageTest(unittest.TestCase):

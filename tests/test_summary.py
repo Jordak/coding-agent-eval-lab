@@ -1,11 +1,11 @@
 import unittest
 
-from agentlab.human_review import (
+from agentlab.evidence.human_review import (
     create_human_review_outcome,
     human_review_outcome_from_mapping,
 )
-from agentlab.outcome_evidence import normalize_outcome_evidence
-from agentlab.summary import summarize_trials
+from agentlab.evidence.outcome import normalize_outcome_evidence
+from agentlab.evidence.summary import summarize_trials
 
 
 class SummaryTest(unittest.TestCase):

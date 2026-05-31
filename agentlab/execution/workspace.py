@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from agentlab.commands import run_git
+from agentlab.execution.commands import run_git
 from agentlab.tasks import EvalTask
 
 

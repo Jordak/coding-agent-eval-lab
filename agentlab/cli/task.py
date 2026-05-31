@@ -14,11 +14,11 @@ from agentlab.cli.agent_options import (
 )
 from agentlab.cli.output import _trim_cli_output
 from agentlab.cli.run import _print_run_summaries
-from agentlab.reference import (
+from agentlab.tasks.reference import (
     ReferenceVerification,
     ReferenceVerificationError,
 )
-from agentlab.task_bundle_integrity import (
+from agentlab.tasks.integrity import (
     TaskBundleIntegrityError,
     check_reference_artifact_ready,
     check_task_bundle_integrity,
@@ -28,7 +28,7 @@ from agentlab.task_bundle_integrity import (
 )
 from agentlab.tasks import TaskLoadError, discover_task_files
 from agentlab.terminal import print_error
-from agentlab.trial_execution import TrialExecutionConfig, execute_trials
+from agentlab.execution.trials import TrialExecutionConfig, execute_trials
 
 
 def add_task_commands(subcommands: argparse._SubParsersAction) -> None:

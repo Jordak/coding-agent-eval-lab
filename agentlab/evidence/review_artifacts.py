@@ -4,14 +4,14 @@ import json
 from pathlib import Path
 from typing import Iterable
 
-from agentlab.human_review import (
+from agentlab.evidence.human_review import (
     HumanReviewOutcome,
     create_human_review_outcome,
     human_review_outcome_from_mapping,
     human_review_outcome_to_mapping,
 )
-from agentlab.taxonomy import FAILURE_LABELS
-from agentlab.validity import DEFAULT_TRIAL_VALIDITY
+from agentlab.evidence.taxonomy import FAILURE_LABELS
+from agentlab.evidence.validity import DEFAULT_TRIAL_VALIDITY
 
 
 class ReviewArtifactError(ValueError):

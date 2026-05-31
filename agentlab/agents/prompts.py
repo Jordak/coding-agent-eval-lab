@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from agentlab.environment import describe_task_environment
+from agentlab.tasks.environment import describe_task_environment
 from agentlab.tasks import EvalTask
 
 

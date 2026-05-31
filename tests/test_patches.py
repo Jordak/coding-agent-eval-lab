@@ -1,6 +1,6 @@
 import unittest
 
-from agentlab.patches import count_patch_lines
+from agentlab.runtime.patches import count_patch_lines
 
 
 class PatchStatsTest(unittest.TestCase):

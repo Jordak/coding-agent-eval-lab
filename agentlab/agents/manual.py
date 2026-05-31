@@ -4,7 +4,7 @@ import time
 from pathlib import Path
 
 from agentlab.agents.base import AgentRun
-from agentlab.environment import describe_task_environment
+from agentlab.tasks.environment import describe_task_environment
 from agentlab.tasks import EvalTask
 
 

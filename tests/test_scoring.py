@@ -1,6 +1,6 @@
 import unittest
 
-from agentlab.scoring import CheckResult, calculate_grader_outcome
+from agentlab.execution.scoring import CheckResult, calculate_grader_outcome
 from agentlab.tasks import EvalTask, SuccessCriteria
 
 

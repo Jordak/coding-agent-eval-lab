@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Iterable, List
 
-from agentlab.environment import describe_task_environment
+from agentlab.tasks.environment import describe_task_environment
 from agentlab.tasks import EvalTask, TaskBundle
 
 
@@ -12,7 +12,7 @@ def publish_task_cards(
     *,
     check: bool = False,
 ):
-    from agentlab.task_bundle_integrity import publish_task_cards as publish
+    from agentlab.tasks.integrity import publish_task_cards as publish
 
     return publish(paths, check=check)
 

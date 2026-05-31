@@ -16,5 +16,5 @@ dev = ["pytest>=8"]
 [project.scripts]
 agentlab = "agentlab.cli:main"
 
-[tool.setuptools]
-packages = ["agentlab", "agentlab.agents", "agentlab.cli"]
+[tool.setuptools.packages.find]
+include = ["agentlab*"]

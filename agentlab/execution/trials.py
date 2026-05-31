@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Callable
 
 from agentlab.agents.base import AgentAdapter
-from agentlab.runner import EvaluationRun, run_task
+from agentlab.execution.runner import EvaluationRun, run_task
 from agentlab.tasks import EvalTask
 from agentlab.terminal import ProgressBar
 

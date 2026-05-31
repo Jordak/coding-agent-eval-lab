@@ -5,11 +5,11 @@ import sys
 from pathlib import Path
 
 from agentlab.cli.output import _print_table
-from agentlab.outcome_evidence import load_outcome_evidences
-from agentlab.results import discover_result_files
-from agentlab.summary import summarize_trials
-from agentlab.trial_archive import archive_excluded_trials
-from agentlab.validity import EXCLUSION_REASONS
+from agentlab.evidence.outcome import load_outcome_evidences
+from agentlab.evidence.results import discover_result_files
+from agentlab.evidence.summary import summarize_trials
+from agentlab.evidence.archive import archive_excluded_trials
+from agentlab.evidence.validity import EXCLUSION_REASONS
 
 
 def add_trial_commands(subcommands: argparse._SubParsersAction) -> None:

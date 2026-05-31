@@ -7,9 +7,9 @@ import json
 import unittest
 from pathlib import Path
 
-from agentlab.outcome_evidence import load_outcome_evidences
-from agentlab.reference import ReferenceVerificationError, verify_reference
-from agentlab.scoring import calculate_grader_outcome
+from agentlab.evidence.outcome import load_outcome_evidences
+from agentlab.tasks.reference import ReferenceVerificationError, verify_reference
+from agentlab.execution.scoring import calculate_grader_outcome
 from agentlab.tasks import EvalTask, load_task
 
 

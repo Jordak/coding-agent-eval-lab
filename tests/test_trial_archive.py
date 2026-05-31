@@ -5,9 +5,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from agentlab.results import discover_result_files
-from agentlab.review import write_review
-from agentlab.trial_archive import archive_excluded_trials, plan_excluded_trial_archive
+from agentlab.evidence.results import discover_result_files
+from agentlab.evidence.review_artifacts import write_review
+from agentlab.evidence.archive import archive_excluded_trials, plan_excluded_trial_archive
 
 
 class TrialArchiveTest(unittest.TestCase):

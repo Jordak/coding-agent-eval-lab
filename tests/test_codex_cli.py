@@ -16,7 +16,7 @@ from agentlab.agents.codex_cli import (
     codex_agent_harness_config,
     run_codex_preflight,
 )
-from agentlab.runner import run_task
+from agentlab.execution.runner import run_task
 from agentlab.tasks import EvalTask
 
 

@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 
-from agentlab.model_identity import model_identity_from_events
+from agentlab.runtime.model_identity import model_identity_from_events
 
 
 FIXTURES = Path(__file__).parent / "fixtures" / "model_identity"
