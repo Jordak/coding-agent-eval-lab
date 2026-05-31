@@ -6,7 +6,9 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
+import agentlab.agents.codex_cli as codex_cli_module
 from agentlab.agents.codex_cli import (
     CodexCliAdapter,
     CodexCliConfig,
@@ -115,6 +117,67 @@ class CodexCliAdapterTest(unittest.TestCase):
                 "Done from-env.\n",
             )
 
+    def test_codex_adapter_forwards_process_request_fields(self):
+        captured_requests = []
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            task = EvalTask(
+                id="codex-request",
+                title="Codex request",
+                repo=str(temp_path),
+                commit="unused",
+                language="text",
+                prompt="No-op.",
+                environment={"AGENTLAB_TEST_SENTINEL": "from-env"},
+            )
+
+            def fake_process_executor(request):
+                captured_requests.append(request)
+                request.stdout_path.write_text('{"type":"done"}\n', encoding="utf-8")
+                last_message = Path(
+                    request.command[
+                        request.command.index("--output-last-message") + 1
+                    ]
+                )
+                last_message.write_text("Done.", encoding="utf-8")
+                return subprocess.CompletedProcess(
+                    args=request.command,
+                    returncode=0,
+                    stdout='{"type":"done"}\n',
+                    stderr="",
+                )
+
+            adapter = CodexCliAdapter(
+                CodexCliConfig(
+                    command="codex-test",
+                    timeout_seconds=7,
+                    show_progress=False,
+                )
+            )
+
+            with patch.object(
+                codex_cli_module,
+                "run_agent_process",
+                side_effect=fake_process_executor,
+            ):
+                agent_run = adapter.run(task, temp_path, temp_path / "run")
+
+            self.assertIsNone(agent_run.error)
+            self.assertEqual(len(captured_requests), 1)
+            request = captured_requests[0]
+            self.assertEqual(request.executable_name, "codex-test")
+            self.assertEqual(request.timeout_seconds, 7)
+            self.assertEqual(
+                request.stdout_path,
+                temp_path / "run" / "codex-events.jsonl",
+            )
+            self.assertEqual(request.progress_label, "Codex")
+            self.assertFalse(request.show_progress)
+            self.assertIsNone(request.cwd)
+            assert request.env is not None
+            self.assertEqual(request.env.get("AGENTLAB_TEST_SENTINEL"), "from-env")
+
     def test_missing_codex_cli_error_points_to_portable_configuration(self):
         with tempfile.TemporaryDirectory() as temp:
             temp_path = Path(temp)
@@ -181,6 +244,41 @@ class CodexCliAdapterTest(unittest.TestCase):
         self.assertEqual(config["codex_thread_id"], "thread-1")
         self.assertEqual(config["reasoning_effort"], "xhigh")
         self.assertEqual(config["model_provider"], "openai")
+
+    def test_codex_timeout_persists_partial_events(self):
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            task = EvalTask(
+                id="codex-timeout",
+                title="Codex timeout",
+                repo=str(temp_path),
+                commit="unused",
+                language="text",
+                prompt="No-op.",
+            )
+
+            def timeout_runner(command, timeout_seconds):
+                raise subprocess.TimeoutExpired(
+                    command,
+                    timeout_seconds,
+                    output='{"type":"thread.started","thread_id":"thread-1"}\n',
+                    stderr="still running",
+                )
+
+            adapter = CodexCliAdapter(
+                CodexCliConfig(command="codex-test", timeout_seconds=1),
+                command_runner=timeout_runner,
+            )
+
+            agent_run = adapter.run(task, temp_path, temp_path / "run")
+
+            self.assertEqual(agent_run.error, "Codex CLI timed out after 1s")
+            self.assertEqual(
+                (temp_path / "run" / "codex-events.jsonl").read_text(
+                    encoding="utf-8"
+                ),
+                '{"type":"thread.started","thread_id":"thread-1"}\n',
+            )
 
     def test_codex_preflight_runs_version_and_exec_help_shape(self):
         with tempfile.TemporaryDirectory() as temp:

@@ -5,7 +5,9 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
+import agentlab.agents.claude_code as claude_code_module
 from agentlab.agents.claude_code import (
     ClaudeCodeAdapter,
     ClaudeCodeConfig,
@@ -109,6 +111,111 @@ class ClaudeCodeAdapterTest(unittest.TestCase):
             assert agent_run.error is not None
             self.assertIn("Claude Code CLI not found", agent_run.error)
             self.assertIn("--claude-command", agent_run.error)
+
+    def test_claude_adapter_forwards_process_request_fields(self):
+        captured_requests = []
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            task = EvalTask(
+                id="claude-request",
+                title="Claude request",
+                repo=str(temp_path),
+                commit="unused",
+                language="text",
+                prompt="No-op.",
+                environment={"AGENTLAB_TEST_SENTINEL": "from-env"},
+            )
+
+            def fake_process_executor(request):
+                captured_requests.append(request)
+                output = (
+                    '{"type":"assistant","message":{"id":"msg_1",'
+                    '"model":"claude-sonnet-4-6"}}\n'
+                    '{"type":"result","subtype":"success","result":"Done."}\n'
+                )
+                request.stdout_path.write_text(output, encoding="utf-8")
+                return subprocess.CompletedProcess(
+                    args=request.command,
+                    returncode=0,
+                    stdout=output,
+                    stderr="",
+                )
+
+            adapter = ClaudeCodeAdapter(
+                ClaudeCodeConfig(
+                    command="claude-test",
+                    timeout_seconds=7,
+                    show_progress=False,
+                )
+            )
+
+            with patch.object(
+                claude_code_module,
+                "run_agent_process",
+                side_effect=fake_process_executor,
+            ):
+                agent_run = adapter.run(task, temp_path, temp_path / "run")
+
+            self.assertIsNone(agent_run.error)
+            self.assertEqual(len(captured_requests), 1)
+            request = captured_requests[0]
+            self.assertEqual(request.executable_name, "claude-test")
+            self.assertEqual(request.timeout_seconds, 7)
+            self.assertEqual(
+                request.stdout_path,
+                temp_path / "run" / "claude-events.jsonl",
+            )
+            self.assertEqual(request.progress_label, "Claude")
+            self.assertFalse(request.show_progress)
+            self.assertEqual(request.cwd, temp_path)
+            assert request.env is not None
+            self.assertEqual(request.env.get("AGENTLAB_TEST_SENTINEL"), "from-env")
+            self.assertEqual(
+                (temp_path / "run" / "claude-final-message.md").read_text(
+                    encoding="utf-8"
+                ),
+                "Done.",
+            )
+
+    def test_claude_timeout_persists_partial_events(self):
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            task = EvalTask(
+                id="claude-timeout",
+                title="Claude timeout",
+                repo=str(temp_path),
+                commit="unused",
+                language="text",
+                prompt="No-op.",
+            )
+
+            def timeout_runner(command, timeout_seconds, cwd, env):
+                raise subprocess.TimeoutExpired(
+                    command,
+                    timeout_seconds,
+                    output=(
+                        '{"type":"assistant","message":{"id":"msg_1",'
+                        '"model":"claude-sonnet-4-6"}}\n'
+                    ),
+                    stderr="still running",
+                )
+
+            adapter = ClaudeCodeAdapter(
+                ClaudeCodeConfig(command="claude-test", timeout_seconds=1),
+                command_runner=timeout_runner,
+            )
+
+            agent_run = adapter.run(task, temp_path, temp_path / "run")
+
+            self.assertEqual(agent_run.error, "Claude Code CLI timed out after 1s")
+            self.assertEqual(
+                (temp_path / "run" / "claude-events.jsonl").read_text(
+                    encoding="utf-8"
+                ),
+                '{"type":"assistant","message":{"id":"msg_1",'
+                '"model":"claude-sonnet-4-6"}}\n',
+            )
 
     def test_claude_preflight_runs_version_auth_and_print_help_shape(self):
         with tempfile.TemporaryDirectory() as temp:

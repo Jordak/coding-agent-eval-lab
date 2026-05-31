@@ -106,6 +106,14 @@ The Codex CLI adapter uses `codex exec` non-interactively against the isolated
 workspace. It captures JSONL events, the final agent message, the resulting
 patch, and the same code-based graders as every other adapter.
 
+Command-based adapters share the **agent process executor** in
+`agentlab.agents.process_execution`. The executor owns executable resolution,
+process launch, timeout and progress polling, stdout/stderr capture, working
+directory and environment wiring, and stdout event-artifact persistence.
+Adapters own command construction, agent-specific event parsing, resource usage
+normalization, model identity extraction, final-message rendering, and harness
+configuration metadata.
+
 ## Graders And Outcomes
 
 The current evaluation harness uses deterministic code-based graders: setup

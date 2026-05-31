@@ -10,12 +10,16 @@ from typing import Any, Callable, Dict, Iterable, List, Optional
 
 from agentlab.agent_harness_config import normalize_agent_harness_config
 from agentlab.agents.base import AgentRun
+from agentlab.agents.process_execution import (
+    AgentProcessRequest,
+    run_agent_process,
+    timeout_stdout,
+)
 from agentlab.agents.prompts import build_agent_prompt
 from agentlab.environment import build_task_environment
 from agentlab.model_identity import ModelIdentity, model_identity_from_events
 from agentlab.preflight import PreflightCheck, PreflightResult
 from agentlab.resource_usage import ResourceUsage
-from agentlab.terminal import ProgressBar
 from agentlab.tasks import EvalTask
 
 
@@ -82,17 +86,16 @@ class ClaudeCodeAdapter:
                 self.config.timeout_seconds,
                 workspace=workspace,
                 env=task_env,
+                stdout_path=events_path,
             )
         except FileNotFoundError:
             error = _missing_cli_message(self.config.command)
         except subprocess.TimeoutExpired as exc:
             error = f"Claude Code CLI timed out after {self.config.timeout_seconds}s"
-            events_text = _coerce_text(exc.stdout or exc.output or "")
-            events_path.write_text(events_text, encoding="utf-8")
+            events_text = timeout_stdout(exc)
 
         if completed is not None:
             events_text = completed.stdout
-            events_path.write_text(events_text, encoding="utf-8")
             final_message = _extract_final_message(
                 events_text,
                 output_format=self.config.output_format,
@@ -180,56 +183,32 @@ class ClaudeCodeAdapter:
         *,
         workspace: Path,
         env: dict[str, str],
+        stdout_path: Path,
     ) -> subprocess.CompletedProcess[str]:
-        if self._command_runner:
-            return self._command_runner(command, timeout_seconds, workspace, env)
+        request = AgentProcessRequest(
+            command=command,
+            executable_name=self.config.command,
+            timeout_seconds=timeout_seconds,
+            stdout_path=stdout_path,
+            progress_label="Claude",
+            show_progress=self.config.show_progress,
+            cwd=workspace,
+            env=env,
+        )
+        if self._command_runner is None:
+            return run_agent_process(request)
 
-        executable = shutil.which(self.config.command)
-        if executable is None:
-            raise FileNotFoundError(self.config.command)
-        command = [executable] + command[1:]
-
-        progress = ProgressBar("Claude", enabled=self.config.show_progress)
-        progress.update("starting agent process")
-        try:
-            process = subprocess.Popen(
-                command,
-                text=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                cwd=str(workspace),
-                env=env,
+        def runner(
+            process_request: AgentProcessRequest,
+        ) -> subprocess.CompletedProcess[str]:
+            return self._command_runner(
+                process_request.command,
+                process_request.timeout_seconds,
+                workspace,
+                env,
             )
-        except Exception:
-            progress.clear()
-            raise
-        started_at = time.monotonic()
 
-        while True:
-            try:
-                stdout, stderr = process.communicate(
-                    timeout=progress.interval_seconds
-                )
-                progress.finish("agent process finished")
-                return subprocess.CompletedProcess(
-                    args=command,
-                    returncode=process.returncode,
-                    stdout=stdout,
-                    stderr=stderr,
-                )
-            except subprocess.TimeoutExpired:
-                elapsed = time.monotonic() - started_at
-                if elapsed >= timeout_seconds:
-                    process.kill()
-                    stdout, stderr = process.communicate()
-                    progress.finish("agent process timed out")
-                    raise subprocess.TimeoutExpired(
-                        command,
-                        timeout_seconds,
-                        output=stdout,
-                        stderr=stderr,
-                    )
-                progress.update("waiting for agent response")
+        return run_agent_process(request, runner=runner)
 
     def _collect_runtime_facts(self) -> ClaudeCodeRuntimeFacts:
         if self._command_runner:
