@@ -626,7 +626,9 @@ class CliOutputTest(unittest.TestCase):
                             "duration_ms": 100,
                             "files_changed": ["app.py"],
                             "input_tokens": 10 + (index * 10),
+                            "cached_input_tokens": 2,
                             "output_tokens": 5,
+                            "reasoning_output_tokens": 3,
                         }
                     ),
                     encoding="utf-8",
@@ -656,12 +658,74 @@ class CliOutputTest(unittest.TestCase):
         self.assertIn("primary_reviews", output)
         self.assertIn("secondary_reviews", output)
         self.assertIn("accepted", output)
+        self.assertIn("cached_tok", output)
+        self.assertIn("reason_tok", output)
         self.assertIn("io_tok_per_verified", output)
         self.assertIn("20", output)
         self.assertIn("effort", output)
         self.assertIn("xhigh", output)
         self.assertIn("success_clean:2", output)
         self.assertIn("resource_inefficient:2", output)
+
+    def test_trials_summarize_shows_token_totals_when_no_trials_pass(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runs_dir = Path(temp)
+            run_dir = runs_dir / "trial-failed"
+            run_dir.mkdir()
+            (run_dir / "result.json").write_text(
+                json.dumps(
+                    {
+                        "trial_id": "trial-failed",
+                        "task_id": "task-a",
+                        "eval_suite": "starter",
+                        "eval_type": "capability",
+                        "agent_name": "codex",
+                        "model_name": "gpt-test",
+                        "agent_harness_config": {
+                            "reasoning_effort": "xhigh",
+                        },
+                        "status": "failed",
+                        "success": False,
+                        "duration_ms": 100,
+                        "files_changed": ["app.py"],
+                        "input_tokens": 10,
+                        "cached_input_tokens": 4,
+                        "output_tokens": 5,
+                        "reasoning_output_tokens": 2,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (run_dir / "review.json").write_text(
+                json.dumps(
+                    {
+                        "primary_label": "bad_local_fix",
+                        "secondary_labels": [],
+                        "note": "Graders failed after an attempted patch.",
+                        "evidence": [],
+                        "trial_validity": "valid",
+                        "exclusion_reason": None,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                status = handle_trials_summarize(
+                    SimpleNamespace(runs_dir=str(runs_dir))
+                )
+
+        output = stdout.getvalue()
+        self.assertEqual(status, 0)
+        self.assertIn("io_tok", output)
+        self.assertIn("cached_tok", output)
+        self.assertIn("reason_tok", output)
+        self.assertIn("io_tok_per_verified", output)
+        self.assertIn("unknown", output)
+        self.assertIn("15", output)
+        self.assertIn("4", output)
+        self.assertIn("2", output)
 
     def test_run_summary_is_quiet_when_all_trials_pass(self):
         evaluation = SimpleNamespace(

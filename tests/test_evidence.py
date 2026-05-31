@@ -25,6 +25,7 @@ class CapabilityEvidenceDigestTest(unittest.TestCase):
                         "lines_added": 5,
                         "lines_deleted": 1,
                         "input_tokens": 10,
+                        "cached_input_tokens": 4,
                         "output_tokens": 5,
                         "reasoning_output_tokens": 2,
                         "cost_usd": None,
@@ -72,7 +73,9 @@ class CapabilityEvidenceDigestTest(unittest.TestCase):
         self.assertIn("Secondary Review Labels", digest)
         self.assertIn("IO Tok / Verified", digest)
         self.assertIn("IO Tok / Accepted", digest)
-        self.assertIn("| starter | regression | task-a | codex | model-a | xhigh | 2 | 1 | 1 | 1 | 1 | 1.00 | 1.00 | 1.00 | 15 | 15 | 15 | unknown | 2 | 100 | 1 | 5 | 1 | success_clean:1 | resource_inefficient:1 | setup_error:1 |", digest)
+        self.assertIn("Cached Tokens", digest)
+        self.assertIn("Reason Tokens", digest)
+        self.assertIn("| starter | regression | task-a | codex | model-a | xhigh | 2 | 1 | 1 | 1 | 1 | 1.00 | 1.00 | 1.00 | 15 | 4 | 2 | 15 | 15 | 4 | 2 | 100 | 1 | 5 | 1 | success_clean:1 | resource_inefficient:1 | setup_error:1 |", digest)
         self.assertIn("| trial-pass | task-a | codex | model-a | xhigh | passed | valid | success_clean | resource_inefficient |", digest)
         self.assertIn("| 1 | 5 | 1 | 10 | 5 | 2 | unknown | 100 |", digest)
         self.assertIn("| trial-excluded | task-a | codex | model-a | xhigh | failed | excluded | dependency_issue |  | setup_error |", digest)
@@ -80,6 +83,42 @@ class CapabilityEvidenceDigestTest(unittest.TestCase):
         self.assertIn("[transcript](runs/trial-pass/transcript.md)", digest)
         self.assertIn("[diff](runs/trial-pass/diff.patch)", digest)
         self.assertIn("[result](runs/trial-pass/result.json)", digest)
+
+    def test_renders_token_totals_when_no_verified_results(self):
+        digest = render_capability_evidence_digest(
+            [
+                normalize_outcome_evidence(
+                    {
+                        "trial_id": "trial-fail",
+                        "task_id": "task-a",
+                        "eval_suite": "starter",
+                        "eval_type": "regression",
+                        "agent_name": "codex",
+                        "model_name": "model-a",
+                        "agent_harness_config": {"reasoning_effort": "xhigh"},
+                        "status": "failed",
+                        "success": False,
+                        "duration_ms": 100,
+                        "files_changed": [],
+                        "lines_added": 0,
+                        "lines_deleted": 0,
+                        "input_tokens": 10,
+                        "cached_input_tokens": 4,
+                        "output_tokens": 5,
+                        "reasoning_output_tokens": 2,
+                        "run_dir": "runs/trial-fail",
+                    },
+                    human_review_outcome=create_human_review_outcome(
+                        primary_label="bad_local_fix",
+                        note="Graders failed after an attempted patch.",
+                    ),
+                ),
+            ]
+        )
+
+        self.assertIn("Cached Tokens", digest)
+        self.assertIn("Reason Tokens", digest)
+        self.assertIn("| starter | regression | task-a | codex | model-a | xhigh | 1 | 1 | 0 | 0 | 0 | 0.00 | 0.00 | 0.00 | 15 | 4 | 2 | unknown | unknown | unknown | unknown | 100 | 0 | 0 | 0 | bad_local_fix:1 |  |  |", digest)
 
     def test_renders_missing_model_identity_as_unknown(self):
         digest = render_capability_evidence_digest(

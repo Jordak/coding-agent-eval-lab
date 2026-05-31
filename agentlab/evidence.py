@@ -56,6 +56,8 @@ def render_capability_evidence_digest(
                     "pass@k",
                     "pass^k",
                     "IO Tokens",
+                    "Cached Tokens",
+                    "Reason Tokens",
                     "IO Tok / Verified",
                     "IO Tok / Accepted",
                     "Cached Tok / Verified",
@@ -85,6 +87,10 @@ def render_capability_evidence_digest(
                         _format_rate(summary.pass_at_k),
                         _format_rate(summary.pass_caret_k),
                         _format_optional_number(summary.total_input_output_tokens),
+                        _format_optional_number(summary.total_cached_input_tokens),
+                        _format_optional_number(
+                            summary.total_reasoning_output_tokens
+                        ),
                         _format_optional_number(
                             summary.input_output_tokens_per_verified_result
                         ),

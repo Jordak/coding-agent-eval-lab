@@ -102,7 +102,13 @@ class SummaryTest(unittest.TestCase):
 
     def test_token_per_result_metrics_are_unknown_when_required_tokens_missing(self):
         results = [
-            self._result(success=True, input_tokens=10, output_tokens=None),
+            self._result(
+                success=True,
+                input_tokens=10,
+                output_tokens=None,
+                cached_input_tokens=3,
+                reasoning_output_tokens=5,
+            ),
             self._result(
                 success=False,
                 input_tokens=999,
@@ -121,12 +127,22 @@ class SummaryTest(unittest.TestCase):
         self.assertEqual(summary.trials, 1)
         self.assertEqual(summary.passes, 1)
         self.assertIsNone(summary.total_input_output_tokens)
+        self.assertEqual(summary.total_cached_input_tokens, 3)
+        self.assertEqual(summary.total_reasoning_output_tokens, 5)
         self.assertIsNone(summary.input_output_tokens_per_verified_result)
         self.assertIsNone(summary.input_output_tokens_per_accepted_result)
+        self.assertEqual(summary.cached_input_tokens_per_verified_result, 3)
+        self.assertEqual(summary.reasoning_output_tokens_per_verified_result, 5)
 
     def test_token_per_result_metrics_are_unknown_when_no_success_denominator(self):
         results = [
-            self._result(success=False, input_tokens=10, output_tokens=5),
+            self._result(
+                success=False,
+                input_tokens=10,
+                output_tokens=5,
+                cached_input_tokens=4,
+                reasoning_output_tokens=2,
+            ),
         ]
 
         summary = summarize_trials(results)[0]
@@ -135,8 +151,12 @@ class SummaryTest(unittest.TestCase):
         self.assertEqual(summary.passes, 0)
         self.assertEqual(summary.accepted_results, 0)
         self.assertEqual(summary.total_input_output_tokens, 15)
+        self.assertEqual(summary.total_cached_input_tokens, 4)
+        self.assertEqual(summary.total_reasoning_output_tokens, 2)
         self.assertIsNone(summary.input_output_tokens_per_verified_result)
         self.assertIsNone(summary.input_output_tokens_per_accepted_result)
+        self.assertIsNone(summary.cached_input_tokens_per_verified_result)
+        self.assertIsNone(summary.reasoning_output_tokens_per_verified_result)
 
     def test_pass_caret_k_requires_all_trials_to_pass(self):
         results = [

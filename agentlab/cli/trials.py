@@ -161,6 +161,8 @@ def handle_trials_summarize(args: argparse.Namespace) -> int:
                 _format_rate(summary.pass_at_k),
                 _format_rate(summary.pass_caret_k),
                 _format_optional_number(summary.total_input_output_tokens),
+                _format_optional_number(summary.total_cached_input_tokens),
+                _format_optional_number(summary.total_reasoning_output_tokens),
                 _format_optional_number(
                     summary.input_output_tokens_per_verified_result
                 ),
@@ -199,6 +201,8 @@ def handle_trials_summarize(args: argparse.Namespace) -> int:
             "pass@k",
             "pass^k",
             "io_tok",
+            "cached_tok",
+            "reason_tok",
             "io_tok_per_verified",
             "io_tok_per_accepted",
             "cached_tok_per_verified",
