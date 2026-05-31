@@ -75,7 +75,12 @@ class CapabilityEvidenceDigestTest(unittest.TestCase):
         self.assertIn("IO Tok / Accepted", digest)
         self.assertIn("Cached Tokens", digest)
         self.assertIn("Reason Tokens", digest)
-        self.assertIn("| starter | regression | task-a | codex | model-a | xhigh | 2 | 1 | 1 | 1 | 1 | 1.00 | 1.00 | 1.00 | 15 | 4 | 2 | 15 | 15 | 4 | 2 | 100 | 1 | 5 | 1 | success_clean:1 | resource_inefficient:1 | setup_error:1 |", digest)
+        self.assertIn("### Outcome Summary", digest)
+        self.assertIn("### Token Summary", digest)
+        self.assertIn("### Review and Patch Summary", digest)
+        self.assertIn("| starter | regression | task-a | codex | model-a | xhigh | 2 | 1 | 1 | 1 | 1 | 1.00 | 1.00 | 1.00 |", digest)
+        self.assertIn("| starter | regression | task-a | codex | model-a | xhigh | 15 | 4 | 2 | 15 | 15 | 4 | 2 |", digest)
+        self.assertIn("| starter | regression | task-a | codex | model-a | xhigh | 100 | 1 | 5 | 1 | success_clean:1 | resource_inefficient:1 | setup_error:1 |", digest)
         self.assertIn("| trial-pass | task-a | codex | model-a | xhigh | passed | valid | success_clean | resource_inefficient |", digest)
         self.assertIn("| 1 | 5 | 1 | 10 | 5 | 2 | unknown | 100 |", digest)
         self.assertIn("| trial-excluded | task-a | codex | model-a | xhigh | failed | excluded | dependency_issue |  | setup_error |", digest)
@@ -118,7 +123,9 @@ class CapabilityEvidenceDigestTest(unittest.TestCase):
 
         self.assertIn("Cached Tokens", digest)
         self.assertIn("Reason Tokens", digest)
-        self.assertIn("| starter | regression | task-a | codex | model-a | xhigh | 1 | 1 | 0 | 0 | 0 | 0.00 | 0.00 | 0.00 | 15 | 4 | 2 | unknown | unknown | unknown | unknown | 100 | 0 | 0 | 0 | bad_local_fix:1 |  |  |", digest)
+        self.assertIn("| starter | regression | task-a | codex | model-a | xhigh | 1 | 1 | 0 | 0 | 0 | 0.00 | 0.00 | 0.00 |", digest)
+        self.assertIn("| starter | regression | task-a | codex | model-a | xhigh | 15 | 4 | 2 | unknown | unknown | unknown | unknown |", digest)
+        self.assertIn("| starter | regression | task-a | codex | model-a | xhigh | 100 | 0 | 0 | 0 | bad_local_fix:1 |  |  |", digest)
 
     def test_renders_missing_model_identity_as_unknown(self):
         digest = render_capability_evidence_digest(

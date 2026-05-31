@@ -11,20 +11,56 @@ This digest is generated from stored agent-trial results. It reports evidence on
 
 ## Aggregate Summaries
 
-| Suite | Type | Task | Agent Harness | Model | Effort | Total | Fair | Excluded | Passes | Accepted | Pass Rate | pass@k | pass^k | IO Tokens | Cached Tokens | Reason Tokens | IO Tok / Verified | IO Tok / Accepted | Cached Tok / Verified | Reason Tok / Verified | Median ms | Median Files | Median +Lines | Median -Lines | Primary Review Labels | Secondary Review Labels | Exclusions |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| starter-coding | capability | 2048-advanced-snake-params-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 5 | 1.00 | 1.00 | 1.00 | 1831753 | 1580416 | 8504 | 366350.60 | 366350.60 | 316083.20 | 1700.80 | 122522 | 2 | 11 | 7 | success_clean:5 |  |  |
-| starter-coding | capability | click-help-option-refactor-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 4 | 1.00 | 1.00 | 1.00 | 6357302 | 5923584 | 36115 | 1271460.40 | 1589325.50 | 1184716.80 | 7223 | 348321 | 3 | 39 | 27 | resource_inefficient:1, success_clean:4 | resource_inefficient:4 |  |
-| starter-coding | regression | click-default-map-nargs-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 5 | 1.00 | 1.00 | 1.00 | 7198021 | 6722432 | 31492 | 1439604.20 | 1439604.20 | 1344486.40 | 6298.40 | 273731 | 2 | 80 | 1 | success_clean:5 |  |  |
-| starter-coding | regression | click-help-shadowed-option-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 5 | 1.00 | 1.00 | 1.00 | 5699991 | 5226368 | 20826 | 1139998.20 | 1139998.20 | 1045273.60 | 4165.20 | 274698 | 3 | 61 | 12 | success_clean:5 |  |  |
-| starter-coding | regression | click-should-strip-ansi-tests-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 4 | 1.00 | 1.00 | 1.00 | 1072584 | 831104 | 6502 | 214516.80 | 268146 | 166220.80 | 1300.40 | 99158 | 1 | 34 | 2 | success_clean:4, success_messy:1 |  |  |
-| starter-coding | regression | datawrapper-mcp-docker-requirements-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 5 | 1.00 | 1.00 | 1.00 | 576588 | 452736 | 2371 | 115317.60 | 115317.60 | 90547.20 | 474.20 | 46696 | 1 | 5 | 2 | success_clean:5 |  |  |
-| starter-coding | regression | httpx-verify-false-client-cert-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 5 | 1.00 | 1.00 | 1.00 | 2114903 | 1864704 | 10204 | 422980.60 | 422980.60 | 372940.80 | 2040.80 | 139464 | 2 | 26 | 4 | success_clean:5 |  |  |
-| starter-coding | regression | prettier-duplicate-dangling-comments-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 5 | 1.00 | 1.00 | 1.00 | 9398657 | 8801664 | 24786 | 1879731.40 | 1879731.40 | 1760332.80 | 4957.20 | 298903 | 1 | 11 | 0 | success_clean:5 | resource_inefficient:5 |  |
-| starter-coding | regression | react-tabs-selected-focus-overlay-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 3 | 1.00 | 1.00 | 1.00 | 524466 | 378368 | 663 | 104893.20 | 174822 | 75673.60 | 132.60 | 46198 | 3 | 0 | 30 | resource_inefficient:2, success_clean:3 |  |  |
-| starter-coding | regression | remotion-audio-context-autoplay-muted-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 5 | 1.00 | 1.00 | 1.00 | 3990120 | 3620608 | 23370 | 798024 | 798024 | 724121.60 | 4674 | 243349 | 2 | 27 | 15 | success_clean:5 | resource_inefficient:5 |  |
-| starter-coding | regression | todomvc-toggle-all-checkbox-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 5 | 1.00 | 1.00 | 1.00 | 1106108 | 947712 | 4644 | 221221.60 | 221221.60 | 189542.40 | 928.80 | 92557 | 4 | 6 | 8 | success_clean:5 |  |  |
-| starter-coding | regression | vite-deno-workspace-root-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 5 | 1.00 | 1.00 | 1.00 | 1956082 | 1668608 | 17108 | 391216.40 | 391216.40 | 333721.60 | 3421.60 | 202990 | 6 | 61 | 0 | success_clean:5 |  |  |
+### Outcome Summary
+
+| Suite | Type | Task | Agent Harness | Model | Effort | Total | Fair | Excluded | Passes | Accepted | Pass Rate | pass@k | pass^k |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| starter-coding | capability | 2048-advanced-snake-params-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 5 | 1.00 | 1.00 | 1.00 |
+| starter-coding | capability | click-help-option-refactor-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 4 | 1.00 | 1.00 | 1.00 |
+| starter-coding | regression | click-default-map-nargs-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 5 | 1.00 | 1.00 | 1.00 |
+| starter-coding | regression | click-help-shadowed-option-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 5 | 1.00 | 1.00 | 1.00 |
+| starter-coding | regression | click-should-strip-ansi-tests-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 4 | 1.00 | 1.00 | 1.00 |
+| starter-coding | regression | datawrapper-mcp-docker-requirements-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 5 | 1.00 | 1.00 | 1.00 |
+| starter-coding | regression | httpx-verify-false-client-cert-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 5 | 1.00 | 1.00 | 1.00 |
+| starter-coding | regression | prettier-duplicate-dangling-comments-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 5 | 1.00 | 1.00 | 1.00 |
+| starter-coding | regression | react-tabs-selected-focus-overlay-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 3 | 1.00 | 1.00 | 1.00 |
+| starter-coding | regression | remotion-audio-context-autoplay-muted-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 5 | 1.00 | 1.00 | 1.00 |
+| starter-coding | regression | todomvc-toggle-all-checkbox-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 5 | 1.00 | 1.00 | 1.00 |
+| starter-coding | regression | vite-deno-workspace-root-001 | codex | gpt-5.5 | xhigh | 5 | 5 | 0 | 5 | 5 | 1.00 | 1.00 | 1.00 |
+
+### Token Summary
+
+| Suite | Type | Task | Agent Harness | Model | Effort | IO Tokens | Cached Tokens | Reason Tokens | IO Tok / Verified | IO Tok / Accepted | Cached Tok / Verified | Reason Tok / Verified |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| starter-coding | capability | 2048-advanced-snake-params-001 | codex | gpt-5.5 | xhigh | 1831753 | 1580416 | 8504 | 366350.60 | 366350.60 | 316083.20 | 1700.80 |
+| starter-coding | capability | click-help-option-refactor-001 | codex | gpt-5.5 | xhigh | 6357302 | 5923584 | 36115 | 1271460.40 | 1589325.50 | 1184716.80 | 7223 |
+| starter-coding | regression | click-default-map-nargs-001 | codex | gpt-5.5 | xhigh | 7198021 | 6722432 | 31492 | 1439604.20 | 1439604.20 | 1344486.40 | 6298.40 |
+| starter-coding | regression | click-help-shadowed-option-001 | codex | gpt-5.5 | xhigh | 5699991 | 5226368 | 20826 | 1139998.20 | 1139998.20 | 1045273.60 | 4165.20 |
+| starter-coding | regression | click-should-strip-ansi-tests-001 | codex | gpt-5.5 | xhigh | 1072584 | 831104 | 6502 | 214516.80 | 268146 | 166220.80 | 1300.40 |
+| starter-coding | regression | datawrapper-mcp-docker-requirements-001 | codex | gpt-5.5 | xhigh | 576588 | 452736 | 2371 | 115317.60 | 115317.60 | 90547.20 | 474.20 |
+| starter-coding | regression | httpx-verify-false-client-cert-001 | codex | gpt-5.5 | xhigh | 2114903 | 1864704 | 10204 | 422980.60 | 422980.60 | 372940.80 | 2040.80 |
+| starter-coding | regression | prettier-duplicate-dangling-comments-001 | codex | gpt-5.5 | xhigh | 9398657 | 8801664 | 24786 | 1879731.40 | 1879731.40 | 1760332.80 | 4957.20 |
+| starter-coding | regression | react-tabs-selected-focus-overlay-001 | codex | gpt-5.5 | xhigh | 524466 | 378368 | 663 | 104893.20 | 174822 | 75673.60 | 132.60 |
+| starter-coding | regression | remotion-audio-context-autoplay-muted-001 | codex | gpt-5.5 | xhigh | 3990120 | 3620608 | 23370 | 798024 | 798024 | 724121.60 | 4674 |
+| starter-coding | regression | todomvc-toggle-all-checkbox-001 | codex | gpt-5.5 | xhigh | 1106108 | 947712 | 4644 | 221221.60 | 221221.60 | 189542.40 | 928.80 |
+| starter-coding | regression | vite-deno-workspace-root-001 | codex | gpt-5.5 | xhigh | 1956082 | 1668608 | 17108 | 391216.40 | 391216.40 | 333721.60 | 3421.60 |
+
+### Review and Patch Summary
+
+| Suite | Type | Task | Agent Harness | Model | Effort | Median ms | Median Files | Median +Lines | Median -Lines | Primary Review Labels | Secondary Review Labels | Exclusions |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| starter-coding | capability | 2048-advanced-snake-params-001 | codex | gpt-5.5 | xhigh | 122522 | 2 | 11 | 7 | success_clean:5 |  |  |
+| starter-coding | capability | click-help-option-refactor-001 | codex | gpt-5.5 | xhigh | 348321 | 3 | 39 | 27 | resource_inefficient:1, success_clean:4 | resource_inefficient:4 |  |
+| starter-coding | regression | click-default-map-nargs-001 | codex | gpt-5.5 | xhigh | 273731 | 2 | 80 | 1 | success_clean:5 |  |  |
+| starter-coding | regression | click-help-shadowed-option-001 | codex | gpt-5.5 | xhigh | 274698 | 3 | 61 | 12 | success_clean:5 |  |  |
+| starter-coding | regression | click-should-strip-ansi-tests-001 | codex | gpt-5.5 | xhigh | 99158 | 1 | 34 | 2 | success_clean:4, success_messy:1 |  |  |
+| starter-coding | regression | datawrapper-mcp-docker-requirements-001 | codex | gpt-5.5 | xhigh | 46696 | 1 | 5 | 2 | success_clean:5 |  |  |
+| starter-coding | regression | httpx-verify-false-client-cert-001 | codex | gpt-5.5 | xhigh | 139464 | 2 | 26 | 4 | success_clean:5 |  |  |
+| starter-coding | regression | prettier-duplicate-dangling-comments-001 | codex | gpt-5.5 | xhigh | 298903 | 1 | 11 | 0 | success_clean:5 | resource_inefficient:5 |  |
+| starter-coding | regression | react-tabs-selected-focus-overlay-001 | codex | gpt-5.5 | xhigh | 46198 | 3 | 0 | 30 | resource_inefficient:2, success_clean:3 |  |  |
+| starter-coding | regression | remotion-audio-context-autoplay-muted-001 | codex | gpt-5.5 | xhigh | 243349 | 2 | 27 | 15 | success_clean:5 | resource_inefficient:5 |  |
+| starter-coding | regression | todomvc-toggle-all-checkbox-001 | codex | gpt-5.5 | xhigh | 92557 | 4 | 6 | 8 | success_clean:5 |  |  |
+| starter-coding | regression | vite-deno-workspace-root-001 | codex | gpt-5.5 | xhigh | 202990 | 6 | 61 | 0 | success_clean:5 |  |  |
 
 ## Trial Evidence
 
