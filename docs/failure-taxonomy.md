@@ -23,11 +23,13 @@ excerpt, command output, edit size metrics, token usage, duration, or cost.
 Review labels describe what happened. Trial validity controls whether the trial
 counts in fair capability metrics.
 
-- `valid`: count the trial in pass rate, pass@k, pass^k, and median outcome
-  metrics.
+- `valid`: count the trial in fair capability metrics, including pass rate,
+  pass@k, pass^k, accepted-result counts, token-normalized outcome metrics, and
+  median outcome metrics. Valid failed trials count in token numerators so retry
+  and wasted-attempt spend remains visible.
 - `excluded`: keep the artifacts but exclude the trial from fair capability
-  metrics because the attempt was invalidated before it could measure the agent
-  harness.
+  metrics, including token-normalized outcome metrics, because the attempt was
+  invalidated before it could measure the agent harness.
 
 Excluded trials require one exclusion reason: `dependency_issue`,
 `eval_harness_error`, `setup_error`, `operator_error`, `invalid_task`, or
