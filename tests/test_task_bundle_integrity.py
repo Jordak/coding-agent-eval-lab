@@ -10,6 +10,7 @@ from agentlab.task_bundle_integrity import (
     check_reference_artifact_ready,
     check_task_bundle_integrity,
     load_smoke_test_ready_bundle,
+    publish_task_cards,
     validate_task_bundle_sources,
 )
 from agentlab.tasks import load_task_bundle
@@ -100,6 +101,34 @@ class TaskBundleIntegrityTest(unittest.TestCase):
                 load_smoke_test_ready_bundle(missing_ref_bundle_dir)
 
         self.assertEqual(ready_bundle.task.id, "demo-001")
+
+    def test_task_card_publication_does_not_write_when_source_fails(self):
+        with tempfile.TemporaryDirectory() as temp:
+            suite_dir = Path(temp) / "example-suite"
+            valid_bundle = _write_task_bundle(suite_dir, "demo-001")
+            invalid_bundle = suite_dir / "demo-002"
+            invalid_bundle.mkdir(parents=True)
+            (invalid_bundle / "task.yaml").write_text(
+                textwrap.dedent(
+                    """
+                    id: demo-002
+                    repo: https://github.com/example/demo
+                    commit: abc123
+                    language: python
+                    prompt: Fix it.
+                    """
+                ),
+                encoding="utf-8",
+            )
+            card_path = valid_bundle / "task-card.md"
+            card_path.write_text("stale card\n", encoding="utf-8")
+
+            result = publish_task_cards([suite_dir.as_posix()])
+
+            self.assertEqual(result.matched_bundles, 1)
+            self.assertEqual(result.changed_paths, [])
+            self.assertEqual(len(result.failures), 1)
+            self.assertEqual(card_path.read_text(encoding="utf-8"), "stale card\n")
 
 
 def _write_task_bundle(

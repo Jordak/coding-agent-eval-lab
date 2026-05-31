@@ -164,6 +164,13 @@ def publish_task_cards(
     check: bool = False,
 ) -> TaskCardPublicationResult:
     source = validate_task_bundle_sources(paths)
+    if source.failures:
+        return TaskCardPublicationResult(
+            matched_bundles=len(source.bundles),
+            changed_paths=[],
+            failures=source.failures,
+        )
+
     changed: List[Path] = []
 
     for bundle in source.bundles:

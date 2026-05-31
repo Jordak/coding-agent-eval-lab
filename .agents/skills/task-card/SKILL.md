@@ -1,6 +1,6 @@
 ---
 name: task-card
-description: Generate Markdown task cards and suite indexes from Agent Eval Lab task bundles. Use when adding, moving, reviewing, or refreshing task YAML files under tasks/.
+description: Generate Markdown task cards from Agent Eval Lab task bundles. Use when adding, moving, reviewing, or refreshing task YAML files under tasks/.
 ---
 
 # Task Card
