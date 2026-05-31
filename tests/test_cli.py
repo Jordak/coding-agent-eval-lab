@@ -604,6 +604,10 @@ class CliOutputTest(unittest.TestCase):
         self.assertIn("excluded", output)
         self.assertIn("dependency_issue", output)
         self.assertIn("setup_error", output)
+        self.assertEqual(
+            _table_headers(output)[-5:-1],
+            ["in_tok", "cached_tok", "out_tok", "reason_tok"],
+        )
         row = _first_table_row(output)
         self.assertEqual(row["in_tok"], "10")
         self.assertEqual(row["cached_tok"], "4")
@@ -671,6 +675,20 @@ class CliOutputTest(unittest.TestCase):
         self.assertIn("xhigh", output)
         self.assertIn("success_clean:2", output)
         self.assertIn("resource_inefficient:2", output)
+        headers = _table_headers(output)
+        token_start = headers.index("io_tok")
+        self.assertEqual(
+            headers[token_start : token_start + 7],
+            [
+                "io_tok",
+                "cached_tok",
+                "reason_tok",
+                "io_tok_per_verified",
+                "io_tok_per_accepted",
+                "cached_tok_per_verified",
+                "reason_tok_per_verified",
+            ],
+        )
         row = _first_table_row(output)
         self.assertEqual(row["io_tok"], "40")
         self.assertEqual(row["cached_tok"], "4")
@@ -992,9 +1010,14 @@ class CliOutputTest(unittest.TestCase):
 
 def _first_table_row(output: str) -> dict[str, str]:
     lines = [line for line in output.splitlines() if line.strip()]
-    headers = lines[0].split()
+    headers = _table_headers(output)
     values = lines[2].split()
     return dict(zip(headers, values))
+
+
+def _table_headers(output: str) -> list[str]:
+    lines = [line for line in output.splitlines() if line.strip()]
+    return lines[0].split()
 
 
 if __name__ == "__main__":
