@@ -17,9 +17,16 @@ from agentlab.cli.run import _print_run_summaries
 from agentlab.reference import (
     ReferenceVerification,
     ReferenceVerificationError,
-    verify_reference,
 )
-from agentlab.tasks import TaskLoadError, discover_task_files, load_task
+from agentlab.task_bundle_integrity import (
+    TaskBundleIntegrityError,
+    check_reference_artifact_ready,
+    check_task_bundle_integrity,
+    load_smoke_test_ready_bundle,
+    validate_task_bundle_sources,
+    verify_reference_for_bundle,
+)
+from agentlab.tasks import TaskLoadError, discover_task_files
 from agentlab.terminal import print_error
 from agentlab.trial_execution import TrialExecutionConfig, execute_trials
 
@@ -31,6 +38,16 @@ def add_task_commands(subcommands: argparse._SubParsersAction) -> None:
     validate_parser = task_subcommands.add_parser(
         "validate",
         help="Validate one or more task YAML files.",
+    )
+    validate_parser.add_argument(
+        "--check-task-cards",
+        action="store_true",
+        help="Fail if generated task-card.md files drift from task.yaml.",
+    )
+    validate_parser.add_argument(
+        "--require-reference-artifacts",
+        action="store_true",
+        help="Fail if a task bundle is missing a reference_artifact.",
     )
     validate_parser.add_argument(
         "paths",
@@ -112,27 +129,35 @@ def add_task_commands(subcommands: argparse._SubParsersAction) -> None:
 
 
 def handle_task_validate(args: argparse.Namespace) -> int:
-    files = discover_task_files(args.paths)
-    if not files:
+    result = check_task_bundle_integrity(
+        args.paths,
+        check_task_cards=args.check_task_cards,
+        require_reference_artifacts=args.require_reference_artifacts,
+    )
+    if result.matched_files == 0:
         print("No task files matched.", file=sys.stderr)
         return 1
 
-    failures: List[str] = []
-    for path in files:
-        try:
-            task = load_task(path)
-        except TaskLoadError as exc:
-            failures.append(f"{path}: {exc}")
-            continue
+    for bundle in result.bundles:
+        print(f"OK {bundle.task_file} ({bundle.task.id})")
 
-        print(f"OK {Path(path)} ({task.id})")
+    if result.task_card_changes:
+        for path in result.task_card_changes:
+            print(
+                f"ERROR {path}: task-card drift; regenerate from task.yaml",
+                file=sys.stderr,
+            )
 
-    if failures:
-        for failure in failures:
-            print(f"ERROR {failure}", file=sys.stderr)
+    if result.failures:
+        for failure in result.failures:
+            print(f"ERROR {failure.path}: {failure.message}", file=sys.stderr)
+
+    if not result.ok:
         return 1
 
-    print(f"Validated {len(files)} task file(s).")
+    print(f"Validated {result.matched_files} task file(s).")
+    if args.check_task_cards:
+        print("Task cards are up to date.")
     return 0
 
 
@@ -167,34 +192,49 @@ def _verify_reference_files(
     skip_missing: bool,
     write_artifacts: bool,
 ) -> int:
+    source = validate_task_bundle_sources(str(path) for path in files)
     failures: List[str] = []
     skipped = 0
-    for path in files:
-        try:
-            task = load_task(path)
-            if task.reference_artifact is None and skip_missing:
+    for failure in source.failures:
+        failures.append(f"{failure.path}: {failure.message}")
+
+    for bundle in source.bundles:
+        readiness = check_reference_artifact_ready(bundle)
+        if not readiness.ready:
+            if skip_missing and bundle.task.reference_artifact is None:
                 skipped += 1
-                print(f"SKIP {Path(path)} ({task.id}): no reference_artifact")
+                print(
+                    f"SKIP {bundle.task_file} ({bundle.task.id}): "
+                    "no reference_artifact"
+                )
                 continue
-            verification = verify_reference(
-                task,
+            failures.append(f"{bundle.task_file}: {readiness.message}")
+            continue
+
+        try:
+            verification = verify_reference_for_bundle(
+                bundle,
                 workspace_root,
                 write_artifacts=write_artifacts,
             )
-        except (RuntimeError, TaskLoadError, ReferenceVerificationError) as exc:
-            failures.append(f"{path}: {exc}")
+        except (
+            RuntimeError,
+            TaskBundleIntegrityError,
+            ReferenceVerificationError,
+        ) as exc:
+            failures.append(f"{bundle.task_file}: {exc}")
             continue
 
         status = "OK" if verification.success else "FAIL"
         message = (
-            f"{status} {Path(path)} ({task.id}) "
+            f"{status} {bundle.task_file} ({bundle.task.id}) "
             f"files_changed={len(verification.files_changed)}"
         )
         if write_artifacts:
             message += f" report={verification.report_path}"
         print(message)
         if not verification.success:
-            failures.append(f"{path}: reference verification failed")
+            failures.append(f"{bundle.task_file}: reference verification failed")
             _print_failed_reference_checks(verification)
 
     if failures:
@@ -202,7 +242,7 @@ def _verify_reference_files(
             print(f"ERROR {failure}", file=sys.stderr)
         return 1
 
-    print(f"Verified {len(files) - skipped} reference artifact(s).")
+    print(f"Verified {len(source.bundles) - skipped} reference artifact(s).")
     if skipped:
         print(f"Skipped {skipped} task(s) without reference_artifact.")
     return 0
@@ -210,20 +250,25 @@ def _verify_reference_files(
 
 def handle_task_smoke_test(args: argparse.Namespace) -> int:
     try:
-        task = load_task(args.task)
-    except TaskLoadError as exc:
+        bundle = load_smoke_test_ready_bundle(args.task)
+    except (TaskLoadError, TaskBundleIntegrityError) as exc:
         print_error(str(exc))
         return 1
+    task = bundle.task
 
     print("Smoke test step 1/2: verifying reference artifact...")
     with tempfile.TemporaryDirectory(prefix="agentlab-smoke-reference-") as temp:
         try:
-            verification = verify_reference(
-                task,
+            verification = verify_reference_for_bundle(
+                bundle,
                 Path(temp),
                 write_artifacts=False,
             )
-        except (RuntimeError, ReferenceVerificationError) as exc:
+        except (
+            RuntimeError,
+            TaskBundleIntegrityError,
+            ReferenceVerificationError,
+        ) as exc:
             print_error(f"reference verification failed: {exc}")
             return 1
 

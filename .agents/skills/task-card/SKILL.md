@@ -66,9 +66,9 @@ reference_artifact:
 2. Add or update any verified reference artifact, such as `reference.patch`.
 3. Run the generator for the task bundle or all tasks.
 4. Review `task-card.md` for readability.
-5. Run `python3 -m agentlab task validate tasks`.
+5. Run `python3 -m agentlab task validate --check-task-cards tasks`.
 6. For tasks with reference artifacts, run `python3 -m agentlab task verify-reference <task-bundle>`.
-7. Ensure `python3 .agents/skills/task-card/scripts/render_task_cards.py tasks --check` passes before committing.
+7. Ensure the repo-local pre-commit hook passes before committing.
 
 Do not hand-edit generated task cards. Update the YAML, reference artifact, or
 generator instead.

@@ -19,6 +19,7 @@ from agentlab.cli import (
     _print_run_summaries,
     build_parser,
     handle_task_smoke_test,
+    handle_task_verify_reference,
 )
 from agentlab.preflight import PreflightCheck, PreflightResult
 
@@ -717,6 +718,7 @@ class CliOutputTest(unittest.TestCase):
             codex_timeout_seconds=1,
         )
         task = SimpleNamespace(id="task-a")
+        bundle = SimpleNamespace(task=task)
         verification = SimpleNamespace(
             success=True,
             files_changed=["app.py"],
@@ -736,8 +738,14 @@ class CliOutputTest(unittest.TestCase):
         )
         stdout = io.StringIO()
 
-        with patch("agentlab.cli.task.load_task", return_value=task):
-            with patch("agentlab.cli.task.verify_reference", return_value=verification):
+        with patch(
+            "agentlab.cli.task.load_smoke_test_ready_bundle",
+            return_value=bundle,
+        ):
+            with patch(
+                "agentlab.cli.task.verify_reference_for_bundle",
+                return_value=verification,
+            ):
                 with patch(
                     "agentlab.cli.task.execute_trials",
                     return_value=[evaluation],
@@ -761,12 +769,19 @@ class CliOutputTest(unittest.TestCase):
     def test_task_smoke_test_stops_when_reference_fails(self):
         args = SimpleNamespace(task="tasks/starter/example")
         task = SimpleNamespace(id="task-a")
+        bundle = SimpleNamespace(task=task)
         verification = SimpleNamespace(success=False)
         stdout = io.StringIO()
         stderr = io.StringIO()
 
-        with patch("agentlab.cli.task.load_task", return_value=task):
-            with patch("agentlab.cli.task.verify_reference", return_value=verification):
+        with patch(
+            "agentlab.cli.task.load_smoke_test_ready_bundle",
+            return_value=bundle,
+        ):
+            with patch(
+                "agentlab.cli.task.verify_reference_for_bundle",
+                return_value=verification,
+            ):
                 with patch("agentlab.cli.task._print_failed_reference_checks"):
                     with patch("agentlab.cli.task.execute_trials") as execute:
                         with contextlib.redirect_stdout(stdout):
@@ -776,6 +791,57 @@ class CliOutputTest(unittest.TestCase):
         self.assertEqual(status, 1)
         self.assertEqual(execute.call_count, 0)
         self.assertIn("ERROR reference verification failed", stderr.getvalue())
+
+    def test_task_verify_reference_reports_failed_reference_result(self):
+        with tempfile.TemporaryDirectory() as temp:
+            bundle_dir = Path(temp) / "task"
+            bundle_dir.mkdir()
+            (bundle_dir / "reference.patch").write_text(
+                "diff --git a/demo.py b/demo.py\n",
+                encoding="utf-8",
+            )
+            (bundle_dir / "task.yaml").write_text(
+                "\n".join(
+                    [
+                        "id: task-a",
+                        "title: Task A",
+                        "repo: https://github.com/example/demo",
+                        "commit: abc123",
+                        "language: python",
+                        "prompt: Fix it.",
+                        "reference_artifact:",
+                        "  type: patch",
+                        "  path: reference.patch",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            args = SimpleNamespace(
+                paths=[bundle_dir.as_posix()],
+                workspace_root=None,
+                skip_missing=False,
+                write_artifacts=False,
+            )
+            verification = SimpleNamespace(
+                success=False,
+                files_changed=[],
+            )
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            with patch(
+                "agentlab.cli.task.verify_reference_for_bundle",
+                return_value=verification,
+            ):
+                with patch("agentlab.cli.task._print_failed_reference_checks"):
+                    with contextlib.redirect_stdout(stdout):
+                        with contextlib.redirect_stderr(stderr):
+                            status = handle_task_verify_reference(args)
+
+        self.assertEqual(status, 1)
+        self.assertIn("FAIL", stdout.getvalue())
+        self.assertIn("reference verification failed", stderr.getvalue())
 
     def _write_codex_state_db(self, path, *, thread_id):
         with sqlite3.connect(path) as connection:

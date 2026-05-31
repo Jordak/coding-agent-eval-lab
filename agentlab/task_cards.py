@@ -1,40 +1,20 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, List
 
 from agentlab.environment import describe_task_environment
-from agentlab.tasks import EvalTask, TaskBundle, discover_task_bundles
-
-
-@dataclass(frozen=True)
-class TaskCardPublicationResult:
-    matched_bundles: int
-    changed_paths: List[Path]
+from agentlab.tasks import EvalTask, TaskBundle
 
 
 def publish_task_cards(
     paths: Iterable[str],
     *,
     check: bool = False,
-) -> TaskCardPublicationResult:
-    bundles = discover_task_bundles(paths)
-    changed: List[Path] = []
+):
+    from agentlab.task_bundle_integrity import publish_task_cards as publish
 
-    for bundle in bundles:
-        changed.extend(
-            _write_or_check(
-                bundle.task_card_path,
-                render_task_card(bundle),
-                check,
-            )
-        )
-
-    return TaskCardPublicationResult(
-        matched_bundles=len(bundles),
-        changed_paths=changed,
-    )
+    return publish(paths, check=check)
 
 
 def render_task_card(bundle: TaskBundle) -> str:
@@ -97,15 +77,6 @@ def render_task_card(bundle: TaskBundle) -> str:
         "",
     ]
     return "\n".join(lines)
-
-
-def _write_or_check(path: Path, content: str, check: bool) -> List[Path]:
-    current = path.read_text(encoding="utf-8") if path.exists() else None
-    if current == content:
-        return []
-    if not check:
-        path.write_text(content, encoding="utf-8")
-    return [path]
 
 
 def _command_list(commands: List[str]) -> str:

@@ -17,7 +17,10 @@ harness/scaffold, and evaluation suites.
 
 ## MVP Architecture
 
-- `agentlab.tasks` loads and validates task YAML, including suite and eval type.
+- `agentlab.tasks` loads task YAML into domain objects.
+- `agentlab.task_bundle_integrity` is the shared task-bundle integrity boundary
+  for source YAML validation, generated task-card drift checks, reference
+  artifact readiness, and smoke-test readiness.
 - `agentlab.workspace` prepares clean checkouts for each trial.
 - `agentlab.agents` defines agent harness adapters.
 - `agentlab.runner` coordinates workspace setup, agent execution, code-based
@@ -33,6 +36,12 @@ as `reference.patch`.
 The task loader accepts either a direct task YAML path or a task bundle
 directory. Suite directories can be passed to validation commands to discover
 all bundled `task.yaml` files below them.
+
+`agentlab.task_bundle_integrity` owns the source-to-validation contract for a
+single task bundle. CLI task commands, generated task-card checks, reference
+artifact workflows, smoke-test preflight, and the repo-local pre-commit hook
+should call this shared interface instead of each rebuilding its own
+bundle-integrity path.
 
 Publishable tasks should distinguish a prose `reference_solution` from a
 verified `reference_artifact`. The prose field orients readers. The artifact
@@ -55,10 +64,10 @@ and prints the report, result, and diff paths a maintainer should inspect before
 scaling.
 
 Generated task cards are source-adjacent review artifacts, not the source of
-truth. The repo-local pre-commit hook runs the task-card generator in `--check`
-mode so drift is caught before commits. Task candidates and suite-curation
-backlog live in GitHub Issues; do not maintain local task-candidate backlog
-documents or generated suite task-card indexes.
+truth. The repo-local pre-commit hook runs task-bundle integrity validation with
+task-card drift checks enabled so drift is caught before commits. Task
+candidates and suite-curation backlog live in GitHub Issues; do not maintain
+local task-candidate backlog documents or generated suite task-card indexes.
 
 ## Interaction Model
 

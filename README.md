@@ -21,7 +21,7 @@ wrapper. It keeps the key evaluation concerns separate:
 The first scaffold supports:
 
 - Human-editable task bundles with YAML source and generated Markdown cards.
-- `agentlab task validate` for schema checks.
+- `agentlab task validate` for shared task-bundle integrity checks.
 - Publishable starter task bundles under `tasks/starter/`.
 - Draft or illustrative task bundles under `tasks/drafts/`; these are not part
   of the publishable baseline until they have real pinned repositories and
@@ -268,8 +268,9 @@ git config core.hooksPath .githooks
 ```
 
 The hook fails commits when generated task cards drift from `task.yaml`, and it
-validates all task bundles. Task candidates and curation backlog live in GitHub
-Issues rather than in local aggregate Markdown files.
+validates all task bundles through `agentlab.task_bundle_integrity`. Task
+candidates and curation backlog live in GitHub Issues rather than in local
+aggregate Markdown files.
 
 ## MVP Path
 
