@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Mapping
 
 from agentlab.outcome_evidence import OutcomeEvidence
-from agentlab.summary import summarize_trials
+from agentlab.summary import TrialGroupSummary, summarize_trials
 
 
 def render_capability_evidence_digest(
@@ -38,57 +38,7 @@ def render_capability_evidence_digest(
     if not summaries:
         lines.append("No agent-trial results found.")
     else:
-        lines.extend(
-            _markdown_table(
-                [
-                    "Suite",
-                    "Type",
-                    "Task",
-                    "Agent Harness",
-                    "Model",
-                    "Effort",
-                    "Total",
-                    "Fair",
-                    "Excluded",
-                    "Passes",
-                    "Pass Rate",
-                    "pass@k",
-                    "pass^k",
-                    "Median ms",
-                    "Median Files",
-                    "Median +Lines",
-                    "Median -Lines",
-                    "Primary Review Labels",
-                    "Secondary Review Labels",
-                    "Exclusions",
-                ],
-                [
-                    [
-                        summary.eval_suite,
-                        summary.eval_type,
-                        summary.task_id,
-                        summary.agent_name,
-                        summary.model_name_display,
-                        summary.reasoning_effort_display,
-                        summary.total_trials,
-                        summary.trials,
-                        summary.excluded_trials,
-                        summary.passes,
-                        _format_rate(summary.pass_rate),
-                        _format_rate(summary.pass_at_k),
-                        _format_rate(summary.pass_caret_k),
-                        summary.median_duration_ms,
-                        summary.median_files_changed,
-                        summary.median_lines_added,
-                        summary.median_lines_deleted,
-                        _format_counts(summary.review_labels),
-                        _format_counts(summary.secondary_review_labels),
-                        _format_counts(summary.exclusion_reasons),
-                    ]
-                    for summary in summaries
-                ],
-            )
-        )
+        lines.extend(_aggregate_summary_tables(summaries))
 
     lines.extend(["", "## Trial Evidence", ""])
     if not results:
@@ -111,6 +61,7 @@ def render_capability_evidence_digest(
                     "+Lines",
                     "-Lines",
                     "Input Tokens",
+                    "Cached Input Tokens",
                     "Output Tokens",
                     "Reasoning Tokens",
                     "Cost USD",
@@ -130,6 +81,123 @@ def render_capability_evidence_digest(
 
 def render_evidence_appendix(results: Iterable[OutcomeEvidence]) -> str:
     return render_capability_evidence_digest(results)
+
+
+def _aggregate_summary_tables(summaries: List[TrialGroupSummary]) -> List[str]:
+    lines: List[str] = []
+    lines.extend(["### Outcome Summary", ""])
+    lines.extend(
+        _markdown_table(
+            [
+                "Suite",
+                "Type",
+                "Task",
+                "Agent Harness",
+                "Model",
+                "Effort",
+                "Total",
+                "Fair",
+                "Excluded",
+                "Passes",
+                "Accepted",
+                "Pass Rate",
+                "pass@k",
+                "pass^k",
+            ],
+            [_outcome_summary_row(summary) for summary in summaries],
+        )
+    )
+    lines.extend(["", "### Token Summary", ""])
+    lines.extend(
+        _markdown_table(
+            [
+                "Suite",
+                "Type",
+                "Task",
+                "Agent Harness",
+                "Model",
+                "Effort",
+                "IO Tokens",
+                "Cached Tokens",
+                "Reason Tokens",
+                "IO Tok / Verified",
+                "IO Tok / Accepted",
+                "Cached Tok / Verified",
+                "Reason Tok / Verified",
+            ],
+            [_token_summary_row(summary) for summary in summaries],
+        )
+    )
+    lines.extend(["", "### Review and Patch Summary", ""])
+    lines.extend(
+        _markdown_table(
+            [
+                "Suite",
+                "Type",
+                "Task",
+                "Agent Harness",
+                "Model",
+                "Effort",
+                "Median ms",
+                "Median Files",
+                "Median +Lines",
+                "Median -Lines",
+                "Primary Review Labels",
+                "Secondary Review Labels",
+                "Exclusions",
+            ],
+            [_review_summary_row(summary) for summary in summaries],
+        )
+    )
+    return lines
+
+
+def _summary_identity(summary: TrialGroupSummary) -> List[object]:
+    return [
+        summary.eval_suite,
+        summary.eval_type,
+        summary.task_id,
+        summary.agent_name,
+        summary.model_name_display,
+        summary.reasoning_effort_display,
+    ]
+
+
+def _outcome_summary_row(summary: TrialGroupSummary) -> List[object]:
+    return _summary_identity(summary) + [
+        summary.total_trials,
+        summary.trials,
+        summary.excluded_trials,
+        summary.passes,
+        summary.accepted_results,
+        _format_rate(summary.pass_rate),
+        _format_rate(summary.pass_at_k),
+        _format_rate(summary.pass_caret_k),
+    ]
+
+
+def _token_summary_row(summary: TrialGroupSummary) -> List[object]:
+    return _summary_identity(summary) + [
+        _format_optional_number(summary.total_input_output_tokens),
+        _format_optional_number(summary.total_cached_input_tokens),
+        _format_optional_number(summary.total_reasoning_output_tokens),
+        _format_optional_number(summary.input_output_tokens_per_verified_result),
+        _format_optional_number(summary.input_output_tokens_per_accepted_result),
+        _format_optional_number(summary.cached_input_tokens_per_verified_result),
+        _format_optional_number(summary.reasoning_output_tokens_per_verified_result),
+    ]
+
+
+def _review_summary_row(summary: TrialGroupSummary) -> List[object]:
+    return _summary_identity(summary) + [
+        summary.median_duration_ms,
+        summary.median_files_changed,
+        summary.median_lines_added,
+        summary.median_lines_deleted,
+        _format_counts(summary.review_labels),
+        _format_counts(summary.secondary_review_labels),
+        _format_counts(summary.exclusion_reasons),
+    ]
 
 
 def _selection_context_lines(context: Mapping[str, object]) -> list[str]:
@@ -168,6 +236,7 @@ def _trial_row(result: OutcomeEvidence) -> List[object]:
         result.lines_added,
         result.lines_deleted,
         _unknown_if_none(result.input_tokens),
+        _unknown_if_none(result.cached_input_tokens),
         _unknown_if_none(result.output_tokens),
         _unknown_if_none(result.reasoning_output_tokens),
         _unknown_if_none(result.cost_usd),
@@ -201,6 +270,16 @@ def _markdown_link(label: str, path: object) -> str:
 
 def _format_rate(value: float) -> str:
     return f"{value:.2f}"
+
+
+def _format_optional_number(value: object) -> str:
+    if value is None:
+        return "unknown"
+    if isinstance(value, float):
+        if value.is_integer():
+            return str(int(value))
+        return f"{value:.2f}"
+    return str(value)
 
 
 def _format_counts(counts: Dict[str, int]) -> str:

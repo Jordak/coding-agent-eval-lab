@@ -61,10 +61,10 @@ under these conditions," not "Claude Code is always more efficient."
 
 ## Aggregate Result
 
-| Baseline | Agent Harness Configuration | Fair Trials | Grader Passes | Tasks At 5/5 | pass@5 By Task | pass^5 By Task | Resource Evidence |
-| --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
-| Codex CLI | `codex`, `gpt-5.5`, `xhigh` | 60 | 60 | 12/12 | 12/12 | 12/12 | Median trial duration about 173s; token usage captured; billed cost not captured |
-| Claude Code | `claude`, `claude-haiku-4-5-20251001`, no comparable effort field | 60 | 53 | 10/12 | 11/12 | 10/12 | Median trial duration about 111s; recorded selected-set usage $16.35 |
+| Baseline | Agent Harness Configuration | Fair Trials | Grader Passes | Accepted Results | Tasks At 5/5 | pass@5 By Task | pass^5 By Task | IO Tok / Verified | IO Tok / Accepted | Resource Evidence |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| Codex CLI | `codex`, `gpt-5.5`, `xhigh` | 60 | 60 | 56 | 12/12 | 12/12 | 12/12 | 697,110 | 746,903 | Median trial duration about 173s; billed cost not captured |
+| Claude Code | `claude`, `claude-haiku-4-5-20251001`, no comparable effort field | 60 | 53 | 5 | 10/12 | 11/12 | 10/12 | 14,815 | 157,034 | Median trial duration about 111s; recorded selected-set usage $16.35 |
 
 Codex produced the stronger correctness result: 60 of 60 selected fair trials
 passed deterministic graders, and every task reached 5/5. Claude Code produced
@@ -77,7 +77,10 @@ efficiency story is less direct. Claude Code's selected fair set records a real
 dollar cost and lower median duration, but Codex cost was not captured and the
 two harnesses expose token/cache/reasoning metadata differently. Resource
 signals are useful for caveats, but they are not enough to compute a fair
-dollars-per-solved-task comparison.
+dollars-per-solved-task comparison. Reported input-plus-output tokens per
+verified result provide a useful middle-ground resource signal, but they still
+do not collapse cached-input, reasoning-output, and billing semantics into one
+universal cost unit.
 
 ## Task Comparison
 
@@ -138,7 +141,9 @@ The resource evidence supports caution, not a simple winner.
 Codex:
 
 - Median selected-trial duration was about 173 seconds.
-- Token usage was captured in the Codex event artifacts and recovered reports.
+- The selected fair set used 41,826,575 reported input-plus-output tokens:
+  about 697,110 per verified result and 746,903 per accepted result.
+- Cached-input and reasoning-output buckets totaled 38,018,304 and 186,585.
 - Billed cost was not captured in the stored Codex results.
 - Seventeen selected trials carried `resource_inefficient` as either a primary
   or secondary human review label.
@@ -147,9 +152,18 @@ Claude Code:
 
 - Median selected-trial duration was about 111 seconds.
 - The selected fair set recorded $16.35 in Claude Code usage.
-- Stored results captured non-cached input/output tokens plus large cached-input
-  token counts.
+- The selected fair set used 785,170 reported input-plus-output tokens: about
+  14,815 per verified result and 157,034 per strict accepted result.
+- Stored results captured 99,305,237 cached-input tokens. That is about
+  1,873,684 cached-input tokens per verified result.
 - Five selected trials carried secondary `resource_inefficient` labels.
+
+The accepted-result comparison is less symmetric than the verified-result
+comparison because the historical Claude review labels were not attached to
+every passing trial. Under the current strict definition, accepted means
+valid, grader-passing, and primary `success_clean`; that yields 56 accepted
+Codex results and five accepted Claude results. Use that as a review-coverage
+signal, not as a standalone quality ranking.
 
 This is consistent with the configuration asymmetry: high-effort Codex produced
 the stronger reliability result, while cheap Claude Code produced many correct

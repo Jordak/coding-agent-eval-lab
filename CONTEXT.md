@@ -90,6 +90,12 @@ The project is evaluation infrastructure, not a general coding assistant or IDE.
 - **Human review outcome**: the human-approved quality judgment for a trial,
   recorded with review labels, notes, and evidence. It can disagree with or add
   nuance to the grader outcome.
+- **Verified result**: a valid trial whose deterministic grader outcome passes.
+  Verified means the configured graders accepted the final workspace state; it
+  does not by itself mean a human reviewer accepted patch quality.
+- **Accepted result**: a valid, grader-passing trial with a primary human review
+  label that counts as accepted quality. The initial accepted label is
+  `success_clean`; `success_messy` remains a verified but not accepted result.
 - **Trial validity**: human-review metadata indicating whether a trial is fair to
   count in capability summaries. Valid trials count toward pass rate, pass@k,
   pass^k, and median outcome metrics.
@@ -110,6 +116,12 @@ The project is evaluation infrastructure, not a general coding assistant or IDE.
   changed and lines added/deleted.
 - **Resource usage metrics**: structured evidence about runtime cost, especially
   duration, input/output tokens, and estimated dollar cost when available.
+- **Token-normalized outcome metrics**: aggregate resource usage metrics that
+  divide reported token spend by verified or accepted results. Failed valid
+  trials count in the token numerator so retries and wasted attempts remain
+  visible. Use input-plus-output tokens as the primary portable bucket, and keep
+  cached-input and reasoning-output token buckets separate because harnesses
+  expose them differently.
 - **resource_inefficient**: review/failure label for trials that use
   disproportionate runtime, token budget, cost, or command churn relative to the
   task complexity and outcome quality. Prefer as a secondary label unless
@@ -190,7 +202,7 @@ The project is evaluation infrastructure, not a general coding assistant or IDE.
 - Trial artifacts include `report.md`, `result.json`, `diff.patch`, and an
   adapter-specific transcript or trace.
 - Multi-trial summaries group by suite, eval type, task, agent harness, and
-  model, then report fair-trial pass rate, pass@k, pass^k, and excluded-trial
-  counts.
+  model, then report fair-trial pass rate, pass@k, pass^k, accepted-result
+  counts, token-normalized outcome metrics, and excluded-trial counts.
 - Capability evidence digests provide AI-readable Markdown tables for capability
   reports; human-authored interpretation remains separate.

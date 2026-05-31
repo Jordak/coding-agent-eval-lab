@@ -105,6 +105,7 @@ def handle_runs_list(args: argparse.Namespace) -> int:
             str(result.lines_added),
             str(result.lines_deleted),
             _format_optional(result.input_tokens),
+            _format_optional(result.cached_input_tokens),
             _format_optional(result.output_tokens),
             _format_optional(result.reasoning_output_tokens),
             _format_optional(result.cost_usd),
@@ -126,6 +127,7 @@ def handle_runs_list(args: argparse.Namespace) -> int:
             "added",
             "deleted",
             "in_tok",
+            "cached_tok",
             "out_tok",
             "reason_tok",
             "cost",
@@ -156,9 +158,25 @@ def handle_trials_summarize(args: argparse.Namespace) -> int:
                 str(summary.trials),
                 str(summary.excluded_trials),
                 str(summary.passes),
+                str(summary.accepted_results),
                 _format_rate(summary.pass_rate),
                 _format_rate(summary.pass_at_k),
                 _format_rate(summary.pass_caret_k),
+                _format_optional_number(summary.total_input_output_tokens),
+                _format_optional_number(summary.total_cached_input_tokens),
+                _format_optional_number(summary.total_reasoning_output_tokens),
+                _format_optional_number(
+                    summary.input_output_tokens_per_verified_result
+                ),
+                _format_optional_number(
+                    summary.input_output_tokens_per_accepted_result
+                ),
+                _format_optional_number(
+                    summary.cached_input_tokens_per_verified_result
+                ),
+                _format_optional_number(
+                    summary.reasoning_output_tokens_per_verified_result
+                ),
                 str(summary.median_duration_ms),
                 str(summary.median_files_changed),
                 str(summary.median_lines_added),
@@ -180,9 +198,17 @@ def handle_trials_summarize(args: argparse.Namespace) -> int:
             "fair",
             "excluded",
             "passes",
+            "accepted",
             "pass_rate",
             "pass@k",
             "pass^k",
+            "io_tok",
+            "cached_tok",
+            "reason_tok",
+            "io_tok_per_verified",
+            "io_tok_per_accepted",
+            "cached_tok_per_verified",
+            "reason_tok_per_verified",
             "med_ms",
             "med_files",
             "med_added",
@@ -232,6 +258,16 @@ def _format_rate(value: float) -> str:
 def _format_optional(value: object) -> str:
     if value is None:
         return ""
+    return str(value)
+
+
+def _format_optional_number(value: object) -> str:
+    if value is None:
+        return "unknown"
+    if isinstance(value, float):
+        if value.is_integer():
+            return str(int(value))
+        return f"{value:.2f}"
     return str(value)
 
 

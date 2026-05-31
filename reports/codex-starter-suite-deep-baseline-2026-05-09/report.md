@@ -38,6 +38,14 @@ deterministic graders.
 | `react-tabs-selected-focus-overlay-001` | 5 | 5 | `success_clean:3`, `resource_inefficient:2` |
 | `todomvc-toggle-all-checkbox-001` | 5 | 5 | `success_clean:5` |
 
+Under the current token-normalized outcome semantics, all 45 selected fair
+trials are verified results and 41 are accepted results with primary
+`success_clean` review labels. The selected set used 26,481,716 reported
+input-plus-output tokens, or about 588,483 per verified result and 645,896 per
+accepted result. The generated digest now carries the per-task token-normalized
+columns; this superseded report keeps the summary compact and points readers to
+the newer 12-task report for the broader baseline.
+
 ## Interpretation
 
 Codex was consistently able to produce grader-passing patches across this

@@ -62,6 +62,17 @@ the same event backfills used by the generated digest. Cached-input and
 reasoning-token details are available in the linked digest, but are not added
 separately here to avoid double counting.
 
+With the current token-normalized outcome semantics, all 60 trials are verified
+results because every selected valid trial passed deterministic graders. The
+selected set has 56 accepted results: valid grader-passing trials whose primary
+human review label is `success_clean`. The four non-accepted verified results
+are three primary `resource_inefficient` outcomes and one `success_messy`
+outcome. Across the selected set, Codex used 41,826,575 reported
+input-plus-output tokens, or about 697,110 per verified result and 746,903 per
+accepted result. Cached-input and reasoning-output buckets totaled 38,018,304
+and 186,585 respectively; those remain separate because they are not comparable
+to non-cached input/output tokens as a single cost unit.
+
 ## Interpretation
 
 Codex was consistently able to produce grader-passing patches across this

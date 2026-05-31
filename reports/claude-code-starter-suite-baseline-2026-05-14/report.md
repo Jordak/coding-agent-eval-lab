@@ -65,6 +65,18 @@ the stored results captured 785,170 non-cached input-plus-output tokens,
 generated digest links the underlying per-trial reports, transcripts, diffs,
 and result JSON files.
 
+With the current token-normalized outcome semantics, the 53 grader-passing
+trials are verified results. The selected set therefore used about 14,815
+reported input-plus-output tokens per verified result, counting the seven valid
+failed attempts in the numerator. Only five trials count as accepted results
+under the strict current definition of valid, grader-passing, and primary
+`success_clean`; that yields 157,034 input-plus-output tokens per accepted
+result. This accepted-result figure is useful mainly as a review-coverage
+caveat for this historical Claude set, because clean-success labels were not
+recorded symmetrically for every passing trial. Cached-input tokens averaged
+about 1,873,684 per verified result and should remain a separate bucket rather
+than being added to the non-cached token metric.
+
 ## Interpretation
 
 Claude Code was effective on most of this starter suite, but the result is not
