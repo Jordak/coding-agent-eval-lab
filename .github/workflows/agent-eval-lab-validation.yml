@@ -1,0 +1,96 @@
+name: Agent Eval Lab Validation
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  branch-hygiene:
+    name: Check PR branch hygiene
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out PR head
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Reject merge commits in PR branch
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          git fetch --no-tags --prune origin "+refs/heads/${BASE_REF}:refs/remotes/origin/${BASE_REF}"
+          merge_commits="$(git rev-list --merges --oneline "origin/${BASE_REF}..HEAD")"
+          if [ -n "${merge_commits}" ]; then
+            echo "::error title=Merge commits found in PR branch::Rebase this branch onto origin/${BASE_REF}; do not merge ${BASE_REF} into the PR branch."
+            echo
+            echo "Merge commits found:"
+            echo "${merge_commits}"
+            printf '%s\n' \
+              "" \
+              "Remediation:" \
+              "  git switch <feature-branch>" \
+              "  git branch backup/<feature-branch>-before-rebase" \
+              "  git fetch origin" \
+              "  git rebase origin/${BASE_REF}" \
+              "  # resolve conflicts if prompted, then run:" \
+              "  python3 -m pytest" \
+              "  python3 -m agentlab task validate --check-task-cards tasks" \
+              "  git push --force-with-lease origin <feature-branch>"
+            exit 1
+          fi
+
+  validate:
+    name: Validate Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - "3.9"
+          - "3.x"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Reject committed run artifacts
+        run: |
+          forbidden_paths="$(
+            git ls-files | grep -E '^(runs/|sources/|workspaces/|docs/project-handoff\.md$)|(^|/)(codex-events\.jsonl|claude-events\.jsonl|codex-last-message\.md|claude-final-message\.md|transcript\.md|diff\.patch|result\.json)$' || true
+          )"
+
+          if [ -n "${forbidden_paths}" ]; then
+            echo "::error title=Committed run artifacts found::Generated trial outputs, raw transcripts, workspaces, sources, and private handoff notes must stay out of git."
+            echo
+            echo "${forbidden_paths}"
+            exit 1
+          fi
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install package and test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e '.[dev]'
+
+      - name: Run unit tests
+        run: python -m pytest
+
+      - name: Validate task bundles and generated task cards
+        run: python -m agentlab task validate --check-task-cards tasks
+
+      - name: Require starter task reference artifacts
+        run: python -m agentlab task validate --check-task-cards --require-reference-artifacts tasks/starter
