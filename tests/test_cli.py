@@ -12,6 +12,7 @@ from unittest.mock import patch
 
 from agentlab.cli import (
     handle_doctor,
+    handle_report_capability_evidence_digest,
     handle_recover_codex_runtime_metadata,
     handle_run,
     _claude_code_config_from_args,
@@ -160,12 +161,15 @@ class CliOutputTest(unittest.TestCase):
                 "reports/codex-click-evidence.json",
                 "--output",
                 "reports/evidence-digest.md",
+                "--html-output",
+                "reports/evidence-digest.html",
             ]
         )
 
         self.assertEqual(args.runs_dir, "runs")
         self.assertEqual(args.evidence_set, "reports/codex-click-evidence.json")
         self.assertEqual(args.output, "reports/evidence-digest.md")
+        self.assertEqual(args.html_output, "reports/evidence-digest.html")
 
     def test_report_parser_keeps_evidence_appendix_alias(self):
         parser = build_parser()
@@ -180,6 +184,59 @@ class CliOutputTest(unittest.TestCase):
         )
 
         self.assertEqual(args.output, "reports/legacy.md")
+
+    def test_report_command_writes_html_companion(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            run_dir = root / "runs" / "trial-pass"
+            run_dir.mkdir(parents=True)
+            (run_dir / "result.json").write_text(
+                json.dumps(
+                    {
+                        "trial_kind": "agent_trial",
+                        "trial_id": "trial-pass",
+                        "run_id": "trial-pass",
+                        "task_id": "task-a",
+                        "eval_suite": "starter",
+                        "eval_type": "capability",
+                        "agent_name": "codex",
+                        "model_name": "model-a",
+                        "agent_harness_config": {"reasoning_effort": "xhigh"},
+                        "status": "passed",
+                        "success": True,
+                        "duration_ms": 100,
+                        "files_changed": ["app.py"],
+                        "lines_added": 5,
+                        "lines_deleted": 1,
+                        "report_path": str(run_dir / "report.md"),
+                        "run_dir": str(run_dir),
+                    }
+                ),
+                encoding="utf-8",
+            )
+            markdown_output = root / "reports" / "digest.md"
+            html_output = root / "reports" / "digest.html"
+            args = SimpleNamespace(
+                runs_dir=str(root / "runs"),
+                evidence_set=None,
+                output=str(markdown_output),
+                html_output=str(html_output),
+            )
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                status = handle_report_capability_evidence_digest(args)
+
+            markdown_exists = markdown_output.exists()
+            html_report = html_output.read_text(encoding="utf-8")
+
+        self.assertEqual(status, 0)
+        self.assertTrue(markdown_exists)
+        self.assertIn("Capability evidence digest:", stdout.getvalue())
+        self.assertIn("Capability evidence digest HTML:", stdout.getvalue())
+        self.assertIn("<h2>Outcome Summary</h2>", html_report)
+        self.assertIn("<h2>Trial Evidence</h2>", html_report)
+        self.assertIn('href="digest.md"', html_report)
 
     def test_recover_parser_accepts_codex_runtime_metadata_options(self):
         parser = build_parser()
