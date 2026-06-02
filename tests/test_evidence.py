@@ -1,9 +1,12 @@
 from pathlib import Path
 import unittest
 
-from agentlab.reports.capability_digest import render_capability_evidence_digest
 from agentlab.evidence.human_review import create_human_review_outcome
 from agentlab.evidence.outcome import normalize_outcome_evidence
+from agentlab.reports.capability_digest import render_capability_evidence_digest
+from agentlab.reports.capability_digest_html import (
+    render_capability_evidence_digest_html,
+)
 
 
 class CapabilityEvidenceDigestTest(unittest.TestCase):
@@ -90,6 +93,73 @@ class CapabilityEvidenceDigestTest(unittest.TestCase):
         self.assertIn("[transcript](runs/trial-pass/transcript.md)", digest)
         self.assertIn("[diff](runs/trial-pass/diff.patch)", digest)
         self.assertIn("[result](runs/trial-pass/result.json)", digest)
+
+    def test_renders_canonical_audit_html_companion(self):
+        repo_root = Path("/workspace/agent-eval-lab")
+        html_report = render_capability_evidence_digest_html(
+            [
+                normalize_outcome_evidence(
+                    {
+                        "trial_id": "trial-pass",
+                        "task_id": "task-a",
+                        "eval_suite": "starter",
+                        "eval_type": "regression",
+                        "agent_name": "codex",
+                        "model_name": "model-a",
+                        "agent_harness_config": {"reasoning_effort": "xhigh"},
+                        "status": "passed",
+                        "success": True,
+                        "duration_ms": 100,
+                        "files_changed": ["app.py"],
+                        "lines_added": 5,
+                        "lines_deleted": 1,
+                        "input_tokens": 10,
+                        "cached_input_tokens": 4,
+                        "output_tokens": 5,
+                        "reasoning_output_tokens": 2,
+                        "report_path": "runs/trial-pass/report.md",
+                        "transcript_path": "runs/trial-pass/transcript.md",
+                        "diff_path": "runs/trial-pass/diff.patch",
+                        "run_dir": "runs/trial-pass",
+                    },
+                    human_review_outcome=create_human_review_outcome(
+                        primary_label="success_clean",
+                        note="Focused patch with passing checks.",
+                        secondary_labels=["resource_inefficient"],
+                    ),
+                )
+            ],
+            {"name": "codex selected evidence", "selected_entries": 1},
+            source_path=repo_root / "reports" / "digest.md",
+            output_path=repo_root / "reports" / "digest.html",
+            repo_root=repo_root,
+        )
+
+        self.assertIn("<!doctype html>", html_report)
+        self.assertIn("<h2>Outcome Summary</h2>", html_report)
+        self.assertIn("<h2>Token Summary</h2>", html_report)
+        self.assertIn("<h2>Review and Patch Summary</h2>", html_report)
+        self.assertIn("<h2>Trial Evidence</h2>", html_report)
+        self.assertIn("<h3>Needs Attention</h3>", html_report)
+        self.assertIn("<h3>Highest IO Token Tasks</h3>", html_report)
+        self.assertIn(
+            '<span>Source</span><strong><a href="digest.md">reports/digest.md</a>',
+            html_report,
+        )
+        self.assertIn(
+            '<a href="../tasks/starter/task-a/task-card.md">task-a</a>',
+            html_report,
+        )
+        self.assertIn(
+            '<a href="../runs/trial-pass/report.md">report</a>',
+            html_report,
+        )
+        self.assertIn(
+            "resource_inefficient on 1/1 trials (1 secondary)",
+            html_report,
+        )
+        self.assertNotIn("Context Overview", html_report)
+        self.assertNotIn("Task Folders", html_report)
 
     def test_renders_token_totals_when_no_verified_results(self):
         digest = render_capability_evidence_digest(
