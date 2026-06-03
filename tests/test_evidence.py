@@ -80,19 +80,87 @@ class CapabilityEvidenceDigestTest(unittest.TestCase):
         self.assertIn("Cached Tokens", digest)
         self.assertIn("Cached Input Tokens", digest)
         self.assertIn("Reason Tokens", digest)
+        self.assertIn("## Run Context: starter / codex / model-a / xhigh", digest)
+        self.assertIn("- Suite: `starter`", digest)
+        self.assertIn("- Agent Harness: `codex`", digest)
+        self.assertIn("- Model: `model-a`", digest)
+        self.assertIn("- Effort: `xhigh`", digest)
         self.assertIn("### Outcome Summary", digest)
         self.assertIn("### Token Summary", digest)
         self.assertIn("### Review and Patch Summary", digest)
-        self.assertIn("| starter | regression | task-a | codex | model-a | xhigh | 2 | 1 | 1 | 1 | 1 | 1.00 | 1.00 | 1.00 |", digest)
-        self.assertIn("| starter | regression | task-a | codex | model-a | xhigh | 15 | 4 | 2 | 15 | 15 | 4 | 2 |", digest)
-        self.assertIn("| starter | regression | task-a | codex | model-a | xhigh | 100 | 1 | 5 | 1 | success_clean:1 | resource_inefficient:1 | setup_error:1 |", digest)
-        self.assertIn("| trial-pass | task-a | codex | model-a | xhigh | passed | valid | success_clean | resource_inefficient |", digest)
+        self.assertIn("### Trial Evidence", digest)
+        self.assertIn(
+            "| Task | Type | Total | Fair | Excluded | Passes | Accepted | Pass Rate | pass@k | pass^k |",
+            digest,
+        )
+        self.assertIn("| task-a | regression | 2 | 1 | 1 | 1 | 1 | 1.00 | 1.00 | 1.00 |", digest)
+        self.assertIn("| task-a | regression | 15 | 4 | 2 | 15 | 15 | 4 | 2 |", digest)
+        self.assertIn("| task-a | regression | 100 | 1 | 5 | 1 | success_clean:1 | resource_inefficient:1 | setup_error:1 |", digest)
+        self.assertIn("| task-a | regression | trial-pass | passed | valid | success_clean | resource_inefficient |", digest)
         self.assertIn("| 1 | 5 | 1 | 10 | 4 | 5 | 2 | unknown | 100 |", digest)
-        self.assertIn("| trial-excluded | task-a | codex | model-a | xhigh | failed | excluded | dependency_issue |  | setup_error |", digest)
+        self.assertIn("| task-a | regression | trial-excluded | failed | excluded | dependency_issue |  | setup_error |", digest)
+        self.assertNotIn("| Suite | Type | Task | Agent Harness | Model | Effort |", digest)
+        self.assertNotIn("| Trial | Task | Agent Harness | Model | Effort |", digest)
         self.assertIn("[report](runs/trial-pass/report.md)", digest)
         self.assertIn("[transcript](runs/trial-pass/transcript.md)", digest)
         self.assertIn("[diff](runs/trial-pass/diff.patch)", digest)
         self.assertIn("[result](runs/trial-pass/result.json)", digest)
+
+    def test_renders_one_markdown_section_per_run_context(self):
+        digest = render_capability_evidence_digest(
+            [
+                normalize_outcome_evidence(
+                    {
+                        "trial_id": "trial-codex",
+                        "task_id": "task-a",
+                        "eval_suite": "starter",
+                        "eval_type": "capability",
+                        "agent_name": "codex",
+                        "model_name": "model-a",
+                        "agent_harness_config": {"reasoning_effort": "xhigh"},
+                        "status": "passed",
+                        "success": True,
+                        "duration_ms": 100,
+                        "files_changed": [],
+                        "lines_added": 0,
+                        "lines_deleted": 0,
+                        "run_dir": "runs/trial-codex",
+                    }
+                ),
+                normalize_outcome_evidence(
+                    {
+                        "trial_id": "trial-claude",
+                        "task_id": "task-a",
+                        "eval_suite": "starter",
+                        "eval_type": "capability",
+                        "agent_name": "claude",
+                        "model_name": "model-b",
+                        "agent_harness_config": {"reasoning_effort": "medium"},
+                        "status": "failed",
+                        "success": False,
+                        "duration_ms": 200,
+                        "files_changed": [],
+                        "lines_added": 0,
+                        "lines_deleted": 0,
+                        "run_dir": "runs/trial-claude",
+                    }
+                ),
+            ]
+        )
+
+        self.assertEqual(digest.count("## Run Context:"), 2)
+        codex_section = digest.split(
+            "## Run Context: starter / codex / model-a / xhigh",
+            1,
+        )[1].split("## Run Context:", 1)[0]
+        claude_section = digest.split(
+            "## Run Context: starter / claude / model-b / medium",
+            1,
+        )[1]
+        self.assertIn("| task-a | capability | trial-codex | passed |", codex_section)
+        self.assertNotIn("trial-claude", codex_section)
+        self.assertIn("| task-a | capability | trial-claude | failed |", claude_section)
+        self.assertNotIn("| Suite | Type | Task | Agent Harness | Model | Effort |", digest)
 
     def test_renders_canonical_audit_html_companion(self):
         repo_root = Path("/workspace/agent-eval-lab")
@@ -195,9 +263,10 @@ class CapabilityEvidenceDigestTest(unittest.TestCase):
 
         self.assertIn("Cached Tokens", digest)
         self.assertIn("Reason Tokens", digest)
-        self.assertIn("| starter | regression | task-a | codex | model-a | xhigh | 1 | 1 | 0 | 0 | 0 | 0.00 | 0.00 | 0.00 |", digest)
-        self.assertIn("| starter | regression | task-a | codex | model-a | xhigh | 15 | 4 | 2 | unknown | unknown | unknown | unknown |", digest)
-        self.assertIn("| starter | regression | task-a | codex | model-a | xhigh | 100 | 0 | 0 | 0 | bad_local_fix:1 |  |  |", digest)
+        self.assertIn("## Run Context: starter / codex / model-a / xhigh", digest)
+        self.assertIn("| task-a | regression | 1 | 1 | 0 | 0 | 0 | 0.00 | 0.00 | 0.00 |", digest)
+        self.assertIn("| task-a | regression | 15 | 4 | 2 | unknown | unknown | unknown | unknown |", digest)
+        self.assertIn("| task-a | regression | 100 | 0 | 0 | 0 | bad_local_fix:1 |  |  |", digest)
 
     def test_renders_missing_model_identity_as_unknown(self):
         digest = render_capability_evidence_digest(
@@ -223,11 +292,15 @@ class CapabilityEvidenceDigestTest(unittest.TestCase):
         )
 
         self.assertIn(
-            "| starter | regression | task-a | codex | unknown | unknown | 1 |",
+            "## Run Context: starter / codex / unknown / unknown",
             digest,
         )
         self.assertIn(
-            "| trial-unknown-model | task-a | codex | unknown | unknown | passed |",
+            "| task-a | regression | 1 | 1 | 0 | 1 | 0 |",
+            digest,
+        )
+        self.assertIn(
+            "| task-a | regression | trial-unknown-model | passed |",
             digest,
         )
 

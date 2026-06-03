@@ -1,10 +1,28 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Iterable, List, Mapping
 
 from agentlab.evidence.outcome import OutcomeEvidence
 from agentlab.evidence.summary import TrialGroupSummary, summarize_trials
+
+
+@dataclass(frozen=True)
+class MarkdownRunContext:
+    eval_suite: str
+    agent_name: str
+    model_name: str
+    reasoning_effort: str
+    summaries: List[TrialGroupSummary]
+    results: List[OutcomeEvidence]
+
+    @property
+    def label(self) -> str:
+        return (
+            f"{self.eval_suite} / {self.agent_name} / "
+            f"{self.model_name} / {self.reasoning_effort}"
+        )
 
 
 def render_capability_evidence_digest(
@@ -26,54 +44,14 @@ def render_capability_evidence_digest(
     ]
     if selection_context is not None:
         lines.extend(_selection_context_lines(selection_context))
-    lines.extend(
-        [
-            "",
-            "## Aggregate Summaries",
-            "",
-        ]
-    )
-
     summaries = summarize_trials(results)
     if not summaries:
+        lines.extend(["", "## Run Contexts", ""])
         lines.append("No agent-trial results found.")
     else:
-        lines.extend(_aggregate_summary_tables(summaries))
-
-    lines.extend(["", "## Trial Evidence", ""])
-    if not results:
-        lines.append("No agent-trial results found.")
-    else:
-        lines.extend(
-            _markdown_table(
-                [
-                    "Trial",
-                    "Task",
-                    "Agent Harness",
-                    "Model",
-                    "Effort",
-                    "Grader Outcome",
-                    "Validity",
-                    "Primary Review Label",
-                    "Secondary Review Labels",
-                    "Exclusion",
-                    "Files",
-                    "+Lines",
-                    "-Lines",
-                    "Input Tokens",
-                    "Cached Input Tokens",
-                    "Output Tokens",
-                    "Reasoning Tokens",
-                    "Cost USD",
-                    "Duration ms",
-                    "Report",
-                    "Transcript",
-                    "Diff",
-                    "Result",
-                ],
-                [_trial_row(result) for result in results],
-            )
-        )
+        lines.append("")
+        for context in _run_contexts(summaries, results):
+            lines.extend(_run_context_lines(context))
 
     lines.append("")
     return "\n".join(lines)
@@ -83,18 +61,107 @@ def render_evidence_appendix(results: Iterable[OutcomeEvidence]) -> str:
     return render_capability_evidence_digest(results)
 
 
+def _run_contexts(
+    summaries: List[TrialGroupSummary],
+    results: List[OutcomeEvidence],
+) -> List[MarkdownRunContext]:
+    summaries_by_key: Dict[tuple[str, str, str, str], List[TrialGroupSummary]] = {}
+    results_by_key: Dict[tuple[str, str, str, str], List[OutcomeEvidence]] = {}
+
+    for summary in summaries:
+        summaries_by_key.setdefault(_summary_context_key(summary), []).append(summary)
+    for result in results:
+        results_by_key.setdefault(_result_context_key(result), []).append(result)
+
+    contexts: List[MarkdownRunContext] = []
+    for key in sorted(set(summaries_by_key) | set(results_by_key)):
+        eval_suite, agent_name, model_name, reasoning_effort = key
+        contexts.append(
+            MarkdownRunContext(
+                eval_suite=eval_suite or "unknown",
+                agent_name=agent_name or "unknown",
+                model_name=model_name or "unknown",
+                reasoning_effort=reasoning_effort or "unknown",
+                summaries=sorted(
+                    summaries_by_key.get(key, []),
+                    key=lambda summary: (summary.eval_type, summary.task_id),
+                ),
+                results=results_by_key.get(key, []),
+            )
+        )
+    return contexts
+
+
+def _summary_context_key(summary: TrialGroupSummary) -> tuple[str, str, str, str]:
+    return (
+        summary.eval_suite,
+        summary.agent_name,
+        summary.model_name_display,
+        summary.reasoning_effort_display,
+    )
+
+
+def _result_context_key(result: OutcomeEvidence) -> tuple[str, str, str, str]:
+    return (
+        result.eval_suite,
+        result.agent_name,
+        result.model_name_display,
+        result.reasoning_effort_display,
+    )
+
+
+def _run_context_lines(context: MarkdownRunContext) -> List[str]:
+    lines = [
+        f"## Run Context: {context.label}",
+        "",
+        f"- Suite: `{context.eval_suite}`",
+        f"- Agent Harness: `{context.agent_name}`",
+        f"- Model: `{context.model_name}`",
+        f"- Effort: `{context.reasoning_effort}`",
+        "",
+    ]
+    lines.extend(_aggregate_summary_tables(context.summaries))
+    lines.extend(["", "### Trial Evidence", ""])
+    lines.extend(
+        _markdown_table(
+            [
+                "Task",
+                "Type",
+                "Trial",
+                "Grader Outcome",
+                "Validity",
+                "Primary Review Label",
+                "Secondary Review Labels",
+                "Exclusion",
+                "Files",
+                "+Lines",
+                "-Lines",
+                "Input Tokens",
+                "Cached Input Tokens",
+                "Output Tokens",
+                "Reasoning Tokens",
+                "Cost USD",
+                "Duration ms",
+                "Report",
+                "Transcript",
+                "Diff",
+                "Result",
+            ],
+            [_trial_row(result) for result in context.results],
+        )
+    )
+    lines.append("")
+    return lines
+
+
 def _aggregate_summary_tables(summaries: List[TrialGroupSummary]) -> List[str]:
     lines: List[str] = []
     lines.extend(["### Outcome Summary", ""])
     lines.extend(
         _markdown_table(
             [
-                "Suite",
-                "Type",
                 "Task",
-                "Agent Harness",
-                "Model",
-                "Effort",
+                "Type",
                 "Total",
                 "Fair",
                 "Excluded",
@@ -111,12 +178,8 @@ def _aggregate_summary_tables(summaries: List[TrialGroupSummary]) -> List[str]:
     lines.extend(
         _markdown_table(
             [
-                "Suite",
-                "Type",
                 "Task",
-                "Agent Harness",
-                "Model",
-                "Effort",
+                "Type",
                 "IO Tokens",
                 "Cached Tokens",
                 "Reason Tokens",
@@ -132,12 +195,8 @@ def _aggregate_summary_tables(summaries: List[TrialGroupSummary]) -> List[str]:
     lines.extend(
         _markdown_table(
             [
-                "Suite",
-                "Type",
                 "Task",
-                "Agent Harness",
-                "Model",
-                "Effort",
+                "Type",
                 "Median ms",
                 "Median Files",
                 "Median +Lines",
@@ -154,12 +213,8 @@ def _aggregate_summary_tables(summaries: List[TrialGroupSummary]) -> List[str]:
 
 def _summary_identity(summary: TrialGroupSummary) -> List[object]:
     return [
-        summary.eval_suite,
-        summary.eval_type,
         summary.task_id,
-        summary.agent_name,
-        summary.model_name_display,
-        summary.reasoning_effort_display,
+        summary.eval_type,
     ]
 
 
@@ -222,11 +277,9 @@ def _selection_context_lines(context: Mapping[str, object]) -> list[str]:
 
 def _trial_row(result: OutcomeEvidence) -> List[object]:
     return [
-        result.trial_id,
         result.task_id,
-        result.agent_name,
-        result.model_name_display,
-        result.reasoning_effort_display,
+        result.eval_type,
+        result.trial_id,
         result.status,
         result.trial_validity,
         result.primary_review_label,
