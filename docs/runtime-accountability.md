@@ -44,9 +44,44 @@ Codex trial `result.json` artifacts also store an `agent_harness_config` object
 with event-derived model identity when available, requested model and profile
 when supplied, sandbox mode, approval policy, timeout, configured command,
 resolved command identity when available, and CLI version when Agent Lab can
-read it. Runtime-accountability fields that the evaluation harness cannot
-currently provide, such as account and billing context, remain explicitly
-unknown in artifact metadata and report output.
+read it. New trial results also include a sibling `run_surface` object that
+normalizes these facts into vendor-neutral fields for comparison. Runtime
+accountability fields that the evaluation harness cannot currently provide,
+such as account and billing context, remain explicitly unknown in artifact
+metadata and report output.
+
+## Run Surface Metadata
+
+Run surface metadata is the neutral comparison layer for facts that affect how a
+trial should be interpreted without treating one vendor's option names as the
+project vocabulary.
+
+New `result.json` artifacts include `run_surface` with these fields:
+
+- `execution_surface`
+- `runtime_version`
+- `model_identity_source`
+- `sandbox_mode`
+- `approval_policy`
+- `tool_policy`
+- `memory_scope`
+- `network_policy`
+- `timeout_seconds`
+- `turn_or_step_budget`
+- `stop_reason`
+- `human_intervention_events`
+
+Codex CLI and Claude Code CLI results map existing adapter configuration and
+runtime facts into this structure when available. Manual and reference results
+use the same structure but leave unsupported facts as `unknown`, except for
+explicitly recorded manual intervention events. Historical results that do not
+store `run_surface` are normalized at load time from `agent_harness_config`, so
+existing artifacts remain readable without migration.
+
+`agent_harness_config` remains the adapter-specific compatibility surface.
+`run_surface` is the vendor-neutral surface for trial reports and capability
+evidence digests. A missing or unsupported fact should be represented as
+`unknown`, not silently omitted.
 
 This means each Codex trial currently measures **Codex CLI as configured on this
 machine**. Authentication, default model selection, account limits, and token

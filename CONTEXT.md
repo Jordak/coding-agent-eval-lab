@@ -73,6 +73,12 @@ The project is evaluation infrastructure, not a general coding assistant or IDE.
 - **Agent harness configuration**: a comparable setup of an agent harness plus
   its explicit model, permissions, sandbox, project rules, and runtime options
   when known.
+- **Run surface metadata**: vendor-neutral trial metadata that describes the
+  runtime surface used by an agent harness, including execution surface,
+  runtime version, model identity source, sandbox or permission mode, tool and
+  memory policy, network policy, timeout or step budget, stop reason, and
+  recorded human interventions. Unsupported facts should appear as `unknown`
+  rather than being omitted.
 - **Agent adapter**: the local Python integration that invokes an agent harness
   through Agent Eval Lab.
 - **Underlying model**: the model selected by an agent harness. Do not collapse
@@ -200,7 +206,9 @@ The project is evaluation infrastructure, not a general coding assistant or IDE.
 - Each trial gets an isolated cloned workspace under `runs/<trial-id>/workspace`.
 - Agent adapters implement the `AgentAdapter` protocol in `agentlab.agents`.
 - Trial artifacts include `report.md`, `result.json`, `diff.patch`, and an
-  adapter-specific transcript or trace.
+  adapter-specific transcript or trace. New `result.json` artifacts include
+  neutral run surface metadata as a sibling to adapter-specific
+  `agent_harness_config`.
 - Multi-trial summaries group by suite, eval type, task, agent harness, and
   model, then report fair-trial pass rate, pass@k, pass^k, accepted-result
   counts, token-normalized outcome metrics, and excluded-trial counts.

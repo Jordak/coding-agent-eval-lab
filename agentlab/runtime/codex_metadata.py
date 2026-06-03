@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Iterable, Mapping
 
 from agentlab.runtime.model_identity import ModelIdentity, parse_model_name_from_events
+from agentlab.runtime.run_surface import normalize_run_surface
 
 
 LOCAL_CODEX_STATE_SOURCE = "local_codex_state"
@@ -300,6 +301,16 @@ def _with_recovered_identity(
         config["cli_version"] = identity.cli_version
 
     updated["agent_harness_config"] = config
+    updated["run_surface"] = normalize_run_surface(
+        _optional_dict(updated.get("run_surface")),
+        agent_harness_config=config,
+        agent_name=_optional_str(updated.get("agent_name")),
+        status=_optional_str(updated.get("status")),
+        success=updated.get("success")
+        if isinstance(updated.get("success"), bool)
+        else None,
+        error=updated.get("error"),
+    )
     return updated
 
 

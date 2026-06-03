@@ -173,6 +173,10 @@ class ResultsTest(unittest.TestCase):
             self.assertIsNone(runtime_accountability["billing_context"])
             self.assertIsNone(runtime_accountability["cost_usd"])
             self.assertIsNone(runtime_accountability["future_runtime_fact"])
+            self.assertEqual(result.run_surface["execution_surface"], "local_cli")
+            self.assertEqual(result.run_surface["runtime_version"], "unknown")
+            self.assertEqual(result.run_surface["sandbox_mode"], "unknown")
+            self.assertEqual(result.run_surface["network_policy"], "unknown")
 
     def test_load_outcome_evidences_backfills_model_identity_from_claude_events(self):
         with tempfile.TemporaryDirectory() as temp:

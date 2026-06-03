@@ -12,6 +12,7 @@ from agentlab.runtime.resource_usage import (
     parse_resource_usage_events,
     resource_usage_to_dict,
 )
+from agentlab.runtime.run_surface import normalize_run_surface
 
 
 def apply_result_backfills(data: Dict[str, Any], run_dir: Path | None) -> None:
@@ -20,6 +21,7 @@ def apply_result_backfills(data: Dict[str, Any], run_dir: Path | None) -> None:
     _backfill_resource_usage(data, run_dir)
     _backfill_model_identity(data, run_dir)
     _backfill_agent_harness_config(data)
+    _backfill_run_surface(data)
 
 
 def _backfill_edit_size(data: Dict[str, Any], run_dir: Path | None) -> None:
@@ -119,6 +121,22 @@ def _backfill_agent_harness_config(data: Dict[str, Any]) -> None:
         agent_name=_optional_str(data.get("agent_name")),
         model_name=_optional_str(data.get("model_name")),
         cost_usd=_optional_float(data.get("cost_usd")),
+    )
+
+
+def _backfill_run_surface(data: Dict[str, Any]) -> None:
+    status = _optional_str(data.get("status"))
+    outcome = data.get("outcome")
+    if status is None and isinstance(outcome, Mapping):
+        status = _optional_str(outcome.get("status"))
+    success = data.get("success")
+    data["run_surface"] = normalize_run_surface(
+        _optional_dict(data.get("run_surface")),
+        agent_harness_config=_optional_dict(data.get("agent_harness_config")),
+        agent_name=_optional_str(data.get("agent_name")),
+        status=status,
+        success=success if isinstance(success, bool) else None,
+        error=data.get("error"),
     )
 
 
