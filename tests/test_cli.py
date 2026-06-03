@@ -80,6 +80,7 @@ class CliOutputTest(unittest.TestCase):
             "trials",
             "report",
             "review",
+            "review-proposals",
             "recover",
         ]:
             self.assertIn(command, help_text)
@@ -109,6 +110,12 @@ class CliOutputTest(unittest.TestCase):
                 "success_clean",
                 "--note",
                 "Focused one-line fix; graders pass.",
+            ],
+            [
+                "review-proposals",
+                "run",
+                "--trial",
+                "latest",
             ],
             ["report", "capability-evidence-digest"],
             [
