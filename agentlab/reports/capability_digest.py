@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Iterable, List, Mapping
@@ -120,6 +121,7 @@ def _run_context_lines(context: MarkdownRunContext) -> List[str]:
         f"- Effort: `{context.reasoning_effort}`",
         "",
     ]
+    lines.extend(_run_surface_summary_lines(context.results))
     lines.extend(_aggregate_summary_tables(context.summaries))
     lines.extend(["", "### Trial Evidence", ""])
     lines.extend(
@@ -152,6 +154,58 @@ def _run_context_lines(context: MarkdownRunContext) -> List[str]:
     )
     lines.append("")
     return lines
+
+
+def _run_surface_summary_lines(results: List[OutcomeEvidence]) -> List[str]:
+    rows = [
+        [
+            _surface_context_value(results, "execution_surface"),
+            _surface_context_value(results, "runtime_version"),
+            _surface_context_value(results, "model_identity_source"),
+            _surface_context_value(results, "sandbox_mode"),
+            _surface_context_value(results, "approval_policy"),
+            _surface_context_value(results, "memory_scope"),
+            _surface_context_value(results, "network_policy"),
+            _surface_context_value(results, "timeout_seconds"),
+            _surface_context_value(results, "stop_reason"),
+        ]
+    ]
+    return [
+        "### Run Surface",
+        "",
+        *_markdown_table(
+            [
+                "Execution Surface",
+                "Runtime Version",
+                "Model Source",
+                "Sandbox",
+                "Approval",
+                "Memory",
+                "Network",
+                "Timeout Seconds",
+                "Stop Reason",
+            ],
+            rows,
+        ),
+        "",
+    ]
+
+
+def _surface_context_value(
+    results: List[OutcomeEvidence],
+    field: str,
+) -> str:
+    values = sorted(
+        {
+            _format_run_surface_value(result.run_surface.get(field))
+            for result in results
+        }
+    )
+    if not values:
+        return "unknown"
+    if len(values) == 1:
+        return values[0]
+    return "mixed: " + "; ".join(values)
 
 
 def _aggregate_summary_tables(summaries: List[TrialGroupSummary]) -> List[str]:
@@ -343,6 +397,21 @@ def _format_counts(counts: Dict[str, int]) -> str:
 
 def _format_labels(labels: List[str]) -> str:
     return ", ".join(labels)
+
+
+def _format_run_surface_value(value: object) -> str:
+    if value is None:
+        return "unknown"
+    if isinstance(value, list):
+        if not value:
+            return "none"
+        return ", ".join(str(item) for item in value)
+    if isinstance(value, dict):
+        return json.dumps(value, sort_keys=True)
+    text = str(value)
+    if not text:
+        return "unknown"
+    return text
 
 
 def _unknown_if_none(value: object) -> object:

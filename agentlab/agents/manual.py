@@ -55,6 +55,13 @@ class ManualAgentAdapter:
             transcript_path=transcript_path,
             diff_path=diff_path,
             duration_ms=duration_ms,
+            agent_harness_config={
+                "agent_harness": "manual",
+                "agent_adapter": "manual",
+                "human_intervention_events": (
+                    ["manual_edit_pause"] if self.pause else []
+                ),
+            },
         )
 
 

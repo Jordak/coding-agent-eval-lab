@@ -9,6 +9,7 @@ from agentlab.runtime.resource_usage import (
     ResourceUsage,
     resource_usage_to_dict,
 )
+from agentlab.runtime.run_surface import normalize_run_surface
 from agentlab.execution.scoring import CheckResult
 
 
@@ -20,6 +21,21 @@ def write_result_json(run: Any) -> None:
 
 
 def to_result_dict(run: Any) -> Dict[str, Any]:
+    status = "passed" if run.score.tests_passed else "failed"
+    agent_harness_config = normalize_agent_harness_config(
+        getattr(run.agent_run, "agent_harness_config", {}),
+        agent_name=run.agent_run.agent_name,
+        model_name=run.agent_run.model_name,
+        cost_usd=run.agent_run.cost_usd,
+    )
+    run_surface = normalize_run_surface(
+        None,
+        agent_harness_config=agent_harness_config,
+        agent_name=run.agent_run.agent_name,
+        status=status,
+        success=run.score.tests_passed,
+        error=run.agent_run.error,
+    )
     return {
         "trial_kind": "agent_trial",
         "trial_id": run.run_dir.name,
@@ -33,16 +49,12 @@ def to_result_dict(run: Any) -> Dict[str, Any]:
         ),
         "agent_name": run.agent_run.agent_name,
         "model_name": run.agent_run.model_name,
-        "agent_harness_config": normalize_agent_harness_config(
-            getattr(run.agent_run, "agent_harness_config", {}),
-            agent_name=run.agent_run.agent_name,
-            model_name=run.agent_run.model_name,
-            cost_usd=run.agent_run.cost_usd,
-        ),
-        "status": "passed" if run.score.tests_passed else "failed",
+        "agent_harness_config": agent_harness_config,
+        "run_surface": run_surface,
+        "status": status,
         "success": run.score.tests_passed,
         "outcome": {
-            "status": "passed" if run.score.tests_passed else "failed",
+            "status": status,
             "files_changed": run.agent_run.files_changed,
             "n_files_changed": len(run.agent_run.files_changed),
             "lines_added": run.agent_run.lines_added,
@@ -82,6 +94,20 @@ def to_result_dict(run: Any) -> Dict[str, Any]:
 def reference_verification_to_result_dict(verification: Any) -> Dict[str, Any]:
     status = "passed" if verification.success else "failed"
     output_dir = verification.result_path.parent
+    agent_harness_config = normalize_agent_harness_config(
+        {},
+        agent_name="reference",
+        model_name=None,
+        cost_usd=None,
+    )
+    run_surface = normalize_run_surface(
+        None,
+        agent_harness_config=agent_harness_config,
+        agent_name="reference",
+        status=status,
+        success=verification.success,
+        error=None,
+    )
     return {
         "trial_kind": "reference_verification",
         "trial_id": f"{verification.task.id}-reference",
@@ -95,6 +121,8 @@ def reference_verification_to_result_dict(verification: Any) -> Dict[str, Any]:
         ),
         "agent_name": "reference",
         "model_name": None,
+        "agent_harness_config": agent_harness_config,
+        "run_surface": run_surface,
         "status": status,
         "success": verification.success,
         "outcome": {

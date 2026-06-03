@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import json
 from typing import TYPE_CHECKING
 
 from agentlab.execution.scoring import CheckResult
+from agentlab.runtime.run_surface import normalize_run_surface
 
 if TYPE_CHECKING:
     from agentlab.tasks.reference import ReferenceVerification
@@ -27,9 +29,21 @@ def render_markdown_report(run: "EvaluationRun") -> str:
         f"- Diff: `{run.agent_run.diff_path.name}`",
     ]
 
-    config_lines = _render_agent_harness_config(
-        getattr(run.agent_run, "agent_harness_config", {})
+    agent_harness_config = getattr(run.agent_run, "agent_harness_config", {})
+    run_surface = normalize_run_surface(
+        None,
+        agent_harness_config=agent_harness_config,
+        agent_name=run.agent_run.agent_name,
+        status=status,
+        success=run.score.tests_passed,
+        error=run.agent_run.error,
     )
+    surface_lines = _render_run_surface(run_surface)
+    if surface_lines:
+        lines.extend(["", "## Run Surface", ""])
+        lines.extend(surface_lines)
+
+    config_lines = _render_agent_harness_config(agent_harness_config)
     if config_lines:
         lines.extend(["", "## Agent Harness Configuration", ""])
         lines.extend(config_lines)
@@ -107,6 +121,18 @@ def render_reference_report(verification: "ReferenceVerification") -> str:
         f"- Files changed: `{len(verification.files_changed)}`",
         f"- Lines added: `{verification.lines_added}`",
         f"- Lines deleted: `{verification.lines_deleted}`",
+        "",
+        "## Run Surface",
+        "",
+        *_render_run_surface(
+            normalize_run_surface(
+                None,
+                agent_name="reference",
+                status=status,
+                success=verification.success,
+                error=None,
+            )
+        ),
         "",
         "## Code-Based Graders",
         "",
@@ -196,3 +222,42 @@ def _render_agent_harness_config(config: object) -> list[str]:
         f"- {label}: `{_display_optional(value)}`"
         for label, value in fields
     ]
+
+
+def _render_run_surface(run_surface: object) -> list[str]:
+    if not isinstance(run_surface, dict) or not run_surface:
+        return []
+
+    fields = [
+        ("Execution surface", run_surface.get("execution_surface")),
+        ("Runtime version", run_surface.get("runtime_version")),
+        ("Model identity source", run_surface.get("model_identity_source")),
+        ("Sandbox mode", run_surface.get("sandbox_mode")),
+        ("Approval policy", run_surface.get("approval_policy")),
+        ("Tool policy", run_surface.get("tool_policy")),
+        ("Memory scope", run_surface.get("memory_scope")),
+        ("Network policy", run_surface.get("network_policy")),
+        ("Timeout seconds", run_surface.get("timeout_seconds")),
+        ("Turn or step budget", run_surface.get("turn_or_step_budget")),
+        ("Stop reason", run_surface.get("stop_reason")),
+        (
+            "Human intervention events",
+            run_surface.get("human_intervention_events"),
+        ),
+    ]
+    return [
+        f"- {label}: `{_display_run_surface_value(value)}`"
+        for label, value in fields
+    ]
+
+
+def _display_run_surface_value(value: object) -> str:
+    if value is None:
+        return "unknown"
+    if isinstance(value, list):
+        if not value:
+            return "none"
+        return ", ".join(str(item) for item in value)
+    if isinstance(value, dict):
+        return json.dumps(value, sort_keys=True)
+    return str(value)

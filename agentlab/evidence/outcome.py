@@ -26,6 +26,7 @@ class OutcomeEvidence:
     agent_name: str
     model_name: str | None
     agent_harness_config: Dict[str, Any]
+    run_surface: Dict[str, Any]
     status: str
     success: bool
     outcome: Dict[str, Any]
@@ -102,6 +103,34 @@ class OutcomeEvidence:
         return _display_unknown(self.reasoning_effort)
 
     @property
+    def execution_surface_display(self) -> str:
+        return _display_unknown(self.run_surface.get("execution_surface"))
+
+    @property
+    def runtime_version_display(self) -> str:
+        return _display_unknown(self.run_surface.get("runtime_version"))
+
+    @property
+    def sandbox_mode_display(self) -> str:
+        return _display_unknown(self.run_surface.get("sandbox_mode"))
+
+    @property
+    def approval_policy_display(self) -> str:
+        return _display_unknown(self.run_surface.get("approval_policy"))
+
+    @property
+    def memory_scope_display(self) -> str:
+        return _display_unknown(self.run_surface.get("memory_scope"))
+
+    @property
+    def network_policy_display(self) -> str:
+        return _display_unknown(self.run_surface.get("network_policy"))
+
+    @property
+    def stop_reason_display(self) -> str:
+        return _display_unknown(self.run_surface.get("stop_reason"))
+
+    @property
     def files_changed_count(self) -> int:
         return self.n_files_changed
 
@@ -149,6 +178,7 @@ class OutcomeEvidence:
                 "agent_name": self.agent_name,
                 "model_name": self.model_name,
                 "agent_harness_config": dict(self.agent_harness_config),
+                "run_surface": dict(self.run_surface),
                 "status": self.status,
                 "success": self.success,
                 "outcome": dict(self.outcome),
@@ -247,6 +277,7 @@ def normalize_outcome_evidence(
         agent_name=str(data.get("agent_name") or ""),
         model_name=_optional_str(data.get("model_name")),
         agent_harness_config=dict(data.get("agent_harness_config") or {}),
+        run_surface=dict(data.get("run_surface") or {}),
         status=status,
         success=success,
         outcome=outcome,

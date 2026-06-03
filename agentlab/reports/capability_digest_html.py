@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import html
+import json
 import os
 import re
 from dataclasses import dataclass
@@ -425,6 +426,11 @@ def _context_page(
       <div class="fact"><span>Agent harness</span><strong>{_text(context.agent_name)}</strong></div>
       <div class="fact"><span>Model</span><strong>{_text(context.model_name)}</strong></div>
       <div class="fact"><span>Effort</span><strong>{_text(context.reasoning_effort)}</strong></div>
+      <div class="fact"><span>Execution surface</span><strong>{_text(_surface_context_value(context.results, "execution_surface"))}</strong></div>
+      <div class="fact"><span>Runtime version</span><strong>{_text(_surface_context_value(context.results, "runtime_version"))}</strong></div>
+      <div class="fact"><span>Sandbox</span><strong>{_text(_surface_context_value(context.results, "sandbox_mode"))}</strong></div>
+      <div class="fact"><span>Approval</span><strong>{_text(_surface_context_value(context.results, "approval_policy"))}</strong></div>
+      <div class="fact"><span>Network</span><strong>{_text(_surface_context_value(context.results, "network_policy"))}</strong></div>
       <div class="fact"><span>Source</span><strong>{source}</strong></div>
     </div>
     <div class="score-grid">
@@ -711,6 +717,23 @@ def _result_context_key(result: OutcomeEvidence) -> tuple[str, str, str, str]:
     )
 
 
+def _surface_context_value(
+    results: Sequence[OutcomeEvidence],
+    field: str,
+) -> str:
+    values = sorted(
+        {
+            _format_run_surface_value(result.run_surface.get(field))
+            for result in results
+        }
+    )
+    if not values:
+        return "unknown"
+    if len(values) == 1:
+        return values[0]
+    return "mixed: " + "; ".join(values)
+
+
 def _context_totals(context: RunContext) -> dict[str, object]:
     fair = sum(summary.trials for summary in context.summaries)
     passes = sum(summary.passes for summary in context.summaries)
@@ -901,6 +924,21 @@ def _format_counts(counts: Mapping[str, int]) -> str:
 
 def _format_labels(labels: Sequence[str]) -> str:
     return ", ".join(labels)
+
+
+def _format_run_surface_value(value: object) -> str:
+    if value is None:
+        return "unknown"
+    if isinstance(value, list):
+        if not value:
+            return "none"
+        return ", ".join(str(item) for item in value)
+    if isinstance(value, dict):
+        return json.dumps(value, sort_keys=True)
+    text = str(value)
+    if not text:
+        return "unknown"
+    return text
 
 
 def _unknown_if_none(value: object) -> object:
