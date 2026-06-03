@@ -24,6 +24,9 @@ This repo uses a single-context domain docs layout. See `docs/agents/domain.md`.
 Use `.agents/skills/task-card` when creating, moving, or refreshing task bundles
 under `tasks/`.
 
+Use `.agents/skills/trial-review` when interactively reviewing trial artifacts,
+drafting review proposals, or applying human-approved `review.json` outcomes.
+
 This checkout uses `.githooks/pre-commit` to check generated task cards and task
 bundle validation before commits.
 

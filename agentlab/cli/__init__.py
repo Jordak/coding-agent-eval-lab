@@ -14,6 +14,12 @@ from agentlab.cli.parser import build_parser
 from agentlab.cli.recover import handle_recover_codex_runtime_metadata
 from agentlab.cli.reports import handle_report_capability_evidence_digest
 from agentlab.cli.review import handle_review
+from agentlab.cli.review_proposals import (
+    handle_review_proposals_clear,
+    handle_review_proposals_evidence_set,
+    handle_review_proposals_run,
+    handle_review_proposals_write,
+)
 from agentlab.cli.run import handle_run, _print_run_summaries
 from agentlab.cli.task import (
     handle_task_smoke_test,
@@ -54,6 +60,10 @@ __all__ = [
     "handle_recover_codex_runtime_metadata",
     "handle_report_capability_evidence_digest",
     "handle_review",
+    "handle_review_proposals_clear",
+    "handle_review_proposals_evidence_set",
+    "handle_review_proposals_run",
+    "handle_review_proposals_write",
     "handle_run",
     "handle_runs_list",
     "handle_task_smoke_test",
