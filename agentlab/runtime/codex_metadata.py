@@ -117,15 +117,19 @@ def codex_model_identity_from_events_and_state(
 ) -> ModelIdentity:
     thread_id = parse_codex_thread_id_from_events(events_jsonl)
     event_model = parse_model_name_from_events(events_jsonl)
+    metadata = lookup_codex_thread_metadata(codex_state_db, thread_id)
     if event_model:
         return ModelIdentity(
             model_name=event_model,
             model_source="events",
             requested_model_name=requested_model_name,
+            reasoning_effort=metadata.reasoning_effort if metadata else None,
+            model_provider=metadata.model_provider if metadata else None,
             codex_thread_id=thread_id,
+            codex_thread_source=metadata.codex_thread_source if metadata else None,
+            cli_version=metadata.cli_version if metadata else None,
         )
 
-    metadata = lookup_codex_thread_metadata(codex_state_db, thread_id)
     if metadata is not None and metadata.model_name:
         return _identity_from_metadata(
             metadata,

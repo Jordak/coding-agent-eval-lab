@@ -10,6 +10,7 @@ from agentlab.agents.manual import ManualAgentAdapter
 
 AGENT_CHOICES = ("manual", "codex", "claude")
 PREFLIGHT_AGENT_CHOICES = ("codex", "claude")
+CODEX_REASONING_EFFORT_CHOICES = ("minimal", "low", "medium", "high", "xhigh")
 
 
 def add_agent_argument(
@@ -57,6 +58,15 @@ def add_codex_options(
         "--codex-model",
         default=None,
         help="Optional model passed to `codex exec --model`.",
+    )
+    parser.add_argument(
+        "--codex-reasoning-effort",
+        default=None,
+        choices=list(CODEX_REASONING_EFFORT_CHOICES),
+        help=(
+            "Optional reasoning effort passed to Codex as "
+            '`--config model_reasoning_effort="<value>"`.'
+        ),
     )
     parser.add_argument(
         "--codex-profile",
@@ -185,6 +195,7 @@ def _codex_config_from_args(
     return CodexCliConfig(
         command=args.codex_command,
         model=args.codex_model,
+        reasoning_effort=args.codex_reasoning_effort,
         profile=args.codex_profile,
         sandbox=args.codex_sandbox,
         approval_policy=args.codex_approval,
