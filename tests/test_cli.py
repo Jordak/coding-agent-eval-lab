@@ -174,7 +174,7 @@ class CliOutputTest(unittest.TestCase):
         )
 
         self.assertEqual(args.runs_dir, "runs")
-        self.assertEqual(args.evidence_set, "reports/codex-click-evidence.json")
+        self.assertEqual(args.evidence_set, ["reports/codex-click-evidence.json"])
         self.assertEqual(args.output, "reports/evidence-digest.md")
         self.assertEqual(args.html_output, "reports/evidence-digest.html")
 
@@ -192,6 +192,34 @@ class CliOutputTest(unittest.TestCase):
 
         self.assertEqual(args.output, "reports/legacy.md")
 
+    def test_report_parser_accepts_repeated_evidence_sets(self):
+        parser = build_parser()
+
+        args = parser.parse_args(
+            [
+                "report",
+                "capability-evidence-digest",
+                "--runs-dir",
+                "runs",
+                "--evidence-set",
+                "evidence-sets/codex.json",
+                "--evidence-set",
+                "evidence-sets/claude.json",
+                "--output",
+                "reports/evidence-digest.md",
+            ]
+        )
+
+        self.assertEqual(args.runs_dir, "runs")
+        self.assertEqual(
+            args.evidence_set,
+            [
+                "evidence-sets/codex.json",
+                "evidence-sets/claude.json",
+            ],
+        )
+        self.assertEqual(args.output, "reports/evidence-digest.md")
+
     def test_report_command_writes_html_companion(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
@@ -208,7 +236,11 @@ class CliOutputTest(unittest.TestCase):
                         "eval_type": "capability",
                         "agent_name": "codex",
                         "model_name": "model-a",
-                        "agent_harness_config": {"reasoning_effort": "xhigh"},
+                        "agent_harness_config": {
+                            "reasoning_effort": "xhigh",
+                            "sandbox": "workspace-write",
+                            "approval_policy": "never",
+                        },
                         "status": "passed",
                         "success": True,
                         "duration_ms": 100,
@@ -241,9 +273,86 @@ class CliOutputTest(unittest.TestCase):
         self.assertTrue(markdown_exists)
         self.assertIn("Capability evidence digest:", stdout.getvalue())
         self.assertIn("Capability evidence digest HTML:", stdout.getvalue())
+        self.assertIn("<h2>Agent Harness Operability</h2>", html_report)
+        self.assertIn("sandbox_mode: workspace-write", html_report)
+        self.assertIn("approval_policy: never", html_report)
         self.assertIn("<h2>Outcome Summary</h2>", html_report)
         self.assertIn("<h2>Trial Evidence</h2>", html_report)
         self.assertIn('href="digest.md"', html_report)
+
+    def test_capability_evidence_digest_includes_operability_section(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            runs_dir = root / "runs"
+            codex_run = runs_dir / "codex-pass"
+            claude_run = runs_dir / "claude-pass"
+            codex_run.mkdir(parents=True)
+            claude_run.mkdir()
+            self._write_result(
+                codex_run,
+                trial_id="codex-pass",
+                agent_name="codex",
+                config={
+                    "agent_harness": "codex",
+                    "sandbox": "workspace-write",
+                    "approval_policy": "never",
+                    "timeout_seconds": 1800,
+                },
+            )
+            self._write_result(
+                claude_run,
+                trial_id="claude-pass",
+                agent_name="claude",
+                config={
+                    "agent_harness": "claude_code",
+                    "permission_mode": "acceptEdits",
+                    "timeout_seconds": 1800,
+                    "no_session_persistence": True,
+                },
+            )
+            codex_set = root / "codex.json"
+            claude_set = root / "claude.json"
+            codex_set.write_text(
+                json.dumps({"name": "codex evidence", "trials": ["codex-pass"]}),
+                encoding="utf-8",
+            )
+            claude_set.write_text(
+                json.dumps({"name": "claude evidence", "trials": ["claude-pass"]}),
+                encoding="utf-8",
+            )
+            output_path = root / "reports" / "digest.md"
+            html_output = root / "reports" / "digest.html"
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                status = handle_report_capability_evidence_digest(
+                    SimpleNamespace(
+                        runs_dir=str(runs_dir),
+                        evidence_set=[
+                            str(codex_set),
+                            str(claude_set),
+                        ],
+                        output=str(output_path),
+                        html_output=str(html_output),
+                    )
+                )
+            report = output_path.read_text(encoding="utf-8")
+            html_report = html_output.read_text(encoding="utf-8")
+
+        self.assertEqual(status, 0)
+        self.assertIn("Capability evidence digest:", stdout.getvalue())
+        self.assertIn("Capability evidence digest HTML:", stdout.getvalue())
+        self.assertIn("- Evidence sets: `2`", report)
+        self.assertNotIn("## Agent Harness Operability Evidence", report)
+        self.assertEqual(report.count("### Agent Harness Operability"), 2)
+        self.assertIn("## Run Context: starter-coding / codex", report)
+        self.assertIn("## Run Context: starter-coding / claude", report)
+        self.assertIn("sandbox_mode: `workspace-write`", report)
+        self.assertIn("approval_policy: `acceptEdits`", report)
+        self.assertEqual(html_report.count("<h2>Agent Harness Operability</h2>"), 2)
+        self.assertIn("sandbox_mode: workspace-write", html_report)
+        self.assertIn("approval_policy: acceptEdits", html_report)
+        self.assertIn("configured_token_cost_quota_limits: unknown", html_report)
 
     def test_recover_parser_accepts_codex_runtime_metadata_options(self):
         parser = build_parser()
@@ -1063,6 +1172,38 @@ class CliOutputTest(unittest.TestCase):
                     "0.130.0-alpha.5",
                 ),
             )
+
+    def _write_result(self, run_dir, *, trial_id, agent_name, config):
+        (run_dir / "result.json").write_text(
+            json.dumps(
+                {
+                    "trial_kind": "agent_trial",
+                    "trial_id": trial_id,
+                    "run_id": trial_id,
+                    "task_id": "task-a",
+                    "eval_suite": "starter-coding",
+                    "eval_type": "capability",
+                    "agent_name": agent_name,
+                    "model_name": "model-a",
+                    "agent_harness_config": config,
+                    "status": "passed",
+                    "success": True,
+                    "duration_ms": 100,
+                    "input_tokens": 10,
+                    "output_tokens": 5,
+                    "files_changed": ["app.py"],
+                    "lines_added": 3,
+                    "lines_deleted": 1,
+                    "checks": [{"name": "pytest", "status": "passed"}],
+                    "graders": [{"name": "pytest"}],
+                    "report_path": str(run_dir / "report.md"),
+                    "transcript_path": str(run_dir / "transcript.md"),
+                    "diff_path": str(run_dir / "diff.patch"),
+                    "run_dir": str(run_dir),
+                }
+            ),
+            encoding="utf-8",
+        )
 
 
 def _write_cli_task_bundle(

@@ -174,7 +174,11 @@ class CapabilityEvidenceDigestTest(unittest.TestCase):
                         "eval_type": "regression",
                         "agent_name": "codex",
                         "model_name": "model-a",
-                        "agent_harness_config": {"reasoning_effort": "xhigh"},
+                        "agent_harness_config": {
+                            "reasoning_effort": "xhigh",
+                            "sandbox": "workspace-write",
+                            "approval_policy": "never",
+                        },
                         "status": "passed",
                         "success": True,
                         "duration_ms": 100,
@@ -205,6 +209,9 @@ class CapabilityEvidenceDigestTest(unittest.TestCase):
 
         self.assertIn("<!doctype html>", html_report)
         self.assertIn("<h2>Outcome Summary</h2>", html_report)
+        self.assertIn("<h2>Agent Harness Operability</h2>", html_report)
+        self.assertIn("sandbox_mode: workspace-write", html_report)
+        self.assertIn("approval_policy: never", html_report)
         self.assertIn("<h2>Token Summary</h2>", html_report)
         self.assertIn("<h2>Review and Patch Summary</h2>", html_report)
         self.assertIn("<h2>Trial Evidence</h2>", html_report)

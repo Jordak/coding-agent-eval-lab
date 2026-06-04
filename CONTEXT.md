@@ -79,6 +79,16 @@ The project is evaluation infrastructure, not a general coding assistant or IDE.
   memory policy, network policy, timeout or step budget, stop reason, and
   recorded human interventions. Unsupported facts should appear as `unknown`
   rather than being omitted.
+- **Agent harness operability evidence**: side-by-side evidence about how an
+  agent harness can be run, bounded, inspected, and audited from currently
+  stored artifacts. It can use run surface metadata, agent harness
+  configuration, verifier state, resource usage fields, transcripts, diffs,
+  review overlays, and report/result links. It belongs in the same
+  task-to-trial-to-result-to-evidence-to-report flow as capability evidence,
+  while remaining distinct from task-performance metrics: operability evidence
+  describes runtime controls and receipts, not whether the final patch solved
+  the task. Use explicit `unknown` values for unsupported facts rather than
+  inferring a complete control-plane model from partial artifacts.
 - **Agent adapter**: the local Python integration that invokes an agent harness
   through Agent Eval Lab.
 - **Underlying model**: the model selected by an agent harness. Do not collapse

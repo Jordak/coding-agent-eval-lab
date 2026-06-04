@@ -10,6 +10,9 @@ from typing import Iterable, Mapping, Sequence
 
 from agentlab.evidence.outcome import OutcomeEvidence
 from agentlab.evidence.summary import TrialGroupSummary, summarize_trials
+from agentlab.reports.operability_evidence import (
+    agent_harness_operability_rows,
+)
 
 
 INTRO_TEXT = (
@@ -56,6 +59,8 @@ WRAP_HEADERS = {
     "Secondary Review Labels",
     "Primary Review Label",
     "Exclusions",
+    "Operability Dimension",
+    "Evidence",
 }
 
 
@@ -441,6 +446,7 @@ def _context_page(
       <div class="metric"><span>IO tokens</span><strong>{_format_optional_number(totals["io"])}</strong></div>
       <div class="metric"><span>IO / verified</span><strong>{_format_optional_number(totals["io_per_verified"])}</strong></div>
     </div>
+    {_summary_section("Agent Harness Operability", _operability_rows(context), ["Operability Dimension", "Evidence"])}
     {_resource_summary(context)}
     {_reviewer_focus(context, render_context)}
     {_summary_section("Outcome Summary", _outcome_rows(context, render_context), ["Task", "Type", "Total", "Fair", "Excluded", "Passes", "Accepted", "Pass Rate", "pass@k", "pass^k"])}
@@ -628,6 +634,19 @@ def _review_rows(
             "Exclusions": _text(_format_counts(summary.exclusion_reasons)),
         }
         for summary in context.summaries
+    ]
+
+
+def _operability_rows(context: RunContext) -> list[dict[str, str]]:
+    return [
+        {
+            "Operability Dimension": _text(row.dimension),
+            "Evidence": "<br>".join(
+                _text(f"{label}: {value}")
+                for label, value in row.facts
+            ),
+        }
+        for row in agent_harness_operability_rows(context.results)
     ]
 
 
