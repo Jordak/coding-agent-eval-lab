@@ -43,7 +43,7 @@ Generated from local trial artifacts with:
 
 ```bash
 python3 -m agentlab trials summarize
-python3 -m agentlab report capability-evidence-digest --output /private/tmp/agentlab-current-evidence.md
+python3 -m agentlab report capability-evidence-digest --output reports/codex-click-pilot-2026-05-08/evidence-digest.md
 python3 -m agentlab run --agent codex --task tasks/starter/click-default-map-nargs-001 --trials 3 --jobs 3
 ```
 
@@ -121,24 +121,24 @@ For solo developers:
 
 ## Trial Artifact Index
 
-The local `runs/` directory is intentionally ignored by git, but these artifact
-paths are the evidence used for this report.
+Raw trial artifacts were local, ignored files used during original review.
+Per-trial artifact paths are omitted from this checked-in report because they can disappear after temporary worktree cleanup.
 
-| Trial | Task | Outcome | Validity | Report | Transcript | Diff | Result |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `20260507-170846-click-help-shadowed-option-001-codex` | `click-help-shadowed-option-001` | failed | excluded: `eval_harness_error` | `runs/20260507-170846-click-help-shadowed-option-001-codex/report.md` | `runs/20260507-170846-click-help-shadowed-option-001-codex/transcript.md` | `runs/20260507-170846-click-help-shadowed-option-001-codex/diff.patch` | `runs/20260507-170846-click-help-shadowed-option-001-codex/result.json` |
-| `20260507-171508-click-help-shadowed-option-001-codex` | `click-help-shadowed-option-001` | passed | valid | `runs/20260507-171508-click-help-shadowed-option-001-codex/report.md` | `runs/20260507-171508-click-help-shadowed-option-001-codex/transcript.md` | `runs/20260507-171508-click-help-shadowed-option-001-codex/diff.patch` | `runs/20260507-171508-click-help-shadowed-option-001-codex/result.json` |
-| `20260507-175243-click-help-shadowed-option-001-codex` | `click-help-shadowed-option-001` | passed | valid | `runs/20260507-175243-click-help-shadowed-option-001-codex/report.md` | `runs/20260507-175243-click-help-shadowed-option-001-codex/transcript.md` | `runs/20260507-175243-click-help-shadowed-option-001-codex/diff.patch` | `runs/20260507-175243-click-help-shadowed-option-001-codex/result.json` |
-| `20260507-183521-click-help-shadowed-option-001-codex-20f74f8c` | `click-help-shadowed-option-001` | passed | valid | `runs/20260507-183521-click-help-shadowed-option-001-codex-20f74f8c/report.md` | `runs/20260507-183521-click-help-shadowed-option-001-codex-20f74f8c/transcript.md` | `runs/20260507-183521-click-help-shadowed-option-001-codex-20f74f8c/diff.patch` | `runs/20260507-183521-click-help-shadowed-option-001-codex-20f74f8c/result.json` |
-| `20260507-183521-click-help-shadowed-option-001-codex-b0c8e35f` | `click-help-shadowed-option-001` | passed | valid | `runs/20260507-183521-click-help-shadowed-option-001-codex-b0c8e35f/report.md` | `runs/20260507-183521-click-help-shadowed-option-001-codex-b0c8e35f/transcript.md` | `runs/20260507-183521-click-help-shadowed-option-001-codex-b0c8e35f/diff.patch` | `runs/20260507-183521-click-help-shadowed-option-001-codex-b0c8e35f/result.json` |
-| `20260507-183521-click-help-shadowed-option-001-codex-d191b2b5` | `click-help-shadowed-option-001` | passed | valid | `runs/20260507-183521-click-help-shadowed-option-001-codex-d191b2b5/report.md` | `runs/20260507-183521-click-help-shadowed-option-001-codex-d191b2b5/transcript.md` | `runs/20260507-183521-click-help-shadowed-option-001-codex-d191b2b5/diff.patch` | `runs/20260507-183521-click-help-shadowed-option-001-codex-d191b2b5/result.json` |
-| `20260507-192403-click-help-shadowed-option-001-codex-c0a854fe` | `click-help-shadowed-option-001` | passed | valid | `runs/20260507-192403-click-help-shadowed-option-001-codex-c0a854fe/report.md` | `runs/20260507-192403-click-help-shadowed-option-001-codex-c0a854fe/transcript.md` | `runs/20260507-192403-click-help-shadowed-option-001-codex-c0a854fe/diff.patch` | `runs/20260507-192403-click-help-shadowed-option-001-codex-c0a854fe/result.json` |
-| `20260507-190123-click-default-map-nargs-001-codex-18672b25` | `click-default-map-nargs-001` | failed | excluded: `setup_error` | `runs/20260507-190123-click-default-map-nargs-001-codex-18672b25/report.md` | `runs/20260507-190123-click-default-map-nargs-001-codex-18672b25/transcript.md` | `runs/20260507-190123-click-default-map-nargs-001-codex-18672b25/diff.patch` | `runs/20260507-190123-click-default-map-nargs-001-codex-18672b25/result.json` |
-| `20260507-190123-click-default-map-nargs-001-codex-40da680b` | `click-default-map-nargs-001` | failed | excluded: `setup_error` | `runs/20260507-190123-click-default-map-nargs-001-codex-40da680b/report.md` | `runs/20260507-190123-click-default-map-nargs-001-codex-40da680b/transcript.md` | `runs/20260507-190123-click-default-map-nargs-001-codex-40da680b/diff.patch` | `runs/20260507-190123-click-default-map-nargs-001-codex-40da680b/result.json` |
-| `20260507-190123-click-default-map-nargs-001-codex-8990300d` | `click-default-map-nargs-001` | failed | excluded: `setup_error` | `runs/20260507-190123-click-default-map-nargs-001-codex-8990300d/report.md` | `runs/20260507-190123-click-default-map-nargs-001-codex-8990300d/transcript.md` | `runs/20260507-190123-click-default-map-nargs-001-codex-8990300d/diff.patch` | `runs/20260507-190123-click-default-map-nargs-001-codex-8990300d/result.json` |
-| `20260507-190627-click-default-map-nargs-001-codex-da315bee` | `click-default-map-nargs-001` | failed | excluded: `setup_error` | `runs/20260507-190627-click-default-map-nargs-001-codex-da315bee/report.md` | `runs/20260507-190627-click-default-map-nargs-001-codex-da315bee/transcript.md` | `runs/20260507-190627-click-default-map-nargs-001-codex-da315bee/diff.patch` | `runs/20260507-190627-click-default-map-nargs-001-codex-da315bee/result.json` |
-| `20260507-190743-click-default-map-nargs-001-codex-45ab8712` | `click-default-map-nargs-001` | failed | excluded: `setup_error` | `runs/20260507-190743-click-default-map-nargs-001-codex-45ab8712/report.md` | `runs/20260507-190743-click-default-map-nargs-001-codex-45ab8712/transcript.md` | `runs/20260507-190743-click-default-map-nargs-001-codex-45ab8712/diff.patch` | `runs/20260507-190743-click-default-map-nargs-001-codex-45ab8712/result.json` |
-| `20260507-191800-click-default-map-nargs-001-codex-f8be8394` | `click-default-map-nargs-001` | passed | valid | `runs/20260507-191800-click-default-map-nargs-001-codex-f8be8394/report.md` | `runs/20260507-191800-click-default-map-nargs-001-codex-f8be8394/transcript.md` | `runs/20260507-191800-click-default-map-nargs-001-codex-f8be8394/diff.patch` | `runs/20260507-191800-click-default-map-nargs-001-codex-f8be8394/result.json` |
-| `20260507-212911-click-default-map-nargs-001-codex-59243485` | `click-default-map-nargs-001` | passed | valid | `runs/20260507-212911-click-default-map-nargs-001-codex-59243485/report.md` | `runs/20260507-212911-click-default-map-nargs-001-codex-59243485/transcript.md` | `runs/20260507-212911-click-default-map-nargs-001-codex-59243485/diff.patch` | `runs/20260507-212911-click-default-map-nargs-001-codex-59243485/result.json` |
-| `20260507-212911-click-default-map-nargs-001-codex-953cf220` | `click-default-map-nargs-001` | passed | valid | `runs/20260507-212911-click-default-map-nargs-001-codex-953cf220/report.md` | `runs/20260507-212911-click-default-map-nargs-001-codex-953cf220/transcript.md` | `runs/20260507-212911-click-default-map-nargs-001-codex-953cf220/diff.patch` | `runs/20260507-212911-click-default-map-nargs-001-codex-953cf220/result.json` |
-| `20260507-212911-click-default-map-nargs-001-codex-a2253130` | `click-default-map-nargs-001` | passed | valid | `runs/20260507-212911-click-default-map-nargs-001-codex-a2253130/report.md` | `runs/20260507-212911-click-default-map-nargs-001-codex-a2253130/transcript.md` | `runs/20260507-212911-click-default-map-nargs-001-codex-a2253130/diff.patch` | `runs/20260507-212911-click-default-map-nargs-001-codex-a2253130/result.json` |
+| Trial | Task | Outcome | Validity | Artifact Availability |
+| --- | --- | --- | --- | --- |
+| `20260507-170846-click-help-shadowed-option-001-codex` | `click-help-shadowed-option-001` | failed | excluded: `eval_harness_error` | local artifacts omitted |
+| `20260507-171508-click-help-shadowed-option-001-codex` | `click-help-shadowed-option-001` | passed | valid | local artifacts omitted |
+| `20260507-175243-click-help-shadowed-option-001-codex` | `click-help-shadowed-option-001` | passed | valid | local artifacts omitted |
+| `20260507-183521-click-help-shadowed-option-001-codex-20f74f8c` | `click-help-shadowed-option-001` | passed | valid | local artifacts omitted |
+| `20260507-183521-click-help-shadowed-option-001-codex-b0c8e35f` | `click-help-shadowed-option-001` | passed | valid | local artifacts omitted |
+| `20260507-183521-click-help-shadowed-option-001-codex-d191b2b5` | `click-help-shadowed-option-001` | passed | valid | local artifacts omitted |
+| `20260507-192403-click-help-shadowed-option-001-codex-c0a854fe` | `click-help-shadowed-option-001` | passed | valid | local artifacts omitted |
+| `20260507-190123-click-default-map-nargs-001-codex-18672b25` | `click-default-map-nargs-001` | failed | excluded: `setup_error` | local artifacts omitted |
+| `20260507-190123-click-default-map-nargs-001-codex-40da680b` | `click-default-map-nargs-001` | failed | excluded: `setup_error` | local artifacts omitted |
+| `20260507-190123-click-default-map-nargs-001-codex-8990300d` | `click-default-map-nargs-001` | failed | excluded: `setup_error` | local artifacts omitted |
+| `20260507-190627-click-default-map-nargs-001-codex-da315bee` | `click-default-map-nargs-001` | failed | excluded: `setup_error` | local artifacts omitted |
+| `20260507-190743-click-default-map-nargs-001-codex-45ab8712` | `click-default-map-nargs-001` | failed | excluded: `setup_error` | local artifacts omitted |
+| `20260507-191800-click-default-map-nargs-001-codex-f8be8394` | `click-default-map-nargs-001` | passed | valid | local artifacts omitted |
+| `20260507-212911-click-default-map-nargs-001-codex-59243485` | `click-default-map-nargs-001` | passed | valid | local artifacts omitted |
+| `20260507-212911-click-default-map-nargs-001-codex-953cf220` | `click-default-map-nargs-001` | passed | valid | local artifacts omitted |
+| `20260507-212911-click-default-map-nargs-001-codex-a2253130` | `click-default-map-nargs-001` | passed | valid | local artifacts omitted |

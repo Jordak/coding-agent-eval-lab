@@ -1,6 +1,7 @@
 {
   "name": "codex-starter-suite-deep-baseline-2026-05-09",
   "description": "Five fair Codex CLI trials for each of the nine starter-suite tasks under Issue #10.",
+  "outcome_evidence_snapshot": "codex-starter-suite-deep-baseline-2026-05-09.outcome-evidence.json",
   "trials": [
     "20260508-192558-2048-advanced-snake-params-001-codex-a24c0d88",
     "20260508-192836-2048-advanced-snake-params-001-codex-852468e7",

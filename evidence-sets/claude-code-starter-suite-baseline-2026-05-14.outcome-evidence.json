@@ -1,0 +1,5753 @@
+{
+  "records": [
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.10134620000000003
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.10134620000000003,
+        "diff_path": null,
+        "duration_ms": 47477,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 106,
+        "lines_added": 5,
+        "lines_deleted": 2,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 5,
+          "lines_deleted": 2,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 4750,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.10134620000000003,
+          "input_tokens": 106,
+          "output_tokens": 4750,
+          "reasoning_output_tokens": null,
+          "total_tokens": 4856
+        },
+        "run_dir": "",
+        "run_id": "20260514-120001-datawrapper-mcp-docker-requirements-001-claude-59b21ded",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "datawrapper-mcp-docker-requirements-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-120001-datawrapper-mcp-docker-requirements-001-claude-59b21ded",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.15655615
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.15655615,
+        "diff_path": null,
+        "duration_ms": 80101,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "capability",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 178,
+        "lines_added": 6,
+        "lines_deleted": 6,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 2,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 6,
+          "lines_deleted": 6,
+          "n_files_changed": 2,
+          "status": "passed"
+        },
+        "output_tokens": 8314,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.15655615,
+          "input_tokens": 178,
+          "output_tokens": 8314,
+          "reasoning_output_tokens": null,
+          "total_tokens": 8492
+        },
+        "run_dir": "",
+        "run_id": "20260514-120114-2048-advanced-snake-params-001-claude-b6c4cb95",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "2048-advanced-snake-params-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-120114-2048-advanced-snake-params-001-claude-b6c4cb95",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.44235895000000014
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.44235895000000014,
+        "diff_path": null,
+        "duration_ms": 225363,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 466,
+        "lines_added": 12,
+        "lines_deleted": 0,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 12,
+          "lines_deleted": 0,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 18330,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.44235895000000014,
+          "input_tokens": 466,
+          "output_tokens": 18330,
+          "reasoning_output_tokens": null,
+          "total_tokens": 18796
+        },
+        "run_dir": "",
+        "run_id": "20260514-120240-click-default-map-nargs-001-claude-54de5b71",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-default-map-nargs-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-120240-click-default-map-nargs-001-claude-54de5b71",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.38072034999999993
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.38072034999999993,
+        "diff_path": null,
+        "duration_ms": 158318,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "capability",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 426,
+        "lines_added": 33,
+        "lines_deleted": 28,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 3,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 33,
+          "lines_deleted": 28,
+          "n_files_changed": 3,
+          "status": "passed"
+        },
+        "output_tokens": 16148,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.38072034999999993,
+          "input_tokens": 426,
+          "output_tokens": 16148,
+          "reasoning_output_tokens": null,
+          "total_tokens": 16574
+        },
+        "run_dir": "",
+        "run_id": "20260514-120634-click-help-option-refactor-001-claude-c4f69f39",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-help-option-refactor-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-120634-click-help-option-refactor-001-claude-c4f69f39",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [
+          "resource_inefficient"
+        ],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.5106382
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.5106382,
+        "diff_path": null,
+        "duration_ms": 218288,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 538,
+        "lines_added": 47,
+        "lines_deleted": 8,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 2,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 47,
+          "lines_deleted": 8,
+          "n_files_changed": 2,
+          "status": "passed"
+        },
+        "output_tokens": 19450,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.5106382,
+          "input_tokens": 538,
+          "output_tokens": 19450,
+          "reasoning_output_tokens": null,
+          "total_tokens": 19988
+        },
+        "run_dir": "",
+        "run_id": "20260514-120920-click-help-shadowed-option-001-claude-5566808c",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-help-shadowed-option-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-120920-click-help-shadowed-option-001-claude-5566808c",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "primary_label": "bad_local_fix",
+        "secondary_labels": [
+          "test_gap"
+        ],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.17350744999999998
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.17350744999999998,
+        "diff_path": null,
+        "duration_ms": 83658,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 146,
+        "lines_added": 57,
+        "lines_deleted": 1,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 57,
+          "lines_deleted": 1,
+          "n_files_changed": 1,
+          "status": "failed"
+        },
+        "output_tokens": 11565,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.17350744999999998,
+          "input_tokens": 146,
+          "output_tokens": 11565,
+          "reasoning_output_tokens": null,
+          "total_tokens": 11711
+        },
+        "run_dir": "",
+        "run_id": "20260514-121306-click-should-strip-ansi-tests-001-claude-a63f2827",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "unknown",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "failed",
+        "success": false,
+        "task_id": "click-should-strip-ansi-tests-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-121306-click-should-strip-ansi-tests-001-claude-a63f2827",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.19463375
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.19463375,
+        "diff_path": null,
+        "duration_ms": 96569,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 210,
+        "lines_added": 6,
+        "lines_deleted": 6,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 6,
+          "lines_deleted": 6,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 10010,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.19463375,
+          "input_tokens": 210,
+          "output_tokens": 10010,
+          "reasoning_output_tokens": null,
+          "total_tokens": 10220
+        },
+        "run_dir": "",
+        "run_id": "20260514-121440-httpx-verify-false-client-cert-001-claude-044965c1",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "httpx-verify-false-client-cert-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-121440-httpx-verify-false-client-cert-001-claude-044965c1",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.35947635
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.35947635,
+        "diff_path": null,
+        "duration_ms": 200681,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 354,
+        "lines_added": 6,
+        "lines_deleted": 0,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 6,
+          "lines_deleted": 0,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 18394,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.35947635,
+          "input_tokens": 354,
+          "output_tokens": 18394,
+          "reasoning_output_tokens": null,
+          "total_tokens": 18748
+        },
+        "run_dir": "",
+        "run_id": "20260514-121636-prettier-duplicate-dangling-comments-001-claude-5694847a",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "prettier-duplicate-dangling-comments-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-121636-prettier-duplicate-dangling-comments-001-claude-5694847a",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.08207270000000001
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.08207270000000001,
+        "diff_path": null,
+        "duration_ms": 40402,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 90,
+        "lines_added": 0,
+        "lines_deleted": 30,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 3,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 0,
+          "lines_deleted": 30,
+          "n_files_changed": 3,
+          "status": "passed"
+        },
+        "output_tokens": 4903,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.08207270000000001,
+          "input_tokens": 90,
+          "output_tokens": 4903,
+          "reasoning_output_tokens": null,
+          "total_tokens": 4993
+        },
+        "run_dir": "",
+        "run_id": "20260514-122010-react-tabs-selected-focus-overlay-001-claude-1c53c8cd",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "react-tabs-selected-focus-overlay-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-122010-react-tabs-selected-focus-overlay-001-claude-1c53c8cd",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.2694114
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.2694114,
+        "diff_path": null,
+        "duration_ms": 131408,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 202,
+        "lines_added": 27,
+        "lines_deleted": 16,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 2,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 27,
+          "lines_deleted": 16,
+          "n_files_changed": 2,
+          "status": "passed"
+        },
+        "output_tokens": 16739,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.2694114,
+          "input_tokens": 202,
+          "output_tokens": 16739,
+          "reasoning_output_tokens": null,
+          "total_tokens": 16941
+        },
+        "run_dir": "",
+        "run_id": "20260514-122258-remotion-audio-context-autoplay-muted-001-claude-1fc7a864",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "remotion-audio-context-autoplay-muted-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-122258-remotion-audio-context-autoplay-muted-001-claude-1fc7a864",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.2780227500000001
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.2780227500000001,
+        "diff_path": null,
+        "duration_ms": 119163,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 322,
+        "lines_added": 8,
+        "lines_deleted": 10,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 4,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 8,
+          "lines_deleted": 10,
+          "n_files_changed": 4,
+          "status": "passed"
+        },
+        "output_tokens": 12267,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.2780227500000001,
+          "input_tokens": 322,
+          "output_tokens": 12267,
+          "reasoning_output_tokens": null,
+          "total_tokens": 12589
+        },
+        "run_dir": "",
+        "run_id": "20260514-122653-todomvc-toggle-all-checkbox-001-claude-dfe6d568",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "todomvc-toggle-all-checkbox-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-122653-todomvc-toggle-all-checkbox-001-claude-dfe6d568",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.28635745
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.28635745,
+        "diff_path": null,
+        "duration_ms": 119480,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 362,
+        "lines_added": 53,
+        "lines_deleted": 0,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 6,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 53,
+          "lines_deleted": 0,
+          "n_files_changed": 6,
+          "status": "passed"
+        },
+        "output_tokens": 11861,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.28635745,
+          "input_tokens": 362,
+          "output_tokens": 11861,
+          "reasoning_output_tokens": null,
+          "total_tokens": 12223
+        },
+        "run_dir": "",
+        "run_id": "20260514-122902-vite-deno-workspace-root-001-claude-867ec512",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "vite-deno-workspace-root-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-122902-vite-deno-workspace-root-001-claude-867ec512",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.0615093
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.0615093,
+        "diff_path": null,
+        "duration_ms": 26786,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 50,
+        "lines_added": 5,
+        "lines_deleted": 2,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 5,
+          "lines_deleted": 2,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 2955,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.0615093,
+          "input_tokens": 50,
+          "output_tokens": 2955,
+          "reasoning_output_tokens": null,
+          "total_tokens": 3005
+        },
+        "run_dir": "",
+        "run_id": "20260514-124128-datawrapper-mcp-docker-requirements-001-claude-d63c61e6",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "datawrapper-mcp-docker-requirements-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-124128-datawrapper-mcp-docker-requirements-001-claude-d63c61e6",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.12030055
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.12030055,
+        "diff_path": null,
+        "duration_ms": 51306,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 130,
+        "lines_added": 7,
+        "lines_deleted": 4,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 7,
+          "lines_deleted": 4,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 5415,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.12030055,
+          "input_tokens": 130,
+          "output_tokens": 5415,
+          "reasoning_output_tokens": null,
+          "total_tokens": 5545
+        },
+        "run_dir": "",
+        "run_id": "20260514-124156-datawrapper-mcp-docker-requirements-001-claude-6c254bc6",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "datawrapper-mcp-docker-requirements-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-124156-datawrapper-mcp-docker-requirements-001-claude-6c254bc6",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.10231655000000002
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.10231655000000002,
+        "diff_path": null,
+        "duration_ms": 45710,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 106,
+        "lines_added": 3,
+        "lines_deleted": 9,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 3,
+          "lines_deleted": 9,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 4671,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.10231655000000002,
+          "input_tokens": 106,
+          "output_tokens": 4671,
+          "reasoning_output_tokens": null,
+          "total_tokens": 4777
+        },
+        "run_dir": "",
+        "run_id": "20260514-124248-datawrapper-mcp-docker-requirements-001-claude-cf30258a",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "datawrapper-mcp-docker-requirements-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-124248-datawrapper-mcp-docker-requirements-001-claude-cf30258a",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.06890755
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.06890755,
+        "diff_path": null,
+        "duration_ms": 28065,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 58,
+        "lines_added": 5,
+        "lines_deleted": 2,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 5,
+          "lines_deleted": 2,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 3495,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.06890755,
+          "input_tokens": 58,
+          "output_tokens": 3495,
+          "reasoning_output_tokens": null,
+          "total_tokens": 3553
+        },
+        "run_dir": "",
+        "run_id": "20260514-124335-datawrapper-mcp-docker-requirements-001-claude-30c8d5a6",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "datawrapper-mcp-docker-requirements-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-124335-datawrapper-mcp-docker-requirements-001-claude-30c8d5a6",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.11430589999999999
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.11430589999999999,
+        "diff_path": null,
+        "duration_ms": 52980,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "capability",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 138,
+        "lines_added": 1,
+        "lines_deleted": 1,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 1,
+          "lines_deleted": 1,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 5643,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.11430589999999999,
+          "input_tokens": 138,
+          "output_tokens": 5643,
+          "reasoning_output_tokens": null,
+          "total_tokens": 5781
+        },
+        "run_dir": "",
+        "run_id": "20260514-124404-2048-advanced-snake-params-001-claude-40725393",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "2048-advanced-snake-params-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-124404-2048-advanced-snake-params-001-claude-40725393",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.14249245
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.14249245,
+        "diff_path": null,
+        "duration_ms": 59504,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "capability",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 162,
+        "lines_added": 4,
+        "lines_deleted": 4,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 2,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 4,
+          "lines_deleted": 4,
+          "n_files_changed": 2,
+          "status": "passed"
+        },
+        "output_tokens": 6509,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.14249245,
+          "input_tokens": 162,
+          "output_tokens": 6509,
+          "reasoning_output_tokens": null,
+          "total_tokens": 6671
+        },
+        "run_dir": "",
+        "run_id": "20260514-124459-2048-advanced-snake-params-001-claude-57395876",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "2048-advanced-snake-params-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-124459-2048-advanced-snake-params-001-claude-57395876",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.15359245
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.15359245,
+        "diff_path": null,
+        "duration_ms": 82627,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "capability",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 154,
+        "lines_added": 6,
+        "lines_deleted": 6,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 2,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 6,
+          "lines_deleted": 6,
+          "n_files_changed": 2,
+          "status": "passed"
+        },
+        "output_tokens": 8929,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.15359245,
+          "input_tokens": 154,
+          "output_tokens": 8929,
+          "reasoning_output_tokens": null,
+          "total_tokens": 9083
+        },
+        "run_dir": "",
+        "run_id": "20260514-124559-2048-advanced-snake-params-001-claude-b5a42479",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "2048-advanced-snake-params-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-124559-2048-advanced-snake-params-001-claude-b5a42479",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.13182095
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.13182095,
+        "diff_path": null,
+        "duration_ms": 64279,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "capability",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 154,
+        "lines_added": 8,
+        "lines_deleted": 7,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 2,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 8,
+          "lines_deleted": 7,
+          "n_files_changed": 2,
+          "status": "passed"
+        },
+        "output_tokens": 6520,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.13182095,
+          "input_tokens": 154,
+          "output_tokens": 6520,
+          "reasoning_output_tokens": null,
+          "total_tokens": 6674
+        },
+        "run_dir": "",
+        "run_id": "20260514-124723-2048-advanced-snake-params-001-claude-a943b569",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "2048-advanced-snake-params-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-124723-2048-advanced-snake-params-001-claude-a943b569",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.4945633499999998
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.4945633499999998,
+        "diff_path": null,
+        "duration_ms": 216856,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 458,
+        "lines_added": 8,
+        "lines_deleted": 0,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 8,
+          "lines_deleted": 0,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 21442,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.4945633499999998,
+          "input_tokens": 458,
+          "output_tokens": 21442,
+          "reasoning_output_tokens": null,
+          "total_tokens": 21900
+        },
+        "run_dir": "",
+        "run_id": "20260514-124829-click-default-map-nargs-001-claude-cb47fc08",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-default-map-nargs-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-124829-click-default-map-nargs-001-claude-cb47fc08",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.4176668500000001
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.4176668500000001,
+        "diff_path": null,
+        "duration_ms": 170565,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 418,
+        "lines_added": 16,
+        "lines_deleted": 1,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 16,
+          "lines_deleted": 1,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 15536,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.4176668500000001,
+          "input_tokens": 418,
+          "output_tokens": 15536,
+          "reasoning_output_tokens": null,
+          "total_tokens": 15954
+        },
+        "run_dir": "",
+        "run_id": "20260514-125210-click-default-map-nargs-001-claude-3c4c70bf",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-default-map-nargs-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-125210-click-default-map-nargs-001-claude-3c4c70bf",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [
+          "resource_inefficient"
+        ],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.6334486499999998
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.6334486499999998,
+        "diff_path": null,
+        "duration_ms": 248138,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 578,
+        "lines_added": 88,
+        "lines_deleted": 0,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 2,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 88,
+          "lines_deleted": 0,
+          "n_files_changed": 2,
+          "status": "passed"
+        },
+        "output_tokens": 24502,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.6334486499999998,
+          "input_tokens": 578,
+          "output_tokens": 24502,
+          "reasoning_output_tokens": null,
+          "total_tokens": 25080
+        },
+        "run_dir": "",
+        "run_id": "20260514-125505-click-default-map-nargs-001-claude-82f02f7a",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-default-map-nargs-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-125505-click-default-map-nargs-001-claude-82f02f7a",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [
+          "resource_inefficient"
+        ],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.5142575500000001
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.5142575500000001,
+        "diff_path": null,
+        "duration_ms": 215793,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 514,
+        "lines_added": 14,
+        "lines_deleted": 0,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 14,
+          "lines_deleted": 0,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 21286,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.5142575500000001,
+          "input_tokens": 514,
+          "output_tokens": 21286,
+          "reasoning_output_tokens": null,
+          "total_tokens": 21800
+        },
+        "run_dir": "",
+        "run_id": "20260514-125917-click-default-map-nargs-001-claude-54d20c01",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-default-map-nargs-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-125917-click-default-map-nargs-001-claude-54d20c01",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.46197235000000003
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.46197235000000003,
+        "diff_path": null,
+        "duration_ms": 208036,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "capability",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 498,
+        "lines_added": 38,
+        "lines_deleted": 28,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 3,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 38,
+          "lines_deleted": 28,
+          "n_files_changed": 3,
+          "status": "passed"
+        },
+        "output_tokens": 19372,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.46197235000000003,
+          "input_tokens": 498,
+          "output_tokens": 19372,
+          "reasoning_output_tokens": null,
+          "total_tokens": 19870
+        },
+        "run_dir": "",
+        "run_id": "20260514-130257-click-help-option-refactor-001-claude-7c2ab8da",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-help-option-refactor-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-130257-click-help-option-refactor-001-claude-7c2ab8da",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.45613955000000006
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.45613955000000006,
+        "diff_path": null,
+        "duration_ms": 194851,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "capability",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 434,
+        "lines_added": 39,
+        "lines_deleted": 28,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 3,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 39,
+          "lines_deleted": 28,
+          "n_files_changed": 3,
+          "status": "passed"
+        },
+        "output_tokens": 18908,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.45613955000000006,
+          "input_tokens": 434,
+          "output_tokens": 18908,
+          "reasoning_output_tokens": null,
+          "total_tokens": 19342
+        },
+        "run_dir": "",
+        "run_id": "20260514-130629-click-help-option-refactor-001-claude-37b8f08e",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-help-option-refactor-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-130629-click-help-option-refactor-001-claude-37b8f08e",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [
+          "resource_inefficient"
+        ],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.72578465
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.72578465,
+        "diff_path": null,
+        "duration_ms": 277223,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "capability",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 730,
+        "lines_added": 30,
+        "lines_deleted": 28,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 3,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 30,
+          "lines_deleted": 28,
+          "n_files_changed": 3,
+          "status": "passed"
+        },
+        "output_tokens": 25603,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.72578465,
+          "input_tokens": 730,
+          "output_tokens": 25603,
+          "reasoning_output_tokens": null,
+          "total_tokens": 26333
+        },
+        "run_dir": "",
+        "run_id": "20260514-130949-click-help-option-refactor-001-claude-010fb91c",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-help-option-refactor-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-130949-click-help-option-refactor-001-claude-010fb91c",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.46333999999999986
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.46333999999999986,
+        "diff_path": null,
+        "duration_ms": 178540,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "capability",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 410,
+        "lines_added": 40,
+        "lines_deleted": 27,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 3,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 40,
+          "lines_deleted": 27,
+          "n_files_changed": 3,
+          "status": "passed"
+        },
+        "output_tokens": 17914,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.46333999999999986,
+          "input_tokens": 410,
+          "output_tokens": 17914,
+          "reasoning_output_tokens": null,
+          "total_tokens": 18324
+        },
+        "run_dir": "",
+        "run_id": "20260514-131430-click-help-option-refactor-001-claude-e43ad9ae",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-help-option-refactor-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-131430-click-help-option-refactor-001-claude-e43ad9ae",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.36135210000000006
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.36135210000000006,
+        "diff_path": null,
+        "duration_ms": 142958,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 402,
+        "lines_added": 7,
+        "lines_deleted": 8,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 7,
+          "lines_deleted": 8,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 14623,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.36135210000000006,
+          "input_tokens": 402,
+          "output_tokens": 14623,
+          "reasoning_output_tokens": null,
+          "total_tokens": 15025
+        },
+        "run_dir": "",
+        "run_id": "20260514-131733-click-help-shadowed-option-001-claude-11d301a7",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-help-shadowed-option-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-131733-click-help-shadowed-option-001-claude-11d301a7",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.3825584000000001
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.3825584000000001,
+        "diff_path": null,
+        "duration_ms": 204881,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 354,
+        "lines_added": 7,
+        "lines_deleted": 5,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 7,
+          "lines_deleted": 5,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 23072,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.3825584000000001,
+          "input_tokens": 354,
+          "output_tokens": 23072,
+          "reasoning_output_tokens": null,
+          "total_tokens": 23426
+        },
+        "run_dir": "",
+        "run_id": "20260514-164549-click-help-shadowed-option-001-claude-59d6c787",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-help-shadowed-option-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-164549-click-help-shadowed-option-001-claude-59d6c787",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.4399256
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.4399256,
+        "diff_path": null,
+        "duration_ms": 213403,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 426,
+        "lines_added": 7,
+        "lines_deleted": 8,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 7,
+          "lines_deleted": 8,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 20832,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.4399256,
+          "input_tokens": 426,
+          "output_tokens": 20832,
+          "reasoning_output_tokens": null,
+          "total_tokens": 21258
+        },
+        "run_dir": "",
+        "run_id": "20260514-164918-click-help-shadowed-option-001-claude-16dc4eb5",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-help-shadowed-option-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-164918-click-help-shadowed-option-001-claude-16dc4eb5",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.43125474999999985
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.43125474999999985,
+        "diff_path": null,
+        "duration_ms": 211586,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 450,
+        "lines_added": 7,
+        "lines_deleted": 8,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 7,
+          "lines_deleted": 8,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 20615,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.43125474999999985,
+          "input_tokens": 450,
+          "output_tokens": 20615,
+          "reasoning_output_tokens": null,
+          "total_tokens": 21065
+        },
+        "run_dir": "",
+        "run_id": "20260514-165256-click-help-shadowed-option-001-claude-ec2a28e8",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-help-shadowed-option-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-165256-click-help-shadowed-option-001-claude-ec2a28e8",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "primary_label": "bad_local_fix",
+        "secondary_labels": [
+          "test_gap"
+        ],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.17125854999999998
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.17125854999999998,
+        "diff_path": null,
+        "duration_ms": 107555,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 191,
+        "lines_added": 54,
+        "lines_deleted": 1,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 54,
+          "lines_deleted": 1,
+          "n_files_changed": 1,
+          "status": "failed"
+        },
+        "output_tokens": 13819,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.17125854999999998,
+          "input_tokens": 191,
+          "output_tokens": 13819,
+          "reasoning_output_tokens": null,
+          "total_tokens": 14010
+        },
+        "run_dir": "",
+        "run_id": "20260514-165650-click-should-strip-ansi-tests-001-claude-f219f43e",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "unknown",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "failed",
+        "success": false,
+        "task_id": "click-should-strip-ansi-tests-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-165650-click-should-strip-ansi-tests-001-claude-f219f43e",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "primary_label": "bad_local_fix",
+        "secondary_labels": [
+          "test_gap"
+        ],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.41547824999999994
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.41547824999999994,
+        "diff_path": null,
+        "duration_ms": 219407,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 330,
+        "lines_added": 98,
+        "lines_deleted": 1,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 98,
+          "lines_deleted": 1,
+          "n_files_changed": 1,
+          "status": "failed"
+        },
+        "output_tokens": 27080,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.41547824999999994,
+          "input_tokens": 330,
+          "output_tokens": 27080,
+          "reasoning_output_tokens": null,
+          "total_tokens": 27410
+        },
+        "run_dir": "",
+        "run_id": "20260514-165842-click-should-strip-ansi-tests-001-claude-bc75b331",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "unknown",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "failed",
+        "success": false,
+        "task_id": "click-should-strip-ansi-tests-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-165842-click-should-strip-ansi-tests-001-claude-bc75b331",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "primary_label": "bad_local_fix",
+        "secondary_labels": [
+          "test_gap"
+        ],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.1964943
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.1964943,
+        "diff_path": null,
+        "duration_ms": 99401,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 186,
+        "lines_added": 46,
+        "lines_deleted": 1,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 46,
+          "lines_deleted": 1,
+          "n_files_changed": 1,
+          "status": "failed"
+        },
+        "output_tokens": 12037,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.1964943,
+          "input_tokens": 186,
+          "output_tokens": 12037,
+          "reasoning_output_tokens": null,
+          "total_tokens": 12223
+        },
+        "run_dir": "",
+        "run_id": "20260514-170226-click-should-strip-ansi-tests-001-claude-a7e872e0",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "unknown",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "failed",
+        "success": false,
+        "task_id": "click-should-strip-ansi-tests-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-170226-click-should-strip-ansi-tests-001-claude-a7e872e0",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "primary_label": "bad_local_fix",
+        "secondary_labels": [
+          "test_gap"
+        ],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.17512090000000002
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.17512090000000002,
+        "diff_path": null,
+        "duration_ms": 85478,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 154,
+        "lines_added": 47,
+        "lines_deleted": 1,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 47,
+          "lines_deleted": 1,
+          "n_files_changed": 1,
+          "status": "failed"
+        },
+        "output_tokens": 11385,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.17512090000000002,
+          "input_tokens": 154,
+          "output_tokens": 11385,
+          "reasoning_output_tokens": null,
+          "total_tokens": 11539
+        },
+        "run_dir": "",
+        "run_id": "20260514-170410-click-should-strip-ansi-tests-001-claude-7c99c96e",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "unknown",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "failed",
+        "success": false,
+        "task_id": "click-should-strip-ansi-tests-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-170410-click-should-strip-ansi-tests-001-claude-7c99c96e",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.15885154999999998
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.15885154999999998,
+        "diff_path": null,
+        "duration_ms": 97412,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 138,
+        "lines_added": 3,
+        "lines_deleted": 4,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 3,
+          "lines_deleted": 4,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 11016,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.15885154999999998,
+          "input_tokens": 138,
+          "output_tokens": 11016,
+          "reasoning_output_tokens": null,
+          "total_tokens": 11154
+        },
+        "run_dir": "",
+        "run_id": "20260514-170552-httpx-verify-false-client-cert-001-claude-5ab308a9",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "httpx-verify-false-client-cert-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-170552-httpx-verify-false-client-cert-001-claude-5ab308a9",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.11078425000000003
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.11078425000000003,
+        "diff_path": null,
+        "duration_ms": 55676,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 122,
+        "lines_added": 6,
+        "lines_deleted": 6,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 6,
+          "lines_deleted": 6,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 6535,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.11078425000000003,
+          "input_tokens": 122,
+          "output_tokens": 6535,
+          "reasoning_output_tokens": null,
+          "total_tokens": 6657
+        },
+        "run_dir": "",
+        "run_id": "20260514-170736-httpx-verify-false-client-cert-001-claude-a45263ee",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "httpx-verify-false-client-cert-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-170736-httpx-verify-false-client-cert-001-claude-a45263ee",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.14576455
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.14576455,
+        "diff_path": null,
+        "duration_ms": 78012,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 154,
+        "lines_added": 6,
+        "lines_deleted": 6,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 6,
+          "lines_deleted": 6,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 8360,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.14576455,
+          "input_tokens": 154,
+          "output_tokens": 8360,
+          "reasoning_output_tokens": null,
+          "total_tokens": 8514
+        },
+        "run_dir": "",
+        "run_id": "20260514-170838-httpx-verify-false-client-cert-001-claude-1eaf63b2",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "httpx-verify-false-client-cert-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-170838-httpx-verify-false-client-cert-001-claude-1eaf63b2",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.13278145000000002
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.13278145000000002,
+        "diff_path": null,
+        "duration_ms": 66652,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 154,
+        "lines_added": 3,
+        "lines_deleted": 4,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 3,
+          "lines_deleted": 4,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 6948,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.13278145000000002,
+          "input_tokens": 154,
+          "output_tokens": 6948,
+          "reasoning_output_tokens": null,
+          "total_tokens": 7102
+        },
+        "run_dir": "",
+        "run_id": "20260514-171002-httpx-verify-false-client-cert-001-claude-c9186e35",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "httpx-verify-false-client-cert-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-171002-httpx-verify-false-client-cert-001-claude-c9186e35",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.40206959999999997
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.40206959999999997,
+        "diff_path": null,
+        "duration_ms": 172053,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 418,
+        "lines_added": 6,
+        "lines_deleted": 0,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 6,
+          "lines_deleted": 0,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 15424,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.40206959999999997,
+          "input_tokens": 418,
+          "output_tokens": 15424,
+          "reasoning_output_tokens": null,
+          "total_tokens": 15842
+        },
+        "run_dir": "",
+        "run_id": "20260514-171124-prettier-duplicate-dangling-comments-001-claude-f6688fa1",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "prettier-duplicate-dangling-comments-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-171124-prettier-duplicate-dangling-comments-001-claude-f6688fa1",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.4476253
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.4476253,
+        "diff_path": null,
+        "duration_ms": 213677,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 482,
+        "lines_added": 17,
+        "lines_deleted": 0,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 17,
+          "lines_deleted": 0,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 18438,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.4476253,
+          "input_tokens": 482,
+          "output_tokens": 18438,
+          "reasoning_output_tokens": null,
+          "total_tokens": 18920
+        },
+        "run_dir": "",
+        "run_id": "20260514-171429-prettier-duplicate-dangling-comments-001-claude-c647e55d",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "prettier-duplicate-dangling-comments-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-171429-prettier-duplicate-dangling-comments-001-claude-c647e55d",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [
+          "resource_inefficient"
+        ],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.52182645
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.52182645,
+        "diff_path": null,
+        "duration_ms": 182434,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 546,
+        "lines_added": 6,
+        "lines_deleted": 0,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 6,
+          "lines_deleted": 0,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 17295,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.52182645,
+          "input_tokens": 546,
+          "output_tokens": 17295,
+          "reasoning_output_tokens": null,
+          "total_tokens": 17841
+        },
+        "run_dir": "",
+        "run_id": "20260514-171816-prettier-duplicate-dangling-comments-001-claude-3e085a4f",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "prettier-duplicate-dangling-comments-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-171816-prettier-duplicate-dangling-comments-001-claude-3e085a4f",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.33683434999999995
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.33683434999999995,
+        "diff_path": null,
+        "duration_ms": 147762,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 370,
+        "lines_added": 6,
+        "lines_deleted": 0,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 6,
+          "lines_deleted": 0,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 13366,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.33683434999999995,
+          "input_tokens": 370,
+          "output_tokens": 13366,
+          "reasoning_output_tokens": null,
+          "total_tokens": 13736
+        },
+        "run_dir": "",
+        "run_id": "20260514-172132-prettier-duplicate-dangling-comments-001-claude-7b5a687b",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "prettier-duplicate-dangling-comments-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-172132-prettier-duplicate-dangling-comments-001-claude-7b5a687b",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.07777814999999999
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.07777814999999999,
+        "diff_path": null,
+        "duration_ms": 36010,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 90,
+        "lines_added": 0,
+        "lines_deleted": 30,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 3,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 0,
+          "lines_deleted": 30,
+          "n_files_changed": 3,
+          "status": "passed"
+        },
+        "output_tokens": 4236,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.07777814999999999,
+          "input_tokens": 90,
+          "output_tokens": 4236,
+          "reasoning_output_tokens": null,
+          "total_tokens": 4326
+        },
+        "run_dir": "",
+        "run_id": "20260514-172426-react-tabs-selected-focus-overlay-001-claude-71cd57f2",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "react-tabs-selected-focus-overlay-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-172426-react-tabs-selected-focus-overlay-001-claude-71cd57f2",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.0877965
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.0877965,
+        "diff_path": null,
+        "duration_ms": 40027,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 114,
+        "lines_added": 0,
+        "lines_deleted": 30,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 3,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 0,
+          "lines_deleted": 30,
+          "n_files_changed": 3,
+          "status": "passed"
+        },
+        "output_tokens": 4635,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.0877965,
+          "input_tokens": 114,
+          "output_tokens": 4635,
+          "reasoning_output_tokens": null,
+          "total_tokens": 4749
+        },
+        "run_dir": "",
+        "run_id": "20260514-172504-react-tabs-selected-focus-overlay-001-claude-60859801",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "react-tabs-selected-focus-overlay-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-172504-react-tabs-selected-focus-overlay-001-claude-60859801",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.06626270000000001
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.06626270000000001,
+        "diff_path": null,
+        "duration_ms": 32724,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 66,
+        "lines_added": 0,
+        "lines_deleted": 30,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 3,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 0,
+          "lines_deleted": 30,
+          "n_files_changed": 3,
+          "status": "passed"
+        },
+        "output_tokens": 4244,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.06626270000000001,
+          "input_tokens": 66,
+          "output_tokens": 4244,
+          "reasoning_output_tokens": null,
+          "total_tokens": 4310
+        },
+        "run_dir": "",
+        "run_id": "20260514-172546-react-tabs-selected-focus-overlay-001-claude-f36c70e3",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "react-tabs-selected-focus-overlay-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-172546-react-tabs-selected-focus-overlay-001-claude-f36c70e3",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.0847384
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.0847384,
+        "diff_path": null,
+        "duration_ms": 40899,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 114,
+        "lines_added": 0,
+        "lines_deleted": 30,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 3,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 0,
+          "lines_deleted": 30,
+          "n_files_changed": 3,
+          "status": "passed"
+        },
+        "output_tokens": 4012,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.0847384,
+          "input_tokens": 114,
+          "output_tokens": 4012,
+          "reasoning_output_tokens": null,
+          "total_tokens": 4126
+        },
+        "run_dir": "",
+        "run_id": "20260514-172621-react-tabs-selected-focus-overlay-001-claude-dd69dfaa",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "react-tabs-selected-focus-overlay-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-172621-react-tabs-selected-focus-overlay-001-claude-dd69dfaa",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.2029784
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.2029784,
+        "diff_path": null,
+        "duration_ms": 92332,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 170,
+        "lines_added": 27,
+        "lines_deleted": 15,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 2,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 27,
+          "lines_deleted": 15,
+          "n_files_changed": 2,
+          "status": "passed"
+        },
+        "output_tokens": 11259,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.2029784,
+          "input_tokens": 170,
+          "output_tokens": 11259,
+          "reasoning_output_tokens": null,
+          "total_tokens": 11429
+        },
+        "run_dir": "",
+        "run_id": "20260514-172711-remotion-audio-context-autoplay-muted-001-claude-5432a34d",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "remotion-audio-context-autoplay-muted-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-172711-remotion-audio-context-autoplay-muted-001-claude-5432a34d",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "primary_label": "bad_local_fix",
+        "secondary_labels": [
+          "test_gap"
+        ],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.24297530000000006
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.24297530000000006,
+        "diff_path": null,
+        "duration_ms": 108248,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 226,
+        "lines_added": 35,
+        "lines_deleted": 16,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 2,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 35,
+          "lines_deleted": 16,
+          "n_files_changed": 2,
+          "status": "failed"
+        },
+        "output_tokens": 11261,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.24297530000000006,
+          "input_tokens": 226,
+          "output_tokens": 11261,
+          "reasoning_output_tokens": null,
+          "total_tokens": 11487
+        },
+        "run_dir": "",
+        "run_id": "20260514-173021-remotion-audio-context-autoplay-muted-001-claude-cd1474a8",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "unknown",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "failed",
+        "success": false,
+        "task_id": "remotion-audio-context-autoplay-muted-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-173021-remotion-audio-context-autoplay-muted-001-claude-cd1474a8",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "primary_label": "bad_local_fix",
+        "secondary_labels": [
+          "test_gap"
+        ],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.1912029
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.1912029,
+        "diff_path": null,
+        "duration_ms": 94624,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 154,
+        "lines_added": 32,
+        "lines_deleted": 16,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 2,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 32,
+          "lines_deleted": 16,
+          "n_files_changed": 2,
+          "status": "failed"
+        },
+        "output_tokens": 10874,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.1912029,
+          "input_tokens": 154,
+          "output_tokens": 10874,
+          "reasoning_output_tokens": null,
+          "total_tokens": 11028
+        },
+        "run_dir": "",
+        "run_id": "20260514-173352-remotion-audio-context-autoplay-muted-001-claude-ec26a24f",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "unknown",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "failed",
+        "success": false,
+        "task_id": "remotion-audio-context-autoplay-muted-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-173352-remotion-audio-context-autoplay-muted-001-claude-ec26a24f",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.1875086
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.1875086,
+        "diff_path": null,
+        "duration_ms": 112824,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 114,
+        "lines_added": 29,
+        "lines_deleted": 15,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 2,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 29,
+          "lines_deleted": 15,
+          "n_files_changed": 2,
+          "status": "passed"
+        },
+        "output_tokens": 13934,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.1875086,
+          "input_tokens": 114,
+          "output_tokens": 13934,
+          "reasoning_output_tokens": null,
+          "total_tokens": 14048
+        },
+        "run_dir": "",
+        "run_id": "20260514-173707-remotion-audio-context-autoplay-muted-001-claude-3949dbd3",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "remotion-audio-context-autoplay-muted-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-173707-remotion-audio-context-autoplay-muted-001-claude-3949dbd3",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.15805155
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.15805155,
+        "diff_path": null,
+        "duration_ms": 69774,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 162,
+        "lines_added": 8,
+        "lines_deleted": 10,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 4,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 8,
+          "lines_deleted": 10,
+          "n_files_changed": 4,
+          "status": "passed"
+        },
+        "output_tokens": 8505,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.15805155,
+          "input_tokens": 162,
+          "output_tokens": 8505,
+          "reasoning_output_tokens": null,
+          "total_tokens": 8667
+        },
+        "run_dir": "",
+        "run_id": "20260514-174054-todomvc-toggle-all-checkbox-001-claude-5ff48184",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "todomvc-toggle-all-checkbox-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-174054-todomvc-toggle-all-checkbox-001-claude-5ff48184",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.24541404999999997
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.24541404999999997,
+        "diff_path": null,
+        "duration_ms": 122628,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 282,
+        "lines_added": 8,
+        "lines_deleted": 12,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 4,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 8,
+          "lines_deleted": 12,
+          "n_files_changed": 4,
+          "status": "passed"
+        },
+        "output_tokens": 11361,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.24541404999999997,
+          "input_tokens": 282,
+          "output_tokens": 11361,
+          "reasoning_output_tokens": null,
+          "total_tokens": 11643
+        },
+        "run_dir": "",
+        "run_id": "20260514-174210-todomvc-toggle-all-checkbox-001-claude-43b411f4",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "todomvc-toggle-all-checkbox-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-174210-todomvc-toggle-all-checkbox-001-claude-43b411f4",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.19207625000000006
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.19207625000000006,
+        "diff_path": null,
+        "duration_ms": 100744,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 218,
+        "lines_added": 8,
+        "lines_deleted": 10,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 4,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 8,
+          "lines_deleted": 10,
+          "n_files_changed": 4,
+          "status": "passed"
+        },
+        "output_tokens": 9195,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.19207625000000006,
+          "input_tokens": 218,
+          "output_tokens": 9195,
+          "reasoning_output_tokens": null,
+          "total_tokens": 9413
+        },
+        "run_dir": "",
+        "run_id": "20260514-174417-todomvc-toggle-all-checkbox-001-claude-5139d4e0",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "todomvc-toggle-all-checkbox-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-174417-todomvc-toggle-all-checkbox-001-claude-5139d4e0",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.24125755
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.24125755,
+        "diff_path": null,
+        "duration_ms": 100206,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 282,
+        "lines_added": 8,
+        "lines_deleted": 10,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 4,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 8,
+          "lines_deleted": 10,
+          "n_files_changed": 4,
+          "status": "passed"
+        },
+        "output_tokens": 10214,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.24125755,
+          "input_tokens": 282,
+          "output_tokens": 10214,
+          "reasoning_output_tokens": null,
+          "total_tokens": 10496
+        },
+        "run_dir": "",
+        "run_id": "20260514-174604-todomvc-toggle-all-checkbox-001-claude-4089090f",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "todomvc-toggle-all-checkbox-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-174604-todomvc-toggle-all-checkbox-001-claude-4089090f",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.28343470000000004
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.28343470000000004,
+        "diff_path": null,
+        "duration_ms": 119926,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 322,
+        "lines_added": 83,
+        "lines_deleted": 0,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 6,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 83,
+          "lines_deleted": 0,
+          "n_files_changed": 6,
+          "status": "passed"
+        },
+        "output_tokens": 14068,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.28343470000000004,
+          "input_tokens": 322,
+          "output_tokens": 14068,
+          "reasoning_output_tokens": null,
+          "total_tokens": 14390
+        },
+        "run_dir": "",
+        "run_id": "20260514-174757-vite-deno-workspace-root-001-claude-6422c447",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "vite-deno-workspace-root-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-174757-vite-deno-workspace-root-001-claude-6422c447",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.36986255
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.36986255,
+        "diff_path": null,
+        "duration_ms": 162873,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 418,
+        "lines_added": 51,
+        "lines_deleted": 0,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 6,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 51,
+          "lines_deleted": 0,
+          "n_files_changed": 6,
+          "status": "passed"
+        },
+        "output_tokens": 17810,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.36986255,
+          "input_tokens": 418,
+          "output_tokens": 17810,
+          "reasoning_output_tokens": null,
+          "total_tokens": 18228
+        },
+        "run_dir": "",
+        "run_id": "20260514-175002-vite-deno-workspace-root-001-claude-0b858ecc",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "vite-deno-workspace-root-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-175002-vite-deno-workspace-root-001-claude-0b858ecc",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.28079655
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.28079655,
+        "diff_path": null,
+        "duration_ms": 126710,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 314,
+        "lines_added": 74,
+        "lines_deleted": 0,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 6,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 74,
+          "lines_deleted": 0,
+          "n_files_changed": 6,
+          "status": "passed"
+        },
+        "output_tokens": 13570,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.28079655,
+          "input_tokens": 314,
+          "output_tokens": 13570,
+          "reasoning_output_tokens": null,
+          "total_tokens": 13884
+        },
+        "run_dir": "",
+        "run_id": "20260514-175250-vite-deno-workspace-root-001-claude-b45610fc",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "vite-deno-workspace-root-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-175250-vite-deno-workspace-root-001-claude-b45610fc",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": null,
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "claude",
+          "model_name": "claude-haiku-4-5-20251001",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": 0.31272685
+          }
+        },
+        "agent_name": "claude",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": 0.31272685,
+        "diff_path": null,
+        "duration_ms": 158228,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/claude-code-starter-suite-baseline-2026-05-14/capability-evidence-digest.md after original runs were unavailable.",
+        "input_tokens": 346,
+        "lines_added": 54,
+        "lines_deleted": 0,
+        "model_name": "claude-haiku-4-5-20251001",
+        "n_files_changed": 6,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 54,
+          "lines_deleted": 0,
+          "n_files_changed": 6,
+          "status": "passed"
+        },
+        "output_tokens": 17055,
+        "reasoning_output_tokens": null,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": 0.31272685,
+          "input_tokens": 346,
+          "output_tokens": 17055,
+          "reasoning_output_tokens": null,
+          "total_tokens": 17401
+        },
+        "run_dir": "",
+        "run_id": "20260514-214849-vite-deno-workspace-root-001-claude-a5227e4c",
+        "run_surface": {
+          "approval_policy": "acceptEdits",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": 1800,
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "vite-deno-workspace-root-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260514-214849-vite-deno-workspace-root-001-claude-a5227e4c",
+        "trial_kind": "agent_trial"
+      }
+    }
+  ],
+  "schema": "agentlab.outcome-evidence-snapshot.v1"
+}

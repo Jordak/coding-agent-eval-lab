@@ -1,6 +1,7 @@
 {
   "name": "codex-2048-advanced-snake-2026-05-08",
   "description": "Five fair Codex CLI trials for the starter 2048 advanced-snake params capability task.",
+  "outcome_evidence_snapshot": "codex-2048-advanced-snake-2026-05-08.outcome-evidence.json",
   "trials": [
     "20260508-192558-2048-advanced-snake-params-001-codex-a24c0d88",
     "20260508-192836-2048-advanced-snake-params-001-codex-852468e7",
