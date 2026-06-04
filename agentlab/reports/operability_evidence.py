@@ -82,10 +82,7 @@ def _configuration_facts(results: list[OutcomeEvidence]) -> list[tuple[str, obje
 def _budget_controls_facts(results: list[OutcomeEvidence]) -> list[tuple[str, object]]:
     return [
         ("timeout_seconds", _surface_values(results, "timeout_seconds")),
-        (
-            "turn_or_step_budget",
-            _result_values(results, _explicit_turn_or_step_budget),
-        ),
+        ("turn_or_step_budget", _surface_values(results, "turn_or_step_budget")),
         (
             "observed_input_output_tokens",
             _coverage(
@@ -193,13 +190,6 @@ def _review_coverage(results: list[OutcomeEvidence]) -> str:
 
 def _surface_values(results: list[OutcomeEvidence], field: str) -> str:
     return _result_values(results, lambda result: result.run_surface.get(field))
-
-
-def _explicit_turn_or_step_budget(result: OutcomeEvidence) -> object:
-    budget = result.run_surface.get("turn_or_step_budget")
-    if isinstance(budget, Mapping) and set(budget) == {"reasoning_effort"}:
-        return None
-    return budget
 
 
 def _result_values(
