@@ -27,6 +27,12 @@ under `tasks/`.
 Use `.agents/skills/trial-review` when interactively reviewing trial artifacts,
 drafting review proposals, or applying human-approved `review.json` outcomes.
 
+Use `.agents/skills/report-evidence` when creating or updating evidence-set
+manifests, generated capability evidence digests, report-support packets, or
+report PRs that depend on local `runs/` artifacts. Before pushing that work,
+generate the durable `OutcomeEvidence` snapshot, prove regeneration with a
+missing runs directory, and run the evidence-portability check from the skill.
+
 This checkout uses `.githooks/pre-commit` to check generated task cards and task
 bundle validation before commits.
 

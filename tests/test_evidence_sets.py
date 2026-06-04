@@ -4,9 +4,10 @@ import unittest
 from pathlib import Path
 
 from agentlab.reports.capability_digest import render_capability_evidence_digest
-from agentlab.evidence.sets import load_evidence_set
+from agentlab.evidence.sets import EvidenceSet, load_evidence_set
 from agentlab.evidence.outcome import load_outcome_evidences
 from agentlab.evidence.review_artifacts import write_review
+from agentlab.evidence.snapshots import write_evidence_snapshot
 
 
 class EvidenceSetTest(unittest.TestCase):
@@ -75,6 +76,52 @@ class EvidenceSetTest(unittest.TestCase):
 
             with self.assertRaises(ValueError):
                 load_evidence_set(manifest, Path(temp) / "runs")
+
+    def test_digest_context_uses_repo_relative_source_path_when_possible(self):
+        context = EvidenceSet(
+            name="selected",
+            description="",
+            source_path=Path.cwd() / "evidence-sets" / "selected.json",
+            trial_entries=["trial-a"],
+            result_files=[],
+        ).digest_context()
+
+        self.assertEqual(context["source_path"], "evidence-sets/selected.json")
+
+    def test_manifest_snapshot_keeps_evidence_resolvable_without_runs(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            runs_dir = root / "runs"
+            run_dir = runs_dir / "trial-pass"
+            run_dir.mkdir(parents=True)
+            _write_result(run_dir, "trial-pass", success=True, agent_name="codex")
+
+            results = load_outcome_evidences([run_dir / "result.json"])
+            snapshot = root / "selected.outcome-evidence.json"
+            write_evidence_snapshot(snapshot, results)
+            manifest = root / "selected.json"
+            manifest.write_text(
+                json.dumps(
+                    {
+                        "name": "selected",
+                        "trials": ["trial-pass"],
+                        "outcome_evidence_snapshot": snapshot.name,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            evidence_set = load_evidence_set(manifest, root / "missing-runs")
+            digest = render_capability_evidence_digest(
+                evidence_set.snapshot_results or [],
+                evidence_set.digest_context(),
+            )
+
+        self.assertEqual(evidence_set.result_files, [])
+        self.assertEqual(len(evidence_set.snapshot_results or []), 1)
+        self.assertIn("- Outcome evidence snapshot: `", digest)
+        self.assertIn("- Selected snapshot records: `1`", digest)
+        self.assertIn("| task-a | capability | trial-pass | passed | valid |", digest)
 
 
 def _write_result(

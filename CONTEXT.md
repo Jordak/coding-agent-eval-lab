@@ -123,11 +123,20 @@ The project is evaluation infrastructure, not a general coding assistant or IDE.
 - **Outcome evidence**: structured facts used to support an outcome or human
   review, such as changed files, lines added/deleted, commands run, duration,
   token usage, cost, diff excerpts, transcript/trace excerpts, and grader output.
+- **Outcome evidence snapshot**: a durable, checked-in JSON subset of selected
+  `OutcomeEvidence` records used to regenerate generated reports after local
+  `runs/` artifacts are removed. It preserves normalized result/review facts and
+  artifact-presence receipts while stripping local artifact paths and omitting
+  raw task workspaces, transcripts, and diffs.
 - **Capability evidence digest**: generated, AI-readable Markdown that
   summarizes a selected set of trial artifacts for later hand-authored agent
   capability reports. It reports aggregate metrics, fair/excluded trial counts,
-  review labels, outcome evidence, resource usage, and artifact links without
-  making final interpretive claims.
+  review labels, outcome evidence, resource usage, and artifact availability
+  metadata without making final interpretive claims. Checked-in Markdown digests
+  omit per-trial artifact links unless those links point to a stable artifact
+  store. Snapshot-backed HTML reports can be checked in when they pass the same
+  no-local-artifact-link portability scan; local HTML previews may link to local
+  `runs/` artifacts and should remain uncommitted when they do.
 - **Edit size metrics**: structured evidence about patch size, especially files
   changed and lines added/deleted.
 - **Resource usage metrics**: structured evidence about runtime cost, especially

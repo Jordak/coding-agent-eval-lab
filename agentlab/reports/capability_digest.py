@@ -2,13 +2,21 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Dict, Iterable, List, Mapping
 
 from agentlab.evidence.outcome import OutcomeEvidence
 from agentlab.evidence.summary import TrialGroupSummary, summarize_trials
 from agentlab.reports.operability_evidence import (
     render_agent_harness_operability_table,
+)
+
+
+PORTABLE_MARKDOWN_POLICY = (
+    "Portable Markdown policy: checked-in digests intentionally omit per-trial "
+    "artifact links because local `runs/` artifacts are ignored and can "
+    "disappear after temporary worktree cleanup. HTML reports generated from "
+    "durable snapshot-backed evidence may be checked in when they pass the "
+    "same no-local-artifact-link portability check."
 )
 
 
@@ -44,6 +52,8 @@ def render_capability_evidence_digest(
             "conditions."
         ),
         "",
+        PORTABLE_MARKDOWN_POLICY,
+        "",
         f"- Agent trials: `{len(results)}`",
     ]
     if selection_context is not None:
@@ -58,8 +68,9 @@ def render_capability_evidence_digest(
         for context in contexts:
             lines.extend(_run_context_lines(context))
 
-    lines.append("")
-    return "\n".join(lines)
+    while lines and lines[-1] == "":
+        lines.pop()
+    return "\n".join(lines) + "\n"
 
 
 def render_evidence_appendix(results: Iterable[OutcomeEvidence]) -> str:
@@ -149,10 +160,6 @@ def _run_context_lines(context: MarkdownRunContext) -> List[str]:
                 "Reasoning Tokens",
                 "Cost USD",
                 "Duration ms",
-                "Report",
-                "Transcript",
-                "Diff",
-                "Result",
             ],
             [_trial_row(result) for result in context.results],
         )
@@ -328,6 +335,9 @@ def _selection_context_lines(context: Mapping[str, object]) -> list[str]:
     source_path = context.get("source_path")
     if source_path:
         lines.append(f"- Evidence set source: `{source_path}`")
+    snapshot_path = context.get("outcome_evidence_snapshot")
+    if snapshot_path:
+        lines.append(f"- Outcome evidence snapshot: `{snapshot_path}`")
     description = context.get("description")
     if description:
         lines.append(f"- Evidence set description: {description}")
@@ -337,6 +347,9 @@ def _selection_context_lines(context: Mapping[str, object]) -> list[str]:
     selected_result_files = context.get("selected_result_files")
     if selected_result_files is not None:
         lines.append(f"- Selected result files: `{selected_result_files}`")
+    selected_snapshot_records = context.get("selected_snapshot_records")
+    if selected_snapshot_records is not None:
+        lines.append(f"- Selected snapshot records: `{selected_snapshot_records}`")
     return lines
 
 
@@ -351,7 +364,11 @@ def _evidence_set_context_lines(context: Mapping[str, object]) -> list[str]:
     )
     source_path = context.get("source_path")
     source_text = f", source: `{source_path}`" if source_path else ""
-    lines.append(f"- Evidence set: `{name}`{selected_text}{source_text}")
+    snapshot_path = context.get("outcome_evidence_snapshot")
+    snapshot_text = f", snapshot: `{snapshot_path}`" if snapshot_path else ""
+    lines.append(
+        f"- Evidence set: `{name}`{selected_text}{source_text}{snapshot_text}"
+    )
     description = context.get("description")
     if description:
         lines.append(f"- Evidence set description: {description}")
@@ -377,10 +394,6 @@ def _trial_row(result: OutcomeEvidence) -> List[object]:
         _unknown_if_none(result.reasoning_output_tokens),
         _unknown_if_none(result.cost_usd),
         result.duration_ms,
-        _markdown_link("report", result.report_path),
-        _markdown_link("transcript", result.transcript_path),
-        _markdown_link("diff", result.diff_path),
-        _markdown_link("result", result.result_path),
     ]
 
 
@@ -392,16 +405,6 @@ def _markdown_table(headers: List[str], rows: List[List[object]]) -> List[str]:
     for row in rows:
         table.append("| " + " | ".join(_escape_cell(cell) for cell in row) + " |")
     return table
-
-
-def _markdown_link(label: str, path: object) -> str:
-    if not path:
-        return ""
-    target = Path(str(path))
-    target_text = str(target)
-    if " " in target_text:
-        target_text = f"<{target_text}>"
-    return f"[{label}]({target_text})"
 
 
 def _format_rate(value: float) -> str:

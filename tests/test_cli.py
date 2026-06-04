@@ -13,6 +13,7 @@ from unittest.mock import patch
 from agentlab.cli import (
     handle_doctor,
     handle_report_capability_evidence_digest,
+    handle_report_check_evidence_portability,
     handle_recover_codex_runtime_metadata,
     handle_run,
     _claude_code_config_from_args,
@@ -24,6 +25,7 @@ from agentlab.cli import (
     handle_task_verify_reference,
 )
 from agentlab.agents.preflight import PreflightCheck, PreflightResult
+from agentlab.evidence.snapshots import load_evidence_snapshot
 from agentlab.tasks.integrity import publish_task_cards
 
 
@@ -170,6 +172,8 @@ class CliOutputTest(unittest.TestCase):
                 "reports/evidence-digest.md",
                 "--html-output",
                 "reports/evidence-digest.html",
+                "--snapshot-output",
+                "evidence-sets/evidence-digest.outcome-evidence.json",
             ]
         )
 
@@ -177,6 +181,10 @@ class CliOutputTest(unittest.TestCase):
         self.assertEqual(args.evidence_set, ["reports/codex-click-evidence.json"])
         self.assertEqual(args.output, "reports/evidence-digest.md")
         self.assertEqual(args.html_output, "reports/evidence-digest.html")
+        self.assertEqual(
+            args.snapshot_output,
+            "evidence-sets/evidence-digest.outcome-evidence.json",
+        )
 
     def test_report_parser_keeps_evidence_appendix_alias(self):
         parser = build_parser()
@@ -219,6 +227,28 @@ class CliOutputTest(unittest.TestCase):
             ],
         )
         self.assertEqual(args.output, "reports/evidence-digest.md")
+
+    def test_report_parser_accepts_evidence_portability_check(self):
+        parser = build_parser()
+
+        args = parser.parse_args(
+            [
+                "report",
+                "check-evidence-portability",
+                "--evidence-set",
+                "evidence-sets/codex.json",
+                "--evidence-set",
+                "evidence-sets/claude.json",
+            ]
+        )
+
+        self.assertEqual(
+            args.evidence_set,
+            [
+                "evidence-sets/codex.json",
+                "evidence-sets/claude.json",
+            ],
+        )
 
     def test_report_command_writes_html_companion(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -279,6 +309,213 @@ class CliOutputTest(unittest.TestCase):
         self.assertIn("<h2>Outcome Summary</h2>", html_report)
         self.assertIn("<h2>Trial Evidence</h2>", html_report)
         self.assertIn('href="digest.md"', html_report)
+
+    def test_report_command_writes_outcome_evidence_snapshot(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            run_dir = root / "runs" / "trial-pass"
+            run_dir.mkdir(parents=True)
+            (run_dir / "result.json").write_text(
+                json.dumps(
+                    {
+                        "trial_kind": "agent_trial",
+                        "trial_id": "trial-pass",
+                        "run_id": "trial-pass",
+                        "task_id": "task-a",
+                        "eval_suite": "starter",
+                        "eval_type": "capability",
+                        "agent_name": "codex",
+                        "model_name": "model-a",
+                        "status": "passed",
+                        "success": True,
+                        "duration_ms": 100,
+                        "files_changed": ["app.py"],
+                        "lines_added": 5,
+                        "lines_deleted": 1,
+                        "report_path": str(run_dir / "report.md"),
+                        "transcript_path": str(run_dir / "transcript.md"),
+                        "diff_path": str(run_dir / "diff.patch"),
+                        "run_dir": str(run_dir),
+                    }
+                ),
+                encoding="utf-8",
+            )
+            snapshot_output = root / "evidence-sets" / "selected.outcome-evidence.json"
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                status = handle_report_capability_evidence_digest(
+                    SimpleNamespace(
+                        runs_dir=str(root / "runs"),
+                        evidence_set=None,
+                        output=str(root / "reports" / "digest.md"),
+                        html_output=None,
+                        snapshot_output=str(snapshot_output),
+                    )
+                )
+
+            loaded = load_evidence_snapshot(snapshot_output)
+            snapshot_text = snapshot_output.read_text(encoding="utf-8")
+
+        self.assertEqual(status, 0)
+        self.assertIn("Outcome evidence snapshot:", stdout.getvalue())
+        self.assertEqual([result.trial_id for result in loaded], ["trial-pass"])
+        self.assertIn('"artifact_receipts"', snapshot_text)
+        self.assertNotIn(str(root), snapshot_text)
+
+    def test_report_command_regenerates_from_snapshot_without_runs(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            run_dir = root / "runs" / "trial-pass"
+            run_dir.mkdir(parents=True)
+            (run_dir / "result.json").write_text(
+                json.dumps(
+                    {
+                        "trial_kind": "agent_trial",
+                        "trial_id": "trial-pass",
+                        "run_id": "trial-pass",
+                        "task_id": "task-a",
+                        "eval_suite": "starter",
+                        "eval_type": "capability",
+                        "agent_name": "codex",
+                        "model_name": "model-a",
+                        "status": "passed",
+                        "success": True,
+                        "duration_ms": 100,
+                        "report_path": str(run_dir / "report.md"),
+                        "transcript_path": str(run_dir / "transcript.md"),
+                        "diff_path": str(run_dir / "diff.patch"),
+                        "run_dir": str(run_dir),
+                    }
+                ),
+                encoding="utf-8",
+            )
+            snapshot_output = root / "evidence-sets" / "selected.outcome-evidence.json"
+            handle_report_capability_evidence_digest(
+                SimpleNamespace(
+                    runs_dir=str(root / "runs"),
+                    evidence_set=None,
+                    output=str(root / "reports" / "source.md"),
+                    html_output=None,
+                    snapshot_output=str(snapshot_output),
+                )
+            )
+            manifest = root / "evidence-sets" / "selected.json"
+            manifest.write_text(
+                json.dumps(
+                    {
+                        "name": "selected",
+                        "trials": ["trial-pass"],
+                        "outcome_evidence_snapshot": snapshot_output.name,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            markdown_output = root / "reports" / "regenerated.md"
+            html_output = root / "reports" / "regenerated.html"
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                status = handle_report_capability_evidence_digest(
+                    SimpleNamespace(
+                        runs_dir=str(root / "deleted-runs"),
+                        evidence_set=[str(manifest)],
+                        output=str(markdown_output),
+                        html_output=str(html_output),
+                        snapshot_output=None,
+                    )
+                )
+
+            markdown_report = markdown_output.read_text(encoding="utf-8")
+            html_report = html_output.read_text(encoding="utf-8")
+
+        self.assertEqual(status, 0)
+        self.assertIn("- Outcome evidence snapshot: `", markdown_report)
+        self.assertIn("- Selected snapshot records: `1`", markdown_report)
+        self.assertIn("| task-a | capability | trial-pass | passed | valid |", markdown_report)
+        self.assertIn("<h2>Trial Evidence</h2>", html_report)
+        self.assertIn("trial-pass", html_report)
+        self.assertIn("Capability evidence digest HTML:", stdout.getvalue())
+
+    def test_report_evidence_portability_check_accepts_snapshot_manifest(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            run_dir = root / "runs" / "trial-pass"
+            run_dir.mkdir(parents=True)
+            (run_dir / "result.json").write_text(
+                json.dumps(
+                    {
+                        "trial_kind": "agent_trial",
+                        "trial_id": "trial-pass",
+                        "run_id": "trial-pass",
+                        "task_id": "task-a",
+                        "eval_suite": "starter",
+                        "eval_type": "capability",
+                        "agent_name": "codex",
+                        "model_name": "model-a",
+                        "status": "passed",
+                        "success": True,
+                        "run_dir": str(run_dir),
+                    }
+                ),
+                encoding="utf-8",
+            )
+            snapshot_output = root / "evidence-sets" / "selected.outcome-evidence.json"
+            handle_report_capability_evidence_digest(
+                SimpleNamespace(
+                    runs_dir=str(root / "runs"),
+                    evidence_set=None,
+                    output=str(root / "reports" / "source.md"),
+                    html_output=None,
+                    snapshot_output=str(snapshot_output),
+                )
+            )
+            manifest = root / "evidence-sets" / "selected.json"
+            manifest.write_text(
+                json.dumps(
+                    {
+                        "name": "selected",
+                        "trials": ["trial-pass"],
+                        "outcome_evidence_snapshot": snapshot_output.name,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                status = handle_report_check_evidence_portability(
+                    SimpleNamespace(evidence_set=[str(manifest)])
+                )
+
+        self.assertEqual(status, 0)
+        self.assertIn("OK evidence set portable:", stdout.getvalue())
+        self.assertIn("records=1", stdout.getvalue())
+
+    def test_report_evidence_portability_check_rejects_manifest_without_snapshot(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            manifest = root / "evidence-sets" / "selected.json"
+            manifest.parent.mkdir(parents=True)
+            manifest.write_text(
+                json.dumps(
+                    {
+                        "name": "selected",
+                        "trials": ["runs/worktree/trial-pass"],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stderr = io.StringIO()
+
+            with contextlib.redirect_stderr(stderr):
+                status = handle_report_check_evidence_portability(
+                    SimpleNamespace(evidence_set=[str(manifest)])
+                )
+
+        self.assertEqual(status, 1)
+        self.assertIn("ERROR evidence set is not portable:", stderr.getvalue())
+        self.assertIn("missing outcome_evidence_snapshot", stderr.getvalue())
 
     def test_capability_evidence_digest_includes_operability_section(self):
         with tempfile.TemporaryDirectory() as temp:

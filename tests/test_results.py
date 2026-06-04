@@ -69,7 +69,9 @@ class ResultsTest(unittest.TestCase):
             digest = render_capability_evidence_digest(results)
             self.assertIn("- Agent trials: `2`", digest)
             self.assertIn("setup_error:1", digest)
-            self.assertIn("trial-pass/result.json", digest)
+            self.assertIn("| task-a | capability | trial-pass | passed | valid |", digest)
+            self.assertNotIn("trial-pass/result.json", digest)
+            self.assertNotIn("[result](", digest)
 
     def test_load_outcome_evidences_backfills_line_metrics_from_diff_patch(self):
         with tempfile.TemporaryDirectory() as temp:

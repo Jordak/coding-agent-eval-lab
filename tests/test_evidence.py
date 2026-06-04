@@ -89,6 +89,7 @@ class CapabilityEvidenceDigestTest(unittest.TestCase):
         self.assertIn("### Token Summary", digest)
         self.assertIn("### Review and Patch Summary", digest)
         self.assertIn("### Trial Evidence", digest)
+        self.assertIn("Portable Markdown policy:", digest)
         self.assertIn(
             "| Task | Type | Total | Fair | Excluded | Passes | Accepted | Pass Rate | pass@k | pass^k |",
             digest,
@@ -101,10 +102,44 @@ class CapabilityEvidenceDigestTest(unittest.TestCase):
         self.assertIn("| task-a | regression | trial-excluded | failed | excluded | dependency_issue |  | setup_error |", digest)
         self.assertNotIn("| Suite | Type | Task | Agent Harness | Model | Effort |", digest)
         self.assertNotIn("| Trial | Task | Agent Harness | Model | Effort |", digest)
-        self.assertIn("[report](runs/trial-pass/report.md)", digest)
-        self.assertIn("[transcript](runs/trial-pass/transcript.md)", digest)
-        self.assertIn("[diff](runs/trial-pass/diff.patch)", digest)
-        self.assertIn("[result](runs/trial-pass/result.json)", digest)
+        self.assertNotIn("| Report | Transcript | Diff | Result |", digest)
+        self.assertNotIn("[report](", digest)
+        self.assertNotIn("[transcript](", digest)
+        self.assertNotIn("[diff](", digest)
+        self.assertNotIn("[result](", digest)
+        self.assertNotIn("runs/trial-pass/report.md", digest)
+
+    def test_markdown_digest_omits_disposable_artifact_paths(self):
+        digest = render_capability_evidence_digest(
+            [
+                normalize_outcome_evidence(
+                    {
+                        "trial_id": "trial-portable",
+                        "task_id": "task-a",
+                        "eval_suite": "starter",
+                        "eval_type": "capability",
+                        "agent_name": "codex",
+                        "model_name": "model-a",
+                        "status": "passed",
+                        "success": True,
+                        "duration_ms": 100,
+                        "files_changed": ["app.py"],
+                        "lines_added": 5,
+                        "lines_deleted": 1,
+                        "report_path": "/tmp/worktree/runs/trial-portable/report.md",
+                        "transcript_path": "/tmp/worktree/runs/trial-portable/transcript.md",
+                        "diff_path": "/tmp/worktree/runs/trial-portable/diff.patch",
+                        "run_dir": "/tmp/worktree/runs/trial-portable",
+                    }
+                )
+            ]
+        )
+
+        self.assertIn("| task-a | capability | trial-portable | passed | valid |", digest)
+        self.assertNotIn("| Report | Transcript | Diff | Result |", digest)
+        self.assertNotIn("[report](", digest)
+        self.assertNotIn("/tmp/worktree", digest)
+        self.assertNotIn("runs/trial-portable/report.md", digest)
 
     def test_renders_one_markdown_section_per_run_context(self):
         digest = render_capability_evidence_digest(
@@ -208,6 +243,7 @@ class CapabilityEvidenceDigestTest(unittest.TestCase):
         )
 
         self.assertIn("<!doctype html>", html_report)
+        self.assertNotRegex(html_report, r"[ \t]+\n")
         self.assertIn("<h2>Outcome Summary</h2>", html_report)
         self.assertIn("<h2>Agent Harness Operability</h2>", html_report)
         self.assertIn("sandbox_mode: workspace-write", html_report)

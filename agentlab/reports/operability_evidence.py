@@ -5,7 +5,7 @@ from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from typing import Callable
 
-from agentlab.evidence.outcome import OutcomeEvidence
+from agentlab.evidence.outcome import ArtifactEvidence, OutcomeEvidence
 
 
 UNKNOWN = "unknown"
@@ -158,22 +158,49 @@ def _tool_patch_context_facts(
     return [
         (
             "changed_files",
-            _coverage(results, lambda result: bool(result.files_changed)),
+            _coverage(
+                results,
+                lambda result: (
+                    bool(result.files_changed)
+                    or result.n_files_changed > 0
+                ),
+            ),
         ),
         ("commands_run", _coverage(results, lambda result: bool(result.commands_run))),
         ("human_review_overlay", _review_coverage(results)),
-        ("transcript", _path_coverage(results, lambda result: result.transcript_path)),
-        ("diff_patch", _path_coverage(results, lambda result: result.diff_path)),
+        (
+            "transcript",
+            _artifact_coverage(results, lambda result: result.transcript_artifact),
+        ),
+        (
+            "diff_patch",
+            _artifact_coverage(results, lambda result: result.diff_artifact),
+        ),
     ]
 
 
 def _receipt_basics_facts(results: list[OutcomeEvidence]) -> list[tuple[str, object]]:
     return [
-        ("run_dir", _path_coverage(results, lambda result: result.run_dir)),
-        ("report_md", _path_coverage(results, lambda result: result.report_path)),
-        ("result_json", _path_coverage(results, lambda result: result.result_path)),
-        ("transcript", _path_coverage(results, lambda result: result.transcript_path)),
-        ("diff_patch", _path_coverage(results, lambda result: result.diff_path)),
+        (
+            "run_dir",
+            _artifact_coverage(results, lambda result: result.run_artifact),
+        ),
+        (
+            "report_md",
+            _artifact_coverage(results, lambda result: result.report_artifact),
+        ),
+        (
+            "result_json",
+            _artifact_coverage(results, lambda result: result.result_artifact),
+        ),
+        (
+            "transcript",
+            _artifact_coverage(results, lambda result: result.transcript_artifact),
+        ),
+        (
+            "diff_patch",
+            _artifact_coverage(results, lambda result: result.diff_artifact),
+        ),
     ]
 
 
@@ -227,11 +254,14 @@ def _coverage(
     return f"{count}/{len(results)}"
 
 
-def _path_coverage(
+def _artifact_coverage(
     results: list[OutcomeEvidence],
-    path_getter: Callable[[OutcomeEvidence], object],
+    artifact_getter: Callable[[OutcomeEvidence], ArtifactEvidence],
 ) -> str:
-    return _coverage(results, lambda result: bool(path_getter(result)))
+    return _coverage(
+        results,
+        lambda result: artifact_getter(result).was_present,
+    )
 
 
 def _format_value(value: object) -> str:

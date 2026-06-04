@@ -14,6 +14,24 @@ from agentlab.evidence.validity import DEFAULT_TRIAL_VALIDITY
 
 
 @dataclass(frozen=True)
+class ArtifactEvidence:
+    was_present: bool
+    path: Path | None = None
+
+    def __post_init__(self) -> None:
+        if self.path is not None and not self.was_present:
+            raise ValueError("artifact path requires was_present=True")
+        if self.path is not None and not isinstance(self.path, Path):
+            object.__setattr__(self, "path", Path(str(self.path)))
+
+    @property
+    def path_text(self) -> str | None:
+        if self.path is None:
+            return None
+        return str(self.path)
+
+
+@dataclass(frozen=True)
 class OutcomeEvidence:
     trial_kind: str
     trial_id: str
@@ -41,10 +59,11 @@ class OutcomeEvidence:
     commands_run: list[Any]
     checks: list[Any]
     graders: list[Any]
-    report_path: str | None
-    transcript_path: str | None
-    diff_path: str | None
-    run_dir: str
+    run_artifact: ArtifactEvidence
+    report_artifact: ArtifactEvidence
+    result_artifact: ArtifactEvidence
+    transcript_artifact: ArtifactEvidence
+    diff_artifact: ArtifactEvidence
     human_review_outcome: HumanReviewOutcome | None = None
     raw: Dict[str, Any] = field(default_factory=dict)
 
@@ -155,10 +174,34 @@ class OutcomeEvidence:
         return self.resource_usage.cost_usd
 
     @property
+    def run_dir(self) -> str:
+        return self.run_artifact.path_text or ""
+
+    @property
+    def report_path(self) -> str | None:
+        return self.report_artifact.path_text
+
+    @property
+    def transcript_path(self) -> str | None:
+        return self.transcript_artifact.path_text
+
+    @property
+    def diff_path(self) -> str | None:
+        return self.diff_artifact.path_text
+
+    @property
     def result_path(self) -> str | None:
-        if not self.run_dir:
-            return None
-        return str(Path(self.run_dir) / "result.json")
+        return self.result_artifact.path_text
+
+    @property
+    def artifact_receipts(self) -> dict[str, bool]:
+        return {
+            "run_dir": self.run_artifact.was_present,
+            "report_md": self.report_artifact.was_present,
+            "result_json": self.result_artifact.was_present,
+            "transcript": self.transcript_artifact.was_present,
+            "diff_patch": self.diff_artifact.was_present,
+        }
 
     def to_result_dict(self) -> Dict[str, Any]:
         result = dict(self.raw)
@@ -264,6 +307,32 @@ def normalize_outcome_evidence(
         or (resolved_run_dir.name if resolved_run_dir is not None else "")
     )
     run_id = str(data.get("run_id") or trial_id)
+    artifact_receipts = _artifact_receipts(data)
+    run_artifact = _artifact_evidence(
+        artifact_receipts,
+        "run_dir",
+        resolved_run_dir,
+    )
+    report_artifact = _artifact_evidence(
+        artifact_receipts,
+        "report_md",
+        _optional_path(data.get("report_path")),
+    )
+    result_artifact = _artifact_evidence(
+        artifact_receipts,
+        "result_json",
+        _result_path(data, resolved_run_dir),
+    )
+    transcript_artifact = _artifact_evidence(
+        artifact_receipts,
+        "transcript",
+        _optional_path(data.get("transcript_path")),
+    )
+    diff_artifact = _artifact_evidence(
+        artifact_receipts,
+        "diff_patch",
+        _optional_path(data.get("diff_path")),
+    )
 
     return OutcomeEvidence(
         trial_kind=str(data.get("trial_kind") or "agent_trial"),
@@ -292,10 +361,11 @@ def normalize_outcome_evidence(
         commands_run=_list(data.get("commands_run")),
         checks=_list(data.get("checks")),
         graders=_list(data.get("graders")),
-        report_path=_optional_str(data.get("report_path")),
-        transcript_path=_optional_str(data.get("transcript_path")),
-        diff_path=_optional_str(data.get("diff_path")),
-        run_dir=str(resolved_run_dir) if resolved_run_dir is not None else "",
+        run_artifact=run_artifact,
+        report_artifact=report_artifact,
+        result_artifact=result_artifact,
+        transcript_artifact=transcript_artifact,
+        diff_artifact=diff_artifact,
         human_review_outcome=human_review_outcome,
         raw=data,
     )
@@ -311,6 +381,7 @@ def _resolve_run_dir(
     if raw_run_dir:
         return Path(str(raw_run_dir))
     return None
+
 
 def _grader_status(data: Mapping[str, Any]) -> tuple[str, bool]:
     outcome = data.get("outcome")
@@ -398,6 +469,41 @@ def _optional_nonempty_str(value: object) -> str | None:
     if not text:
         return None
     return text
+
+
+def _optional_path(value: object) -> Path | None:
+    if value is None:
+        return None
+    text = str(value)
+    if not text:
+        return None
+    return Path(text)
+
+
+def _result_path(data: Mapping[str, Any], run_dir: Path | None) -> Path | None:
+    raw_path = _optional_path(data.get("result_path"))
+    if raw_path is not None:
+        return raw_path
+    if run_dir is None:
+        return None
+    return run_dir / "result.json"
+
+
+def _artifact_receipts(data: Mapping[str, Any]) -> Mapping[str, Any]:
+    receipts = data.get("artifact_receipts")
+    if isinstance(receipts, Mapping):
+        return receipts
+    return {}
+
+
+def _artifact_evidence(
+    receipts: Mapping[str, Any],
+    receipt_key: str,
+    path: Path | None,
+) -> ArtifactEvidence:
+    if receipt_key in receipts:
+        return ArtifactEvidence(was_present=bool(receipts[receipt_key]), path=path)
+    return ArtifactEvidence(was_present=path is not None, path=path)
 
 
 def _optional_int(value: object) -> int | None:
