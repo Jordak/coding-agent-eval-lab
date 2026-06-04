@@ -65,11 +65,10 @@ def capture_diff(
     diff_path: Path,
     base_ref: str | None = None,
 ) -> list[str]:
-    diff_args = ["diff", "--binary"]
-    name_args = ["diff", "--name-only"]
-    if base_ref is not None:
-        diff_args.append(base_ref)
-        name_args.append(base_ref)
+    diff_ref = base_ref or "HEAD"
+    _mark_untracked_for_diff(workspace)
+    diff_args = ["diff", "--binary", "--no-renames", diff_ref]
+    name_args = ["diff", "--name-only", "-z", "--no-renames", diff_ref]
 
     git_env = isolated_git_env()
     diff = run_git(diff_args, cwd=workspace, env=git_env)
@@ -80,4 +79,19 @@ def capture_diff(
     changed = run_git(name_args, cwd=workspace, env=git_env)
     if changed.returncode != 0:
         raise RuntimeError(f"git diff --name-only failed: {changed.stderr.strip()}")
-    return [line for line in changed.stdout.splitlines() if line.strip()]
+    return [path for path in changed.stdout.split("\0") if path]
+
+
+def _mark_untracked_for_diff(workspace: Path) -> None:
+    untracked = run_git(
+        ["ls-files", "--others", "--exclude-standard", "-z"],
+        cwd=workspace,
+    )
+    if untracked.returncode != 0:
+        raise RuntimeError(f"git ls-files failed: {untracked.stderr.strip()}")
+    paths = [path for path in untracked.stdout.split("\0") if path]
+    if not paths:
+        return
+    marked = run_git(["add", "--intent-to-add", "--"] + paths, cwd=workspace)
+    if marked.returncode != 0:
+        raise RuntimeError(f"git add --intent-to-add failed: {marked.stderr.strip()}")

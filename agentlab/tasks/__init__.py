@@ -13,10 +13,19 @@ from agentlab.tasks.model import (
     load_task_mapping,
     resolve_task_file,
 )
+from agentlab.tasks.boundaries import (
+    CONSENT_STYLES,
+    BoundaryViolation,
+    find_boundary_violations,
+    path_matches_boundary_glob,
+    scope_oracle_metadata,
+)
 
 __all__ = [
+    "CONSENT_STYLES",
     "EVAL_TYPES",
     "TASK_BUNDLE_FILENAMES",
+    "BoundaryViolation",
     "EvalTask",
     "ReferenceArtifact",
     "SuccessCriteria",
@@ -24,8 +33,11 @@ __all__ = [
     "TaskLoadError",
     "discover_task_bundles",
     "discover_task_files",
+    "find_boundary_violations",
     "load_task",
     "load_task_bundle",
     "load_task_mapping",
+    "path_matches_boundary_glob",
     "resolve_task_file",
+    "scope_oracle_metadata",
 ]

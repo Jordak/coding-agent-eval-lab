@@ -132,6 +132,22 @@ class TaskCardPublicationTest(unittest.TestCase):
             self.assertNotEqual(card_path.read_text(encoding="utf-8"), "stale card\n")
             self.assertEqual(index_path.read_text(encoding="utf-8"), "stale index\n")
 
+    def test_renders_scope_oracle_metadata_when_configured(self):
+        with tempfile.TemporaryDirectory() as temp:
+            bundle_dir = _write_task_bundle(
+                Path(temp) / "example-suite",
+                "demo-001",
+                scope_oracle=True,
+            )
+            bundle = load_task_bundle(bundle_dir)
+
+            card = render_task_card(bundle)
+
+        self.assertIn("## Scope Oracle Metadata", card)
+        self.assertIn("- Consent style: `explicit_deny`", card)
+        self.assertIn("- Allowed paths: `src/`, `tests/**/*.py`", card)
+        self.assertIn("- Forbidden paths: `src/private/`", card)
+
 
 def _write_task_bundle(
     suite_dir: Path,
@@ -140,6 +156,7 @@ def _write_task_bundle(
     title: str = "Demo task",
     eval_type: str = "regression",
     tags: list[str] | None = None,
+    scope_oracle: bool = False,
 ) -> Path:
     bundle_dir = suite_dir / task_id
     bundle_dir.mkdir(parents=True)
@@ -155,6 +172,7 @@ language: python
 suite: example-suite
 eval_type: {eval_type}
 prompt: Fix the bug.
+{_scope_oracle_consent(scope_oracle)}
 reference_solution: Change the focused branch and preserve surrounding behavior.
 reference_artifact:
   type: patch
@@ -172,6 +190,7 @@ environment:
 success:
   tests_must_pass: true
   max_files_changed: 2
+{_scope_oracle_success(scope_oracle)}
 tags:
 {tag_lines}
 failure_modes:
@@ -181,6 +200,24 @@ failure_modes:
         encoding="utf-8",
     )
     return bundle_dir
+
+
+def _scope_oracle_consent(enabled: bool) -> str:
+    if not enabled:
+        return ""
+    return "consent_style: explicit_deny"
+
+
+def _scope_oracle_success(enabled: bool) -> str:
+    if not enabled:
+        return ""
+    return (
+        "  allowed_paths:\n"
+        "    - src/\n"
+        "    - tests/**/*.py\n"
+        "  forbidden_paths:\n"
+        "    - src/private/"
+    )
 
 
 if __name__ == "__main__":

@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 from agentlab.execution.scoring import CheckResult
 from agentlab.runtime.run_surface import normalize_run_surface
+from agentlab.tasks.boundaries import scope_oracle_metadata
 
 if TYPE_CHECKING:
     from agentlab.tasks.reference import ReferenceVerification
@@ -49,6 +50,11 @@ def render_markdown_report(run: "EvaluationRun") -> str:
     if config_lines:
         lines.extend(["", "## Agent Harness Configuration", ""])
         lines.extend(config_lines)
+
+    scope_oracle_lines = _render_scope_oracle_metadata(run.task)
+    if scope_oracle_lines:
+        lines.extend(["", "## Scope Oracle Metadata", ""])
+        lines.extend(scope_oracle_lines)
 
     lines.extend(["", "## Code-Based Graders", ""])
 
@@ -137,10 +143,14 @@ def render_reference_report(verification: "ReferenceVerification") -> str:
                 error=None,
             )
         ),
-        "",
-        "## Code-Based Graders",
-        "",
     ]
+
+    scope_oracle_lines = _render_scope_oracle_metadata(verification.task)
+    if scope_oracle_lines:
+        lines.extend(["", "## Scope Oracle Metadata", ""])
+        lines.extend(scope_oracle_lines)
+
+    lines.extend(["", "## Code-Based Graders", ""])
 
     checks = verification.all_checks
     if not checks:
@@ -174,6 +184,34 @@ def _render_check(index: int, check: CheckResult) -> str:
     if output:
         lines.extend(["", "```text", output, "```", ""])
     return "\n".join(lines)
+
+
+def _render_scope_oracle_metadata(task: object) -> list[str]:
+    success = getattr(task, "success", None)
+    consent_style = getattr(task, "consent_style", None)
+    allowed_paths = getattr(success, "allowed_paths", None)
+    forbidden_paths = getattr(success, "forbidden_paths", [])
+    metadata = scope_oracle_metadata(
+        consent_style=consent_style,
+        allowed_paths=allowed_paths,
+        forbidden_paths=forbidden_paths,
+    )
+    if not metadata:
+        return []
+    lines: list[str] = []
+    if consent_style is not None:
+        lines.append(f"- Consent style: `{consent_style}`")
+    if allowed_paths is not None:
+        lines.append(
+            "- Allowed paths: "
+            + ", ".join(f"`{path}`" for path in allowed_paths)
+        )
+    if forbidden_paths:
+        lines.append(
+            "- Forbidden paths: "
+            + ", ".join(f"`{path}`" for path in forbidden_paths)
+        )
+    return lines
 
 
 def _trim_output(output: str, max_chars: int = 2000) -> str:

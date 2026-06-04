@@ -640,5 +640,43 @@ class WorkspaceTest(unittest.TestCase):
                 (temp_path / "diff.patch").read_text(encoding="utf-8"),
             )
 
+    def test_capture_diff_records_all_final_changed_paths(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for workspace preparation")
+
+        with tempfile.TemporaryDirectory() as temp:
+            repo = Path(temp) / "repo"
+            init_repo(repo)
+            (repo / "staged.txt").write_text("before\n", encoding="utf-8")
+            (repo / "unstaged.txt").write_text("before\n", encoding="utf-8")
+            (repo / "delete.txt").write_text("before\n", encoding="utf-8")
+            (repo / "rename-old.txt").write_text("before\n", encoding="utf-8")
+            git(["add", "."], repo)
+            git(["commit", "-m", "initial"], repo)
+
+            (repo / "staged.txt").write_text("after\n", encoding="utf-8")
+            git(["add", "staged.txt"], repo)
+            (repo / "unstaged.txt").write_text("after\n", encoding="utf-8")
+            (repo / "delete.txt").unlink()
+            git(["mv", "rename-old.txt", "rename-new.txt"], repo)
+            (repo / "new.txt").write_text("new\n", encoding="utf-8")
+
+            diff_path = Path(temp) / "diff.patch"
+            files_changed = capture_diff(repo, diff_path)
+            diff_text = diff_path.read_text(encoding="utf-8")
+
+            self.assertCountEqual(
+                files_changed,
+                [
+                    "delete.txt",
+                    "new.txt",
+                    "rename-new.txt",
+                    "rename-old.txt",
+                    "staged.txt",
+                    "unstaged.txt",
+                ],
+            )
+            self.assertIn("new.txt", diff_text)
+
 if __name__ == "__main__":
     unittest.main()

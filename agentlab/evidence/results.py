@@ -11,6 +11,7 @@ from agentlab.runtime.resource_usage import (
 )
 from agentlab.runtime.run_surface import normalize_run_surface
 from agentlab.execution.scoring import CheckResult
+from agentlab.tasks.boundaries import scope_oracle_metadata
 
 
 def write_result_json(run: Any) -> None:
@@ -36,7 +37,7 @@ def to_result_dict(run: Any) -> Dict[str, Any]:
         success=run.score.tests_passed,
         error=run.agent_run.error,
     )
-    return {
+    result = {
         "trial_kind": "agent_trial",
         "trial_id": run.run_dir.name,
         "run_id": run.run_dir.name,
@@ -91,6 +92,10 @@ def to_result_dict(run: Any) -> Dict[str, Any]:
         "diff_path": str(run.agent_run.diff_path),
         "run_dir": str(run.run_dir),
     }
+    metadata = _scope_oracle_to_dict(run.task)
+    if metadata:
+        result["scope_oracle"] = metadata
+    return result
 
 
 def reference_verification_to_result_dict(verification: Any) -> Dict[str, Any]:
@@ -110,7 +115,7 @@ def reference_verification_to_result_dict(verification: Any) -> Dict[str, Any]:
         success=verification.success,
         error=None,
     )
-    return {
+    result = {
         "trial_kind": "reference_verification",
         "trial_id": f"{verification.task.id}-reference",
         "run_id": f"{verification.task.id}-reference",
@@ -159,6 +164,10 @@ def reference_verification_to_result_dict(verification: Any) -> Dict[str, Any]:
         "diff_path": _display_path(verification.diff_path, output_dir),
         "run_dir": _display_path(output_dir, output_dir),
     }
+    metadata = _scope_oracle_to_dict(verification.task)
+    if metadata:
+        result["scope_oracle"] = metadata
+    return result
 
 
 def discover_result_files(runs_dir: Path) -> List[Path]:
@@ -196,6 +205,14 @@ def _reference_artifact_to_dict(artifact: Any) -> Dict[str, Any] | None:
         "path": artifact.path,
         "commit": artifact.commit,
     }
+
+
+def _scope_oracle_to_dict(task: Any) -> Dict[str, object]:
+    return scope_oracle_metadata(
+        consent_style=getattr(task, "consent_style", None),
+        allowed_paths=getattr(task.success, "allowed_paths", None),
+        forbidden_paths=getattr(task.success, "forbidden_paths", []),
+    )
 
 
 def _check_to_grader_dict(check: CheckResult) -> Dict[str, Any]:
