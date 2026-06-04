@@ -81,6 +81,47 @@ class EvidenceSnapshotTest(unittest.TestCase):
         self.assertIn("transcript: `1/1`", operability)
         self.assertIn("diff_patch: `1/1`", operability)
 
+    def test_snapshot_scrubs_local_paths_from_nested_result_strings(self):
+        result = normalize_outcome_evidence(
+            {
+                "trial_id": "trial-pass",
+                "task_id": "task-a",
+                "eval_suite": "starter",
+                "eval_type": "capability",
+                "agent_name": "claude",
+                "model_name": "claude-opus-4-8",
+                "agent_harness_config": {
+                    "command_identity": "/Users/example/.local/bin/claude",
+                },
+                "status": "passed",
+                "success": True,
+                "checks": [
+                    {
+                        "command": "python -m pip install -e .",
+                        "passed": True,
+                        "returncode": 0,
+                        "stdout": (
+                            "Obtaining file:///Users/example/.codex/worktrees/"
+                            "abc/project/runs/trial/workspace\n"
+                            "Stored in directory: /private/tmp/pip-cache\n"
+                        ),
+                        "stderr": "",
+                    }
+                ],
+            }
+        )
+
+        with tempfile.TemporaryDirectory() as temp:
+            snapshot_path = Path(temp) / "evidence.json"
+            write_evidence_snapshot(snapshot_path, [result])
+            snapshot_text = snapshot_path.read_text(encoding="utf-8")
+
+        self.assertNotIn("/Users/", snapshot_text)
+        self.assertNotIn("/private/", snapshot_text)
+        self.assertNotIn(".codex/worktrees", snapshot_text)
+        self.assertIn('"command_identity": null', snapshot_text)
+        self.assertIn("<local-path>", snapshot_text)
+
     def test_rejects_unknown_snapshot_schema(self):
         with tempfile.TemporaryDirectory() as temp:
             snapshot_path = Path(temp) / "evidence.json"
