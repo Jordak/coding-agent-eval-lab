@@ -12,8 +12,10 @@ dist/
 *.egg-info/
 reports/*
 !reports/.gitkeep
+!reports/*.html
 !reports/*/
 !reports/*/*.md
+!reports/*/*.html
 runs/
 sources/
 workspaces/

@@ -13,6 +13,7 @@ from agentlab.cli.doctor import handle_doctor
 from agentlab.cli.parser import build_parser
 from agentlab.cli.recover import handle_recover_codex_runtime_metadata
 from agentlab.cli.reports import handle_report_capability_evidence_digest
+from agentlab.cli.reports import handle_report_check_evidence_portability
 from agentlab.cli.review import handle_review
 from agentlab.cli.review_proposals import (
     handle_review_proposals_clear,
@@ -59,6 +60,7 @@ __all__ = [
     "handle_doctor",
     "handle_recover_codex_runtime_metadata",
     "handle_report_capability_evidence_digest",
+    "handle_report_check_evidence_portability",
     "handle_review",
     "handle_review_proposals_clear",
     "handle_review_proposals_evidence_set",

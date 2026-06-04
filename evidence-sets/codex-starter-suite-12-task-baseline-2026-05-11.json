@@ -1,6 +1,7 @@
 {
   "name": "codex-starter-suite-12-task-baseline-2026-05-11",
   "description": "Five fair Codex CLI trials for each of the twelve starter-suite tasks under Issue #10. Extends the 2026-05-09 nine-task baseline with Prettier, Vite, and Remotion trials collected on 2026-05-11.",
+  "outcome_evidence_snapshot": "codex-starter-suite-12-task-baseline-2026-05-11.outcome-evidence.json",
   "trials": [
     "20260508-192558-2048-advanced-snake-params-001-codex-a24c0d88",
     "20260508-192836-2048-advanced-snake-params-001-codex-852468e7",

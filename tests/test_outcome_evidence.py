@@ -6,6 +6,7 @@ from pathlib import Path
 from agentlab.reports.capability_digest import render_capability_evidence_digest
 from agentlab.evidence.human_review import create_human_review_outcome
 from agentlab.evidence.outcome import (
+    ArtifactEvidence,
     load_outcome_evidence,
     normalize_outcome_evidence,
 )
@@ -14,6 +15,10 @@ from agentlab.evidence.summary import summarize_trials
 
 
 class OutcomeEvidenceTest(unittest.TestCase):
+    def test_artifact_evidence_requires_present_for_path(self):
+        with self.assertRaises(ValueError):
+            ArtifactEvidence(was_present=False, path=Path("runs/trial/report.md"))
+
     def test_loads_current_result_metadata_into_normalized_shape(self):
         with tempfile.TemporaryDirectory() as temp:
             run_dir = Path(temp) / "trial-current"

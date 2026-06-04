@@ -57,7 +57,7 @@ python3 -m agentlab doctor --agent claude \
 
 Result:
 
-- Claude Code executable: found at `/Users/jordanharry/.local/bin/claude`
+- Claude Code executable: found on `PATH`
 - Claude Code version: `2.1.139 (Claude Code)`
 - Claude Code auth: `loggedIn=true authMethod=claude.ai apiProvider=firstParty`
 - Claude Code print command shape: accepted

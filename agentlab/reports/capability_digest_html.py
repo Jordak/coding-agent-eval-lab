@@ -109,12 +109,18 @@ def render_capability_evidence_digest_html(
         task_card_root=Path(task_card_root),
     )
     run_contexts = _run_contexts(result_list)
-    return _document(
-        result_list,
-        run_contexts,
-        selection_context or {},
-        render_context,
+    return _clean_html(
+        _document(
+            result_list,
+            run_contexts,
+            selection_context or {},
+            render_context,
+        )
     )
+
+
+def _clean_html(document: str) -> str:
+    return "\n".join(line.rstrip() for line in document.splitlines()) + "\n"
 
 
 def _document(
@@ -431,6 +437,9 @@ def _evidence_set_fact(context: Mapping[str, object]) -> str:
     source_path = context.get("source_path")
     if source_path:
         fact += f", source: {source_path}"
+    snapshot_path = context.get("outcome_evidence_snapshot")
+    if snapshot_path:
+        fact += f", snapshot: {snapshot_path}"
     description = context.get("description")
     if description:
         fact += f", description: {description}"

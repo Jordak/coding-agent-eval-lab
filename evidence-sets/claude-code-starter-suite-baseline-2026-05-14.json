@@ -1,6 +1,7 @@
 {
   "name": "Claude Code starter suite baseline, 12 tasks, 5 fair trials per task, 2026-05-14",
   "description": "Evidence set for GitHub issue #53. Contains 60 valid Claude Code fair trials across the 12 starter-suite tasks. Quota-hit/operator-error runs are preserved under runs/ but excluded from this manifest. Baseline config: --agent claude --claude-model claude-haiku-4-5-20251001 --claude-permission-mode acceptEdits --claude-output-format stream-json --claude-timeout-seconds 1800, no max turns.",
+  "outcome_evidence_snapshot": "claude-code-starter-suite-baseline-2026-05-14.outcome-evidence.json",
   "trials": [
     "20260514-120001-datawrapper-mcp-docker-requirements-001-claude-59b21ded",
     "20260514-120114-2048-advanced-snake-params-001-claude-b6c4cb95",

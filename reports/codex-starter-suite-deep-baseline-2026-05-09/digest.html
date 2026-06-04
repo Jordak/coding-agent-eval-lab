@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Capability Evidence Digest</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7f3;
+      --panel: #ffffff;
+      --ink: #1c2227;
+      --muted: #66707a;
+      --line: #d8ddd5;
+      --line-strong: #aeb8ae;
+      --accent: #126b62;
+      --accent-soft: #e8f3f1;
+      --warn: #966300;
+      --warn-soft: #fff6dc;
+      --bad: #9e3c35;
+      --bad-soft: #fff0ed;
+      --good: #286f43;
+      --good-soft: #edf8f0;
+      --code: #f0f2ed;
+      --shadow: 0 14px 42px rgba(24, 30, 35, 0.16);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-size: 14px;
+      line-height: 1.42;
+    }
+    button, input { font: inherit; }
+    a { color: var(--accent); text-underline-offset: 2px; }
+    code {
+      background: var(--code);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 1px 4px;
+    }
+    .hero {
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      padding: 22px 28px 18px;
+    }
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: 29px;
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+    .hero p { margin: 0; max-width: 1120px; color: var(--muted); }
+    .global-facts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .global-facts span {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fbfcfa;
+      padding: 4px 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .context-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 16px 0 0;
+    }
+    .context-tab {
+      border: 1px solid var(--line-strong);
+      border-radius: 999px;
+      background: #fbfcfa;
+      color: var(--ink);
+      padding: 7px 12px;
+      cursor: pointer;
+    }
+    .context-tab.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .context-page { display: none; }
+    .context-page.active { display: block; }
+    .page { padding: 22px 28px 90px; }
+    .context-facts, .score-grid, .resource-grid {
+      display: grid;
+      gap: 10px;
+    }
+    .context-facts {
+      grid-template-columns: repeat(5, minmax(140px, 1fr));
+      margin-bottom: 16px;
+    }
+    .score-grid {
+      grid-template-columns: repeat(6, minmax(120px, 1fr));
+      margin-bottom: 22px;
+    }
+    .resource-grid { grid-template-columns: repeat(4, minmax(160px, 1fr)); }
+    .fact, .metric {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fbfcfa;
+      padding: 10px;
+    }
+    .fact span, .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .fact strong, .metric strong {
+      display: block;
+      margin-top: 4px;
+      line-height: 1.15;
+      overflow-wrap: anywhere;
+    }
+    .metric strong { font-size: 20px; }
+    .section {
+      margin: 0 0 22px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line-strong);
+    }
+    .section h2, .section h3 {
+      margin: 0 0 10px;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+    .section h2 { font-size: 20px; }
+    .section h3 { font-size: 15px; color: var(--muted); }
+    .two-col {
+      display: grid;
+      grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr);
+      gap: 14px;
+    }
+    .lane {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--panel);
+      padding: 12px;
+      min-width: 0;
+    }
+    .lane h3 { color: var(--ink); font-size: 15px; }
+    .lane ul, .lane ol { margin: 8px 0 0; padding-left: 20px; }
+    .lane li { margin: 8px 0; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin: 0 4px 4px 0;
+      padding: 2px 7px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fbfcfa;
+      white-space: nowrap;
+      font-size: 12px;
+    }
+    .pill.good { color: var(--good); border-color: #9acba9; background: var(--good-soft); }
+    .pill.warn { color: var(--warn); border-color: #dfc27c; background: var(--warn-soft); }
+    .pill.bad { color: var(--bad); border-color: #e2aaa4; background: var(--bad-soft); }
+    .table-wrap {
+      overflow: auto;
+      max-height: 72vh;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--panel);
+    }
+    table {
+      width: 100%;
+      min-width: 820px;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+    th, td {
+      padding: 7px 9px;
+      border-bottom: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      white-space: nowrap;
+    }
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 4;
+      background: #edf0eb;
+      color: #22272b;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    td.wrap { white-space: normal; min-width: 260px; }
+    .sticky-task td:first-child,
+    .sticky-task th:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 5;
+      background: #f8faf7;
+      box-shadow: 1px 0 0 var(--line);
+    }
+    .sticky-task th:first-child { z-index: 7; background: #e3e8e3; }
+    @media (max-width: 1050px) {
+      .context-facts, .score-grid, .resource-grid, .two-col {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 720px) {
+      .context-facts, .score-grid, .resource-grid, .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <h1>Capability Evidence Digest</h1>
+    <p>This digest is generated from stored agent-trial results. It reports evidence only; hand-authored agent capability reports should interpret these observations within the evaluated conditions.</p>
+    <div class="global-facts"><span>Agent trials: 45</span><span>Evidence set: codex-starter-suite-deep-baseline-2026-05-09</span><span>Selected entries: 45</span><span>Selected result files: 45</span></div>
+    <nav class="context-tabs" aria-label="Run contexts"><button class="context-tab active" data-context="starter-coding-codex-gpt-5-5-xhigh" type="button">starter-coding / codex / gpt-5.5 / xhigh</button></nav>
+  </header>
+  <div id="contexts" data-default-context="starter-coding-codex-gpt-5-5-xhigh">
+
+  <main class="page context-page active" data-context-page="starter-coding-codex-gpt-5-5-xhigh">
+    <div class="context-facts">
+      <div class="fact"><span>Suite</span><strong>starter-coding</strong></div>
+      <div class="fact"><span>Agent harness</span><strong>codex</strong></div>
+      <div class="fact"><span>Model</span><strong>gpt-5.5</strong></div>
+      <div class="fact"><span>Effort</span><strong>xhigh</strong></div>
+      <div class="fact"><span>Execution surface</span><strong>local_cli</strong></div>
+      <div class="fact"><span>Runtime version</span><strong>unknown</strong></div>
+      <div class="fact"><span>Sandbox</span><strong>unknown</strong></div>
+      <div class="fact"><span>Approval</span><strong>unknown</strong></div>
+      <div class="fact"><span>Network</span><strong>unknown</strong></div>
+      <div class="fact"><span>Source</span><strong><a href="digest.md">reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md</a></strong></div>
+    </div>
+    <div class="score-grid">
+      <div class="metric"><span>Tasks</span><strong>9</strong></div>
+      <div class="metric"><span>Fair trials</span><strong>45</strong></div>
+      <div class="metric"><span>Grader passes</span><strong>45</strong></div>
+      <div class="metric"><span>Accepted</span><strong>41</strong></div>
+      <div class="metric"><span>IO tokens</span><strong>26481716</strong></div>
+      <div class="metric"><span>IO / verified</span><strong>588482.58</strong></div>
+    </div>
+
+    <section class="section">
+      <h2>Agent Harness Operability</h2>
+      <div class="table-wrap sticky-task"><table><thead><tr><th class="">Operability Dimension</th><th class="">Evidence</th></tr></thead><tbody><tr><td class="wrap">Agent harness configuration</td><td class="wrap">agent_harness: codex<br>model: gpt-5.5<br>reasoning_effort: xhigh<br>trials: 45</td></tr><tr><td class="wrap">Budget controls</td><td class="wrap">timeout_seconds: unknown<br>turn_or_step_budget: unknown<br>observed_input_output_tokens: 45/45<br>observed_cost_usd: unknown<br>configured_token_cost_quota_limits: unknown</td></tr><tr><td class="wrap">Approval boundaries</td><td class="wrap">sandbox_mode: unknown<br>approval_policy: unknown<br>tool_policy: unknown<br>memory_scope: unknown<br>network_policy: unknown</td></tr><tr><td class="wrap">Verifier state</td><td class="wrap">final_grader_status: passed<br>checks_array: 45/45<br>graders_array: 45/45<br>intermediate_verifier_movement: unknown</td></tr><tr><td class="wrap">Halt reasons</td><td class="wrap">normalized_or_derived_stop_reason: success<br>first_class_halt_reason_taxonomy: unknown<br>error_field: unknown<br>budget_operator_interruption_taxonomy: unknown</td></tr><tr><td class="wrap">Interrupted-run receipt</td><td class="wrap">interrupted_or_error_receipt: unknown: selected evidence has no interrupted/error receipts<br>admission_decision_evidence: 45/45</td></tr><tr><td class="wrap">Tool/patch context</td><td class="wrap">changed_files: 45/45<br>commands_run: 45/45<br>human_review_overlay: 45/45<br>transcript: 45/45<br>diff_patch: 45/45</td></tr><tr><td class="wrap">Receipt basics</td><td class="wrap">run_dir: 45/45<br>report_md: 45/45<br>result_json: 45/45<br>transcript: 45/45<br>diff_patch: 45/45</td></tr></tbody></table></div>
+    </section>
+
+
+    <section class="section">
+      <h2>Overall Resource Summary</h2>
+      <div class="resource-grid">
+        <div class="metric"><span>Total IO tokens</span><strong>26481716</strong></div>
+        <div class="metric"><span>Total cached tokens</span><strong>unknown</strong></div>
+        <div class="metric"><span>Total reasoning tokens</span><strong>121321</strong></div>
+        <div class="metric"><span>IO / accepted</span><strong>645895.51</strong></div>
+        <div class="metric"><span>Cached / verified</span><strong>unknown</strong></div>
+        <div class="metric"><span>Reasoning / verified</span><strong>2696.02</strong></div>
+      </div>
+    </section>
+
+
+    <section class="section">
+      <h2>Reviewer Focus</h2>
+      <div class="two-col">
+        <div class="lane">
+          <h3>Needs Attention</h3>
+          <ul><li><strong><a href="../../tasks/starter-coding/click-help-option-refactor-001/task-card.md">click-help-option-refactor-001</a></strong><br><span class="pill warn">4/5 accepted results</span><span class="pill warn">resource_inefficient on 5/5 trials (1 primary, 4 secondary)</span></li><li><strong><a href="../../tasks/starter-coding/click-should-strip-ansi-tests-001/task-card.md">click-should-strip-ansi-tests-001</a></strong><br><span class="pill warn">4/5 accepted results</span><span class="pill warn">success_messy on 1/5 trials (1 primary)</span></li><li><strong><a href="../../tasks/starter-coding/react-tabs-selected-focus-overlay-001/task-card.md">react-tabs-selected-focus-overlay-001</a></strong><br><span class="pill warn">3/5 accepted results</span><span class="pill warn">resource_inefficient on 2/5 trials (2 primary)</span></li></ul>
+        </div>
+        <div class="lane">
+          <h3>Highest IO Token Tasks</h3>
+          <ol><li><strong><a href="../../tasks/starter-coding/click-default-map-nargs-001/task-card.md">click-default-map-nargs-001</a></strong><br>7198021 IO tokens</li><li><strong><a href="../../tasks/starter-coding/click-help-option-refactor-001/task-card.md">click-help-option-refactor-001</a></strong><br>6357302 IO tokens</li><li><strong><a href="../../tasks/starter-coding/click-help-shadowed-option-001/task-card.md">click-help-shadowed-option-001</a></strong><br>5699991 IO tokens</li><li><strong><a href="../../tasks/starter-coding/httpx-verify-false-client-cert-001/task-card.md">httpx-verify-false-client-cert-001</a></strong><br>2114903 IO tokens</li><li><strong><a href="../../tasks/starter-coding/2048-advanced-snake-params-001/task-card.md">2048-advanced-snake-params-001</a></strong><br>1831753 IO tokens</li></ol>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="section">
+      <h2>Outcome Summary</h2>
+      <div class="table-wrap sticky-task"><table><thead><tr><th class="">Task</th><th class="">Type</th><th class="num">Total</th><th class="num">Fair</th><th class="num">Excluded</th><th class="num">Passes</th><th class="num">Accepted</th><th class="num">Pass Rate</th><th class="num">pass@k</th><th class="num">pass^k</th></tr></thead><tbody><tr><td class="wrap"><a href="../../tasks/starter-coding/2048-advanced-snake-params-001/task-card.md">2048-advanced-snake-params-001</a></td><td>capability</td><td class="num">5</td><td class="num">5</td><td class="num">0</td><td class="num">5</td><td class="num">5</td><td class="num">1.00</td><td class="num">1.00</td><td class="num">1.00</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-help-option-refactor-001/task-card.md">click-help-option-refactor-001</a></td><td>capability</td><td class="num">5</td><td class="num">5</td><td class="num">0</td><td class="num">5</td><td class="num">4</td><td class="num">1.00</td><td class="num">1.00</td><td class="num">1.00</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-default-map-nargs-001/task-card.md">click-default-map-nargs-001</a></td><td>regression</td><td class="num">5</td><td class="num">5</td><td class="num">0</td><td class="num">5</td><td class="num">5</td><td class="num">1.00</td><td class="num">1.00</td><td class="num">1.00</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-help-shadowed-option-001/task-card.md">click-help-shadowed-option-001</a></td><td>regression</td><td class="num">5</td><td class="num">5</td><td class="num">0</td><td class="num">5</td><td class="num">5</td><td class="num">1.00</td><td class="num">1.00</td><td class="num">1.00</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-should-strip-ansi-tests-001/task-card.md">click-should-strip-ansi-tests-001</a></td><td>regression</td><td class="num">5</td><td class="num">5</td><td class="num">0</td><td class="num">5</td><td class="num">4</td><td class="num">1.00</td><td class="num">1.00</td><td class="num">1.00</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/datawrapper-mcp-docker-requirements-001/task-card.md">datawrapper-mcp-docker-requirements-001</a></td><td>regression</td><td class="num">5</td><td class="num">5</td><td class="num">0</td><td class="num">5</td><td class="num">5</td><td class="num">1.00</td><td class="num">1.00</td><td class="num">1.00</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/httpx-verify-false-client-cert-001/task-card.md">httpx-verify-false-client-cert-001</a></td><td>regression</td><td class="num">5</td><td class="num">5</td><td class="num">0</td><td class="num">5</td><td class="num">5</td><td class="num">1.00</td><td class="num">1.00</td><td class="num">1.00</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/react-tabs-selected-focus-overlay-001/task-card.md">react-tabs-selected-focus-overlay-001</a></td><td>regression</td><td class="num">5</td><td class="num">5</td><td class="num">0</td><td class="num">5</td><td class="num">3</td><td class="num">1.00</td><td class="num">1.00</td><td class="num">1.00</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/todomvc-toggle-all-checkbox-001/task-card.md">todomvc-toggle-all-checkbox-001</a></td><td>regression</td><td class="num">5</td><td class="num">5</td><td class="num">0</td><td class="num">5</td><td class="num">5</td><td class="num">1.00</td><td class="num">1.00</td><td class="num">1.00</td></tr></tbody></table></div>
+    </section>
+
+
+    <section class="section">
+      <h2>Token Summary</h2>
+      <div class="table-wrap sticky-task"><table><thead><tr><th class="">Task</th><th class="">Type</th><th class="num">IO Tokens</th><th class="num">Cached Tokens</th><th class="num">Reason Tokens</th><th class="num">IO Tok / Verified</th><th class="num">IO Tok / Accepted</th><th class="num">Cached Tok / Verified</th><th class="num">Reason Tok / Verified</th></tr></thead><tbody><tr><td class="wrap"><a href="../../tasks/starter-coding/2048-advanced-snake-params-001/task-card.md">2048-advanced-snake-params-001</a></td><td>capability</td><td class="num">1831753</td><td class="num">unknown</td><td class="num">8504</td><td class="num">366350.60</td><td class="num">366350.60</td><td class="num">unknown</td><td class="num">1700.80</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-help-option-refactor-001/task-card.md">click-help-option-refactor-001</a></td><td>capability</td><td class="num">6357302</td><td class="num">unknown</td><td class="num">36115</td><td class="num">1271460.40</td><td class="num">1589325.50</td><td class="num">unknown</td><td class="num">7223</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-default-map-nargs-001/task-card.md">click-default-map-nargs-001</a></td><td>regression</td><td class="num">7198021</td><td class="num">unknown</td><td class="num">31492</td><td class="num">1439604.20</td><td class="num">1439604.20</td><td class="num">unknown</td><td class="num">6298.40</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-help-shadowed-option-001/task-card.md">click-help-shadowed-option-001</a></td><td>regression</td><td class="num">5699991</td><td class="num">unknown</td><td class="num">20826</td><td class="num">1139998.20</td><td class="num">1139998.20</td><td class="num">unknown</td><td class="num">4165.20</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-should-strip-ansi-tests-001/task-card.md">click-should-strip-ansi-tests-001</a></td><td>regression</td><td class="num">1072584</td><td class="num">unknown</td><td class="num">6502</td><td class="num">214516.80</td><td class="num">268146</td><td class="num">unknown</td><td class="num">1300.40</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/datawrapper-mcp-docker-requirements-001/task-card.md">datawrapper-mcp-docker-requirements-001</a></td><td>regression</td><td class="num">576588</td><td class="num">unknown</td><td class="num">2371</td><td class="num">115317.60</td><td class="num">115317.60</td><td class="num">unknown</td><td class="num">474.20</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/httpx-verify-false-client-cert-001/task-card.md">httpx-verify-false-client-cert-001</a></td><td>regression</td><td class="num">2114903</td><td class="num">unknown</td><td class="num">10204</td><td class="num">422980.60</td><td class="num">422980.60</td><td class="num">unknown</td><td class="num">2040.80</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/react-tabs-selected-focus-overlay-001/task-card.md">react-tabs-selected-focus-overlay-001</a></td><td>regression</td><td class="num">524466</td><td class="num">unknown</td><td class="num">663</td><td class="num">104893.20</td><td class="num">174822</td><td class="num">unknown</td><td class="num">132.60</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/todomvc-toggle-all-checkbox-001/task-card.md">todomvc-toggle-all-checkbox-001</a></td><td>regression</td><td class="num">1106108</td><td class="num">unknown</td><td class="num">4644</td><td class="num">221221.60</td><td class="num">221221.60</td><td class="num">unknown</td><td class="num">928.80</td></tr></tbody></table></div>
+    </section>
+
+
+    <section class="section">
+      <h2>Review and Patch Summary</h2>
+      <div class="table-wrap sticky-task"><table><thead><tr><th class="">Task</th><th class="">Type</th><th class="num">Median ms</th><th class="num">Median Files</th><th class="num">Median +Lines</th><th class="num">Median -Lines</th><th class="">Primary Review Labels</th><th class="">Secondary Review Labels</th><th class="">Exclusions</th></tr></thead><tbody><tr><td class="wrap"><a href="../../tasks/starter-coding/2048-advanced-snake-params-001/task-card.md">2048-advanced-snake-params-001</a></td><td>capability</td><td class="num">122522</td><td class="num">2</td><td class="num">11</td><td class="num">7</td><td class="wrap">success_clean:5</td><td class="wrap"></td><td class="wrap"></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-help-option-refactor-001/task-card.md">click-help-option-refactor-001</a></td><td>capability</td><td class="num">348321</td><td class="num">3</td><td class="num">39</td><td class="num">27</td><td class="wrap">resource_inefficient:1, success_clean:4</td><td class="wrap">resource_inefficient:4</td><td class="wrap"></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-default-map-nargs-001/task-card.md">click-default-map-nargs-001</a></td><td>regression</td><td class="num">273731</td><td class="num">2</td><td class="num">80</td><td class="num">1</td><td class="wrap">success_clean:5</td><td class="wrap"></td><td class="wrap"></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-help-shadowed-option-001/task-card.md">click-help-shadowed-option-001</a></td><td>regression</td><td class="num">274698</td><td class="num">3</td><td class="num">61</td><td class="num">12</td><td class="wrap">success_clean:5</td><td class="wrap"></td><td class="wrap"></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-should-strip-ansi-tests-001/task-card.md">click-should-strip-ansi-tests-001</a></td><td>regression</td><td class="num">99158</td><td class="num">1</td><td class="num">34</td><td class="num">2</td><td class="wrap">success_clean:4, success_messy:1</td><td class="wrap"></td><td class="wrap"></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/datawrapper-mcp-docker-requirements-001/task-card.md">datawrapper-mcp-docker-requirements-001</a></td><td>regression</td><td class="num">46696</td><td class="num">1</td><td class="num">5</td><td class="num">2</td><td class="wrap">success_clean:5</td><td class="wrap"></td><td class="wrap"></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/httpx-verify-false-client-cert-001/task-card.md">httpx-verify-false-client-cert-001</a></td><td>regression</td><td class="num">139464</td><td class="num">2</td><td class="num">26</td><td class="num">4</td><td class="wrap">success_clean:5</td><td class="wrap"></td><td class="wrap"></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/react-tabs-selected-focus-overlay-001/task-card.md">react-tabs-selected-focus-overlay-001</a></td><td>regression</td><td class="num">46198</td><td class="num">3</td><td class="num">0</td><td class="num">30</td><td class="wrap">resource_inefficient:2, success_clean:3</td><td class="wrap"></td><td class="wrap"></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/todomvc-toggle-all-checkbox-001/task-card.md">todomvc-toggle-all-checkbox-001</a></td><td>regression</td><td class="num">92557</td><td class="num">4</td><td class="num">6</td><td class="num">8</td><td class="wrap">success_clean:5</td><td class="wrap"></td><td class="wrap"></td></tr></tbody></table></div>
+    </section>
+
+
+    <section class="section">
+      <h2>Trial Evidence</h2>
+      <div class="table-wrap sticky-task"><table><thead><tr><th class="">Task</th><th class="">Type</th><th class="">Trial</th><th class="">Grader Outcome</th><th class="">Validity</th><th class="">Primary Review Label</th><th class="">Secondary Review Labels</th><th class="">Exclusion</th><th class="num">Files</th><th class="num">+Lines</th><th class="num">-Lines</th><th class="num">Input Tokens</th><th class="num">Cached Input Tokens</th><th class="num">Output Tokens</th><th class="num">Reasoning Tokens</th><th class="num">Cost USD</th><th class="num">Duration ms</th><th class="">Report</th><th class="">Transcript</th><th class="">Diff</th><th class="">Result</th></tr></thead><tbody><tr><td class="wrap"><a href="../../tasks/starter-coding/2048-advanced-snake-params-001/task-card.md">2048-advanced-snake-params-001</a></td><td>capability</td><td class="wrap">20260508-192558-2048-advanced-snake-params-001-codex-a24c0d88</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">2</td><td class="num">11</td><td class="num">7</td><td class="num">369730</td><td class="num">unknown</td><td class="num">5878</td><td class="num">1770</td><td class="num">unknown</td><td class="num">123947</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/2048-advanced-snake-params-001/task-card.md">2048-advanced-snake-params-001</a></td><td>capability</td><td class="wrap">20260508-192836-2048-advanced-snake-params-001-codex-852468e7</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">2</td><td class="num">12</td><td class="num">7</td><td class="num">405265</td><td class="num">unknown</td><td class="num">5973</td><td class="num">2179</td><td class="num">unknown</td><td class="num">127637</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/2048-advanced-snake-params-001/task-card.md">2048-advanced-snake-params-001</a></td><td>capability</td><td class="wrap">20260508-192836-2048-advanced-snake-params-001-codex-c28086a4</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">2</td><td class="num">11</td><td class="num">7</td><td class="num">263850</td><td class="num">unknown</td><td class="num">4390</td><td class="num">1366</td><td class="num">unknown</td><td class="num">96705</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/2048-advanced-snake-params-001/task-card.md">2048-advanced-snake-params-001</a></td><td>capability</td><td class="wrap">20260508-192836-2048-advanced-snake-params-001-codex-f9940a53</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">2</td><td class="num">9</td><td class="num">7</td><td class="num">390176</td><td class="num">unknown</td><td class="num">5396</td><td class="num">1602</td><td class="num">unknown</td><td class="num">122522</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/2048-advanced-snake-params-001/task-card.md">2048-advanced-snake-params-001</a></td><td>capability</td><td class="wrap">20260508-193138-2048-advanced-snake-params-001-codex-036d2392</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">2</td><td class="num">11</td><td class="num">7</td><td class="num">375823</td><td class="num">unknown</td><td class="num">5272</td><td class="num">1587</td><td class="num">unknown</td><td class="num">114274</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-default-map-nargs-001/task-card.md">click-default-map-nargs-001</a></td><td>regression</td><td class="wrap">20260507-191800-click-default-map-nargs-001-codex-f8be8394</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">2</td><td class="num">63</td><td class="num">5</td><td class="num">1135797</td><td class="num">unknown</td><td class="num">10862</td><td class="num">4590</td><td class="num">unknown</td><td class="num">241069</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-default-map-nargs-001/task-card.md">click-default-map-nargs-001</a></td><td>regression</td><td class="wrap">20260507-212911-click-default-map-nargs-001-codex-59243485</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">2</td><td class="num">79</td><td class="num">4</td><td class="num">1022767</td><td class="num">unknown</td><td class="num">10964</td><td class="num">5787</td><td class="num">unknown</td><td class="num">249893</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-default-map-nargs-001/task-card.md">click-default-map-nargs-001</a></td><td>regression</td><td class="wrap">20260507-212911-click-default-map-nargs-001-codex-953cf220</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">2</td><td class="num">97</td><td class="num">1</td><td class="num">2614558</td><td class="num">unknown</td><td class="num">18716</td><td class="num">9239</td><td class="num">unknown</td><td class="num">425133</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-default-map-nargs-001/task-card.md">click-default-map-nargs-001</a></td><td>regression</td><td class="wrap">20260507-212911-click-default-map-nargs-001-codex-a2253130</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">2</td><td class="num">105</td><td class="num">1</td><td class="num">1198406</td><td class="num">unknown</td><td class="num">12987</td><td class="num">5967</td><td class="num">unknown</td><td class="num">280520</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-default-map-nargs-001/task-card.md">click-default-map-nargs-001</a></td><td>regression</td><td class="wrap">20260508-233845-click-default-map-nargs-001-codex-e436b67c</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">2</td><td class="num">80</td><td class="num">0</td><td class="num">1160085</td><td class="num">unknown</td><td class="num">12879</td><td class="num">5909</td><td class="num">unknown</td><td class="num">273731</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-help-option-refactor-001/task-card.md">click-help-option-refactor-001</a></td><td>capability</td><td class="wrap">20260508-231553-click-help-option-refactor-001-codex-595ac36a</td><td>passed</td><td>valid</td><td class="wrap">resource_inefficient</td><td class="wrap"></td><td></td><td class="num">3</td><td class="num">39</td><td class="num">27</td><td class="num">1330105</td><td class="num">unknown</td><td class="num">16870</td><td class="num">9809</td><td class="num">unknown</td><td class="num">348321</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-help-option-refactor-001/task-card.md">click-help-option-refactor-001</a></td><td>capability</td><td class="wrap">20260509-003039-click-help-option-refactor-001-codex-06c9c997</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap">resource_inefficient</td><td></td><td class="num">3</td><td class="num">49</td><td class="num">27</td><td class="num">1441571</td><td class="num">unknown</td><td class="num">16383</td><td class="num">5276</td><td class="num">unknown</td><td class="num">403027</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-help-option-refactor-001/task-card.md">click-help-option-refactor-001</a></td><td>capability</td><td class="wrap">20260509-003039-click-help-option-refactor-001-codex-d7135962</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap">resource_inefficient</td><td></td><td class="num">3</td><td class="num">39</td><td class="num">26</td><td class="num">1400170</td><td class="num">unknown</td><td class="num">15950</td><td class="num">7071</td><td class="num">unknown</td><td class="num">372053</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-help-option-refactor-001/task-card.md">click-help-option-refactor-001</a></td><td>capability</td><td class="wrap">20260509-003657-click-help-option-refactor-001-codex-50edac8f</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap">resource_inefficient</td><td></td><td class="num">3</td><td class="num">39</td><td class="num">29</td><td class="num">1178622</td><td class="num">unknown</td><td class="num">14544</td><td class="num">6089</td><td class="num">unknown</td><td class="num">337320</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-help-option-refactor-001/task-card.md">click-help-option-refactor-001</a></td><td>capability</td><td class="wrap">20260509-003728-click-help-option-refactor-001-codex-14783133</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap">resource_inefficient</td><td></td><td class="num">3</td><td class="num">52</td><td class="num">28</td><td class="num">928411</td><td class="num">unknown</td><td class="num">14676</td><td class="num">7870</td><td class="num">unknown</td><td class="num">307697</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-help-shadowed-option-001/task-card.md">click-help-shadowed-option-001</a></td><td>regression</td><td class="wrap">20260507-175243-click-help-shadowed-option-001-codex</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">3</td><td class="num">64</td><td class="num">12</td><td class="num">887475</td><td class="num">unknown</td><td class="num">13544</td><td class="num">4843</td><td class="num">unknown</td><td class="num">284582</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-help-shadowed-option-001/task-card.md">click-help-shadowed-option-001</a></td><td>regression</td><td class="wrap">20260507-183521-click-help-shadowed-option-001-codex-20f74f8c</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">3</td><td class="num">55</td><td class="num">12</td><td class="num">1273526</td><td class="num">unknown</td><td class="num">14889</td><td class="num">4294</td><td class="num">unknown</td><td class="num">313434</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-help-shadowed-option-001/task-card.md">click-help-shadowed-option-001</a></td><td>regression</td><td class="wrap">20260507-183521-click-help-shadowed-option-001-codex-b0c8e35f</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">3</td><td class="num">59</td><td class="num">9</td><td class="num">861011</td><td class="num">unknown</td><td class="num">10128</td><td class="num">3359</td><td class="num">unknown</td><td class="num">234537</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-help-shadowed-option-001/task-card.md">click-help-shadowed-option-001</a></td><td>regression</td><td class="wrap">20260507-183521-click-help-shadowed-option-001-codex-d191b2b5</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">3</td><td class="num">68</td><td class="num">12</td><td class="num">1376977</td><td class="num">unknown</td><td class="num">11285</td><td class="num">3945</td><td class="num">unknown</td><td class="num">274698</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-help-shadowed-option-001/task-card.md">click-help-shadowed-option-001</a></td><td>regression</td><td class="wrap">20260507-192403-click-help-shadowed-option-001-codex-c0a854fe</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">3</td><td class="num">61</td><td class="num">12</td><td class="num">1239279</td><td class="num">unknown</td><td class="num">11877</td><td class="num">4385</td><td class="num">unknown</td><td class="num">257231</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-should-strip-ansi-tests-001/task-card.md">click-should-strip-ansi-tests-001</a></td><td>regression</td><td class="wrap">20260508-233623-click-should-strip-ansi-tests-001-codex-0ea41a6d</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">1</td><td class="num">34</td><td class="num">2</td><td class="num">221487</td><td class="num">unknown</td><td class="num">4189</td><td class="num">1175</td><td class="num">unknown</td><td class="num">99158</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-should-strip-ansi-tests-001/task-card.md">click-should-strip-ansi-tests-001</a></td><td>regression</td><td class="wrap">20260509-002547-click-should-strip-ansi-tests-001-codex-4902f3ad</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">1</td><td class="num">35</td><td class="num">2</td><td class="num">170118</td><td class="num">unknown</td><td class="num">3715</td><td class="num">1328</td><td class="num">unknown</td><td class="num">78897</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-should-strip-ansi-tests-001/task-card.md">click-should-strip-ansi-tests-001</a></td><td>regression</td><td class="wrap">20260509-002547-click-should-strip-ansi-tests-001-codex-6cf5bb2a</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">1</td><td class="num">65</td><td class="num">0</td><td class="num">259419</td><td class="num">unknown</td><td class="num">3740</td><td class="num">335</td><td class="num">unknown</td><td class="num">132639</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-should-strip-ansi-tests-001/task-card.md">click-should-strip-ansi-tests-001</a></td><td>regression</td><td class="wrap">20260509-002711-click-should-strip-ansi-tests-001-codex-3842bbe6</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">1</td><td class="num">30</td><td class="num">2</td><td class="num">213055</td><td class="num">unknown</td><td class="num">5126</td><td class="num">1954</td><td class="num">unknown</td><td class="num">103015</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-should-strip-ansi-tests-001/task-card.md">click-should-strip-ansi-tests-001</a></td><td>regression</td><td class="wrap">20260509-002805-click-should-strip-ansi-tests-001-codex-4bb77432</td><td>passed</td><td>valid</td><td class="wrap">success_messy</td><td class="wrap"></td><td></td><td class="num">1</td><td class="num">28</td><td class="num">7</td><td class="num">187775</td><td class="num">unknown</td><td class="num">3960</td><td class="num">1710</td><td class="num">unknown</td><td class="num">82525</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/datawrapper-mcp-docker-requirements-001/task-card.md">datawrapper-mcp-docker-requirements-001</a></td><td>regression</td><td class="wrap">20260508-233002-datawrapper-mcp-docker-requirements-001-codex-15c694da</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">1</td><td class="num">5</td><td class="num">2</td><td class="num">96997</td><td class="num">unknown</td><td class="num">2053</td><td class="num">496</td><td class="num">unknown</td><td class="num">46696</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/datawrapper-mcp-docker-requirements-001/task-card.md">datawrapper-mcp-docker-requirements-001</a></td><td>regression</td><td class="wrap">20260509-001658-datawrapper-mcp-docker-requirements-001-codex-848ab9d3</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">1</td><td class="num">8</td><td class="num">3</td><td class="num">119124</td><td class="num">unknown</td><td class="num">2518</td><td class="num">552</td><td class="num">unknown</td><td class="num">55542</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/datawrapper-mcp-docker-requirements-001/task-card.md">datawrapper-mcp-docker-requirements-001</a></td><td>regression</td><td class="wrap">20260509-001658-datawrapper-mcp-docker-requirements-001-codex-b7a852cd</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">1</td><td class="num">5</td><td class="num">2</td><td class="num">97067</td><td class="num">unknown</td><td class="num">1655</td><td class="num">234</td><td class="num">unknown</td><td class="num">37809</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/datawrapper-mcp-docker-requirements-001/task-card.md">datawrapper-mcp-docker-requirements-001</a></td><td>regression</td><td class="wrap">20260509-001737-datawrapper-mcp-docker-requirements-001-codex-fb93677c</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">1</td><td class="num">5</td><td class="num">2</td><td class="num">94965</td><td class="num">unknown</td><td class="num">1785</td><td class="num">201</td><td class="num">unknown</td><td class="num">38142</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/datawrapper-mcp-docker-requirements-001/task-card.md">datawrapper-mcp-docker-requirements-001</a></td><td>regression</td><td class="wrap">20260509-001754-datawrapper-mcp-docker-requirements-001-codex-8c000cc0</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">1</td><td class="num">9</td><td class="num">4</td><td class="num">157442</td><td class="num">unknown</td><td class="num">2982</td><td class="num">888</td><td class="num">unknown</td><td class="num">66821</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/httpx-verify-false-client-cert-001/task-card.md">httpx-verify-false-client-cert-001</a></td><td>regression</td><td class="wrap">20260508-233323-httpx-verify-false-client-cert-001-codex-48157a76</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">2</td><td class="num">26</td><td class="num">4</td><td class="num">362140</td><td class="num">unknown</td><td class="num">6049</td><td class="num">1884</td><td class="num">unknown</td><td class="num">139464</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/httpx-verify-false-client-cert-001/task-card.md">httpx-verify-false-client-cert-001</a></td><td>regression</td><td class="wrap">20260509-001950-httpx-verify-false-client-cert-001-codex-30f0598a</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">2</td><td class="num">26</td><td class="num">4</td><td class="num">331716</td><td class="num">unknown</td><td class="num">5618</td><td class="num">1750</td><td class="num">unknown</td><td class="num">122320</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/httpx-verify-false-client-cert-001/task-card.md">httpx-verify-false-client-cert-001</a></td><td>regression</td><td class="wrap">20260509-001950-httpx-verify-false-client-cert-001-codex-9340e11f</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">2</td><td class="num">47</td><td class="num">4</td><td class="num">454235</td><td class="num">unknown</td><td class="num">7768</td><td class="num">2830</td><td class="num">unknown</td><td class="num">167652</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/httpx-verify-false-client-cert-001/task-card.md">httpx-verify-false-client-cert-001</a></td><td>regression</td><td class="wrap">20260509-002205-httpx-verify-false-client-cert-001-codex-00fabb3b</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">2</td><td class="num">26</td><td class="num">4</td><td class="num">485440</td><td class="num">unknown</td><td class="num">7450</td><td class="num">1936</td><td class="num">unknown</td><td class="num">162229</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/httpx-verify-false-client-cert-001/task-card.md">httpx-verify-false-client-cert-001</a></td><td>regression</td><td class="wrap">20260509-002250-httpx-verify-false-client-cert-001-codex-de36837b</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">2</td><td class="num">26</td><td class="num">4</td><td class="num">448399</td><td class="num">unknown</td><td class="num">6088</td><td class="num">1804</td><td class="num">unknown</td><td class="num">129760</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/react-tabs-selected-focus-overlay-001/task-card.md">react-tabs-selected-focus-overlay-001</a></td><td>regression</td><td class="wrap">20260508-232845-react-tabs-selected-focus-overlay-001-codex-3aff2262</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">3</td><td class="num">0</td><td class="num">30</td><td class="num">84591</td><td class="num">unknown</td><td class="num">1727</td><td class="num">205</td><td class="num">unknown</td><td class="num">46198</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/react-tabs-selected-focus-overlay-001/task-card.md">react-tabs-selected-focus-overlay-001</a></td><td>regression</td><td class="wrap">20260508-234737-react-tabs-selected-focus-overlay-001-codex-0b27f904</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">3</td><td class="num">0</td><td class="num">30</td><td class="num">86417</td><td class="num">unknown</td><td class="num">1543</td><td class="num">153</td><td class="num">unknown</td><td class="num">40061</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/react-tabs-selected-focus-overlay-001/task-card.md">react-tabs-selected-focus-overlay-001</a></td><td>regression</td><td class="wrap">20260508-234737-react-tabs-selected-focus-overlay-001-codex-5fb1524e</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">3</td><td class="num">0</td><td class="num">30</td><td class="num">106666</td><td class="num">unknown</td><td class="num">1788</td><td class="num">133</td><td class="num">unknown</td><td class="num">40183</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/react-tabs-selected-focus-overlay-001/task-card.md">react-tabs-selected-focus-overlay-001</a></td><td>regression</td><td class="wrap">20260508-234819-react-tabs-selected-focus-overlay-001-codex-9deb6294</td><td>passed</td><td>valid</td><td class="wrap">resource_inefficient</td><td class="wrap"></td><td></td><td class="num">3</td><td class="num">0</td><td class="num">30</td><td class="num">131976</td><td class="num">unknown</td><td class="num">1746</td><td class="num">75</td><td class="num">unknown</td><td class="num">353860</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/react-tabs-selected-focus-overlay-001/task-card.md">react-tabs-selected-focus-overlay-001</a></td><td>regression</td><td class="wrap">20260508-234819-react-tabs-selected-focus-overlay-001-codex-de0c8846</td><td>passed</td><td>valid</td><td class="wrap">resource_inefficient</td><td class="wrap"></td><td></td><td class="num">3</td><td class="num">0</td><td class="num">30</td><td class="num">106201</td><td class="num">unknown</td><td class="num">1811</td><td class="num">97</td><td class="num">unknown</td><td class="num">348556</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/todomvc-toggle-all-checkbox-001/task-card.md">todomvc-toggle-all-checkbox-001</a></td><td>regression</td><td class="wrap">20260508-212455-todomvc-toggle-all-checkbox-001-codex-6370c97d</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">4</td><td class="num">8</td><td class="num">10</td><td class="num">368614</td><td class="num">unknown</td><td class="num">5896</td><td class="num">1563</td><td class="num">unknown</td><td class="num">124925</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/todomvc-toggle-all-checkbox-001/task-card.md">todomvc-toggle-all-checkbox-001</a></td><td>regression</td><td class="wrap">20260508-234354-todomvc-toggle-all-checkbox-001-codex-60445af9</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">4</td><td class="num">6</td><td class="num">8</td><td class="num">195351</td><td class="num">unknown</td><td class="num">4587</td><td class="num">1361</td><td class="num">unknown</td><td class="num">92557</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/todomvc-toggle-all-checkbox-001/task-card.md">todomvc-toggle-all-checkbox-001</a></td><td>regression</td><td class="wrap">20260508-234354-todomvc-toggle-all-checkbox-001-codex-f253bfc3</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">4</td><td class="num">6</td><td class="num">8</td><td class="num">137636</td><td class="num">unknown</td><td class="num">2465</td><td class="num">283</td><td class="num">unknown</td><td class="num">57581</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/todomvc-toggle-all-checkbox-001/task-card.md">todomvc-toggle-all-checkbox-001</a></td><td>regression</td><td class="wrap">20260508-234457-todomvc-toggle-all-checkbox-001-codex-f96b370e</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">4</td><td class="num">8</td><td class="num">10</td><td class="num">235188</td><td class="num">unknown</td><td class="num">4380</td><td class="num">958</td><td class="num">unknown</td><td class="num">93170</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/todomvc-toggle-all-checkbox-001/task-card.md">todomvc-toggle-all-checkbox-001</a></td><td>regression</td><td class="wrap">20260508-234532-todomvc-toggle-all-checkbox-001-codex-a0ea494a</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">4</td><td class="num">6</td><td class="num">8</td><td class="num">149132</td><td class="num">unknown</td><td class="num">2859</td><td class="num">479</td><td class="num">unknown</td><td class="num">65031</td><td></td><td></td><td></td><td></td></tr></tbody></table></div>
+    </section>
+
+  </main>
+
+  </div>
+  <script>
+    (function () {
+      const pages = Array.from(document.querySelectorAll("[data-context-page]"));
+      const tabs = Array.from(document.querySelectorAll("[data-context]"));
+      const defaultContext = document.getElementById("contexts").dataset.defaultContext;
+      function setContext(key, updateUrl) {
+        const selected = pages.some((page) => page.dataset.contextPage === key) ? key : defaultContext;
+        pages.forEach((page) => page.classList.toggle("active", page.dataset.contextPage === selected));
+        tabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.context === selected));
+        if (updateUrl && selected) {
+          const params = new URLSearchParams(window.location.search);
+          params.set("context", selected);
+          window.history.replaceState(null, "", window.location.pathname + "?" + params.toString());
+        }
+      }
+      tabs.forEach((tab) => tab.addEventListener("click", () => setContext(tab.dataset.context, true)));
+      const params = new URLSearchParams(window.location.search);
+      setContext(params.get("context") || defaultContext, false);
+    })();
+  </script>
+</body>
+</html>

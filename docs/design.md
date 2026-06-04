@@ -179,15 +179,28 @@ directory; for report preparation it should read an explicit evidence-set
 manifest so the selected trials are deliberate and reproducible. This generated
 capability evidence digest is intended as the data backbone for hand-authored,
 evidence-scoped capability reports; it does not replace human interpretation.
-Per-trial rows link to the report, transcript, diff, and result artifacts so
-reviewers can inspect surprising pass rates without leaving the digest. Digest
-review columns keep primary labels separate from secondary caveat labels, and
-digest rows show both model and effort level.
+Checked-in Markdown digests intentionally omit per-trial artifact links because
+local `runs/` artifacts are ignored and can disappear after temporary worktree
+cleanup. HTML reports generated from durable snapshot-backed evidence can be
+checked in next to Markdown when they pass the same no-local-artifact-link
+portability scan. HTML generated from raw local `runs/` is a local navigation
+preview and should not be committed if it contains links to disposable
+artifacts. Digest review columns keep primary labels separate from secondary
+caveat labels, and digest rows show both model and effort level.
 
 Trial storage remains the append-only file-artifact workflow described above.
 Trial listing, summaries, human review outcome overlays, and capability evidence
 digests discover current evidence from `runs/*/result.json` and adjacent
-artifacts such as `review.json`, transcripts, and diffs. There is no active
+artifacts such as `review.json`, transcripts, and diffs. A checked-in selected
+evidence manifest may also point at a durable `OutcomeEvidence` snapshot. That
+snapshot is the report-generation interface object: normalized result and review
+facts plus artifact-presence receipts, with local artifact paths stripped and raw
+workspace, transcript, and diff contents omitted. When present, the snapshot
+keeps Markdown and HTML digest regeneration independent of disposable worktree
+`runs/` directories. Report/evidence agents use `.agents/skills/report-evidence`
+before pushing branches that create or update selected evidence manifests, and
+`agentlab report check-evidence-portability` provides the deterministic guard
+that those manifests carry loadable snapshots. There is no active
 database-backed trial storage interface or storage migration in this slice.
 
 Reviewed excluded trials can be archived out of the active runs directory with

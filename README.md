@@ -197,12 +197,44 @@ python3 -m agentlab report capability-evidence-digest --output reports/evidence-
 ```
 
 The digest is generated evidence, not final interpretation. Use it as the data
-backbone for hand-authored capability reports. Per-trial rows link to the
-report, transcript, diff, and result artifacts so surprising pass rates can be
-investigated without hunting through `runs/`. Aggregate and per-trial review
-columns distinguish primary labels from secondary labels, and aggregate resource
-columns show token spend per verified or accepted result when the selected trial
+backbone for hand-authored capability reports. Checked-in Markdown digests omit
+per-trial artifact links because local `runs/` artifacts are ignored and may
+disappear after temporary worktree cleanup. HTML reports generated from durable
+snapshot-backed evidence can be checked in next to Markdown when they pass the
+same no-local-artifact-link portability scan. HTML generated from raw local
+`runs/` is a local navigation preview and should not be committed if it contains
+links to disposable artifacts. Aggregate and per-trial review columns
+distinguish primary labels from secondary labels, and aggregate resource columns
+show token spend per verified or accepted result when the selected trial
 artifacts have complete token data.
+
+When a checked-in evidence set needs to remain regenerable after local `runs/`
+cleanup, write and commit a durable `OutcomeEvidence` snapshot for the selected
+trials:
+
+```bash
+python3 -m agentlab report capability-evidence-digest \
+  --evidence-set evidence-sets/codex-click-pilot.json \
+  --output reports/evidence-digest.md \
+  --snapshot-output evidence-sets/codex-click-pilot.outcome-evidence.json
+```
+
+The snapshot is the small report boundary object: normalized `result.json` and
+`review.json` facts plus artifact-presence receipts. It strips local run paths
+and does not bundle task workspaces, transcripts, or diffs. Commit snapshots
+only for selected evidence sets after reviewing the added file size and privacy
+surface.
+
+Before pushing a report/evidence branch that creates or updates a selected
+evidence-set manifest, prove the manifest is durable:
+
+```bash
+python3 -m agentlab report check-evidence-portability \
+  --evidence-set evidence-sets/codex-click-pilot.json
+```
+
+Agents should use `.agents/skills/report-evidence` for the full report evidence
+workflow, including the missing-runs regeneration check.
 
 For report prep, make the evidence set explicit instead of relying on every
 local trial artifact:
@@ -211,6 +243,7 @@ local trial artifact:
 {
   "name": "codex-click-pilot",
   "description": "Selected Codex CLI trials for the Click pilot.",
+  "outcome_evidence_snapshot": "codex-click-pilot.outcome-evidence.json",
   "trials": [
     "20260507-171508-click-help-shadowed-option-001-codex",
     "20260507-190123-click-default-map-nargs-001-codex-18672b25/result.json"
@@ -220,7 +253,7 @@ local trial artifact:
 
 ```bash
 python3 -m agentlab report capability-evidence-digest \
-  --evidence-set reports/codex-click-pilot.json \
+  --evidence-set evidence-sets/codex-click-pilot.json \
   --output reports/evidence-digest.md
 ```
 

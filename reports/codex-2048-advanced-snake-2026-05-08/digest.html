@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Capability Evidence Digest</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7f3;
+      --panel: #ffffff;
+      --ink: #1c2227;
+      --muted: #66707a;
+      --line: #d8ddd5;
+      --line-strong: #aeb8ae;
+      --accent: #126b62;
+      --accent-soft: #e8f3f1;
+      --warn: #966300;
+      --warn-soft: #fff6dc;
+      --bad: #9e3c35;
+      --bad-soft: #fff0ed;
+      --good: #286f43;
+      --good-soft: #edf8f0;
+      --code: #f0f2ed;
+      --shadow: 0 14px 42px rgba(24, 30, 35, 0.16);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-size: 14px;
+      line-height: 1.42;
+    }
+    button, input { font: inherit; }
+    a { color: var(--accent); text-underline-offset: 2px; }
+    code {
+      background: var(--code);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 1px 4px;
+    }
+    .hero {
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      padding: 22px 28px 18px;
+    }
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: 29px;
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+    .hero p { margin: 0; max-width: 1120px; color: var(--muted); }
+    .global-facts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .global-facts span {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fbfcfa;
+      padding: 4px 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .context-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 16px 0 0;
+    }
+    .context-tab {
+      border: 1px solid var(--line-strong);
+      border-radius: 999px;
+      background: #fbfcfa;
+      color: var(--ink);
+      padding: 7px 12px;
+      cursor: pointer;
+    }
+    .context-tab.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .context-page { display: none; }
+    .context-page.active { display: block; }
+    .page { padding: 22px 28px 90px; }
+    .context-facts, .score-grid, .resource-grid {
+      display: grid;
+      gap: 10px;
+    }
+    .context-facts {
+      grid-template-columns: repeat(5, minmax(140px, 1fr));
+      margin-bottom: 16px;
+    }
+    .score-grid {
+      grid-template-columns: repeat(6, minmax(120px, 1fr));
+      margin-bottom: 22px;
+    }
+    .resource-grid { grid-template-columns: repeat(4, minmax(160px, 1fr)); }
+    .fact, .metric {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fbfcfa;
+      padding: 10px;
+    }
+    .fact span, .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .fact strong, .metric strong {
+      display: block;
+      margin-top: 4px;
+      line-height: 1.15;
+      overflow-wrap: anywhere;
+    }
+    .metric strong { font-size: 20px; }
+    .section {
+      margin: 0 0 22px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line-strong);
+    }
+    .section h2, .section h3 {
+      margin: 0 0 10px;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+    .section h2 { font-size: 20px; }
+    .section h3 { font-size: 15px; color: var(--muted); }
+    .two-col {
+      display: grid;
+      grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr);
+      gap: 14px;
+    }
+    .lane {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--panel);
+      padding: 12px;
+      min-width: 0;
+    }
+    .lane h3 { color: var(--ink); font-size: 15px; }
+    .lane ul, .lane ol { margin: 8px 0 0; padding-left: 20px; }
+    .lane li { margin: 8px 0; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin: 0 4px 4px 0;
+      padding: 2px 7px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fbfcfa;
+      white-space: nowrap;
+      font-size: 12px;
+    }
+    .pill.good { color: var(--good); border-color: #9acba9; background: var(--good-soft); }
+    .pill.warn { color: var(--warn); border-color: #dfc27c; background: var(--warn-soft); }
+    .pill.bad { color: var(--bad); border-color: #e2aaa4; background: var(--bad-soft); }
+    .table-wrap {
+      overflow: auto;
+      max-height: 72vh;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--panel);
+    }
+    table {
+      width: 100%;
+      min-width: 820px;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+    th, td {
+      padding: 7px 9px;
+      border-bottom: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      white-space: nowrap;
+    }
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 4;
+      background: #edf0eb;
+      color: #22272b;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    td.wrap { white-space: normal; min-width: 260px; }
+    .sticky-task td:first-child,
+    .sticky-task th:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 5;
+      background: #f8faf7;
+      box-shadow: 1px 0 0 var(--line);
+    }
+    .sticky-task th:first-child { z-index: 7; background: #e3e8e3; }
+    @media (max-width: 1050px) {
+      .context-facts, .score-grid, .resource-grid, .two-col {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 720px) {
+      .context-facts, .score-grid, .resource-grid, .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <h1>Capability Evidence Digest</h1>
+    <p>This digest is generated from stored agent-trial results. It reports evidence only; hand-authored agent capability reports should interpret these observations within the evaluated conditions.</p>
+    <div class="global-facts"><span>Agent trials: 5</span><span>Evidence set: codex-2048-advanced-snake-2026-05-08</span><span>Selected entries: 5</span><span>Selected result files: 5</span></div>
+    <nav class="context-tabs" aria-label="Run contexts"><button class="context-tab active" data-context="starter-coding-codex-gpt-5-5-xhigh" type="button">starter-coding / codex / gpt-5.5 / xhigh</button></nav>
+  </header>
+  <div id="contexts" data-default-context="starter-coding-codex-gpt-5-5-xhigh">
+
+  <main class="page context-page active" data-context-page="starter-coding-codex-gpt-5-5-xhigh">
+    <div class="context-facts">
+      <div class="fact"><span>Suite</span><strong>starter-coding</strong></div>
+      <div class="fact"><span>Agent harness</span><strong>codex</strong></div>
+      <div class="fact"><span>Model</span><strong>gpt-5.5</strong></div>
+      <div class="fact"><span>Effort</span><strong>xhigh</strong></div>
+      <div class="fact"><span>Execution surface</span><strong>local_cli</strong></div>
+      <div class="fact"><span>Runtime version</span><strong>unknown</strong></div>
+      <div class="fact"><span>Sandbox</span><strong>unknown</strong></div>
+      <div class="fact"><span>Approval</span><strong>unknown</strong></div>
+      <div class="fact"><span>Network</span><strong>unknown</strong></div>
+      <div class="fact"><span>Source</span><strong><a href="digest.md">reports/codex-2048-advanced-snake-2026-05-08/digest.md</a></strong></div>
+    </div>
+    <div class="score-grid">
+      <div class="metric"><span>Tasks</span><strong>1</strong></div>
+      <div class="metric"><span>Fair trials</span><strong>5</strong></div>
+      <div class="metric"><span>Grader passes</span><strong>5</strong></div>
+      <div class="metric"><span>Accepted</span><strong>5</strong></div>
+      <div class="metric"><span>IO tokens</span><strong>1831753</strong></div>
+      <div class="metric"><span>IO / verified</span><strong>366350.60</strong></div>
+    </div>
+
+    <section class="section">
+      <h2>Agent Harness Operability</h2>
+      <div class="table-wrap sticky-task"><table><thead><tr><th class="">Operability Dimension</th><th class="">Evidence</th></tr></thead><tbody><tr><td class="wrap">Agent harness configuration</td><td class="wrap">agent_harness: codex<br>model: gpt-5.5<br>reasoning_effort: xhigh<br>trials: 5</td></tr><tr><td class="wrap">Budget controls</td><td class="wrap">timeout_seconds: unknown<br>turn_or_step_budget: unknown<br>observed_input_output_tokens: 5/5<br>observed_cost_usd: unknown<br>configured_token_cost_quota_limits: unknown</td></tr><tr><td class="wrap">Approval boundaries</td><td class="wrap">sandbox_mode: unknown<br>approval_policy: unknown<br>tool_policy: unknown<br>memory_scope: unknown<br>network_policy: unknown</td></tr><tr><td class="wrap">Verifier state</td><td class="wrap">final_grader_status: passed<br>checks_array: 5/5<br>graders_array: 5/5<br>intermediate_verifier_movement: unknown</td></tr><tr><td class="wrap">Halt reasons</td><td class="wrap">normalized_or_derived_stop_reason: success<br>first_class_halt_reason_taxonomy: unknown<br>error_field: unknown<br>budget_operator_interruption_taxonomy: unknown</td></tr><tr><td class="wrap">Interrupted-run receipt</td><td class="wrap">interrupted_or_error_receipt: unknown: selected evidence has no interrupted/error receipts<br>admission_decision_evidence: 5/5</td></tr><tr><td class="wrap">Tool/patch context</td><td class="wrap">changed_files: 5/5<br>commands_run: 5/5<br>human_review_overlay: 5/5<br>transcript: 5/5<br>diff_patch: 5/5</td></tr><tr><td class="wrap">Receipt basics</td><td class="wrap">run_dir: 5/5<br>report_md: 5/5<br>result_json: 5/5<br>transcript: 5/5<br>diff_patch: 5/5</td></tr></tbody></table></div>
+    </section>
+
+
+    <section class="section">
+      <h2>Overall Resource Summary</h2>
+      <div class="resource-grid">
+        <div class="metric"><span>Total IO tokens</span><strong>1831753</strong></div>
+        <div class="metric"><span>Total cached tokens</span><strong>unknown</strong></div>
+        <div class="metric"><span>Total reasoning tokens</span><strong>8504</strong></div>
+        <div class="metric"><span>IO / accepted</span><strong>366350.60</strong></div>
+        <div class="metric"><span>Cached / verified</span><strong>unknown</strong></div>
+        <div class="metric"><span>Reasoning / verified</span><strong>1700.80</strong></div>
+      </div>
+    </section>
+
+
+    <section class="section">
+      <h2>Reviewer Focus</h2>
+      <div class="two-col">
+        <div class="lane">
+          <h3>Needs Attention</h3>
+          <ul><li>No task-level caveats detected.</li></ul>
+        </div>
+        <div class="lane">
+          <h3>Highest IO Token Tasks</h3>
+          <ol><li><strong><a href="../../tasks/starter-coding/2048-advanced-snake-params-001/task-card.md">2048-advanced-snake-params-001</a></strong><br>1831753 IO tokens</li></ol>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="section">
+      <h2>Outcome Summary</h2>
+      <div class="table-wrap sticky-task"><table><thead><tr><th class="">Task</th><th class="">Type</th><th class="num">Total</th><th class="num">Fair</th><th class="num">Excluded</th><th class="num">Passes</th><th class="num">Accepted</th><th class="num">Pass Rate</th><th class="num">pass@k</th><th class="num">pass^k</th></tr></thead><tbody><tr><td class="wrap"><a href="../../tasks/starter-coding/2048-advanced-snake-params-001/task-card.md">2048-advanced-snake-params-001</a></td><td>capability</td><td class="num">5</td><td class="num">5</td><td class="num">0</td><td class="num">5</td><td class="num">5</td><td class="num">1.00</td><td class="num">1.00</td><td class="num">1.00</td></tr></tbody></table></div>
+    </section>
+
+
+    <section class="section">
+      <h2>Token Summary</h2>
+      <div class="table-wrap sticky-task"><table><thead><tr><th class="">Task</th><th class="">Type</th><th class="num">IO Tokens</th><th class="num">Cached Tokens</th><th class="num">Reason Tokens</th><th class="num">IO Tok / Verified</th><th class="num">IO Tok / Accepted</th><th class="num">Cached Tok / Verified</th><th class="num">Reason Tok / Verified</th></tr></thead><tbody><tr><td class="wrap"><a href="../../tasks/starter-coding/2048-advanced-snake-params-001/task-card.md">2048-advanced-snake-params-001</a></td><td>capability</td><td class="num">1831753</td><td class="num">unknown</td><td class="num">8504</td><td class="num">366350.60</td><td class="num">366350.60</td><td class="num">unknown</td><td class="num">1700.80</td></tr></tbody></table></div>
+    </section>
+
+
+    <section class="section">
+      <h2>Review and Patch Summary</h2>
+      <div class="table-wrap sticky-task"><table><thead><tr><th class="">Task</th><th class="">Type</th><th class="num">Median ms</th><th class="num">Median Files</th><th class="num">Median +Lines</th><th class="num">Median -Lines</th><th class="">Primary Review Labels</th><th class="">Secondary Review Labels</th><th class="">Exclusions</th></tr></thead><tbody><tr><td class="wrap"><a href="../../tasks/starter-coding/2048-advanced-snake-params-001/task-card.md">2048-advanced-snake-params-001</a></td><td>capability</td><td class="num">122522</td><td class="num">2</td><td class="num">11</td><td class="num">7</td><td class="wrap">success_clean:5</td><td class="wrap"></td><td class="wrap"></td></tr></tbody></table></div>
+    </section>
+
+
+    <section class="section">
+      <h2>Trial Evidence</h2>
+      <div class="table-wrap sticky-task"><table><thead><tr><th class="">Task</th><th class="">Type</th><th class="">Trial</th><th class="">Grader Outcome</th><th class="">Validity</th><th class="">Primary Review Label</th><th class="">Secondary Review Labels</th><th class="">Exclusion</th><th class="num">Files</th><th class="num">+Lines</th><th class="num">-Lines</th><th class="num">Input Tokens</th><th class="num">Cached Input Tokens</th><th class="num">Output Tokens</th><th class="num">Reasoning Tokens</th><th class="num">Cost USD</th><th class="num">Duration ms</th><th class="">Report</th><th class="">Transcript</th><th class="">Diff</th><th class="">Result</th></tr></thead><tbody><tr><td class="wrap"><a href="../../tasks/starter-coding/2048-advanced-snake-params-001/task-card.md">2048-advanced-snake-params-001</a></td><td>capability</td><td class="wrap">20260508-192558-2048-advanced-snake-params-001-codex-a24c0d88</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">2</td><td class="num">11</td><td class="num">7</td><td class="num">369730</td><td class="num">unknown</td><td class="num">5878</td><td class="num">1770</td><td class="num">unknown</td><td class="num">123947</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/2048-advanced-snake-params-001/task-card.md">2048-advanced-snake-params-001</a></td><td>capability</td><td class="wrap">20260508-192836-2048-advanced-snake-params-001-codex-852468e7</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">2</td><td class="num">12</td><td class="num">7</td><td class="num">405265</td><td class="num">unknown</td><td class="num">5973</td><td class="num">2179</td><td class="num">unknown</td><td class="num">127637</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/2048-advanced-snake-params-001/task-card.md">2048-advanced-snake-params-001</a></td><td>capability</td><td class="wrap">20260508-192836-2048-advanced-snake-params-001-codex-c28086a4</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">2</td><td class="num">11</td><td class="num">7</td><td class="num">263850</td><td class="num">unknown</td><td class="num">4390</td><td class="num">1366</td><td class="num">unknown</td><td class="num">96705</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/2048-advanced-snake-params-001/task-card.md">2048-advanced-snake-params-001</a></td><td>capability</td><td class="wrap">20260508-192836-2048-advanced-snake-params-001-codex-f9940a53</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">2</td><td class="num">9</td><td class="num">7</td><td class="num">390176</td><td class="num">unknown</td><td class="num">5396</td><td class="num">1602</td><td class="num">unknown</td><td class="num">122522</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/2048-advanced-snake-params-001/task-card.md">2048-advanced-snake-params-001</a></td><td>capability</td><td class="wrap">20260508-193138-2048-advanced-snake-params-001-codex-036d2392</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">2</td><td class="num">11</td><td class="num">7</td><td class="num">375823</td><td class="num">unknown</td><td class="num">5272</td><td class="num">1587</td><td class="num">unknown</td><td class="num">114274</td><td></td><td></td><td></td><td></td></tr></tbody></table></div>
+    </section>
+
+  </main>
+
+  </div>
+  <script>
+    (function () {
+      const pages = Array.from(document.querySelectorAll("[data-context-page]"));
+      const tabs = Array.from(document.querySelectorAll("[data-context]"));
+      const defaultContext = document.getElementById("contexts").dataset.defaultContext;
+      function setContext(key, updateUrl) {
+        const selected = pages.some((page) => page.dataset.contextPage === key) ? key : defaultContext;
+        pages.forEach((page) => page.classList.toggle("active", page.dataset.contextPage === selected));
+        tabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.context === selected));
+        if (updateUrl && selected) {
+          const params = new URLSearchParams(window.location.search);
+          params.set("context", selected);
+          window.history.replaceState(null, "", window.location.pathname + "?" + params.toString());
+        }
+      }
+      tabs.forEach((tab) => tab.addEventListener("click", () => setContext(tab.dataset.context, true)));
+      const params = new URLSearchParams(window.location.search);
+      setContext(params.get("context") || defaultContext, false);
+    })();
+  </script>
+</body>
+</html>

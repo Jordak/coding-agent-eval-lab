@@ -1,0 +1,4603 @@
+{
+  "records": [
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 123947,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "capability",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 369730,
+        "lines_added": 11,
+        "lines_deleted": 7,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 2,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 11,
+          "lines_deleted": 7,
+          "n_files_changed": 2,
+          "status": "passed"
+        },
+        "output_tokens": 5878,
+        "reasoning_output_tokens": 1770,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 369730,
+          "output_tokens": 5878,
+          "reasoning_output_tokens": 1770,
+          "total_tokens": 375608
+        },
+        "run_dir": "",
+        "run_id": "20260508-192558-2048-advanced-snake-params-001-codex-a24c0d88",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "2048-advanced-snake-params-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260508-192558-2048-advanced-snake-params-001-codex-a24c0d88",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 127637,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "capability",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 405265,
+        "lines_added": 12,
+        "lines_deleted": 7,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 2,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 12,
+          "lines_deleted": 7,
+          "n_files_changed": 2,
+          "status": "passed"
+        },
+        "output_tokens": 5973,
+        "reasoning_output_tokens": 2179,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 405265,
+          "output_tokens": 5973,
+          "reasoning_output_tokens": 2179,
+          "total_tokens": 411238
+        },
+        "run_dir": "",
+        "run_id": "20260508-192836-2048-advanced-snake-params-001-codex-852468e7",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "2048-advanced-snake-params-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260508-192836-2048-advanced-snake-params-001-codex-852468e7",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 96705,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "capability",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 263850,
+        "lines_added": 11,
+        "lines_deleted": 7,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 2,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 11,
+          "lines_deleted": 7,
+          "n_files_changed": 2,
+          "status": "passed"
+        },
+        "output_tokens": 4390,
+        "reasoning_output_tokens": 1366,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 263850,
+          "output_tokens": 4390,
+          "reasoning_output_tokens": 1366,
+          "total_tokens": 268240
+        },
+        "run_dir": "",
+        "run_id": "20260508-192836-2048-advanced-snake-params-001-codex-c28086a4",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "2048-advanced-snake-params-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260508-192836-2048-advanced-snake-params-001-codex-c28086a4",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 122522,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "capability",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 390176,
+        "lines_added": 9,
+        "lines_deleted": 7,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 2,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 9,
+          "lines_deleted": 7,
+          "n_files_changed": 2,
+          "status": "passed"
+        },
+        "output_tokens": 5396,
+        "reasoning_output_tokens": 1602,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 390176,
+          "output_tokens": 5396,
+          "reasoning_output_tokens": 1602,
+          "total_tokens": 395572
+        },
+        "run_dir": "",
+        "run_id": "20260508-192836-2048-advanced-snake-params-001-codex-f9940a53",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "2048-advanced-snake-params-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260508-192836-2048-advanced-snake-params-001-codex-f9940a53",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 114274,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "capability",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 375823,
+        "lines_added": 11,
+        "lines_deleted": 7,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 2,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 11,
+          "lines_deleted": 7,
+          "n_files_changed": 2,
+          "status": "passed"
+        },
+        "output_tokens": 5272,
+        "reasoning_output_tokens": 1587,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 375823,
+          "output_tokens": 5272,
+          "reasoning_output_tokens": 1587,
+          "total_tokens": 381095
+        },
+        "run_dir": "",
+        "run_id": "20260508-193138-2048-advanced-snake-params-001-codex-036d2392",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "2048-advanced-snake-params-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260508-193138-2048-advanced-snake-params-001-codex-036d2392",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "resource_inefficient",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 348321,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "capability",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 1330105,
+        "lines_added": 39,
+        "lines_deleted": 27,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 3,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 39,
+          "lines_deleted": 27,
+          "n_files_changed": 3,
+          "status": "passed"
+        },
+        "output_tokens": 16870,
+        "reasoning_output_tokens": 9809,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 1330105,
+          "output_tokens": 16870,
+          "reasoning_output_tokens": 9809,
+          "total_tokens": 1346975
+        },
+        "run_dir": "",
+        "run_id": "20260508-231553-click-help-option-refactor-001-codex-595ac36a",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-help-option-refactor-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260508-231553-click-help-option-refactor-001-codex-595ac36a",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [
+          "resource_inefficient"
+        ],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 403027,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "capability",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 1441571,
+        "lines_added": 49,
+        "lines_deleted": 27,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 3,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 49,
+          "lines_deleted": 27,
+          "n_files_changed": 3,
+          "status": "passed"
+        },
+        "output_tokens": 16383,
+        "reasoning_output_tokens": 5276,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 1441571,
+          "output_tokens": 16383,
+          "reasoning_output_tokens": 5276,
+          "total_tokens": 1457954
+        },
+        "run_dir": "",
+        "run_id": "20260509-003039-click-help-option-refactor-001-codex-06c9c997",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-help-option-refactor-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260509-003039-click-help-option-refactor-001-codex-06c9c997",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [
+          "resource_inefficient"
+        ],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 372053,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "capability",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 1400170,
+        "lines_added": 39,
+        "lines_deleted": 26,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 3,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 39,
+          "lines_deleted": 26,
+          "n_files_changed": 3,
+          "status": "passed"
+        },
+        "output_tokens": 15950,
+        "reasoning_output_tokens": 7071,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 1400170,
+          "output_tokens": 15950,
+          "reasoning_output_tokens": 7071,
+          "total_tokens": 1416120
+        },
+        "run_dir": "",
+        "run_id": "20260509-003039-click-help-option-refactor-001-codex-d7135962",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-help-option-refactor-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260509-003039-click-help-option-refactor-001-codex-d7135962",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [
+          "resource_inefficient"
+        ],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 337320,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "capability",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 1178622,
+        "lines_added": 39,
+        "lines_deleted": 29,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 3,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 39,
+          "lines_deleted": 29,
+          "n_files_changed": 3,
+          "status": "passed"
+        },
+        "output_tokens": 14544,
+        "reasoning_output_tokens": 6089,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 1178622,
+          "output_tokens": 14544,
+          "reasoning_output_tokens": 6089,
+          "total_tokens": 1193166
+        },
+        "run_dir": "",
+        "run_id": "20260509-003657-click-help-option-refactor-001-codex-50edac8f",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-help-option-refactor-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260509-003657-click-help-option-refactor-001-codex-50edac8f",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [
+          "resource_inefficient"
+        ],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 307697,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "capability",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 928411,
+        "lines_added": 52,
+        "lines_deleted": 28,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 3,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 52,
+          "lines_deleted": 28,
+          "n_files_changed": 3,
+          "status": "passed"
+        },
+        "output_tokens": 14676,
+        "reasoning_output_tokens": 7870,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 928411,
+          "output_tokens": 14676,
+          "reasoning_output_tokens": 7870,
+          "total_tokens": 943087
+        },
+        "run_dir": "",
+        "run_id": "20260509-003728-click-help-option-refactor-001-codex-14783133",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-help-option-refactor-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260509-003728-click-help-option-refactor-001-codex-14783133",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 241069,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 1135797,
+        "lines_added": 63,
+        "lines_deleted": 5,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 2,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 63,
+          "lines_deleted": 5,
+          "n_files_changed": 2,
+          "status": "passed"
+        },
+        "output_tokens": 10862,
+        "reasoning_output_tokens": 4590,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 1135797,
+          "output_tokens": 10862,
+          "reasoning_output_tokens": 4590,
+          "total_tokens": 1146659
+        },
+        "run_dir": "",
+        "run_id": "20260507-191800-click-default-map-nargs-001-codex-f8be8394",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-default-map-nargs-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260507-191800-click-default-map-nargs-001-codex-f8be8394",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 249893,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 1022767,
+        "lines_added": 79,
+        "lines_deleted": 4,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 2,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 79,
+          "lines_deleted": 4,
+          "n_files_changed": 2,
+          "status": "passed"
+        },
+        "output_tokens": 10964,
+        "reasoning_output_tokens": 5787,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 1022767,
+          "output_tokens": 10964,
+          "reasoning_output_tokens": 5787,
+          "total_tokens": 1033731
+        },
+        "run_dir": "",
+        "run_id": "20260507-212911-click-default-map-nargs-001-codex-59243485",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-default-map-nargs-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260507-212911-click-default-map-nargs-001-codex-59243485",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 425133,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 2614558,
+        "lines_added": 97,
+        "lines_deleted": 1,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 2,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 97,
+          "lines_deleted": 1,
+          "n_files_changed": 2,
+          "status": "passed"
+        },
+        "output_tokens": 18716,
+        "reasoning_output_tokens": 9239,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 2614558,
+          "output_tokens": 18716,
+          "reasoning_output_tokens": 9239,
+          "total_tokens": 2633274
+        },
+        "run_dir": "",
+        "run_id": "20260507-212911-click-default-map-nargs-001-codex-953cf220",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-default-map-nargs-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260507-212911-click-default-map-nargs-001-codex-953cf220",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 280520,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 1198406,
+        "lines_added": 105,
+        "lines_deleted": 1,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 2,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 105,
+          "lines_deleted": 1,
+          "n_files_changed": 2,
+          "status": "passed"
+        },
+        "output_tokens": 12987,
+        "reasoning_output_tokens": 5967,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 1198406,
+          "output_tokens": 12987,
+          "reasoning_output_tokens": 5967,
+          "total_tokens": 1211393
+        },
+        "run_dir": "",
+        "run_id": "20260507-212911-click-default-map-nargs-001-codex-a2253130",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-default-map-nargs-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260507-212911-click-default-map-nargs-001-codex-a2253130",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 273731,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 1160085,
+        "lines_added": 80,
+        "lines_deleted": 0,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 2,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 80,
+          "lines_deleted": 0,
+          "n_files_changed": 2,
+          "status": "passed"
+        },
+        "output_tokens": 12879,
+        "reasoning_output_tokens": 5909,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 1160085,
+          "output_tokens": 12879,
+          "reasoning_output_tokens": 5909,
+          "total_tokens": 1172964
+        },
+        "run_dir": "",
+        "run_id": "20260508-233845-click-default-map-nargs-001-codex-e436b67c",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-default-map-nargs-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260508-233845-click-default-map-nargs-001-codex-e436b67c",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 284582,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 887475,
+        "lines_added": 64,
+        "lines_deleted": 12,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 3,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 64,
+          "lines_deleted": 12,
+          "n_files_changed": 3,
+          "status": "passed"
+        },
+        "output_tokens": 13544,
+        "reasoning_output_tokens": 4843,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 887475,
+          "output_tokens": 13544,
+          "reasoning_output_tokens": 4843,
+          "total_tokens": 901019
+        },
+        "run_dir": "",
+        "run_id": "20260507-175243-click-help-shadowed-option-001-codex",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-help-shadowed-option-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260507-175243-click-help-shadowed-option-001-codex",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 313434,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 1273526,
+        "lines_added": 55,
+        "lines_deleted": 12,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 3,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 55,
+          "lines_deleted": 12,
+          "n_files_changed": 3,
+          "status": "passed"
+        },
+        "output_tokens": 14889,
+        "reasoning_output_tokens": 4294,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 1273526,
+          "output_tokens": 14889,
+          "reasoning_output_tokens": 4294,
+          "total_tokens": 1288415
+        },
+        "run_dir": "",
+        "run_id": "20260507-183521-click-help-shadowed-option-001-codex-20f74f8c",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-help-shadowed-option-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260507-183521-click-help-shadowed-option-001-codex-20f74f8c",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 234537,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 861011,
+        "lines_added": 59,
+        "lines_deleted": 9,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 3,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 59,
+          "lines_deleted": 9,
+          "n_files_changed": 3,
+          "status": "passed"
+        },
+        "output_tokens": 10128,
+        "reasoning_output_tokens": 3359,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 861011,
+          "output_tokens": 10128,
+          "reasoning_output_tokens": 3359,
+          "total_tokens": 871139
+        },
+        "run_dir": "",
+        "run_id": "20260507-183521-click-help-shadowed-option-001-codex-b0c8e35f",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-help-shadowed-option-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260507-183521-click-help-shadowed-option-001-codex-b0c8e35f",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 274698,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 1376977,
+        "lines_added": 68,
+        "lines_deleted": 12,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 3,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 68,
+          "lines_deleted": 12,
+          "n_files_changed": 3,
+          "status": "passed"
+        },
+        "output_tokens": 11285,
+        "reasoning_output_tokens": 3945,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 1376977,
+          "output_tokens": 11285,
+          "reasoning_output_tokens": 3945,
+          "total_tokens": 1388262
+        },
+        "run_dir": "",
+        "run_id": "20260507-183521-click-help-shadowed-option-001-codex-d191b2b5",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-help-shadowed-option-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260507-183521-click-help-shadowed-option-001-codex-d191b2b5",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 257231,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 1239279,
+        "lines_added": 61,
+        "lines_deleted": 12,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 3,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 61,
+          "lines_deleted": 12,
+          "n_files_changed": 3,
+          "status": "passed"
+        },
+        "output_tokens": 11877,
+        "reasoning_output_tokens": 4385,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 1239279,
+          "output_tokens": 11877,
+          "reasoning_output_tokens": 4385,
+          "total_tokens": 1251156
+        },
+        "run_dir": "",
+        "run_id": "20260507-192403-click-help-shadowed-option-001-codex-c0a854fe",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-help-shadowed-option-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260507-192403-click-help-shadowed-option-001-codex-c0a854fe",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 99158,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 221487,
+        "lines_added": 34,
+        "lines_deleted": 2,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 34,
+          "lines_deleted": 2,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 4189,
+        "reasoning_output_tokens": 1175,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 221487,
+          "output_tokens": 4189,
+          "reasoning_output_tokens": 1175,
+          "total_tokens": 225676
+        },
+        "run_dir": "",
+        "run_id": "20260508-233623-click-should-strip-ansi-tests-001-codex-0ea41a6d",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-should-strip-ansi-tests-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260508-233623-click-should-strip-ansi-tests-001-codex-0ea41a6d",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 78897,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 170118,
+        "lines_added": 35,
+        "lines_deleted": 2,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 35,
+          "lines_deleted": 2,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 3715,
+        "reasoning_output_tokens": 1328,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 170118,
+          "output_tokens": 3715,
+          "reasoning_output_tokens": 1328,
+          "total_tokens": 173833
+        },
+        "run_dir": "",
+        "run_id": "20260509-002547-click-should-strip-ansi-tests-001-codex-4902f3ad",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-should-strip-ansi-tests-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260509-002547-click-should-strip-ansi-tests-001-codex-4902f3ad",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 132639,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 259419,
+        "lines_added": 65,
+        "lines_deleted": 0,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 65,
+          "lines_deleted": 0,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 3740,
+        "reasoning_output_tokens": 335,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 259419,
+          "output_tokens": 3740,
+          "reasoning_output_tokens": 335,
+          "total_tokens": 263159
+        },
+        "run_dir": "",
+        "run_id": "20260509-002547-click-should-strip-ansi-tests-001-codex-6cf5bb2a",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-should-strip-ansi-tests-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260509-002547-click-should-strip-ansi-tests-001-codex-6cf5bb2a",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 103015,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 213055,
+        "lines_added": 30,
+        "lines_deleted": 2,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 30,
+          "lines_deleted": 2,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 5126,
+        "reasoning_output_tokens": 1954,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 213055,
+          "output_tokens": 5126,
+          "reasoning_output_tokens": 1954,
+          "total_tokens": 218181
+        },
+        "run_dir": "",
+        "run_id": "20260509-002711-click-should-strip-ansi-tests-001-codex-3842bbe6",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-should-strip-ansi-tests-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260509-002711-click-should-strip-ansi-tests-001-codex-3842bbe6",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_messy",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 82525,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 187775,
+        "lines_added": 28,
+        "lines_deleted": 7,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 28,
+          "lines_deleted": 7,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 3960,
+        "reasoning_output_tokens": 1710,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 187775,
+          "output_tokens": 3960,
+          "reasoning_output_tokens": 1710,
+          "total_tokens": 191735
+        },
+        "run_dir": "",
+        "run_id": "20260509-002805-click-should-strip-ansi-tests-001-codex-4bb77432",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "click-should-strip-ansi-tests-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260509-002805-click-should-strip-ansi-tests-001-codex-4bb77432",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 46696,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 96997,
+        "lines_added": 5,
+        "lines_deleted": 2,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 5,
+          "lines_deleted": 2,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 2053,
+        "reasoning_output_tokens": 496,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 96997,
+          "output_tokens": 2053,
+          "reasoning_output_tokens": 496,
+          "total_tokens": 99050
+        },
+        "run_dir": "",
+        "run_id": "20260508-233002-datawrapper-mcp-docker-requirements-001-codex-15c694da",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "datawrapper-mcp-docker-requirements-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260508-233002-datawrapper-mcp-docker-requirements-001-codex-15c694da",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 55542,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 119124,
+        "lines_added": 8,
+        "lines_deleted": 3,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 8,
+          "lines_deleted": 3,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 2518,
+        "reasoning_output_tokens": 552,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 119124,
+          "output_tokens": 2518,
+          "reasoning_output_tokens": 552,
+          "total_tokens": 121642
+        },
+        "run_dir": "",
+        "run_id": "20260509-001658-datawrapper-mcp-docker-requirements-001-codex-848ab9d3",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "datawrapper-mcp-docker-requirements-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260509-001658-datawrapper-mcp-docker-requirements-001-codex-848ab9d3",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 37809,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 97067,
+        "lines_added": 5,
+        "lines_deleted": 2,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 5,
+          "lines_deleted": 2,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 1655,
+        "reasoning_output_tokens": 234,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 97067,
+          "output_tokens": 1655,
+          "reasoning_output_tokens": 234,
+          "total_tokens": 98722
+        },
+        "run_dir": "",
+        "run_id": "20260509-001658-datawrapper-mcp-docker-requirements-001-codex-b7a852cd",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "datawrapper-mcp-docker-requirements-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260509-001658-datawrapper-mcp-docker-requirements-001-codex-b7a852cd",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 38142,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 94965,
+        "lines_added": 5,
+        "lines_deleted": 2,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 5,
+          "lines_deleted": 2,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 1785,
+        "reasoning_output_tokens": 201,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 94965,
+          "output_tokens": 1785,
+          "reasoning_output_tokens": 201,
+          "total_tokens": 96750
+        },
+        "run_dir": "",
+        "run_id": "20260509-001737-datawrapper-mcp-docker-requirements-001-codex-fb93677c",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "datawrapper-mcp-docker-requirements-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260509-001737-datawrapper-mcp-docker-requirements-001-codex-fb93677c",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 66821,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 157442,
+        "lines_added": 9,
+        "lines_deleted": 4,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 1,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 9,
+          "lines_deleted": 4,
+          "n_files_changed": 1,
+          "status": "passed"
+        },
+        "output_tokens": 2982,
+        "reasoning_output_tokens": 888,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 157442,
+          "output_tokens": 2982,
+          "reasoning_output_tokens": 888,
+          "total_tokens": 160424
+        },
+        "run_dir": "",
+        "run_id": "20260509-001754-datawrapper-mcp-docker-requirements-001-codex-8c000cc0",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "datawrapper-mcp-docker-requirements-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260509-001754-datawrapper-mcp-docker-requirements-001-codex-8c000cc0",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 139464,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 362140,
+        "lines_added": 26,
+        "lines_deleted": 4,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 2,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 26,
+          "lines_deleted": 4,
+          "n_files_changed": 2,
+          "status": "passed"
+        },
+        "output_tokens": 6049,
+        "reasoning_output_tokens": 1884,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 362140,
+          "output_tokens": 6049,
+          "reasoning_output_tokens": 1884,
+          "total_tokens": 368189
+        },
+        "run_dir": "",
+        "run_id": "20260508-233323-httpx-verify-false-client-cert-001-codex-48157a76",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "httpx-verify-false-client-cert-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260508-233323-httpx-verify-false-client-cert-001-codex-48157a76",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 122320,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 331716,
+        "lines_added": 26,
+        "lines_deleted": 4,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 2,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 26,
+          "lines_deleted": 4,
+          "n_files_changed": 2,
+          "status": "passed"
+        },
+        "output_tokens": 5618,
+        "reasoning_output_tokens": 1750,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 331716,
+          "output_tokens": 5618,
+          "reasoning_output_tokens": 1750,
+          "total_tokens": 337334
+        },
+        "run_dir": "",
+        "run_id": "20260509-001950-httpx-verify-false-client-cert-001-codex-30f0598a",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "httpx-verify-false-client-cert-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260509-001950-httpx-verify-false-client-cert-001-codex-30f0598a",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 167652,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 454235,
+        "lines_added": 47,
+        "lines_deleted": 4,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 2,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 47,
+          "lines_deleted": 4,
+          "n_files_changed": 2,
+          "status": "passed"
+        },
+        "output_tokens": 7768,
+        "reasoning_output_tokens": 2830,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 454235,
+          "output_tokens": 7768,
+          "reasoning_output_tokens": 2830,
+          "total_tokens": 462003
+        },
+        "run_dir": "",
+        "run_id": "20260509-001950-httpx-verify-false-client-cert-001-codex-9340e11f",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "httpx-verify-false-client-cert-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260509-001950-httpx-verify-false-client-cert-001-codex-9340e11f",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 162229,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 485440,
+        "lines_added": 26,
+        "lines_deleted": 4,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 2,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 26,
+          "lines_deleted": 4,
+          "n_files_changed": 2,
+          "status": "passed"
+        },
+        "output_tokens": 7450,
+        "reasoning_output_tokens": 1936,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 485440,
+          "output_tokens": 7450,
+          "reasoning_output_tokens": 1936,
+          "total_tokens": 492890
+        },
+        "run_dir": "",
+        "run_id": "20260509-002205-httpx-verify-false-client-cert-001-codex-00fabb3b",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "httpx-verify-false-client-cert-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260509-002205-httpx-verify-false-client-cert-001-codex-00fabb3b",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 129760,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 448399,
+        "lines_added": 26,
+        "lines_deleted": 4,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 2,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 26,
+          "lines_deleted": 4,
+          "n_files_changed": 2,
+          "status": "passed"
+        },
+        "output_tokens": 6088,
+        "reasoning_output_tokens": 1804,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 448399,
+          "output_tokens": 6088,
+          "reasoning_output_tokens": 1804,
+          "total_tokens": 454487
+        },
+        "run_dir": "",
+        "run_id": "20260509-002250-httpx-verify-false-client-cert-001-codex-de36837b",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "httpx-verify-false-client-cert-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260509-002250-httpx-verify-false-client-cert-001-codex-de36837b",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 46198,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 84591,
+        "lines_added": 0,
+        "lines_deleted": 30,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 3,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 0,
+          "lines_deleted": 30,
+          "n_files_changed": 3,
+          "status": "passed"
+        },
+        "output_tokens": 1727,
+        "reasoning_output_tokens": 205,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 84591,
+          "output_tokens": 1727,
+          "reasoning_output_tokens": 205,
+          "total_tokens": 86318
+        },
+        "run_dir": "",
+        "run_id": "20260508-232845-react-tabs-selected-focus-overlay-001-codex-3aff2262",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "react-tabs-selected-focus-overlay-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260508-232845-react-tabs-selected-focus-overlay-001-codex-3aff2262",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 40061,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 86417,
+        "lines_added": 0,
+        "lines_deleted": 30,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 3,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 0,
+          "lines_deleted": 30,
+          "n_files_changed": 3,
+          "status": "passed"
+        },
+        "output_tokens": 1543,
+        "reasoning_output_tokens": 153,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 86417,
+          "output_tokens": 1543,
+          "reasoning_output_tokens": 153,
+          "total_tokens": 87960
+        },
+        "run_dir": "",
+        "run_id": "20260508-234737-react-tabs-selected-focus-overlay-001-codex-0b27f904",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "react-tabs-selected-focus-overlay-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260508-234737-react-tabs-selected-focus-overlay-001-codex-0b27f904",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 40183,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 106666,
+        "lines_added": 0,
+        "lines_deleted": 30,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 3,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 0,
+          "lines_deleted": 30,
+          "n_files_changed": 3,
+          "status": "passed"
+        },
+        "output_tokens": 1788,
+        "reasoning_output_tokens": 133,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 106666,
+          "output_tokens": 1788,
+          "reasoning_output_tokens": 133,
+          "total_tokens": 108454
+        },
+        "run_dir": "",
+        "run_id": "20260508-234737-react-tabs-selected-focus-overlay-001-codex-5fb1524e",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "react-tabs-selected-focus-overlay-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260508-234737-react-tabs-selected-focus-overlay-001-codex-5fb1524e",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "resource_inefficient",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 353860,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 131976,
+        "lines_added": 0,
+        "lines_deleted": 30,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 3,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 0,
+          "lines_deleted": 30,
+          "n_files_changed": 3,
+          "status": "passed"
+        },
+        "output_tokens": 1746,
+        "reasoning_output_tokens": 75,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 131976,
+          "output_tokens": 1746,
+          "reasoning_output_tokens": 75,
+          "total_tokens": 133722
+        },
+        "run_dir": "",
+        "run_id": "20260508-234819-react-tabs-selected-focus-overlay-001-codex-9deb6294",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "react-tabs-selected-focus-overlay-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260508-234819-react-tabs-selected-focus-overlay-001-codex-9deb6294",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "resource_inefficient",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 348556,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 106201,
+        "lines_added": 0,
+        "lines_deleted": 30,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 3,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 0,
+          "lines_deleted": 30,
+          "n_files_changed": 3,
+          "status": "passed"
+        },
+        "output_tokens": 1811,
+        "reasoning_output_tokens": 97,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 106201,
+          "output_tokens": 1811,
+          "reasoning_output_tokens": 97,
+          "total_tokens": 108012
+        },
+        "run_dir": "",
+        "run_id": "20260508-234819-react-tabs-selected-focus-overlay-001-codex-de0c8846",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "react-tabs-selected-focus-overlay-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260508-234819-react-tabs-selected-focus-overlay-001-codex-de0c8846",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 124925,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 368614,
+        "lines_added": 8,
+        "lines_deleted": 10,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 4,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 8,
+          "lines_deleted": 10,
+          "n_files_changed": 4,
+          "status": "passed"
+        },
+        "output_tokens": 5896,
+        "reasoning_output_tokens": 1563,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 368614,
+          "output_tokens": 5896,
+          "reasoning_output_tokens": 1563,
+          "total_tokens": 374510
+        },
+        "run_dir": "",
+        "run_id": "20260508-212455-todomvc-toggle-all-checkbox-001-codex-6370c97d",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "todomvc-toggle-all-checkbox-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260508-212455-todomvc-toggle-all-checkbox-001-codex-6370c97d",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 92557,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 195351,
+        "lines_added": 6,
+        "lines_deleted": 8,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 4,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 6,
+          "lines_deleted": 8,
+          "n_files_changed": 4,
+          "status": "passed"
+        },
+        "output_tokens": 4587,
+        "reasoning_output_tokens": 1361,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 195351,
+          "output_tokens": 4587,
+          "reasoning_output_tokens": 1361,
+          "total_tokens": 199938
+        },
+        "run_dir": "",
+        "run_id": "20260508-234354-todomvc-toggle-all-checkbox-001-codex-60445af9",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "todomvc-toggle-all-checkbox-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260508-234354-todomvc-toggle-all-checkbox-001-codex-60445af9",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 57581,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 137636,
+        "lines_added": 6,
+        "lines_deleted": 8,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 4,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 6,
+          "lines_deleted": 8,
+          "n_files_changed": 4,
+          "status": "passed"
+        },
+        "output_tokens": 2465,
+        "reasoning_output_tokens": 283,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 137636,
+          "output_tokens": 2465,
+          "reasoning_output_tokens": 283,
+          "total_tokens": 140101
+        },
+        "run_dir": "",
+        "run_id": "20260508-234354-todomvc-toggle-all-checkbox-001-codex-f253bfc3",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "todomvc-toggle-all-checkbox-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260508-234354-todomvc-toggle-all-checkbox-001-codex-f253bfc3",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 93170,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 235188,
+        "lines_added": 8,
+        "lines_deleted": 10,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 4,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 8,
+          "lines_deleted": 10,
+          "n_files_changed": 4,
+          "status": "passed"
+        },
+        "output_tokens": 4380,
+        "reasoning_output_tokens": 958,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 235188,
+          "output_tokens": 4380,
+          "reasoning_output_tokens": 958,
+          "total_tokens": 239568
+        },
+        "run_dir": "",
+        "run_id": "20260508-234457-todomvc-toggle-all-checkbox-001-codex-f96b370e",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "todomvc-toggle-all-checkbox-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260508-234457-todomvc-toggle-all-checkbox-001-codex-f96b370e",
+        "trial_kind": "agent_trial"
+      }
+    },
+    {
+      "human_review_outcome": {
+        "evidence": [],
+        "exclusion_reason": null,
+        "note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "primary_label": "success_clean",
+        "secondary_labels": [],
+        "trial_validity": "valid"
+      },
+      "outcome_evidence": {
+        "agent_harness_config": {
+          "agent_harness": "codex",
+          "model_name": "gpt-5.5",
+          "reasoning_effort": "xhigh",
+          "runtime_accountability": {
+            "account": null,
+            "billing_context": null,
+            "cost_usd": null
+          }
+        },
+        "agent_name": "codex",
+        "artifact_receipts": {
+          "diff_patch": true,
+          "report_md": true,
+          "result_json": true,
+          "run_dir": true,
+          "transcript": true
+        },
+        "cached_input_tokens": null,
+        "checks": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "commands_run": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "cost_usd": null,
+        "diff_path": null,
+        "duration_ms": 65031,
+        "error": null,
+        "eval_suite": "starter-coding",
+        "eval_type": "regression",
+        "files_changed": [],
+        "graders": [
+          {
+            "receipt": "present in original local result artifact"
+          }
+        ],
+        "historical_snapshot_note": "Recovered from checked-in digest reports/codex-starter-suite-deep-baseline-2026-05-09/digest.md after original runs were unavailable.",
+        "input_tokens": 149132,
+        "lines_added": 6,
+        "lines_deleted": 8,
+        "model_name": "gpt-5.5",
+        "n_files_changed": 4,
+        "outcome": {
+          "files_changed": [],
+          "lines_added": 6,
+          "lines_deleted": 8,
+          "n_files_changed": 4,
+          "status": "passed"
+        },
+        "output_tokens": 2859,
+        "reasoning_output_tokens": 479,
+        "reference_artifact": null,
+        "report_path": null,
+        "resource_usage": {
+          "cached_input_tokens": null,
+          "cost_usd": null,
+          "input_tokens": 149132,
+          "output_tokens": 2859,
+          "reasoning_output_tokens": 479,
+          "total_tokens": 151991
+        },
+        "run_dir": "",
+        "run_id": "20260508-234532-todomvc-toggle-all-checkbox-001-codex-a0ea494a",
+        "run_surface": {
+          "approval_policy": "unknown",
+          "execution_surface": "local_cli",
+          "human_intervention_events": [],
+          "memory_scope": "unknown",
+          "model_identity_source": "recovered_from_checked_in_digest",
+          "network_policy": "unknown",
+          "runtime_version": "unknown",
+          "sandbox_mode": "unknown",
+          "stop_reason": "success",
+          "timeout_seconds": "unknown",
+          "tool_policy": "unknown",
+          "turn_or_step_budget": "unknown"
+        },
+        "score_notes": [],
+        "status": "passed",
+        "success": true,
+        "task_id": "todomvc-toggle-all-checkbox-001",
+        "task_title": "",
+        "transcript_path": null,
+        "trial_id": "20260508-234532-todomvc-toggle-all-checkbox-001-codex-a0ea494a",
+        "trial_kind": "agent_trial"
+      }
+    }
+  ],
+  "schema": "agentlab.outcome-evidence-snapshot.v1"
+}

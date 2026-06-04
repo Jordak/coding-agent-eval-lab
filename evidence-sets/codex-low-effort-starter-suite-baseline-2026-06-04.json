@@ -1,6 +1,7 @@
 {
   "name": "codex-low-effort-starter-suite-baseline-2026-06-04",
   "description": "Five fair Codex CLI trials for each of the twelve starter-suite tasks under Issue #63, using gpt-5.5 with requested and recovered reasoning_effort=low. The first click-should-strip-ansi-tests trial was the preflight smoke run; the remaining selected trials were collected sequentially with --trials 5 --jobs 1, except that task's four top-up trials.",
+  "outcome_evidence_snapshot": "codex-low-effort-starter-suite-baseline-2026-06-04.outcome-evidence.json",
   "trials": [
     "runs/issue-63-low-effort-preflight/20260603-191424-click-should-strip-ansi-tests-001-codex-964f53c1",
     "runs/codex-low-effort-starter-suite-baseline-2026-06-04/20260603-191935-click-should-strip-ansi-tests-001-codex-7bab70d6",
