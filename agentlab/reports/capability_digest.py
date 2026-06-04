@@ -7,6 +7,9 @@ from typing import Dict, Iterable, List, Mapping
 
 from agentlab.evidence.outcome import OutcomeEvidence
 from agentlab.evidence.summary import TrialGroupSummary, summarize_trials
+from agentlab.reports.operability_evidence import (
+    render_agent_harness_operability_table,
+)
 
 
 @dataclass(frozen=True)
@@ -50,8 +53,9 @@ def render_capability_evidence_digest(
         lines.extend(["", "## Run Contexts", ""])
         lines.append("No agent-trial results found.")
     else:
+        contexts = _run_contexts(summaries, results)
         lines.append("")
-        for context in _run_contexts(summaries, results):
+        for context in contexts:
             lines.extend(_run_context_lines(context))
 
     lines.append("")
@@ -122,6 +126,7 @@ def _run_context_lines(context: MarkdownRunContext) -> List[str]:
         "",
     ]
     lines.extend(_run_surface_summary_lines(context.results))
+    lines.extend(render_agent_harness_operability_table(context.results))
     lines.extend(_aggregate_summary_tables(context.summaries))
     lines.extend(["", "### Trial Evidence", ""])
     lines.extend(
@@ -311,6 +316,12 @@ def _review_summary_row(summary: TrialGroupSummary) -> List[object]:
 
 def _selection_context_lines(context: Mapping[str, object]) -> list[str]:
     lines: list[str] = []
+    evidence_sets = context.get("evidence_sets")
+    if isinstance(evidence_sets, list):
+        lines.append(f"- Evidence sets: `{len(evidence_sets)}`")
+        for evidence_set in evidence_sets:
+            if isinstance(evidence_set, Mapping):
+                lines.extend(_evidence_set_context_lines(evidence_set))
     name = context.get("name")
     if name:
         lines.append(f"- Evidence set: `{name}`")
@@ -326,6 +337,24 @@ def _selection_context_lines(context: Mapping[str, object]) -> list[str]:
     selected_result_files = context.get("selected_result_files")
     if selected_result_files is not None:
         lines.append(f"- Selected result files: `{selected_result_files}`")
+    return lines
+
+
+def _evidence_set_context_lines(context: Mapping[str, object]) -> list[str]:
+    lines: list[str] = []
+    name = context.get("name") or "unknown"
+    selected_result_files = context.get("selected_result_files")
+    selected_text = (
+        f", selected result files: `{selected_result_files}`"
+        if selected_result_files is not None
+        else ""
+    )
+    source_path = context.get("source_path")
+    source_text = f", source: `{source_path}`" if source_path else ""
+    lines.append(f"- Evidence set: `{name}`{selected_text}{source_text}")
+    description = context.get("description")
+    if description:
+        lines.append(f"- Evidence set description: {description}")
     return lines
 
 

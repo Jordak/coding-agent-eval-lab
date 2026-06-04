@@ -155,9 +155,6 @@ def _turn_or_step_budget(config: Mapping[str, Any]) -> object:
         return _first_known(config.get("turn_or_step_budget"))
     if config.get("max_turns") is not None:
         return {"max_turns": config.get("max_turns")}
-    effort = _optional_str(config.get("reasoning_effort"))
-    if effort:
-        return {"reasoning_effort": effort}
     return UNKNOWN
 
 
@@ -183,9 +180,17 @@ def _normalize_field(field: str, value: object) -> object:
         if value is None:
             return UNKNOWN
         return _first_known(value)
-    if field in {"tool_policy", "turn_or_step_budget"}:
+    if field == "turn_or_step_budget":
+        return _normalize_turn_or_step_budget(value)
+    if field == "tool_policy":
         return _normalize_structured_or_unknown(value)
     return _first_known(value)
+
+
+def _normalize_turn_or_step_budget(value: object) -> object:
+    if isinstance(value, Mapping) and set(value) == {"reasoning_effort"}:
+        return UNKNOWN
+    return _normalize_structured_or_unknown(value)
 
 
 def _normalize_structured_or_unknown(value: object) -> object:

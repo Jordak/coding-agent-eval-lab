@@ -10,6 +10,9 @@ from typing import Iterable, Mapping, Sequence
 
 from agentlab.evidence.outcome import OutcomeEvidence
 from agentlab.evidence.summary import TrialGroupSummary, summarize_trials
+from agentlab.reports.operability_evidence import (
+    agent_harness_operability_rows,
+)
 
 
 INTRO_TEXT = (
@@ -56,6 +59,8 @@ WRAP_HEADERS = {
     "Secondary Review Labels",
     "Primary Review Label",
     "Exclusions",
+    "Operability Dimension",
+    "Evidence",
 }
 
 
@@ -395,6 +400,12 @@ def _global_facts(
     selection_context: Mapping[str, object],
 ) -> str:
     facts = [f"Agent trials: {len(results)}"]
+    evidence_sets = selection_context.get("evidence_sets")
+    if isinstance(evidence_sets, list):
+        facts.append(f"Evidence sets: {len(evidence_sets)}")
+        for evidence_set in evidence_sets:
+            if isinstance(evidence_set, Mapping):
+                facts.append(_evidence_set_fact(evidence_set))
     name = selection_context.get("name")
     if name:
         facts.append(f"Evidence set: {name}")
@@ -409,6 +420,21 @@ def _global_facts(
         + "".join(f"<span>{_text(fact)}</span>" for fact in facts)
         + "</div>"
     )
+
+
+def _evidence_set_fact(context: Mapping[str, object]) -> str:
+    name = context.get("name") or "unknown"
+    fact = f"Evidence set: {name}"
+    selected_result_files = context.get("selected_result_files")
+    if selected_result_files is not None:
+        fact += f", selected result files: {selected_result_files}"
+    source_path = context.get("source_path")
+    if source_path:
+        fact += f", source: {source_path}"
+    description = context.get("description")
+    if description:
+        fact += f", description: {description}"
+    return fact
 
 
 def _context_page(
@@ -441,6 +467,7 @@ def _context_page(
       <div class="metric"><span>IO tokens</span><strong>{_format_optional_number(totals["io"])}</strong></div>
       <div class="metric"><span>IO / verified</span><strong>{_format_optional_number(totals["io_per_verified"])}</strong></div>
     </div>
+    {_summary_section("Agent Harness Operability", _operability_rows(context), ["Operability Dimension", "Evidence"])}
     {_resource_summary(context)}
     {_reviewer_focus(context, render_context)}
     {_summary_section("Outcome Summary", _outcome_rows(context, render_context), ["Task", "Type", "Total", "Fair", "Excluded", "Passes", "Accepted", "Pass Rate", "pass@k", "pass^k"])}
@@ -628,6 +655,19 @@ def _review_rows(
             "Exclusions": _text(_format_counts(summary.exclusion_reasons)),
         }
         for summary in context.summaries
+    ]
+
+
+def _operability_rows(context: RunContext) -> list[dict[str, str]]:
+    return [
+        {
+            "Operability Dimension": _text(row.dimension),
+            "Evidence": "<br>".join(
+                _text(f"{label}: {value}")
+                for label, value in row.facts
+            ),
+        }
+        for row in agent_harness_operability_rows(context.results)
     ]
 
 

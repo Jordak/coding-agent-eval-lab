@@ -32,10 +32,12 @@ def add_report_commands(subcommands: argparse._SubParsersAction) -> None:
     )
     evidence_parser.add_argument(
         "--evidence-set",
-        default=None,
+        action="append",
+        default=[],
         help=(
             "JSON file selecting the trial result files to include in the "
-            "capability evidence digest."
+            "capability evidence digest. Can be repeated to combine selected "
+            "evidence sets in one digest."
         ),
     )
     evidence_parser.add_argument(
@@ -56,17 +58,49 @@ def add_report_commands(subcommands: argparse._SubParsersAction) -> None:
 
 def handle_report_capability_evidence_digest(args: argparse.Namespace) -> int:
     selection_context = None
-    if args.evidence_set:
-        try:
-            evidence_set = load_evidence_set(
-                Path(args.evidence_set),
-                Path(args.runs_dir),
-            )
-        except (OSError, ValueError) as exc:
-            print(f"ERROR {exc}", file=sys.stderr)
-            return 1
-        result_files = evidence_set.result_files
-        selection_context = evidence_set.digest_context()
+    evidence_set_paths = _evidence_set_paths(args.evidence_set)
+    if evidence_set_paths:
+        result_files = []
+        evidence_set_contexts = []
+        selected_entries = 0
+        selected_result_files = 0
+        result_file_sources: dict[Path, str] = {}
+        for evidence_set_path in evidence_set_paths:
+            try:
+                evidence_set = load_evidence_set(
+                    Path(evidence_set_path),
+                    Path(args.runs_dir),
+                )
+            except (OSError, ValueError) as exc:
+                print(f"ERROR {exc}", file=sys.stderr)
+                return 1
+            for result_file in evidence_set.result_files:
+                resolved_result_file = result_file.resolve()
+                if resolved_result_file in result_file_sources:
+                    first_source = result_file_sources[resolved_result_file]
+                    print(
+                        "ERROR duplicate evidence-set result selected: "
+                        f"{result_file} appears in both {first_source} and "
+                        f"{evidence_set.source_path}",
+                        file=sys.stderr,
+                    )
+                    return 1
+                result_file_sources[resolved_result_file] = str(
+                    evidence_set.source_path
+                )
+            result_files.extend(evidence_set.result_files)
+            context = evidence_set.digest_context()
+            evidence_set_contexts.append(context)
+            selected_entries += int(context.get("selected_entries") or 0)
+            selected_result_files += int(context.get("selected_result_files") or 0)
+        if len(evidence_set_contexts) == 1:
+            selection_context = evidence_set_contexts[0]
+        else:
+            selection_context = {
+                "evidence_sets": evidence_set_contexts,
+                "selected_entries": selected_entries,
+                "selected_result_files": selected_result_files,
+            }
     else:
         result_files = discover_result_files(Path(args.runs_dir))
     results = load_outcome_evidences(result_files)
@@ -101,3 +135,13 @@ def handle_report_capability_evidence_digest(args: argparse.Namespace) -> int:
 
     print(digest)
     return 0
+
+
+def _evidence_set_paths(raw_evidence_set: object) -> list[str]:
+    if raw_evidence_set is None:
+        return []
+    if isinstance(raw_evidence_set, str):
+        return [raw_evidence_set]
+    if isinstance(raw_evidence_set, list):
+        return [str(path) for path in raw_evidence_set if str(path).strip()]
+    return [str(raw_evidence_set)]

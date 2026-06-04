@@ -50,6 +50,43 @@ class RunSurfaceTest(unittest.TestCase):
         self.assertEqual(surface["stop_reason"], "success")
         self.assertEqual(surface["human_intervention_events"], [])
 
+    def test_reasoning_effort_is_not_turn_or_step_budget(self):
+        surface = normalize_run_surface(
+            None,
+            agent_harness_config={
+                "agent_harness": "codex",
+                "agent_adapter": "codex_cli",
+                "reasoning_effort": "xhigh",
+            },
+            agent_name="codex",
+            status="passed",
+            success=True,
+        )
+        legacy_surface = normalize_run_surface(
+            {"turn_or_step_budget": {"reasoning_effort": "xhigh"}},
+            agent_harness_config={"agent_harness": "codex"},
+            agent_name="codex",
+            status="passed",
+            success=True,
+        )
+        explicit_surface = normalize_run_surface(
+            None,
+            agent_harness_config={
+                "agent_harness": "custom",
+                "turn_or_step_budget": {"step_budget": 8},
+            },
+            agent_name="custom",
+            status="passed",
+            success=True,
+        )
+
+        self.assertEqual(surface["turn_or_step_budget"], "unknown")
+        self.assertEqual(legacy_surface["turn_or_step_budget"], "unknown")
+        self.assertEqual(
+            explicit_surface["turn_or_step_budget"],
+            {"step_budget": 8},
+        )
+
     def test_claude_config_maps_to_neutral_run_surface(self):
         config = claude_code_agent_harness_config(
             ClaudeCodeConfig(
@@ -122,6 +159,7 @@ class RunSurfaceTest(unittest.TestCase):
             ),
             runtime_facts=CodexRuntimeFacts(cli_version="codex 1.2.3"),
         )
+        agent_harness_config["reasoning_effort"] = "xhigh"
         run = SimpleNamespace(
             task=SimpleNamespace(id="task-a", suite="starter", eval_type="regression"),
             run_dir=Path("runs/trial-a"),
@@ -151,8 +189,10 @@ class RunSurfaceTest(unittest.TestCase):
         self.assertIn("- Runtime version: `codex 1.2.3`", report)
         self.assertIn("- Sandbox mode: `workspace-write`", report)
         self.assertIn("- Approval policy: `never`", report)
+        self.assertIn("- Turn or step budget: `unknown`", report)
         self.assertIn("- Stop reason: `success`", report)
         self.assertIn("## Agent Harness Configuration", report)
+        self.assertIn("- Reasoning effort: `xhigh`", report)
 
     def test_capability_digest_includes_run_surface_summary(self):
         result = normalize_outcome_evidence(

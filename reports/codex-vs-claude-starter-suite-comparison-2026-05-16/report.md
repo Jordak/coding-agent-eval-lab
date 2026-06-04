@@ -173,6 +173,45 @@ or Codex is categorically more expensive. Codex cost was missing, token
 accounting differs by harness, and a lower-effort Codex run or stronger Claude
 run could change the shape.
 
+## Runtime Receipts And Auditability
+
+This section compares **agent harness operability evidence**, not task
+performance. The table asks what the current artifacts make inspectable about
+runtime controls, verifier receipts, interruptions, and patch context. It uses
+the checked-in evidence manifests, generated capability evidence digests,
+baseline reports, Claude readiness note, and linked run receipts. Some linked
+historical run directories live outside this report bundle, so facts not
+visible in the checked-in artifacts stay `unknown` here rather than being
+inferred.
+
+When the raw `result.json` artifacts are available, the default generated
+digest includes an `Agent Harness Operability` table inside each run context
+from the same selected evidence sets:
+
+```bash
+python3 -m agentlab report capability-evidence-digest \
+  --runs-dir runs \
+  --evidence-set evidence-sets/codex-starter-suite-12-task-baseline-2026-05-11.json \
+  --evidence-set evidence-sets/claude-code-starter-suite-baseline-2026-05-14.json
+```
+
+| Operability Evidence | Codex CLI | Claude Code |
+| --- | --- | --- |
+| Budget controls | Checked-in digest records per-trial token and duration evidence; Codex billed cost is `unknown`. Exact selected-run `timeout_seconds`, turn budget, and quota controls require the linked `result.json` artifacts and are `unknown` in this checked-in report bundle. | Baseline reports `timeout_seconds=1800`, no configured max turns, recorded input/output tokens, cached-input tokens, duration, and selected-set cost. Configured token, cost, or quota limits for the baseline are `unknown`. |
+| Approval boundaries | The Codex baseline report scopes the measured unit to the local Codex CLI harness, tool use, local permissions, sandboxing, prompts, and recovered runtime metadata. Exact selected-run `sandbox` and `approval_policy` values require linked `result.json` artifacts and remain `unknown` in this checked-in report bundle. | Baseline reports Claude Code `permission_mode=acceptEdits`, `output_format=stream-json`, no configured allowed/disallowed tools, and disabled session persistence. Network policy and external-write semantics remain `unknown`. |
+| Verifier state | Final grader outcome is visible in the generated digest for every selected trial: 60/60 passed. Stored `checks`/`graders` arrays are available through linked result artifacts when the raw run receipts are present. Intermediate verifier movement is `unknown`. | Final grader outcome is visible in the generated digest for every selected trial: 53/60 passed. Stored `checks`/`graders` arrays are available through linked result artifacts when the raw run receipts are present. Intermediate verifier movement is `unknown`. |
+| Halt reasons | Final pass/fail status is visible, but a complete first-class halt taxonomy for success, timeout, budget exit, agent error, verifier failure, operator interruption, or setup failure is `unknown` for this historical checked-in comparison. | Final pass/fail status is visible, but a complete first-class halt taxonomy is `unknown` for this historical checked-in comparison. The Claude report notes quota-hit/operator-error runs were preserved outside the selected fair manifest, not counted as capability failures. |
+| Interrupted-run receipt | The selected fair set has no excluded trials. Older invalid Codex diagnostics are outside this comparison, so interrupted/error-run receipt strength is `unknown` here. | The selected fair set excludes quota-hit/operator-error runs. This report preserves that operational caveat, but the selected comparison table does not include a normalized interrupted-run receipt. |
+| Tool/patch context | Digest rows link each selected trial's report, transcript, diff, and result artifact, and summarize changed files, line counts, duration, resource usage, and human review labels. | Digest rows link each selected trial's report, transcript, diff, and result artifact, and summarize changed files, line counts, duration, resource usage, cost, and human review labels. |
+| Receipt basics | Selected evidence set and digest provide 60 report/result/transcript/diff links. Raw receipts may live outside the repository; unavailable linked files should be treated as `unknown`, not as absent evidence. | Selected evidence set and digest provide 60 report/result/transcript/diff links. Raw receipts may live outside the repository; unavailable linked files should be treated as `unknown`, not as absent evidence. |
+
+The useful first signal is that both baselines have enough receipts to inspect
+final outcomes and patch context, while only some runtime-control facts are
+visible in the checked-in comparison artifacts. The unsupported cells are the
+important part of the investigation: a stronger future control-plane layer
+needs first-class halt reasons, richer interruption receipts, and clearer
+cross-harness budget semantics.
+
 ## Interpretation
 
 Under these evaluated conditions, Codex CLI with `gpt-5.5` and `xhigh`
@@ -224,18 +263,18 @@ The comparison leaves several important questions unanswered:
 
 The next implementation slices for #50 should be narrow:
 
-1. Add a generated comparison appendix that aligns the two selected evidence
-   sets by task, agent harness configuration, model, fair-trial count,
-   deterministic outcomes, review labels, durations, and available resource
-   fields.
-2. Keep this hand-authored report separate from the generated appendix so
-   interpretation remains reviewable prose rather than hidden computation.
-3. Decide whether the next empirical baseline should be lower-effort Codex,
+1. Use the default capability evidence digest command to refresh Markdown and
+   HTML comparison appendices when the raw run receipts are available, and keep
+   hand-authored interpretation separate from generated evidence.
+2. Decide whether the next empirical baseline should be lower-effort Codex,
    stronger Claude Code, or both. That decision should be explicit before
    turning this comparison into a public recommendation.
-4. Add targeted follow-up tasks or trial batches for tests-only coverage quality
+3. Add targeted follow-up tasks or trial batches for tests-only coverage quality
    and subtle shared async/browser-media behavior, because those are where the
    current comparison actually separated the configurations.
+4. Add first-class halt reasons and stronger interrupted-run receipts before
+   treating agent harness operability evidence as a complete control-plane
+   comparison.
 
 ## Reader Takeaway
 
