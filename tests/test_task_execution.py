@@ -120,6 +120,95 @@ class TaskExecutionTest(unittest.TestCase):
             self.assertTrue(execution.score.tests_passed)
             self.assertEqual(execution.score.notes, [])
 
+    def test_modified_setup_created_untracked_file_counts_against_boundaries(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for task execution")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo, commit = self._repo_with_file(temp_path, "before\n")
+            task = EvalTask(
+                id="modified-setup-untracked-task",
+                title="Modified setup untracked task",
+                repo=str(repo),
+                commit=commit,
+                language="text",
+                prompt="Do not change setup.log.",
+                setup=[
+                    f"{sys.executable} -c "
+                    "\"from pathlib import Path; "
+                    "Path('setup.log').write_text('setup\\\\n')\""
+                ],
+                success=SuccessCriteria(forbidden_paths=["setup.log"]),
+            )
+
+            def action(workspace, _task_env):
+                (workspace / "setup.log").write_text(
+                    "setup\nagent change\n",
+                    encoding="utf-8",
+                )
+                return TaskActionResult()
+
+            execution = execute_task_phases(
+                task,
+                temp_path / "workspace",
+                action,
+                temp_path / "diff.patch",
+            )
+
+            self.assertEqual(execution.files_changed, ["setup.log"])
+            self.assertFalse(execution.score.tests_passed)
+            self.assertEqual(
+                execution.score.notes,
+                [
+                    "scope boundary violation: `setup.log` "
+                    "matches forbidden_paths pattern `setup.log`"
+                ],
+            )
+
+    def test_deleted_setup_created_untracked_file_counts_against_boundaries(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for task execution")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo, commit = self._repo_with_file(temp_path, "before\n")
+            task = EvalTask(
+                id="deleted-setup-untracked-task",
+                title="Deleted setup untracked task",
+                repo=str(repo),
+                commit=commit,
+                language="text",
+                prompt="Do not delete setup.log.",
+                setup=[
+                    f"{sys.executable} -c "
+                    "\"from pathlib import Path; "
+                    "Path('setup.log').write_text('setup\\\\n')\""
+                ],
+                success=SuccessCriteria(forbidden_paths=["setup.log"]),
+            )
+
+            def action(workspace, _task_env):
+                (workspace / "setup.log").unlink()
+                return TaskActionResult()
+
+            execution = execute_task_phases(
+                task,
+                temp_path / "workspace",
+                action,
+                temp_path / "diff.patch",
+            )
+
+            self.assertEqual(execution.files_changed, ["setup.log"])
+            self.assertFalse(execution.score.tests_passed)
+            self.assertEqual(
+                execution.score.notes,
+                [
+                    "scope boundary violation: `setup.log` "
+                    "matches forbidden_paths pattern `setup.log`"
+                ],
+            )
+
     def test_committed_agent_changes_are_counted_against_boundaries(self):
         if shutil.which("git") is None:
             self.skipTest("git is required for task execution")

@@ -74,7 +74,7 @@ def execute_task_phases(
         prepared.path,
         resolved_diff_path,
         base_ref=diff_base_ref or change_baseline.tree_ref,
-        exclude_untracked=change_baseline.untracked_paths,
+        baseline_untracked=change_baseline.untracked_files,
     )
     patch_stats = count_patch_lines(
         resolved_diff_path.read_text(encoding="utf-8")

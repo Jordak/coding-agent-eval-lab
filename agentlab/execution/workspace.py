@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import hashlib
+import os
+import stat
 import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -26,9 +29,17 @@ class PreparedWorkspace:
 
 
 @dataclass(frozen=True)
+class WorkspaceUntrackedBaseline:
+    path: str
+    digest: str
+
+
+@dataclass(frozen=True)
 class WorkspaceChangeBaseline:
     tree_ref: str
-    untracked_paths: tuple[str, ...] = field(default_factory=tuple)
+    untracked_files: tuple[WorkspaceUntrackedBaseline, ...] = field(
+        default_factory=tuple
+    )
 
 
 def prepare_workspace(task: EvalTask, root: Path) -> PreparedWorkspace:
@@ -68,7 +79,7 @@ def _safe_name(value: str) -> str:
 
 
 def capture_change_baseline(workspace: Path) -> WorkspaceChangeBaseline:
-    untracked_paths = tuple(_list_untracked(workspace))
+    untracked_files = tuple(_snapshot_untracked_files(workspace))
     staged = run_git(["add", "-u", "--", "."], cwd=workspace)
     if staged.returncode != 0:
         raise RuntimeError(f"git add -u failed: {staged.stderr.strip()}")
@@ -82,7 +93,7 @@ def capture_change_baseline(workspace: Path) -> WorkspaceChangeBaseline:
 
     return WorkspaceChangeBaseline(
         tree_ref=tree.stdout.strip(),
-        untracked_paths=untracked_paths,
+        untracked_files=untracked_files,
     )
 
 
@@ -90,10 +101,20 @@ def capture_diff(
     workspace: Path,
     diff_path: Path,
     base_ref: str | None = None,
-    exclude_untracked: Sequence[str] = (),
+    baseline_untracked: Sequence[WorkspaceUntrackedBaseline] = (),
 ) -> list[str]:
     diff_ref = base_ref or "HEAD"
-    _mark_untracked_for_diff(workspace, exclude_untracked=exclude_untracked)
+    changed_baseline_untracked = _changed_baseline_untracked(
+        workspace,
+        baseline_untracked,
+    )
+    changed_baseline_paths = {entry.path for entry in changed_baseline_untracked}
+    unchanged_baseline_paths = [
+        entry.path
+        for entry in baseline_untracked
+        if entry.path not in changed_baseline_paths
+    ]
+    _mark_untracked_for_diff(workspace, exclude_untracked=unchanged_baseline_paths)
     diff_args = ["diff", "--binary", "--no-renames", diff_ref]
     name_args = ["diff", "--name-only", "-z", "--no-renames", diff_ref]
 
@@ -106,7 +127,10 @@ def capture_diff(
     changed = run_git(name_args, cwd=workspace, env=git_env)
     if changed.returncode != 0:
         raise RuntimeError(f"git diff --name-only failed: {changed.stderr.strip()}")
-    return [path for path in changed.stdout.split("\0") if path]
+    return _append_missing_paths(
+        [path for path in changed.stdout.split("\0") if path],
+        [entry.path for entry in changed_baseline_untracked],
+    )
 
 
 def _mark_untracked_for_diff(
@@ -136,6 +160,45 @@ def _list_untracked(workspace: Path) -> list[str]:
     return [path for path in untracked.stdout.split("\0") if path]
 
 
+def _snapshot_untracked_files(workspace: Path) -> list[WorkspaceUntrackedBaseline]:
+    return [
+        WorkspaceUntrackedBaseline(path=path, digest=digest)
+        for path in _list_untracked(workspace)
+        if (digest := _path_digest(workspace / path)) is not None
+    ]
+
+
+def _changed_baseline_untracked(
+    workspace: Path,
+    baseline_untracked: Sequence[WorkspaceUntrackedBaseline],
+) -> list[WorkspaceUntrackedBaseline]:
+    return [
+        entry
+        for entry in baseline_untracked
+        if _path_digest(workspace / entry.path) != entry.digest
+    ]
+
+
+def _path_digest(path: Path) -> str | None:
+    try:
+        file_stat = path.lstat()
+    except FileNotFoundError:
+        return None
+
+    mode = stat.S_IMODE(file_stat.st_mode)
+    if stat.S_ISLNK(file_stat.st_mode):
+        return f"symlink:{mode:o}:{os.readlink(path)}"
+    if not stat.S_ISREG(file_stat.st_mode):
+        return f"other:{mode:o}:{file_stat.st_size}:{file_stat.st_mtime_ns}"
+
+    digest = hashlib.sha256()
+    digest.update(f"file:{mode:o}:".encode("utf-8"))
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def _is_excluded_untracked(path: str, excluded: Sequence[str]) -> bool:
     for candidate in excluded:
         if candidate.endswith("/"):
@@ -144,3 +207,12 @@ def _is_excluded_untracked(path: str, excluded: Sequence[str]) -> bool:
         elif path == candidate:
             return True
     return False
+
+
+def _append_missing_paths(paths: list[str], extra_paths: Sequence[str]) -> list[str]:
+    seen = set(paths)
+    for path in extra_paths:
+        if path not in seen:
+            paths.append(path)
+            seen.add(path)
+    return paths
