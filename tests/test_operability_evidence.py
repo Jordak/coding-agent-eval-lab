@@ -114,6 +114,28 @@ class OperabilityEvidenceTest(unittest.TestCase):
 
         self.assertIn("observed_input_output_tokens: `unknown`", table)
 
+    def test_render_agent_harness_operability_table_keeps_reasoning_effort_out_of_budget_controls(self):
+        result = _result(
+            trial_id="codex-reasoning-effort",
+            agent_name="codex",
+            model_name="gpt-test",
+            status="passed",
+            success=True,
+            config={
+                "agent_harness": "codex",
+                "reasoning_effort": "xhigh",
+            },
+            input_tokens=10,
+            output_tokens=5,
+            cost_usd=None,
+        )
+
+        table = "\n".join(render_agent_harness_operability_table([result]))
+
+        self.assertIn("reasoning_effort: `xhigh`", table)
+        self.assertIn("turn_or_step_budget: `unknown`", table)
+        self.assertNotIn('turn_or_step_budget: `{"reasoning_effort": "xhigh"}`', table)
+
 
 def _result(
     *,

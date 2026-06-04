@@ -352,6 +352,9 @@ def _evidence_set_context_lines(context: Mapping[str, object]) -> list[str]:
     source_path = context.get("source_path")
     source_text = f", source: `{source_path}`" if source_path else ""
     lines.append(f"- Evidence set: `{name}`{selected_text}{source_text}")
+    description = context.get("description")
+    if description:
+        lines.append(f"- Evidence set description: {description}")
     return lines
 
 

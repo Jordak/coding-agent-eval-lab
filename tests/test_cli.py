@@ -313,11 +313,23 @@ class CliOutputTest(unittest.TestCase):
             codex_set = root / "codex.json"
             claude_set = root / "claude.json"
             codex_set.write_text(
-                json.dumps({"name": "codex evidence", "trials": ["codex-pass"]}),
+                json.dumps(
+                    {
+                        "name": "codex evidence",
+                        "description": "Codex evidence-set description.",
+                        "trials": ["codex-pass"],
+                    }
+                ),
                 encoding="utf-8",
             )
             claude_set.write_text(
-                json.dumps({"name": "claude evidence", "trials": ["claude-pass"]}),
+                json.dumps(
+                    {
+                        "name": "claude evidence",
+                        "description": "Claude evidence-set description.",
+                        "trials": ["claude-pass"],
+                    }
+                ),
                 encoding="utf-8",
             )
             output_path = root / "reports" / "digest.md"
@@ -343,6 +355,8 @@ class CliOutputTest(unittest.TestCase):
         self.assertIn("Capability evidence digest:", stdout.getvalue())
         self.assertIn("Capability evidence digest HTML:", stdout.getvalue())
         self.assertIn("- Evidence sets: `2`", report)
+        self.assertIn("Codex evidence-set description.", report)
+        self.assertIn("Claude evidence-set description.", report)
         self.assertNotIn("## Agent Harness Operability Evidence", report)
         self.assertEqual(report.count("### Agent Harness Operability"), 2)
         self.assertIn("## Run Context: starter-coding / codex", report)
@@ -353,6 +367,8 @@ class CliOutputTest(unittest.TestCase):
         self.assertIn("Evidence sets: 2", html_report)
         self.assertIn("Evidence set: codex evidence", html_report)
         self.assertIn("Evidence set: claude evidence", html_report)
+        self.assertIn("Codex evidence-set description.", html_report)
+        self.assertIn("Claude evidence-set description.", html_report)
         self.assertIn("sandbox_mode: workspace-write", html_report)
         self.assertIn("approval_policy: acceptEdits", html_report)
         self.assertIn("configured_token_cost_quota_limits: unknown", html_report)

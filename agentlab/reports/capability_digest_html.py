@@ -431,6 +431,9 @@ def _evidence_set_fact(context: Mapping[str, object]) -> str:
     source_path = context.get("source_path")
     if source_path:
         fact += f", source: {source_path}"
+    description = context.get("description")
+    if description:
+        fact += f", description: {description}"
     return fact
 
 
