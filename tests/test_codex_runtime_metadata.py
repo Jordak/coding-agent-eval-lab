@@ -57,6 +57,8 @@ class CodexRuntimeMetadataTest(unittest.TestCase):
         self.assertEqual(identity.model_name, "gpt-event")
         self.assertEqual(identity.model_source, "events")
         self.assertEqual(identity.requested_model_name, "gpt-requested")
+        self.assertEqual(identity.reasoning_effort, "xhigh")
+        self.assertEqual(identity.model_provider, "openai")
         self.assertEqual(identity.codex_thread_id, "thread-1")
 
     def test_recovery_dry_run_reports_changes_without_writing_result(self):

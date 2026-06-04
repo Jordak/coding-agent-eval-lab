@@ -515,6 +515,8 @@ class CliOutputTest(unittest.TestCase):
                 "codex",
                 "--codex-command",
                 "codex-test",
+                "--codex-reasoning-effort",
+                "low",
                 "--codex-approval",
                 "never",
                 "--codex-timeout-seconds",
@@ -524,6 +526,7 @@ class CliOutputTest(unittest.TestCase):
 
         self.assertEqual(args.agent, "codex")
         self.assertEqual(args.codex_command, "codex-test")
+        self.assertEqual(args.codex_reasoning_effort, "low")
         self.assertEqual(args.codex_approval, "never")
         self.assertEqual(args.codex_timeout_seconds, 3)
 
@@ -570,6 +573,7 @@ class CliOutputTest(unittest.TestCase):
             agent="codex",
             codex_command="codex-test",
             codex_model="gpt-test",
+            codex_reasoning_effort="low",
             codex_profile="agentlab",
             codex_sandbox="read-only",
             codex_approval="never",
@@ -599,6 +603,7 @@ class CliOutputTest(unittest.TestCase):
         config = preflight.call_args.args[0]
         self.assertEqual(config.command, "codex-test")
         self.assertEqual(config.model, "gpt-test")
+        self.assertEqual(config.reasoning_effort, "low")
         self.assertEqual(config.profile, "agentlab")
         self.assertEqual(config.sandbox, "read-only")
         self.assertEqual(config.approval_policy, "never")
@@ -740,6 +745,7 @@ class CliOutputTest(unittest.TestCase):
         args = SimpleNamespace(
             codex_command="codex-test",
             codex_model="gpt-test",
+            codex_reasoning_effort="low",
             codex_profile="agentlab",
             codex_sandbox="workspace-write",
             codex_approval="on-failure",
@@ -750,6 +756,7 @@ class CliOutputTest(unittest.TestCase):
 
         self.assertEqual(config.command, "codex-test")
         self.assertEqual(config.model, "gpt-test")
+        self.assertEqual(config.reasoning_effort, "low")
         self.assertEqual(config.profile, "agentlab")
         self.assertEqual(config.sandbox, "workspace-write")
         self.assertEqual(config.approval_policy, "on-failure")
@@ -787,6 +794,7 @@ class CliOutputTest(unittest.TestCase):
             agent="codex",
             codex_command="missing-codex",
             codex_model=None,
+            codex_reasoning_effort=None,
             codex_profile=None,
             codex_sandbox="workspace-write",
             codex_approval="never",
@@ -866,6 +874,7 @@ class CliOutputTest(unittest.TestCase):
             no_pause=True,
             codex_command="codex-test",
             codex_model="gpt-test",
+            codex_reasoning_effort="low",
             codex_profile="agentlab",
             codex_sandbox="read-only",
             codex_approval="on-request",
@@ -894,6 +903,7 @@ class CliOutputTest(unittest.TestCase):
         agent = execute.call_args.args[1](show_progress=False)
         self.assertEqual(agent.config.command, "codex-test")
         self.assertEqual(agent.config.model, "gpt-test")
+        self.assertEqual(agent.config.reasoning_effort, "low")
         self.assertEqual(agent.config.profile, "agentlab")
         self.assertEqual(agent.config.sandbox, "read-only")
         self.assertEqual(agent.config.approval_policy, "on-request")
@@ -963,6 +973,7 @@ class CliOutputTest(unittest.TestCase):
             no_pause=True,
             codex_command="codex-test",
             codex_model="gpt-test",
+            codex_reasoning_effort="low",
             codex_profile=None,
             codex_sandbox="workspace-write",
             codex_approval="never",
@@ -1009,6 +1020,7 @@ class CliOutputTest(unittest.TestCase):
         agent = execute.call_args.args[1](show_progress=True)
         self.assertEqual(agent.config.command, "codex-test")
         self.assertEqual(agent.config.model, "gpt-test")
+        self.assertEqual(agent.config.reasoning_effort, "low")
         self.assertTrue(agent.config.show_progress)
         config = execute.call_args.args[2]
         self.assertEqual(config.trials, 1)

@@ -35,6 +35,7 @@ PreflightRunner = Callable[[List[str], int], subprocess.CompletedProcess[str]]
 class CodexCliConfig:
     command: str = "codex"
     model: Optional[str] = None
+    reasoning_effort: Optional[str] = None
     profile: Optional[str] = None
     sandbox: str = "workspace-write"
     approval_policy: str = "never"
@@ -160,6 +161,13 @@ class CodexCliAdapter:
             "--output-last-message",
             str(last_message_path),
         ]
+        if self.config.reasoning_effort:
+            command.extend(
+                [
+                    "--config",
+                    f'model_reasoning_effort="{self.config.reasoning_effort}"',
+                ]
+            )
         if self.config.model:
             command.extend(["--model", self.config.model])
         if self.config.profile:
@@ -246,6 +254,7 @@ def codex_agent_harness_config(
             "model_name": model_identity.model_name,
             "model_source": model_identity.model_source,
             "requested_model_name": model_identity.requested_model_name,
+            "requested_reasoning_effort": config.reasoning_effort,
             "reasoning_effort": model_identity.reasoning_effort,
             "model_provider": model_identity.model_provider,
             "codex_thread_id": model_identity.codex_thread_id,

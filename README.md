@@ -119,6 +119,7 @@ Useful Codex options:
 python3 -m agentlab run \
   --agent codex \
   --codex-model gpt-5.2 \
+  --codex-reasoning-effort low \
   --codex-timeout-seconds 1800 \
   --task tasks/starter/2048-advanced-snake-params-001
 ```
@@ -129,12 +130,15 @@ directory. Reports and result metadata include changed-file counts plus line
 additions/deletions from the captured patch. When JSON events expose the actual
 model used, `result.json` and reports derive `model_name` and `model_source`
 from those events; an explicit CLI `--model` is retained as the requested model
-rather than treated as authoritative runtime identity. By default it resolves
-`codex` from `PATH`. If the CLI is installed outside `PATH`, fix the shell
-environment or use `--codex-command /path/to/codex` for that run. While the
-agent process is running, the terminal shows a small progress bar such as
-`waiting for agent response`; agent launch errors are also printed to stderr
-instead of only appearing in the transcript.
+rather than treated as authoritative runtime identity. `--codex-reasoning-effort`
+requests a Codex reasoning level through `codex exec --config
+model_reasoning_effort="<value>"`; the requested value is recorded separately
+from recovered runtime `reasoning_effort` so ignored overrides remain visible.
+By default it resolves `codex` from `PATH`. If the CLI is installed outside
+`PATH`, fix the shell environment or use `--codex-command /path/to/codex` for
+that run. While the agent process is running, the terminal shows a small
+progress bar such as `waiting for agent response`; agent launch errors are also
+printed to stderr instead of only appearing in the transcript.
 
 Run a task through Claude Code:
 

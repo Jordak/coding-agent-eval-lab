@@ -38,11 +38,31 @@ class CodexCliAdapterTest(unittest.TestCase):
         )
         self.assertLess(command.index("--ask-for-approval"), command.index("exec"))
 
+    def test_codex_command_requests_reasoning_effort_with_config_override(self):
+        adapter = CodexCliAdapter(
+            CodexCliConfig(command="codex-test", reasoning_effort="low")
+        )
+
+        command = adapter._build_command(
+            Path("/workspace"),
+            Path("/run/codex-last-message.md"),
+            "prompt",
+        )
+
+        self.assertIn("--config", command)
+        self.assertIn('model_reasoning_effort="low"', command)
+        self.assertLess(command.index("exec"), command.index("--config"))
+        model_index = (
+            command.index("--model") if "--model" in command else len(command)
+        )
+        self.assertLess(command.index("--config"), model_index)
+
     def test_codex_agent_harness_config_keeps_unknowns_explicit(self):
         config = codex_agent_harness_config(
             CodexCliConfig(
                 command="codex-test",
                 model=None,
+                reasoning_effort="low",
                 profile="agentlab",
                 sandbox="workspace-write",
                 approval_policy="never",
@@ -60,6 +80,8 @@ class CodexCliAdapterTest(unittest.TestCase):
         self.assertEqual(config["command_identity"], "/usr/local/bin/codex-test")
         self.assertIsNone(config["model_name"])
         self.assertEqual(config["model_source"], "unknown")
+        self.assertEqual(config["requested_reasoning_effort"], "low")
+        self.assertIsNone(config["reasoning_effort"])
         self.assertEqual(config["profile"], "agentlab")
         self.assertEqual(config["sandbox"], "workspace-write")
         self.assertEqual(config["approval_policy"], "never")
@@ -308,6 +330,7 @@ class CodexCliAdapterTest(unittest.TestCase):
                 CodexCliConfig(
                     command=str(fake_codex),
                     model="gpt-test",
+                    reasoning_effort="low",
                     profile="agentlab",
                     sandbox="read-only",
                     approval_policy="never",
@@ -326,6 +349,8 @@ class CodexCliAdapterTest(unittest.TestCase):
         self.assertIn("--json", exec_help_command)
         self.assertIn("--cd", exec_help_command)
         self.assertIn("--sandbox", exec_help_command)
+        self.assertIn("--config", exec_help_command)
+        self.assertIn('model_reasoning_effort="low"', exec_help_command)
         self.assertIn("--model", exec_help_command)
         self.assertIn("--profile", exec_help_command)
         self.assertEqual(exec_help_command[-1], "--help")
@@ -337,6 +362,10 @@ class CodexCliAdapterTest(unittest.TestCase):
         )
         self.assertEqual(result.agent_harness_config["model_name"], "gpt-test")
         self.assertEqual(result.agent_harness_config["model_source"], "explicit")
+        self.assertEqual(
+            result.agent_harness_config["requested_reasoning_effort"],
+            "low",
+        )
         self.assertEqual(result.agent_harness_config["profile"], "agentlab")
         self.assertEqual(result.agent_harness_config["sandbox"], "read-only")
         self.assertEqual(result.agent_harness_config["cli_version"], "codex 1.2.3")
