@@ -89,7 +89,7 @@ def _budget_controls_facts(results: list[OutcomeEvidence]) -> list[tuple[str, ob
                 results,
                 lambda result: (
                     result.input_tokens is not None
-                    or result.output_tokens is not None
+                    and result.output_tokens is not None
                 ),
             ),
         ),
@@ -124,7 +124,11 @@ def _verifier_state_facts(results: list[OutcomeEvidence]) -> list[tuple[str, obj
 
 def _halt_reasons_facts(results: list[OutcomeEvidence]) -> list[tuple[str, object]]:
     return [
-        ("stored_stop_reason", _surface_values(results, "stop_reason")),
+        (
+            "normalized_or_derived_stop_reason",
+            _surface_values(results, "stop_reason"),
+        ),
+        ("first_class_halt_reason_taxonomy", UNKNOWN),
         ("error_field", _coverage(results, lambda result: result.error is not None)),
         ("budget_operator_interruption_taxonomy", UNKNOWN),
     ]

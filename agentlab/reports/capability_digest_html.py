@@ -400,6 +400,12 @@ def _global_facts(
     selection_context: Mapping[str, object],
 ) -> str:
     facts = [f"Agent trials: {len(results)}"]
+    evidence_sets = selection_context.get("evidence_sets")
+    if isinstance(evidence_sets, list):
+        facts.append(f"Evidence sets: {len(evidence_sets)}")
+        for evidence_set in evidence_sets:
+            if isinstance(evidence_set, Mapping):
+                facts.append(_evidence_set_fact(evidence_set))
     name = selection_context.get("name")
     if name:
         facts.append(f"Evidence set: {name}")
@@ -414,6 +420,18 @@ def _global_facts(
         + "".join(f"<span>{_text(fact)}</span>" for fact in facts)
         + "</div>"
     )
+
+
+def _evidence_set_fact(context: Mapping[str, object]) -> str:
+    name = context.get("name") or "unknown"
+    fact = f"Evidence set: {name}"
+    selected_result_files = context.get("selected_result_files")
+    if selected_result_files is not None:
+        fact += f", selected result files: {selected_result_files}"
+    source_path = context.get("source_path")
+    if source_path:
+        fact += f", source: {source_path}"
+    return fact
 
 
 def _context_page(

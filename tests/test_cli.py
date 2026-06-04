@@ -350,9 +350,52 @@ class CliOutputTest(unittest.TestCase):
         self.assertIn("sandbox_mode: `workspace-write`", report)
         self.assertIn("approval_policy: `acceptEdits`", report)
         self.assertEqual(html_report.count("<h2>Agent Harness Operability</h2>"), 2)
+        self.assertIn("Evidence sets: 2", html_report)
+        self.assertIn("Evidence set: codex evidence", html_report)
+        self.assertIn("Evidence set: claude evidence", html_report)
         self.assertIn("sandbox_mode: workspace-write", html_report)
         self.assertIn("approval_policy: acceptEdits", html_report)
         self.assertIn("configured_token_cost_quota_limits: unknown", html_report)
+
+    def test_capability_evidence_digest_rejects_duplicate_evidence_set_results(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            runs_dir = root / "runs"
+            run_dir = runs_dir / "trial-pass"
+            run_dir.mkdir(parents=True)
+            self._write_result(
+                run_dir,
+                trial_id="trial-pass",
+                agent_name="codex",
+                config={"agent_harness": "codex"},
+            )
+            first_set = root / "first.json"
+            second_set = root / "second.json"
+            first_set.write_text(
+                json.dumps({"name": "first", "trials": ["trial-pass"]}),
+                encoding="utf-8",
+            )
+            second_set.write_text(
+                json.dumps({"name": "second", "trials": ["trial-pass"]}),
+                encoding="utf-8",
+            )
+            stderr = io.StringIO()
+
+            with contextlib.redirect_stderr(stderr):
+                status = handle_report_capability_evidence_digest(
+                    SimpleNamespace(
+                        runs_dir=str(runs_dir),
+                        evidence_set=[str(first_set), str(second_set)],
+                        output=str(root / "reports" / "digest.md"),
+                        html_output=None,
+                    )
+                )
+
+        self.assertEqual(status, 1)
+        error = stderr.getvalue()
+        self.assertIn("duplicate evidence-set result selected", error)
+        self.assertIn(str(first_set.resolve()), error)
+        self.assertIn(str(second_set.resolve()), error)
 
     def test_recover_parser_accepts_codex_runtime_metadata_options(self):
         parser = build_parser()

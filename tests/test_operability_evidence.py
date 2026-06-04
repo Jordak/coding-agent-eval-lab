@@ -62,6 +62,8 @@ class OperabilityEvidenceTest(unittest.TestCase):
         self.assertIn("timeout_seconds: `1800`", table)
         self.assertIn("observed_input_output_tokens: `2/2`", table)
         self.assertIn("observed_cost_usd: `1/2`", table)
+        self.assertIn("normalized_or_derived_stop_reason", table)
+        self.assertIn("first_class_halt_reason_taxonomy: `unknown`", table)
         self.assertIn("intermediate_verifier_movement: `unknown`", table)
         self.assertIn(
             "budget_operator_interruption_taxonomy: `unknown`",
@@ -86,11 +88,31 @@ class OperabilityEvidenceTest(unittest.TestCase):
         table = "\n".join(render_agent_harness_operability_table([result]))
 
         self.assertIn("observed_input_output_tokens: `unknown`", table)
+        self.assertIn("normalized_or_derived_stop_reason: `success`", table)
+        self.assertIn("first_class_halt_reason_taxonomy: `unknown`", table)
+        self.assertNotIn("stored_stop_reason", table)
         self.assertIn(
             "interrupted_or_error_receipt: `unknown: selected evidence has no interrupted/error receipts`",
             table,
         )
         self.assertIn("configured_token_cost_quota_limits: `unknown`", table)
+
+    def test_render_agent_harness_operability_table_requires_input_and_output_tokens(self):
+        result = _result(
+            trial_id="codex-partial-tokens",
+            agent_name="codex",
+            model_name="gpt-test",
+            status="passed",
+            success=True,
+            config={"agent_harness": "codex"},
+            input_tokens=10,
+            output_tokens=None,
+            cost_usd=None,
+        )
+
+        table = "\n".join(render_agent_harness_operability_table([result]))
+
+        self.assertIn("observed_input_output_tokens: `unknown`", table)
 
 
 def _result(

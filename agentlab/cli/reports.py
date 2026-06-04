@@ -64,6 +64,7 @@ def handle_report_capability_evidence_digest(args: argparse.Namespace) -> int:
         evidence_set_contexts = []
         selected_entries = 0
         selected_result_files = 0
+        result_file_sources: dict[Path, str] = {}
         for evidence_set_path in evidence_set_paths:
             try:
                 evidence_set = load_evidence_set(
@@ -73,6 +74,20 @@ def handle_report_capability_evidence_digest(args: argparse.Namespace) -> int:
             except (OSError, ValueError) as exc:
                 print(f"ERROR {exc}", file=sys.stderr)
                 return 1
+            for result_file in evidence_set.result_files:
+                resolved_result_file = result_file.resolve()
+                if resolved_result_file in result_file_sources:
+                    first_source = result_file_sources[resolved_result_file]
+                    print(
+                        "ERROR duplicate evidence-set result selected: "
+                        f"{result_file} appears in both {first_source} and "
+                        f"{evidence_set.source_path}",
+                        file=sys.stderr,
+                    )
+                    return 1
+                result_file_sources[resolved_result_file] = str(
+                    evidence_set.source_path
+                )
             result_files.extend(evidence_set.result_files)
             context = evidence_set.digest_context()
             evidence_set_contexts.append(context)
