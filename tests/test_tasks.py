@@ -189,7 +189,16 @@ class TaskLoadingTest(unittest.TestCase):
             )
 
     def test_rejects_invalid_boundary_globs(self):
-        invalid_patterns = ["!src/**", "../secret", "/absolute/path", "src//app.py"]
+        invalid_patterns = [
+            "!src/**",
+            "./!src/**",
+            "././!src/**",
+            "../secret",
+            "/absolute/path",
+            "src//app.py",
+            "[!a]*.py",
+            "src/[ab].py",
+        ]
         for pattern in invalid_patterns:
             with self.subTest(pattern=pattern):
                 with self.assertRaises(TaskLoadError):

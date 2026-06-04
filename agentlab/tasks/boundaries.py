@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import fnmatch
 from dataclasses import dataclass
 from pathlib import PurePosixPath
 from typing import Sequence
@@ -34,16 +33,19 @@ class BoundaryViolation:
 
 
 def validate_boundary_glob(pattern: str, field_name: str) -> None:
-    normalized = _normalize_pattern(pattern)
+    normalized = _strip_current_directory_prefix(_normalize_pattern(pattern))
     if normalized == "":
         raise ValueError(f"{field_name} entries must be non-empty")
     if normalized.startswith("!"):
         raise ValueError(f"{field_name} entries must not use negation")
+    if "[" in normalized or "]" in normalized:
+        raise ValueError(
+            f"{field_name} entries may only use *, ?, **, and trailing / globs"
+        )
     if normalized.startswith("/") or "//" in normalized:
         raise ValueError(
             f"{field_name} entries must be normalized repo-root-relative path globs"
         )
-    normalized = _strip_current_directory_prefix(normalized)
     trimmed = normalized.rstrip("/")
     if trimmed in {"", "."}:
         raise ValueError(f"{field_name} entries must be non-empty")
@@ -101,8 +103,10 @@ def path_matches_boundary_glob(path: str, pattern: str) -> bool:
     normalized_path = _normalize_changed_path(path)
     normalized_pattern = _strip_current_directory_prefix(_normalize_pattern(pattern))
     if normalized_pattern.endswith("/"):
-        directory = normalized_pattern.rstrip("/")
-        return normalized_path.startswith(f"{directory}/")
+        return _matches_directory_prefix(
+            normalized_path.split("/"),
+            normalized_pattern.rstrip("/").split("/"),
+        )
     return _match_segments(
         normalized_path.split("/"),
         normalized_pattern.split("/"),
@@ -132,9 +136,36 @@ def _match_segments(path_parts: list[str], pattern_parts: list[str]) -> bool:
 
     if not path_parts:
         return False
-    if not fnmatch.fnmatchcase(path_parts[0], pattern):
+    if not _match_segment(path_parts[0], pattern):
         return False
     return _match_segments(path_parts[1:], pattern_parts[1:])
+
+
+def _matches_directory_prefix(
+    path_parts: list[str],
+    pattern_parts: list[str],
+) -> bool:
+    for end_index in range(1, len(path_parts)):
+        if _match_segments(path_parts[:end_index], pattern_parts):
+            return True
+    return False
+
+
+def _match_segment(path_part: str, pattern: str) -> bool:
+    if pattern == "":
+        return path_part == ""
+    if pattern[0] == "*":
+        return _match_segment(path_part, pattern[1:]) or (
+            bool(path_part)
+            and _match_segment(path_part[1:], pattern)
+        )
+    if pattern[0] == "?":
+        return bool(path_part) and _match_segment(path_part[1:], pattern[1:])
+    return (
+        bool(path_part)
+        and path_part[0] == pattern[0]
+        and _match_segment(path_part[1:], pattern[1:])
+    )
 
 
 def _normalize_changed_path(path: str) -> str:
@@ -147,6 +178,6 @@ def _normalize_pattern(pattern: str) -> str:
 
 
 def _strip_current_directory_prefix(value: str) -> str:
-    if value.startswith("./"):
-        return value[2:]
+    while value.startswith("./"):
+        value = value[2:]
     return value

@@ -16,6 +16,18 @@ class BoundaryGlobTest(unittest.TestCase):
     def test_trailing_slash_is_recursive_directory_match(self):
         self.assertTrue(path_matches_boundary_glob("docs/design.md", "docs/"))
         self.assertTrue(path_matches_boundary_glob("docs/nested/design.md", "docs/"))
+        self.assertTrue(
+            path_matches_boundary_glob(
+                "packages/app/private/secret.py",
+                "packages/*/private/",
+            )
+        )
+        self.assertTrue(
+            path_matches_boundary_glob(
+                "apps/web/routes/generated/out.js",
+                "apps/**/generated/",
+            )
+        )
         self.assertFalse(path_matches_boundary_glob("docs", "docs/"))
         self.assertFalse(path_matches_boundary_glob("docs2/design.md", "docs/"))
 

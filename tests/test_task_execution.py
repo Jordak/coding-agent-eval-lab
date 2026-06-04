@@ -9,7 +9,7 @@ from unittest import mock
 from agentlab.execution.scoring import CheckResult
 from agentlab.execution.phases import TaskActionResult
 from agentlab.execution.phases import execute_task_phases
-from agentlab.tasks import EvalTask
+from agentlab.tasks import EvalTask, SuccessCriteria
 from tests.git_fixtures import commit_file
 from tests.git_fixtures import git
 from tests.git_fixtures import init_repo
@@ -76,6 +76,93 @@ class TaskExecutionTest(unittest.TestCase):
             self.assertEqual(
                 git(["rev-parse", "HEAD"], execution.workspace).stdout.strip(),
                 execution.workspace_base_ref,
+            )
+
+    def test_setup_created_untracked_files_are_not_counted_as_agent_changes(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for task execution")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo, commit = self._repo_with_file(temp_path, "before\n")
+            task = EvalTask(
+                id="setup-untracked-task",
+                title="Setup untracked task",
+                repo=str(repo),
+                commit=commit,
+                language="text",
+                prompt="Create the allowed result file.",
+                setup=[
+                    f"{sys.executable} -c "
+                    "\"from pathlib import Path; "
+                    "Path('setup.log').write_text('setup\\\\n')\""
+                ],
+                success=SuccessCriteria(
+                    allowed_paths=["allowed/"],
+                    max_files_changed=1,
+                ),
+            )
+
+            def action(workspace, _task_env):
+                output_dir = workspace / "allowed"
+                output_dir.mkdir()
+                (output_dir / "result.txt").write_text("ok\n", encoding="utf-8")
+                return TaskActionResult()
+
+            execution = execute_task_phases(
+                task,
+                temp_path / "workspace",
+                action,
+                temp_path / "diff.patch",
+            )
+
+            self.assertEqual(execution.files_changed, ["allowed/result.txt"])
+            self.assertTrue(execution.score.tests_passed)
+            self.assertEqual(execution.score.notes, [])
+
+    def test_committed_agent_changes_are_counted_against_boundaries(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for task execution")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo, commit = self._repo_with_file(temp_path, "before\n")
+            task = EvalTask(
+                id="committed-boundary-task",
+                title="Committed boundary task",
+                repo=str(repo),
+                commit=commit,
+                language="text",
+                prompt="Do not change forbidden.txt.",
+                success=SuccessCriteria(forbidden_paths=["forbidden.txt"]),
+            )
+
+            def action(workspace, _task_env):
+                (workspace / "forbidden.txt").write_text(
+                    "secret\n",
+                    encoding="utf-8",
+                )
+                git(["config", "user.email", "agentlab@example.com"], workspace)
+                git(["config", "user.name", "Agent Lab"], workspace)
+                git(["add", "forbidden.txt"], workspace)
+                git(["commit", "-m", "agent change"], workspace)
+                return TaskActionResult()
+
+            execution = execute_task_phases(
+                task,
+                temp_path / "workspace",
+                action,
+                temp_path / "diff.patch",
+            )
+
+            self.assertEqual(execution.files_changed, ["forbidden.txt"])
+            self.assertFalse(execution.score.tests_passed)
+            self.assertEqual(
+                execution.score.notes,
+                [
+                    "scope boundary violation: `forbidden.txt` "
+                    "matches forbidden_paths pattern `forbidden.txt`"
+                ],
             )
 
     def test_agent_error_makes_grader_outcome_fail(self):

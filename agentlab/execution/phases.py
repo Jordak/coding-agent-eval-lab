@@ -11,6 +11,7 @@ from agentlab.execution.scoring import CheckResult
 from agentlab.execution.scoring import Score
 from agentlab.execution.scoring import calculate_grader_outcome
 from agentlab.tasks import EvalTask
+from agentlab.execution.workspace import capture_change_baseline
 from agentlab.execution.workspace import capture_diff
 from agentlab.execution.workspace import prepare_workspace
 
@@ -56,11 +57,14 @@ def execute_task_phases(
     workspace_root: Path,
     action: TaskAction,
     diff_path: Path | DiffPathResolver,
+    *,
+    diff_base_ref: str | None = None,
 ) -> TaskExecution:
     prepared = prepare_workspace(task, workspace_root)
     task_env = build_task_environment(task, prepared.path)
     setup_checks = run_commands(task.setup, prepared.path, env=task_env)
     baseline_checks = run_commands(task.baseline, prepared.path, env=task_env)
+    change_baseline = capture_change_baseline(prepared.path)
 
     action_result = action(prepared.path, task_env)
     target_checks = run_commands(task.test, prepared.path, env=task_env)
@@ -69,7 +73,8 @@ def execute_task_phases(
     files_changed = capture_diff(
         prepared.path,
         resolved_diff_path,
-        base_ref=prepared.workspace_base_ref,
+        base_ref=diff_base_ref or change_baseline.tree_ref,
+        exclude_untracked=change_baseline.untracked_paths,
     )
     patch_stats = count_patch_lines(
         resolved_diff_path.read_text(encoding="utf-8")
