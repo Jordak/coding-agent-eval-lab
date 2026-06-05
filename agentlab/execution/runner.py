@@ -55,6 +55,9 @@ def run_task(task: EvalTask, agent: AgentAdapter, runs_dir: Path) -> EvaluationR
         commands_run=[check.command for check in execution.all_checks],
         lines_added=execution.lines_added,
         lines_deleted=execution.lines_deleted,
+        setup_created_untracked_changed_paths=(
+            execution.setup_created_untracked_changed_paths
+        ),
         success=execution.score.tests_passed,
     )
 

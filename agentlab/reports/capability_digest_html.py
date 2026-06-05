@@ -283,6 +283,11 @@ def _document(
     }}
     .section h2 {{ font-size: 20px; }}
     .section h3 {{ font-size: 15px; color: var(--muted); }}
+    .section-note {{
+      margin: -2px 0 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }}
     .two-col {{
       display: grid;
       grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr);
@@ -483,8 +488,8 @@ def _context_page(
     {_reviewer_focus(context, render_context)}
     {_summary_section("Outcome Summary", _outcome_rows(context, render_context), ["Task", "Type", "Total", "Fair", "Excluded", "Passes", "Accepted", "Pass Rate", "pass@k", "pass^k"])}
     {_summary_section("Token Summary", _token_rows(context, render_context), ["Task", "Type", "IO Tokens", "Cached Tokens", "Reason Tokens", "IO Tok / Verified", "IO Tok / Accepted", "Cached Tok / Verified", "Reason Tok / Verified"])}
-    {_summary_section("Review and Patch Summary", _review_rows(context, render_context), ["Task", "Type", "Median ms", "Median Files", "Median +Lines", "Median -Lines", "Primary Review Labels", "Secondary Review Labels", "Exclusions"])}
-    {_summary_section("Trial Evidence", _trial_rows(context, render_context), ["Task", "Type", "Trial", "Grader Outcome", "Validity", "Primary Review Label", "Secondary Review Labels", "Exclusion", "Files", "+Lines", "-Lines", "Input Tokens", "Cached Input Tokens", "Output Tokens", "Reasoning Tokens", "Cost USD", "Duration ms", "Report", "Transcript", "Diff", "Result"])}
+    {_summary_section("Review and Patch Summary", _review_rows(context, render_context), ["Task", "Type", "Median ms", "Median Files", "Median +Lines", "Median -Lines", "Primary Review Labels", "Secondary Review Labels", "Exclusions"], note=_review_patch_size_caveat_note(context))}
+    {_summary_section("Trial Evidence", _trial_rows(context, render_context), ["Task", "Type", "Trial", "Grader Outcome", "Validity", "Primary Review Label", "Secondary Review Labels", "Exclusion", "Files", "+Lines", "-Lines", "Input Tokens", "Cached Input Tokens", "Output Tokens", "Reasoning Tokens", "Cost USD", "Duration ms", "Report", "Transcript", "Diff", "Result"], note=_patch_size_caveat_note(context.results))}
   </main>
 """
 
@@ -566,10 +571,14 @@ def _summary_section(
     heading: str,
     rows: Sequence[Mapping[str, str]],
     headers: Sequence[str],
+    *,
+    note: str = "",
 ) -> str:
+    note_html = f'<p class="section-note">{_text(note)}</p>' if note else ""
     return f"""
     <section class="section">
       <h2>{_text(heading)}</h2>
+      {note_html}
       {_table(headers, rows)}
     </section>
 """
@@ -659,8 +668,18 @@ def _review_rows(
             "Type": _text(summary.eval_type),
             "Median ms": _text(summary.median_duration_ms),
             "Median Files": _text(_format_optional_number(summary.median_files_changed)),
-            "Median +Lines": _text(_format_optional_number(summary.median_lines_added)),
-            "Median -Lines": _text(_format_optional_number(summary.median_lines_deleted)),
+            "Median +Lines": _text(
+                _patch_stat(
+                    _format_optional_number(summary.median_lines_added),
+                    _summary_has_patch_size_caveat(summary, context.results),
+                )
+            ),
+            "Median -Lines": _text(
+                _patch_stat(
+                    _format_optional_number(summary.median_lines_deleted),
+                    _summary_has_patch_size_caveat(summary, context.results),
+                )
+            ),
             "Primary Review Labels": _text(_format_counts(summary.review_labels)),
             "Secondary Review Labels": _text(_format_counts(summary.secondary_review_labels)),
             "Exclusions": _text(_format_counts(summary.exclusion_reasons)),
@@ -697,8 +716,18 @@ def _trial_rows(
             "Secondary Review Labels": _text(_format_labels(result.secondary_review_labels)),
             "Exclusion": _text(result.exclusion_reason_display),
             "Files": _text(result.files_changed_count),
-            "+Lines": _text(result.lines_added),
-            "-Lines": _text(result.lines_deleted),
+            "+Lines": _text(
+                _patch_stat(
+                    result.lines_added,
+                    bool(result.setup_created_untracked_changed_paths),
+                )
+            ),
+            "-Lines": _text(
+                _patch_stat(
+                    result.lines_deleted,
+                    bool(result.setup_created_untracked_changed_paths),
+                )
+            ),
             "Input Tokens": _text(_unknown_if_none(result.input_tokens)),
             "Cached Input Tokens": _text(_unknown_if_none(result.cached_input_tokens)),
             "Output Tokens": _text(_unknown_if_none(result.output_tokens)),
@@ -712,6 +741,49 @@ def _trial_rows(
         }
         for result in context.results
     ]
+
+
+def _patch_size_caveat_note(results: Sequence[OutcomeEvidence]) -> str:
+    if not any(result.setup_created_untracked_changed_paths for result in results):
+        return ""
+    return (
+        "Patch size metrics marked with * include setup-created untracked "
+        "path changes; line counts may not fully represent those paths."
+    )
+
+
+def _review_patch_size_caveat_note(context: RunContext) -> str:
+    if not any(
+        _summary_has_patch_size_caveat(summary, context.results)
+        for summary in context.summaries
+    ):
+        return ""
+    return (
+        "Patch size metrics marked with * include setup-created untracked "
+        "path changes; line counts may not fully represent those paths."
+    )
+
+
+def _summary_has_patch_size_caveat(
+    summary: TrialGroupSummary,
+    results: Sequence[OutcomeEvidence],
+) -> bool:
+    return any(
+        result.is_valid_trial
+        and result.setup_created_untracked_changed_paths
+        and result.eval_suite == summary.eval_suite
+        and result.eval_type == summary.eval_type
+        and result.task_id == summary.task_id
+        and result.agent_name == summary.agent_name
+        and result.model_name_display == summary.model_name_display
+        and result.reasoning_effort_display == summary.reasoning_effort_display
+        for result in results
+    )
+
+
+def _patch_stat(value: object, has_caveat: bool) -> str:
+    suffix = "*" if has_caveat else ""
+    return f"{value}{suffix}"
 
 
 def _run_contexts(results: Sequence[OutcomeEvidence]) -> list[RunContext]:

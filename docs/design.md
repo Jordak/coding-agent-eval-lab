@@ -97,11 +97,11 @@ values are `silent`, `implicit_deny`, `explicit_deny`, `implicit_allow`, and
 
 Boundary path patterns are repo-root-relative globs matched against normalized
 final changed paths that use `/` separators. Patterns must not be absolute, must
-not contain `..`, must not be empty, and must not start with `!`; v1 has no
-negation. A pattern is matched against the whole changed path. `*` and `?` match
-within one path segment, and `**` matches zero or more path segments. A trailing
-slash means a recursive directory match: `src/` matches changed paths below
-`src/`, including nested descendants.
+not contain `.` or `..` path segments, must not be empty, and must not start
+with `!`; v1 has no negation. A pattern is matched against the whole changed
+path. `*` and `?` match within one path segment, and `**` matches zero or more
+path segments. A trailing slash means a recursive directory match: `src/`
+matches changed paths below `src/`, including nested descendants.
 
 Missing `success.allowed_paths` means there is no allow-list constraint. An
 explicit empty `success.allowed_paths: []` is invalid task metadata. Missing or

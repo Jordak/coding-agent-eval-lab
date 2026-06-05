@@ -12,7 +12,7 @@ from agentlab.execution.scoring import Score
 from agentlab.execution.scoring import calculate_grader_outcome
 from agentlab.tasks import EvalTask
 from agentlab.execution.workspace import capture_change_baseline
-from agentlab.execution.workspace import capture_diff
+from agentlab.execution.workspace import capture_diff_details
 from agentlab.execution.workspace import prepare_workspace
 
 
@@ -38,6 +38,7 @@ class TaskExecution:
     files_changed: list[str] = field(default_factory=list)
     lines_added: int = 0
     lines_deleted: int = 0
+    setup_created_untracked_changed_paths: list[str] = field(default_factory=list)
     diff_path: Path = Path("diff.patch")
     workspace_history_policy: str = "unknown"
     workspace_base_ref: str = "unknown"
@@ -70,11 +71,12 @@ def execute_task_phases(
     target_checks = run_commands(task.test, prepared.path, env=task_env)
 
     resolved_diff_path = _resolve_diff_path(diff_path, prepared.path)
-    files_changed = capture_diff(
+    captured_diff = capture_diff_details(
         prepared.path,
         resolved_diff_path,
         base_ref=diff_base_ref or change_baseline.tree_ref,
         baseline_untracked=change_baseline.untracked_files,
+        baseline_reset_index=change_baseline.reset_index_entries,
     )
     patch_stats = count_patch_lines(
         resolved_diff_path.read_text(encoding="utf-8")
@@ -88,7 +90,7 @@ def execute_task_phases(
     score = calculate_grader_outcome(
         task,
         all_checks,
-        files_changed,
+        captured_diff.files_changed,
         agent_error=action_result.agent_error,
     )
     return TaskExecution(
@@ -99,9 +101,12 @@ def execute_task_phases(
         baseline_checks=baseline_checks,
         action_checks=action_result.checks,
         target_checks=target_checks,
-        files_changed=files_changed,
+        files_changed=captured_diff.files_changed,
         lines_added=patch_stats.lines_added,
         lines_deleted=patch_stats.lines_deleted,
+        setup_created_untracked_changed_paths=(
+            captured_diff.setup_created_untracked_changed_paths
+        ),
         diff_path=resolved_diff_path,
         workspace_history_policy=prepared.workspace_history_policy,
         workspace_base_ref=prepared.workspace_base_ref,

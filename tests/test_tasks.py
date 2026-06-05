@@ -196,6 +196,7 @@ class TaskLoadingTest(unittest.TestCase):
             "../secret",
             "/absolute/path",
             "src//app.py",
+            "src/./private/",
             "[!a]*.py",
             "src/[ab].py",
         ]

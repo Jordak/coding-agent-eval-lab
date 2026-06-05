@@ -2,8 +2,10 @@ import unittest
 from pathlib import Path
 from types import SimpleNamespace
 
+from agentlab.evidence.results import reference_verification_to_result_dict
 from agentlab.evidence.results import to_result_dict
 from agentlab.reports.trial_markdown import render_markdown_report
+from agentlab.reports.trial_markdown import render_reference_report
 from agentlab.tasks import EvalTask, SuccessCriteria
 
 
@@ -25,6 +27,57 @@ class ScopeOracleRenderingTest(unittest.TestCase):
                 "allowed_paths": ["src/"],
                 "forbidden_paths": ["src/private/"],
             },
+        )
+
+    def test_patch_size_caveat_renders_for_setup_created_untracked_changes(self):
+        run = _run_with_scope_oracle()
+        run.agent_run.setup_created_untracked_changed_paths = ["setup.log"]
+
+        report = render_markdown_report(run)
+        result = to_result_dict(run)
+
+        self.assertIn("- Lines added: `1`*", report)
+        self.assertIn("- Lines deleted: `0`*", report)
+        self.assertIn("Patch size metrics marked with `*`", report)
+        self.assertIn("`setup.log`", report)
+        self.assertEqual(
+            result["setup_created_untracked_changed_paths"],
+            ["setup.log"],
+        )
+        self.assertEqual(
+            result["outcome"]["setup_created_untracked_changed_paths"],
+            ["setup.log"],
+        )
+
+    def test_reference_report_renders_setup_created_untracked_caveat(self):
+        verification = SimpleNamespace(
+            task=_run_with_scope_oracle().task,
+            success=True,
+            files_changed=["setup.log"],
+            lines_added=2,
+            lines_deleted=1,
+            setup_created_untracked_changed_paths=["setup.log"],
+            all_checks=[],
+            notes=[],
+            report_path=Path("reference-report.md"),
+            result_path=Path("reference-result.json"),
+            diff_path=Path("reference.diff"),
+        )
+
+        report = render_reference_report(verification)
+        result = reference_verification_to_result_dict(verification)
+
+        self.assertIn("- Lines added: `2`*", report)
+        self.assertIn("- Lines deleted: `1`*", report)
+        self.assertIn("Patch size metrics marked with `*`", report)
+        self.assertIn("`setup.log`", report)
+        self.assertEqual(
+            result["setup_created_untracked_changed_paths"],
+            ["setup.log"],
+        )
+        self.assertEqual(
+            result["outcome"]["setup_created_untracked_changed_paths"],
+            ["setup.log"],
         )
 
 
@@ -59,6 +112,7 @@ def _run_with_scope_oracle():
             diff_path=Path("diff.patch"),
             commands_run=[],
             duration_ms=123,
+            setup_created_untracked_changed_paths=[],
             input_tokens=None,
             cached_input_tokens=None,
             output_tokens=None,

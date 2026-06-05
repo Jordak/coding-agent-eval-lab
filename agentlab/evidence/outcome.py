@@ -58,6 +58,7 @@ class OutcomeEvidence:
     n_files_changed: int
     lines_added: int
     lines_deleted: int
+    setup_created_untracked_changed_paths: list[str]
     commands_run: list[Any]
     checks: list[Any]
     graders: list[Any]
@@ -251,6 +252,13 @@ class OutcomeEvidence:
                 "run_dir": self.run_dir,
             }
         )
+        if self.setup_created_untracked_changed_paths:
+            result["setup_created_untracked_changed_paths"] = list(
+                self.setup_created_untracked_changed_paths
+            )
+            result["outcome"]["setup_created_untracked_changed_paths"] = list(
+                self.setup_created_untracked_changed_paths
+            )
         return result
 
 
@@ -296,6 +304,9 @@ def normalize_outcome_evidence(
     n_files_changed = _files_changed_count(data, files_changed)
     lines_added = _optional_int(data.get("lines_added")) or 0
     lines_deleted = _optional_int(data.get("lines_deleted")) or 0
+    setup_created_untracked_changed_paths = (
+        _setup_created_untracked_changed_paths(data)
+    )
     outcome = _outcome(
         data,
         status,
@@ -303,6 +314,7 @@ def normalize_outcome_evidence(
         n_files_changed,
         lines_added,
         lines_deleted,
+        setup_created_untracked_changed_paths,
     )
 
     trial_id = str(
@@ -364,6 +376,9 @@ def normalize_outcome_evidence(
         n_files_changed=n_files_changed,
         lines_added=lines_added,
         lines_deleted=lines_deleted,
+        setup_created_untracked_changed_paths=(
+            setup_created_untracked_changed_paths
+        ),
         commands_run=_list(data.get("commands_run")),
         checks=_list(data.get("checks")),
         graders=_list(data.get("graders")),
@@ -416,6 +431,7 @@ def _outcome(
     n_files_changed: int,
     lines_added: int,
     lines_deleted: int,
+    setup_created_untracked_changed_paths: list[str],
 ) -> Dict[str, Any]:
     raw_outcome = data.get("outcome")
     outcome = dict(raw_outcome) if isinstance(raw_outcome, Mapping) else {}
@@ -424,6 +440,10 @@ def _outcome(
     outcome["n_files_changed"] = n_files_changed
     outcome["lines_added"] = lines_added
     outcome["lines_deleted"] = lines_deleted
+    if setup_created_untracked_changed_paths:
+        outcome["setup_created_untracked_changed_paths"] = (
+            setup_created_untracked_changed_paths
+        )
     if data.get("diff_path") is not None:
         outcome["diff_path"] = str(data.get("diff_path"))
     return outcome
@@ -444,6 +464,17 @@ def _files_changed_count(
     if raw_count is not None:
         return raw_count
     return len(files_changed)
+
+
+def _setup_created_untracked_changed_paths(data: Mapping[str, Any]) -> list[str]:
+    paths = data.get("setup_created_untracked_changed_paths")
+    if not isinstance(paths, list):
+        outcome = data.get("outcome")
+        if isinstance(outcome, Mapping):
+            paths = outcome.get("setup_created_untracked_changed_paths")
+    if not isinstance(paths, list):
+        return []
+    return [str(path) for path in paths]
 
 
 def _resource_usage(data: Mapping[str, Any]) -> ResourceUsage:

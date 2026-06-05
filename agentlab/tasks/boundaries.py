@@ -49,6 +49,10 @@ def validate_boundary_glob(pattern: str, field_name: str) -> None:
     trimmed = normalized.rstrip("/")
     if trimmed in {"", "."}:
         raise ValueError(f"{field_name} entries must be non-empty")
+    if "." in trimmed.split("/"):
+        raise ValueError(
+            f"{field_name} entries must be repo-root-relative path globs"
+        )
     path = PurePosixPath(trimmed)
     if path.is_absolute() or ".." in path.parts:
         raise ValueError(

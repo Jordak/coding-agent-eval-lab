@@ -23,6 +23,9 @@ def write_result_json(run: Any) -> None:
 
 def to_result_dict(run: Any) -> Dict[str, Any]:
     status = "passed" if run.score.tests_passed else "failed"
+    setup_created_untracked_changed_paths = (
+        _setup_created_untracked_changed_paths(run.agent_run)
+    )
     agent_harness_config = normalize_agent_harness_config(
         getattr(run.agent_run, "agent_harness_config", {}),
         agent_name=run.agent_run.agent_name,
@@ -37,6 +40,18 @@ def to_result_dict(run: Any) -> Dict[str, Any]:
         success=run.score.tests_passed,
         error=run.agent_run.error,
     )
+    outcome = {
+        "status": status,
+        "files_changed": run.agent_run.files_changed,
+        "n_files_changed": len(run.agent_run.files_changed),
+        "lines_added": run.agent_run.lines_added,
+        "lines_deleted": run.agent_run.lines_deleted,
+        "diff_path": str(run.agent_run.diff_path),
+    }
+    if setup_created_untracked_changed_paths:
+        outcome["setup_created_untracked_changed_paths"] = (
+            setup_created_untracked_changed_paths
+        )
     result = {
         "trial_kind": "agent_trial",
         "trial_id": run.run_dir.name,
@@ -56,14 +71,7 @@ def to_result_dict(run: Any) -> Dict[str, Any]:
         "run_surface": run_surface,
         "status": status,
         "success": run.score.tests_passed,
-        "outcome": {
-            "status": status,
-            "files_changed": run.agent_run.files_changed,
-            "n_files_changed": len(run.agent_run.files_changed),
-            "lines_added": run.agent_run.lines_added,
-            "lines_deleted": run.agent_run.lines_deleted,
-            "diff_path": str(run.agent_run.diff_path),
-        },
+        "outcome": outcome,
         "score_notes": run.score.notes,
         "duration_ms": run.agent_run.duration_ms,
         "error": run.agent_run.error,
@@ -92,6 +100,10 @@ def to_result_dict(run: Any) -> Dict[str, Any]:
         "diff_path": str(run.agent_run.diff_path),
         "run_dir": str(run.run_dir),
     }
+    if setup_created_untracked_changed_paths:
+        result["setup_created_untracked_changed_paths"] = (
+            setup_created_untracked_changed_paths
+        )
     metadata = _scope_oracle_to_dict(run.task)
     if metadata:
         result["scope_oracle"] = metadata
@@ -101,6 +113,9 @@ def to_result_dict(run: Any) -> Dict[str, Any]:
 def reference_verification_to_result_dict(verification: Any) -> Dict[str, Any]:
     status = "passed" if verification.success else "failed"
     output_dir = verification.result_path.parent
+    setup_created_untracked_changed_paths = (
+        _setup_created_untracked_changed_paths(verification)
+    )
     agent_harness_config = normalize_agent_harness_config(
         {},
         agent_name="reference",
@@ -115,6 +130,18 @@ def reference_verification_to_result_dict(verification: Any) -> Dict[str, Any]:
         success=verification.success,
         error=None,
     )
+    outcome = {
+        "status": status,
+        "files_changed": verification.files_changed,
+        "n_files_changed": len(verification.files_changed),
+        "lines_added": verification.lines_added,
+        "lines_deleted": verification.lines_deleted,
+        "diff_path": _display_path(verification.diff_path, output_dir),
+    }
+    if setup_created_untracked_changed_paths:
+        outcome["setup_created_untracked_changed_paths"] = (
+            setup_created_untracked_changed_paths
+        )
     result = {
         "trial_kind": "reference_verification",
         "trial_id": f"{verification.task.id}-reference",
@@ -134,14 +161,7 @@ def reference_verification_to_result_dict(verification: Any) -> Dict[str, Any]:
         "run_surface": run_surface,
         "status": status,
         "success": verification.success,
-        "outcome": {
-            "status": status,
-            "files_changed": verification.files_changed,
-            "n_files_changed": len(verification.files_changed),
-            "lines_added": verification.lines_added,
-            "lines_deleted": verification.lines_deleted,
-            "diff_path": _display_path(verification.diff_path, output_dir),
-        },
+        "outcome": outcome,
         "score_notes": verification.notes,
         "duration_ms": 0,
         "error": None,
@@ -164,6 +184,10 @@ def reference_verification_to_result_dict(verification: Any) -> Dict[str, Any]:
         "diff_path": _display_path(verification.diff_path, output_dir),
         "run_dir": _display_path(output_dir, output_dir),
     }
+    if setup_created_untracked_changed_paths:
+        result["setup_created_untracked_changed_paths"] = (
+            setup_created_untracked_changed_paths
+        )
     metadata = _scope_oracle_to_dict(verification.task)
     if metadata:
         result["scope_oracle"] = metadata
@@ -213,6 +237,11 @@ def _scope_oracle_to_dict(task: Any) -> Dict[str, object]:
         allowed_paths=getattr(task.success, "allowed_paths", None),
         forbidden_paths=getattr(task.success, "forbidden_paths", []),
     )
+
+
+def _setup_created_untracked_changed_paths(value: Any) -> list[str]:
+    paths = getattr(value, "setup_created_untracked_changed_paths", [])
+    return [str(path) for path in paths]
 
 
 def _check_to_grader_dict(check: CheckResult) -> Dict[str, Any]:

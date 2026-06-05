@@ -120,6 +120,131 @@ class TaskExecutionTest(unittest.TestCase):
             self.assertTrue(execution.score.tests_passed)
             self.assertEqual(execution.score.notes, [])
 
+    def test_setup_staged_new_file_is_not_counted_as_agent_change(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for task execution")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo, commit = self._repo_with_file(temp_path, "before\n")
+            task = EvalTask(
+                id="setup-staged-new-task",
+                title="Setup staged new task",
+                repo=str(repo),
+                commit=commit,
+                language="text",
+                prompt="Do nothing.",
+                setup=[
+                    f"{sys.executable} -c "
+                    "\"from pathlib import Path; "
+                    "Path('setup.log').write_text('setup\\\\n')\"",
+                    "git add setup.log",
+                ],
+                success=SuccessCriteria(
+                    forbidden_paths=["setup.log"],
+                    max_files_changed=0,
+                ),
+            )
+
+            execution = execute_task_phases(
+                task,
+                temp_path / "workspace",
+                lambda _workspace, _task_env: TaskActionResult(),
+                temp_path / "diff.patch",
+            )
+
+            self.assertEqual(execution.files_changed, [])
+            self.assertEqual(execution.lines_added, 0)
+            self.assertEqual(execution.lines_deleted, 0)
+            self.assertTrue(execution.score.tests_passed)
+            self.assertEqual(execution.score.notes, [])
+
+    def test_setup_modified_tracked_file_is_not_counted_as_agent_change(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for task execution")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo, commit = self._repo_with_file(temp_path, "before\n")
+            task = EvalTask(
+                id="setup-tracked-task",
+                title="Setup tracked task",
+                repo=str(repo),
+                commit=commit,
+                language="text",
+                prompt="Do nothing.",
+                setup=[
+                    f"{sys.executable} -c "
+                    "\"from pathlib import Path; "
+                    "Path('app.txt').write_text('setup\\\\n')\""
+                ],
+                success=SuccessCriteria(
+                    forbidden_paths=["app.txt"],
+                    max_files_changed=0,
+                ),
+            )
+
+            execution = execute_task_phases(
+                task,
+                temp_path / "workspace",
+                lambda _workspace, _task_env: TaskActionResult(),
+                temp_path / "diff.patch",
+            )
+
+            self.assertEqual(execution.files_changed, [])
+            self.assertEqual(execution.lines_added, 0)
+            self.assertEqual(execution.lines_deleted, 0)
+            self.assertTrue(execution.score.tests_passed)
+            self.assertEqual(execution.score.notes, [])
+
+    def test_staged_only_change_after_setup_tracked_change_counts(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for task execution")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo, commit = self._repo_with_file(temp_path, "before\n")
+            task = EvalTask(
+                id="staged-after-setup-tracked-task",
+                title="Staged after setup tracked task",
+                repo=str(repo),
+                commit=commit,
+                language="text",
+                prompt="Do not change app.txt.",
+                setup=[
+                    f"{sys.executable} -c "
+                    "\"from pathlib import Path; "
+                    "Path('app.txt').write_text('setup\\\\n')\""
+                ],
+                success=SuccessCriteria(forbidden_paths=["app.txt"]),
+            )
+
+            def action(workspace, _task_env):
+                app_path = workspace / "app.txt"
+                app_path.write_text("agent staged\n", encoding="utf-8")
+                self._git(["add", "app.txt"], workspace)
+                app_path.write_text("setup\n", encoding="utf-8")
+                return TaskActionResult()
+
+            execution = execute_task_phases(
+                task,
+                temp_path / "workspace",
+                action,
+                temp_path / "diff.patch",
+            )
+
+            self.assertEqual(execution.files_changed, ["app.txt"])
+            self.assertEqual(execution.lines_added, 1)
+            self.assertEqual(execution.lines_deleted, 1)
+            self.assertFalse(execution.score.tests_passed)
+            self.assertEqual(
+                execution.score.notes,
+                [
+                    "scope boundary violation: `app.txt` "
+                    "matches forbidden_paths pattern `app.txt`"
+                ],
+            )
+
     def test_ignored_new_untracked_file_counts_against_boundaries(self):
         if shutil.which("git") is None:
             self.skipTest("git is required for task execution")
@@ -247,6 +372,10 @@ class TaskExecutionTest(unittest.TestCase):
             )
 
             self.assertEqual(execution.files_changed, ["setup.log"])
+            self.assertEqual(
+                execution.setup_created_untracked_changed_paths,
+                ["setup.log"],
+            )
             self.assertFalse(execution.score.tests_passed)
             self.assertEqual(
                 execution.score.notes,

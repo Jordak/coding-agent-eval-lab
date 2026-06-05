@@ -14,6 +14,9 @@ if TYPE_CHECKING:
 
 def render_markdown_report(run: "EvaluationRun") -> str:
     status = "passed" if run.score.tests_passed else "failed"
+    setup_untracked_caveat_paths = _setup_created_untracked_changed_paths(
+        run.agent_run
+    )
     lines = [
         f"# Evaluation Trial Report: {run.task.id}",
         "",
@@ -26,11 +29,12 @@ def render_markdown_report(run: "EvaluationRun") -> str:
         f"- Status: `{status}`",
         f"- Outcome: `{status}`",
         f"- Files changed: `{len(run.agent_run.files_changed)}`",
-        f"- Lines added: `{run.agent_run.lines_added}`",
-        f"- Lines deleted: `{run.agent_run.lines_deleted}`",
+        f"- Lines added: {_patch_stat(run.agent_run.lines_added, setup_untracked_caveat_paths)}",
+        f"- Lines deleted: {_patch_stat(run.agent_run.lines_deleted, setup_untracked_caveat_paths)}",
         f"- Transcript/trace: `{run.agent_run.transcript_path.name}`",
         f"- Diff: `{run.agent_run.diff_path.name}`",
     ]
+    lines.extend(_patch_size_caveat_lines(setup_untracked_caveat_paths))
 
     agent_harness_config = getattr(run.agent_run, "agent_harness_config", {})
     run_surface = normalize_run_surface(
@@ -109,6 +113,9 @@ def render_markdown_report(run: "EvaluationRun") -> str:
 
 def render_reference_report(verification: "ReferenceVerification") -> str:
     status = "passed" if verification.success else "failed"
+    setup_untracked_caveat_paths = _setup_created_untracked_changed_paths(
+        verification
+    )
     artifact = verification.task.reference_artifact
     artifact_summary = "not configured"
     if artifact is not None and artifact.type == "patch":
@@ -129,21 +136,26 @@ def render_reference_report(verification: "ReferenceVerification") -> str:
         f"- Status: `{status}`",
         f"- Outcome: `{status}`",
         f"- Files changed: `{len(verification.files_changed)}`",
-        f"- Lines added: `{verification.lines_added}`",
-        f"- Lines deleted: `{verification.lines_deleted}`",
-        "",
-        "## Run Surface",
-        "",
-        *_render_run_surface(
-            normalize_run_surface(
-                _workspace_run_surface(verification),
-                agent_name="reference",
-                status=status,
-                success=verification.success,
-                error=None,
-            )
-        ),
+        f"- Lines added: {_patch_stat(verification.lines_added, setup_untracked_caveat_paths)}",
+        f"- Lines deleted: {_patch_stat(verification.lines_deleted, setup_untracked_caveat_paths)}",
     ]
+    lines.extend(_patch_size_caveat_lines(setup_untracked_caveat_paths))
+    lines.extend(
+        [
+            "",
+            "## Run Surface",
+            "",
+            *_render_run_surface(
+                normalize_run_surface(
+                    _workspace_run_surface(verification),
+                    agent_name="reference",
+                    status=status,
+                    success=verification.success,
+                    error=None,
+                )
+            ),
+        ]
+    )
 
     scope_oracle_lines = _render_scope_oracle_metadata(verification.task)
     if scope_oracle_lines:
@@ -212,6 +224,33 @@ def _render_scope_oracle_metadata(task: object) -> list[str]:
             + ", ".join(f"`{path}`" for path in forbidden_paths)
         )
     return lines
+
+
+def _patch_stat(value: int, caveat_paths: list[str]) -> str:
+    suffix = "*" if caveat_paths else ""
+    return f"`{value}`{suffix}"
+
+
+def _patch_size_caveat_lines(caveat_paths: list[str]) -> list[str]:
+    if not caveat_paths:
+        return []
+    return [
+        "",
+        (
+            "Patch size metrics marked with `*` include setup-created "
+            "untracked path changes; line counts may not fully represent "
+            f"{_inline_code_list(caveat_paths)}."
+        ),
+    ]
+
+
+def _setup_created_untracked_changed_paths(value: object) -> list[str]:
+    paths = getattr(value, "setup_created_untracked_changed_paths", [])
+    return [str(path) for path in paths]
+
+
+def _inline_code_list(values: list[str]) -> str:
+    return ", ".join(f"`{value}`" for value in values)
 
 
 def _trim_output(output: str, max_chars: int = 2000) -> str:

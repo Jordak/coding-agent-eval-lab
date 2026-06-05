@@ -109,6 +109,79 @@ class CapabilityEvidenceDigestTest(unittest.TestCase):
         self.assertNotIn("[result](", digest)
         self.assertNotIn("runs/trial-pass/report.md", digest)
 
+    def test_digest_marks_setup_created_untracked_patch_size_caveat(self):
+        result = normalize_outcome_evidence(
+            {
+                "trial_id": "trial-caveat",
+                "task_id": "task-a",
+                "eval_suite": "starter",
+                "eval_type": "regression",
+                "agent_name": "codex",
+                "model_name": "model-a",
+                "status": "passed",
+                "success": True,
+                "duration_ms": 100,
+                "files_changed": ["setup.log"],
+                "lines_added": 5,
+                "lines_deleted": 1,
+                "setup_created_untracked_changed_paths": ["setup.log"],
+                "report_path": "runs/trial-caveat/report.md",
+                "diff_path": "runs/trial-caveat/diff.patch",
+                "run_dir": "runs/trial-caveat",
+            }
+        )
+
+        digest = render_capability_evidence_digest([result])
+        html_report = render_capability_evidence_digest_html([result])
+
+        self.assertIn("5*", digest)
+        self.assertIn("1*", digest)
+        self.assertIn("| task-a | regression | 100 | 1 | 5* | 1* |", digest)
+        self.assertIn("Patch size metrics marked with `*`", digest)
+        self.assertIn("5*", html_report)
+        self.assertIn("1*", html_report)
+        self.assertGreaterEqual(digest.count("Patch size metrics marked with `*`"), 2)
+        self.assertGreaterEqual(html_report.count("Patch size metrics marked with *"), 2)
+        self.assertGreaterEqual(html_report.count(">5*</td>"), 2)
+        self.assertIn("Patch size metrics marked with *", html_report)
+
+    def test_nested_setup_created_untracked_patch_size_caveat_round_trips(self):
+        result = normalize_outcome_evidence(
+            {
+                "trial_id": "trial-caveat",
+                "task_id": "task-a",
+                "eval_suite": "starter",
+                "eval_type": "regression",
+                "agent_name": "codex",
+                "model_name": "model-a",
+                "status": "passed",
+                "success": True,
+                "duration_ms": 100,
+                "files_changed": ["setup.log"],
+                "lines_added": 5,
+                "lines_deleted": 1,
+                "outcome": {
+                    "setup_created_untracked_changed_paths": ["setup.log"],
+                },
+                "run_dir": "runs/trial-caveat",
+            }
+        )
+
+        result_dict = result.to_result_dict()
+
+        self.assertEqual(
+            result.setup_created_untracked_changed_paths,
+            ["setup.log"],
+        )
+        self.assertEqual(
+            result_dict["setup_created_untracked_changed_paths"],
+            ["setup.log"],
+        )
+        self.assertEqual(
+            result_dict["outcome"]["setup_created_untracked_changed_paths"],
+            ["setup.log"],
+        )
+
     def test_markdown_digest_omits_disposable_artifact_paths(self):
         digest = render_capability_evidence_digest(
             [
