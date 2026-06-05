@@ -120,6 +120,96 @@ class TaskExecutionTest(unittest.TestCase):
             self.assertTrue(execution.score.tests_passed)
             self.assertEqual(execution.score.notes, [])
 
+    def test_ignored_new_untracked_file_counts_against_boundaries(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for task execution")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo, commit = self._repo_with_file(
+                temp_path,
+                "before\n",
+                gitignore=["secrets/"],
+            )
+            task = EvalTask(
+                id="ignored-new-untracked-task",
+                title="Ignored new untracked task",
+                repo=str(repo),
+                commit=commit,
+                language="text",
+                prompt="Do not create secrets.",
+                success=SuccessCriteria(forbidden_paths=["secrets/"]),
+            )
+
+            def action(workspace, _task_env):
+                secret_dir = workspace / "secrets"
+                secret_dir.mkdir()
+                (secret_dir / "key.txt").write_text("secret\n", encoding="utf-8")
+                return TaskActionResult()
+
+            execution = execute_task_phases(
+                task,
+                temp_path / "workspace",
+                action,
+                temp_path / "diff.patch",
+            )
+
+            self.assertEqual(execution.files_changed, ["secrets/key.txt"])
+            self.assertFalse(execution.score.tests_passed)
+            self.assertEqual(
+                execution.score.notes,
+                [
+                    "scope boundary violation: `secrets/key.txt` "
+                    "matches forbidden_paths pattern `secrets/`"
+                ],
+            )
+
+    def test_ignored_setup_created_untracked_file_unchanged_is_not_counted(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for task execution")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo, commit = self._repo_with_file(
+                temp_path,
+                "before\n",
+                gitignore=["setup.log"],
+            )
+            task = EvalTask(
+                id="ignored-setup-untracked-task",
+                title="Ignored setup untracked task",
+                repo=str(repo),
+                commit=commit,
+                language="text",
+                prompt="Create the allowed result file.",
+                setup=[
+                    f"{sys.executable} -c "
+                    "\"from pathlib import Path; "
+                    "Path('setup.log').write_text('setup\\\\n')\""
+                ],
+                success=SuccessCriteria(
+                    allowed_paths=["allowed/"],
+                    max_files_changed=1,
+                ),
+            )
+
+            def action(workspace, _task_env):
+                output_dir = workspace / "allowed"
+                output_dir.mkdir()
+                (output_dir / "result.txt").write_text("ok\n", encoding="utf-8")
+                return TaskActionResult()
+
+            execution = execute_task_phases(
+                task,
+                temp_path / "workspace",
+                action,
+                temp_path / "diff.patch",
+            )
+
+            self.assertEqual(execution.files_changed, ["allowed/result.txt"])
+            self.assertTrue(execution.score.tests_passed)
+            self.assertEqual(execution.score.notes, [])
+
     def test_modified_setup_created_untracked_file_counts_against_boundaries(self):
         if shutil.which("git") is None:
             self.skipTest("git is required for task execution")
@@ -130,6 +220,56 @@ class TaskExecutionTest(unittest.TestCase):
             task = EvalTask(
                 id="modified-setup-untracked-task",
                 title="Modified setup untracked task",
+                repo=str(repo),
+                commit=commit,
+                language="text",
+                prompt="Do not change setup.log.",
+                setup=[
+                    f"{sys.executable} -c "
+                    "\"from pathlib import Path; "
+                    "Path('setup.log').write_text('setup\\\\n')\""
+                ],
+                success=SuccessCriteria(forbidden_paths=["setup.log"]),
+            )
+
+            def action(workspace, _task_env):
+                (workspace / "setup.log").write_text(
+                    "setup\nagent change\n",
+                    encoding="utf-8",
+                )
+                return TaskActionResult()
+
+            execution = execute_task_phases(
+                task,
+                temp_path / "workspace",
+                action,
+                temp_path / "diff.patch",
+            )
+
+            self.assertEqual(execution.files_changed, ["setup.log"])
+            self.assertFalse(execution.score.tests_passed)
+            self.assertEqual(
+                execution.score.notes,
+                [
+                    "scope boundary violation: `setup.log` "
+                    "matches forbidden_paths pattern `setup.log`"
+                ],
+            )
+
+    def test_modified_ignored_setup_created_untracked_file_counts(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for task execution")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo, commit = self._repo_with_file(
+                temp_path,
+                "before\n",
+                gitignore=["setup.log"],
+            )
+            task = EvalTask(
+                id="modified-ignored-setup-untracked-task",
+                title="Modified ignored setup untracked task",
                 repo=str(repo),
                 commit=commit,
                 language="text",
@@ -209,6 +349,53 @@ class TaskExecutionTest(unittest.TestCase):
                 ],
             )
 
+    def test_deleted_ignored_setup_created_untracked_file_counts(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for task execution")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo, commit = self._repo_with_file(
+                temp_path,
+                "before\n",
+                gitignore=["setup.log"],
+            )
+            task = EvalTask(
+                id="deleted-ignored-setup-untracked-task",
+                title="Deleted ignored setup untracked task",
+                repo=str(repo),
+                commit=commit,
+                language="text",
+                prompt="Do not delete setup.log.",
+                setup=[
+                    f"{sys.executable} -c "
+                    "\"from pathlib import Path; "
+                    "Path('setup.log').write_text('setup\\\\n')\""
+                ],
+                success=SuccessCriteria(forbidden_paths=["setup.log"]),
+            )
+
+            def action(workspace, _task_env):
+                (workspace / "setup.log").unlink()
+                return TaskActionResult()
+
+            execution = execute_task_phases(
+                task,
+                temp_path / "workspace",
+                action,
+                temp_path / "diff.patch",
+            )
+
+            self.assertEqual(execution.files_changed, ["setup.log"])
+            self.assertFalse(execution.score.tests_passed)
+            self.assertEqual(
+                execution.score.notes,
+                [
+                    "scope boundary violation: `setup.log` "
+                    "matches forbidden_paths pattern `setup.log`"
+                ],
+            )
+
     def test_committed_agent_changes_are_counted_against_boundaries(self):
         if shutil.which("git") is None:
             self.skipTest("git is required for task execution")
@@ -251,6 +438,49 @@ class TaskExecutionTest(unittest.TestCase):
                 [
                     "scope boundary violation: `forbidden.txt` "
                     "matches forbidden_paths pattern `forbidden.txt`"
+                ],
+            )
+
+    def test_staged_only_tracked_change_counts_against_boundaries(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for task execution")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo, commit = self._repo_with_file(temp_path, "before\n")
+            task = EvalTask(
+                id="staged-only-boundary-task",
+                title="Staged only boundary task",
+                repo=str(repo),
+                commit=commit,
+                language="text",
+                prompt="Do not change app.txt.",
+                success=SuccessCriteria(forbidden_paths=["app.txt"]),
+            )
+
+            def action(workspace, _task_env):
+                app_path = workspace / "app.txt"
+                app_path.write_text("staged change\n", encoding="utf-8")
+                self._git(["add", "app.txt"], workspace)
+                app_path.write_text("before\n", encoding="utf-8")
+                return TaskActionResult()
+
+            execution = execute_task_phases(
+                task,
+                temp_path / "workspace",
+                action,
+                temp_path / "diff.patch",
+            )
+
+            self.assertEqual(execution.files_changed, ["app.txt"])
+            self.assertEqual(execution.lines_added, 1)
+            self.assertEqual(execution.lines_deleted, 1)
+            self.assertFalse(execution.score.tests_passed)
+            self.assertEqual(
+                execution.score.notes,
+                [
+                    "scope boundary violation: `app.txt` "
+                    "matches forbidden_paths pattern `app.txt`"
                 ],
             )
 
@@ -385,10 +615,20 @@ class TaskExecutionTest(unittest.TestCase):
             self.assertTrue(execution.score.tests_passed)
             self.assertEqual(execution.files_changed, [])
 
-    def _repo_with_file(self, root, contents):
+    def _repo_with_file(self, root, contents, *, gitignore=None):
         repo = root / "repo"
         init_repo(repo)
-        commit = commit_file(repo, "app.txt", contents, message="initial")
+        if gitignore is not None:
+            (repo / ".gitignore").write_text(
+                "".join(f"{pattern}\n" for pattern in gitignore),
+                encoding="utf-8",
+            )
+            (repo / "app.txt").write_text(contents, encoding="utf-8")
+            git(["add", ".gitignore", "app.txt"], repo)
+            git(["commit", "-m", "initial"], repo)
+            commit = git(["rev-parse", "HEAD"], repo).stdout.strip()
+        else:
+            commit = commit_file(repo, "app.txt", contents, message="initial")
         return repo, commit
 
 

@@ -6,7 +6,7 @@ import stat
 import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Sequence
+from typing import Mapping, Sequence
 
 from agentlab.execution.commands import (
     clone_no_checkout,
@@ -117,18 +117,52 @@ def capture_diff(
     _mark_untracked_for_diff(workspace, exclude_untracked=unchanged_baseline_paths)
     diff_args = ["diff", "--binary", "--no-renames", diff_ref]
     name_args = ["diff", "--name-only", "-z", "--no-renames", diff_ref]
+    cached_name_args = [
+        "diff",
+        "--cached",
+        "--name-only",
+        "-z",
+        "--no-renames",
+        diff_ref,
+    ]
 
     git_env = isolated_git_env()
     diff = run_git(diff_args, cwd=workspace, env=git_env)
     if diff.returncode != 0:
         raise RuntimeError(f"git diff failed: {diff.stderr.strip()}")
-    diff_path.write_text(diff.stdout, encoding="utf-8")
 
-    changed = run_git(name_args, cwd=workspace, env=git_env)
-    if changed.returncode != 0:
-        raise RuntimeError(f"git diff --name-only failed: {changed.stderr.strip()}")
+    worktree_paths = _diff_names(
+        workspace,
+        name_args,
+        "git diff --name-only",
+        env=git_env,
+    )
+    cached_paths = _diff_names(
+        workspace,
+        cached_name_args,
+        "git diff --cached --name-only",
+        env=git_env,
+    )
+    worktree_path_set = set(worktree_paths)
+    cached_only_paths = [
+        path for path in cached_paths if path not in worktree_path_set
+    ]
+    diff_path.write_text(
+        _join_diffs(
+            diff.stdout,
+            _cached_diff_for_paths(
+                workspace,
+                diff_ref,
+                cached_only_paths,
+                env=git_env,
+            ),
+        ),
+        encoding="utf-8",
+    )
+
+    changed_paths = _append_missing_paths(worktree_paths, cached_paths)
     return _append_missing_paths(
-        [path for path in changed.stdout.split("\0") if path],
+        changed_paths,
         [entry.path for entry in changed_baseline_untracked],
     )
 
@@ -145,19 +179,62 @@ def _mark_untracked_for_diff(
     ]
     if not paths:
         return
-    marked = run_git(["add", "--intent-to-add", "--"] + paths, cwd=workspace)
+    marked = run_git(
+        ["add", "--intent-to-add", "--force", "--"] + paths,
+        cwd=workspace,
+    )
     if marked.returncode != 0:
         raise RuntimeError(f"git add --intent-to-add failed: {marked.stderr.strip()}")
 
 
 def _list_untracked(workspace: Path) -> list[str]:
     untracked = run_git(
-        ["ls-files", "--others", "--exclude-standard", "-z"],
+        ["ls-files", "--others", "-z"],
         cwd=workspace,
     )
     if untracked.returncode != 0:
         raise RuntimeError(f"git ls-files failed: {untracked.stderr.strip()}")
     return [path for path in untracked.stdout.split("\0") if path]
+
+
+def _diff_names(
+    workspace: Path,
+    args: list[str],
+    command_name: str,
+    *,
+    env: Mapping[str, str] | None = None,
+) -> list[str]:
+    changed = run_git(args, cwd=workspace, env=env)
+    if changed.returncode != 0:
+        raise RuntimeError(f"{command_name} failed: {changed.stderr.strip()}")
+    return [path for path in changed.stdout.split("\0") if path]
+
+
+def _cached_diff_for_paths(
+    workspace: Path,
+    diff_ref: str,
+    paths: Sequence[str],
+    *,
+    env: Mapping[str, str] | None = None,
+) -> str:
+    if not paths:
+        return ""
+    cached_diff = run_git(
+        ["diff", "--binary", "--no-renames", "--cached", diff_ref, "--"]
+        + list(paths),
+        cwd=workspace,
+        env=env,
+    )
+    if cached_diff.returncode != 0:
+        raise RuntimeError(f"git diff --cached failed: {cached_diff.stderr.strip()}")
+    return cached_diff.stdout
+
+
+def _join_diffs(*diffs: str) -> str:
+    chunks = [diff for diff in diffs if diff]
+    if not chunks:
+        return ""
+    return "\n".join(diff.rstrip("\n") for diff in chunks) + "\n"
 
 
 def _snapshot_untracked_files(workspace: Path) -> list[WorkspaceUntrackedBaseline]:
