@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Capability Evidence Digest</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7f3;
+      --panel: #ffffff;
+      --ink: #1c2227;
+      --muted: #66707a;
+      --line: #d8ddd5;
+      --line-strong: #aeb8ae;
+      --accent: #126b62;
+      --accent-soft: #e8f3f1;
+      --warn: #966300;
+      --warn-soft: #fff6dc;
+      --bad: #9e3c35;
+      --bad-soft: #fff0ed;
+      --good: #286f43;
+      --good-soft: #edf8f0;
+      --code: #f0f2ed;
+      --shadow: 0 14px 42px rgba(24, 30, 35, 0.16);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-size: 14px;
+      line-height: 1.42;
+    }
+    button, input { font: inherit; }
+    a { color: var(--accent); text-underline-offset: 2px; }
+    code {
+      background: var(--code);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 1px 4px;
+    }
+    .hero {
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      padding: 22px 28px 18px;
+    }
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: 29px;
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+    .hero p { margin: 0; max-width: 1120px; color: var(--muted); }
+    .global-facts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .global-facts span {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fbfcfa;
+      padding: 4px 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .context-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 16px 0 0;
+    }
+    .context-tab {
+      border: 1px solid var(--line-strong);
+      border-radius: 999px;
+      background: #fbfcfa;
+      color: var(--ink);
+      padding: 7px 12px;
+      cursor: pointer;
+    }
+    .context-tab.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .context-page { display: none; }
+    .context-page.active { display: block; }
+    .page { padding: 22px 28px 90px; }
+    .context-facts, .score-grid, .resource-grid {
+      display: grid;
+      gap: 10px;
+    }
+    .context-facts {
+      grid-template-columns: repeat(5, minmax(140px, 1fr));
+      margin-bottom: 16px;
+    }
+    .score-grid {
+      grid-template-columns: repeat(6, minmax(120px, 1fr));
+      margin-bottom: 22px;
+    }
+    .resource-grid { grid-template-columns: repeat(4, minmax(160px, 1fr)); }
+    .fact, .metric {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fbfcfa;
+      padding: 10px;
+    }
+    .fact span, .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .fact strong, .metric strong {
+      display: block;
+      margin-top: 4px;
+      line-height: 1.15;
+      overflow-wrap: anywhere;
+    }
+    .metric strong { font-size: 20px; }
+    .section {
+      margin: 0 0 22px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line-strong);
+    }
+    .section h2, .section h3 {
+      margin: 0 0 10px;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+    .section h2 { font-size: 20px; }
+    .section h3 { font-size: 15px; color: var(--muted); }
+    .two-col {
+      display: grid;
+      grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr);
+      gap: 14px;
+    }
+    .lane {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--panel);
+      padding: 12px;
+      min-width: 0;
+    }
+    .lane h3 { color: var(--ink); font-size: 15px; }
+    .lane ul, .lane ol { margin: 8px 0 0; padding-left: 20px; }
+    .lane li { margin: 8px 0; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin: 0 4px 4px 0;
+      padding: 2px 7px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fbfcfa;
+      white-space: nowrap;
+      font-size: 12px;
+    }
+    .pill.good { color: var(--good); border-color: #9acba9; background: var(--good-soft); }
+    .pill.warn { color: var(--warn); border-color: #dfc27c; background: var(--warn-soft); }
+    .pill.bad { color: var(--bad); border-color: #e2aaa4; background: var(--bad-soft); }
+    .table-wrap {
+      overflow: auto;
+      max-height: 72vh;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--panel);
+    }
+    table {
+      width: 100%;
+      min-width: 820px;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+    th, td {
+      padding: 7px 9px;
+      border-bottom: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      white-space: nowrap;
+    }
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 4;
+      background: #edf0eb;
+      color: #22272b;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    td.wrap { white-space: normal; min-width: 260px; }
+    .sticky-task td:first-child,
+    .sticky-task th:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 5;
+      background: #f8faf7;
+      box-shadow: 1px 0 0 var(--line);
+    }
+    .sticky-task th:first-child { z-index: 7; background: #e3e8e3; }
+    @media (max-width: 1050px) {
+      .context-facts, .score-grid, .resource-grid, .two-col {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 720px) {
+      .context-facts, .score-grid, .resource-grid, .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <h1>Capability Evidence Digest</h1>
+    <p>This digest is generated from stored agent-trial results. It reports evidence only; hand-authored agent capability reports should interpret these observations within the evaluated conditions.</p>
+    <div class="global-facts"><span>Agent trials: 12</span><span>Evidence set: Claude Code Opus smoke gate, starter suite, 12 tasks, 1 valid trial per task, 2026-06-04</span><span>Selected entries: 12</span><span>Selected result files: 12</span></div>
+    <nav class="context-tabs" aria-label="Run contexts"><button class="context-tab active" data-context="starter-coding-claude-claude-opus-4-8-unknown" type="button">starter-coding / claude / claude-opus-4-8 / unknown</button></nav>
+  </header>
+  <div id="contexts" data-default-context="starter-coding-claude-claude-opus-4-8-unknown">
+
+  <main class="page context-page active" data-context-page="starter-coding-claude-claude-opus-4-8-unknown">
+    <div class="context-facts">
+      <div class="fact"><span>Suite</span><strong>starter-coding</strong></div>
+      <div class="fact"><span>Agent harness</span><strong>claude</strong></div>
+      <div class="fact"><span>Model</span><strong>claude-opus-4-8</strong></div>
+      <div class="fact"><span>Effort</span><strong>unknown</strong></div>
+      <div class="fact"><span>Execution surface</span><strong>local_cli</strong></div>
+      <div class="fact"><span>Runtime version</span><strong>2.1.162 (Claude Code)</strong></div>
+      <div class="fact"><span>Sandbox</span><strong>unknown</strong></div>
+      <div class="fact"><span>Approval</span><strong>acceptEdits</strong></div>
+      <div class="fact"><span>Network</span><strong>unknown</strong></div>
+      <div class="fact"><span>Source</span><strong><a href="digest.md">reports/claude-code-opus-smoke-gate-2026-06-04/digest.md</a></strong></div>
+    </div>
+    <div class="score-grid">
+      <div class="metric"><span>Tasks</span><strong>12</strong></div>
+      <div class="metric"><span>Fair trials</span><strong>12</strong></div>
+      <div class="metric"><span>Grader passes</span><strong>11</strong></div>
+      <div class="metric"><span>Accepted</span><strong>11</strong></div>
+      <div class="metric"><span>IO tokens</span><strong>159075</strong></div>
+      <div class="metric"><span>IO / verified</span><strong>14461.36</strong></div>
+    </div>
+
+    <section class="section">
+      <h2>Agent Harness Operability</h2>
+      <div class="table-wrap sticky-task"><table><thead><tr><th class="">Operability Dimension</th><th class="">Evidence</th></tr></thead><tbody><tr><td class="wrap">Agent harness configuration</td><td class="wrap">agent_harness: claude<br>model: claude-opus-4-8<br>reasoning_effort: unknown<br>trials: 12</td></tr><tr><td class="wrap">Budget controls</td><td class="wrap">timeout_seconds: 1800<br>turn_or_step_budget: unknown<br>observed_input_output_tokens: 12/12<br>observed_cost_usd: 12/12<br>configured_token_cost_quota_limits: unknown</td></tr><tr><td class="wrap">Approval boundaries</td><td class="wrap">sandbox_mode: unknown<br>approval_policy: acceptEdits<br>tool_policy: {&quot;allowed_tools&quot;: [], &quot;disallowed_tools&quot;: []}<br>memory_scope: no_session_persistence<br>network_policy: unknown</td></tr><tr><td class="wrap">Verifier state</td><td class="wrap">final_grader_status: failed; passed<br>checks_array: 12/12<br>graders_array: 12/12<br>intermediate_verifier_movement: unknown</td></tr><tr><td class="wrap">Halt reasons</td><td class="wrap">normalized_or_derived_stop_reason: grader_failure; success<br>first_class_halt_reason_taxonomy: unknown<br>error_field: unknown<br>budget_operator_interruption_taxonomy: unknown</td></tr><tr><td class="wrap">Interrupted-run receipt</td><td class="wrap">interrupted_or_error_receipt: unknown: selected evidence has no interrupted/error receipts<br>admission_decision_evidence: 12/12</td></tr><tr><td class="wrap">Tool/patch context</td><td class="wrap">changed_files: 12/12<br>commands_run: 12/12<br>human_review_overlay: 12/12<br>transcript: 12/12<br>diff_patch: 12/12</td></tr><tr><td class="wrap">Receipt basics</td><td class="wrap">run_dir: 12/12<br>report_md: 12/12<br>result_json: 12/12<br>transcript: 12/12<br>diff_patch: 12/12</td></tr></tbody></table></div>
+    </section>
+
+
+    <section class="section">
+      <h2>Overall Resource Summary</h2>
+      <div class="resource-grid">
+        <div class="metric"><span>Total IO tokens</span><strong>159075</strong></div>
+        <div class="metric"><span>Total cached tokens</span><strong>5646719</strong></div>
+        <div class="metric"><span>Total reasoning tokens</span><strong>unknown</strong></div>
+        <div class="metric"><span>IO / accepted</span><strong>14461.36</strong></div>
+        <div class="metric"><span>Cached / verified</span><strong>513338.09</strong></div>
+        <div class="metric"><span>Reasoning / verified</span><strong>unknown</strong></div>
+      </div>
+    </section>
+
+
+    <section class="section">
+      <h2>Reviewer Focus</h2>
+      <div class="two-col">
+        <div class="lane">
+          <h3>Needs Attention</h3>
+          <ul><li><strong><a href="../../tasks/starter-coding/click-should-strip-ansi-tests-001/task-card.md">click-should-strip-ansi-tests-001</a></strong><br><span class="pill warn">0/1 grader passes</span><span class="pill warn">spec_misread on 1/1 trials (1 secondary)</span><span class="pill warn">test_gap on 1/1 trials (1 primary)</span></li><li><strong><a href="../../tasks/starter-coding/prettier-duplicate-dangling-comments-001/task-card.md">prettier-duplicate-dangling-comments-001</a></strong><br><span class="pill warn">resource_inefficient on 1/1 trials (1 secondary)</span></li><li><strong><a href="../../tasks/starter-coding/remotion-audio-context-autoplay-muted-001/task-card.md">remotion-audio-context-autoplay-muted-001</a></strong><br><span class="pill warn">resource_inefficient on 1/1 trials (1 secondary)</span></li></ul>
+        </div>
+        <div class="lane">
+          <h3>Highest IO Token Tasks</h3>
+          <ol><li><strong><a href="../../tasks/starter-coding/prettier-duplicate-dangling-comments-001/task-card.md">prettier-duplicate-dangling-comments-001</a></strong><br>24952 IO tokens</li><li><strong><a href="../../tasks/starter-coding/click-help-option-refactor-001/task-card.md">click-help-option-refactor-001</a></strong><br>16641 IO tokens</li><li><strong><a href="../../tasks/starter-coding/vite-deno-workspace-root-001/task-card.md">vite-deno-workspace-root-001</a></strong><br>15901 IO tokens</li><li><strong><a href="../../tasks/starter-coding/remotion-audio-context-autoplay-muted-001/task-card.md">remotion-audio-context-autoplay-muted-001</a></strong><br>15050 IO tokens</li><li><strong><a href="../../tasks/starter-coding/click-default-map-nargs-001/task-card.md">click-default-map-nargs-001</a></strong><br>13459 IO tokens</li></ol>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="section">
+      <h2>Outcome Summary</h2>
+      <div class="table-wrap sticky-task"><table><thead><tr><th class="">Task</th><th class="">Type</th><th class="num">Total</th><th class="num">Fair</th><th class="num">Excluded</th><th class="num">Passes</th><th class="num">Accepted</th><th class="num">Pass Rate</th><th class="num">pass@k</th><th class="num">pass^k</th></tr></thead><tbody><tr><td class="wrap"><a href="../../tasks/starter-coding/2048-advanced-snake-params-001/task-card.md">2048-advanced-snake-params-001</a></td><td>capability</td><td class="num">1</td><td class="num">1</td><td class="num">0</td><td class="num">1</td><td class="num">1</td><td class="num">1.00</td><td class="num">1.00</td><td class="num">1.00</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-help-option-refactor-001/task-card.md">click-help-option-refactor-001</a></td><td>capability</td><td class="num">1</td><td class="num">1</td><td class="num">0</td><td class="num">1</td><td class="num">1</td><td class="num">1.00</td><td class="num">1.00</td><td class="num">1.00</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-default-map-nargs-001/task-card.md">click-default-map-nargs-001</a></td><td>regression</td><td class="num">1</td><td class="num">1</td><td class="num">0</td><td class="num">1</td><td class="num">1</td><td class="num">1.00</td><td class="num">1.00</td><td class="num">1.00</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-help-shadowed-option-001/task-card.md">click-help-shadowed-option-001</a></td><td>regression</td><td class="num">1</td><td class="num">1</td><td class="num">0</td><td class="num">1</td><td class="num">1</td><td class="num">1.00</td><td class="num">1.00</td><td class="num">1.00</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-should-strip-ansi-tests-001/task-card.md">click-should-strip-ansi-tests-001</a></td><td>regression</td><td class="num">1</td><td class="num">1</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0.00</td><td class="num">0.00</td><td class="num">0.00</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/datawrapper-mcp-docker-requirements-001/task-card.md">datawrapper-mcp-docker-requirements-001</a></td><td>regression</td><td class="num">1</td><td class="num">1</td><td class="num">0</td><td class="num">1</td><td class="num">1</td><td class="num">1.00</td><td class="num">1.00</td><td class="num">1.00</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/httpx-verify-false-client-cert-001/task-card.md">httpx-verify-false-client-cert-001</a></td><td>regression</td><td class="num">1</td><td class="num">1</td><td class="num">0</td><td class="num">1</td><td class="num">1</td><td class="num">1.00</td><td class="num">1.00</td><td class="num">1.00</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/prettier-duplicate-dangling-comments-001/task-card.md">prettier-duplicate-dangling-comments-001</a></td><td>regression</td><td class="num">1</td><td class="num">1</td><td class="num">0</td><td class="num">1</td><td class="num">1</td><td class="num">1.00</td><td class="num">1.00</td><td class="num">1.00</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/react-tabs-selected-focus-overlay-001/task-card.md">react-tabs-selected-focus-overlay-001</a></td><td>regression</td><td class="num">1</td><td class="num">1</td><td class="num">0</td><td class="num">1</td><td class="num">1</td><td class="num">1.00</td><td class="num">1.00</td><td class="num">1.00</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/remotion-audio-context-autoplay-muted-001/task-card.md">remotion-audio-context-autoplay-muted-001</a></td><td>regression</td><td class="num">1</td><td class="num">1</td><td class="num">0</td><td class="num">1</td><td class="num">1</td><td class="num">1.00</td><td class="num">1.00</td><td class="num">1.00</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/todomvc-toggle-all-checkbox-001/task-card.md">todomvc-toggle-all-checkbox-001</a></td><td>regression</td><td class="num">1</td><td class="num">1</td><td class="num">0</td><td class="num">1</td><td class="num">1</td><td class="num">1.00</td><td class="num">1.00</td><td class="num">1.00</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/vite-deno-workspace-root-001/task-card.md">vite-deno-workspace-root-001</a></td><td>regression</td><td class="num">1</td><td class="num">1</td><td class="num">0</td><td class="num">1</td><td class="num">1</td><td class="num">1.00</td><td class="num">1.00</td><td class="num">1.00</td></tr></tbody></table></div>
+    </section>
+
+
+    <section class="section">
+      <h2>Token Summary</h2>
+      <div class="table-wrap sticky-task"><table><thead><tr><th class="">Task</th><th class="">Type</th><th class="num">IO Tokens</th><th class="num">Cached Tokens</th><th class="num">Reason Tokens</th><th class="num">IO Tok / Verified</th><th class="num">IO Tok / Accepted</th><th class="num">Cached Tok / Verified</th><th class="num">Reason Tok / Verified</th></tr></thead><tbody><tr><td class="wrap"><a href="../../tasks/starter-coding/2048-advanced-snake-params-001/task-card.md">2048-advanced-snake-params-001</a></td><td>capability</td><td class="num">10726</td><td class="num">470649</td><td class="num">unknown</td><td class="num">10726</td><td class="num">10726</td><td class="num">470649</td><td class="num">unknown</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-help-option-refactor-001/task-card.md">click-help-option-refactor-001</a></td><td>capability</td><td class="num">16641</td><td class="num">813122</td><td class="num">unknown</td><td class="num">16641</td><td class="num">16641</td><td class="num">813122</td><td class="num">unknown</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-default-map-nargs-001/task-card.md">click-default-map-nargs-001</a></td><td>regression</td><td class="num">13459</td><td class="num">398579</td><td class="num">unknown</td><td class="num">13459</td><td class="num">13459</td><td class="num">398579</td><td class="num">unknown</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-help-shadowed-option-001/task-card.md">click-help-shadowed-option-001</a></td><td>regression</td><td class="num">13337</td><td class="num">523251</td><td class="num">unknown</td><td class="num">13337</td><td class="num">13337</td><td class="num">523251</td><td class="num">unknown</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-should-strip-ansi-tests-001/task-card.md">click-should-strip-ansi-tests-001</a></td><td>regression</td><td class="num">11130</td><td class="num">331770</td><td class="num">unknown</td><td class="num">unknown</td><td class="num">unknown</td><td class="num">unknown</td><td class="num">unknown</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/datawrapper-mcp-docker-requirements-001/task-card.md">datawrapper-mcp-docker-requirements-001</a></td><td>regression</td><td class="num">9428</td><td class="num">243339</td><td class="num">unknown</td><td class="num">9428</td><td class="num">9428</td><td class="num">243339</td><td class="num">unknown</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/httpx-verify-false-client-cert-001/task-card.md">httpx-verify-false-client-cert-001</a></td><td>regression</td><td class="num">8572</td><td class="num">184073</td><td class="num">unknown</td><td class="num">8572</td><td class="num">8572</td><td class="num">184073</td><td class="num">unknown</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/prettier-duplicate-dangling-comments-001/task-card.md">prettier-duplicate-dangling-comments-001</a></td><td>regression</td><td class="num">24952</td><td class="num">1370044</td><td class="num">unknown</td><td class="num">24952</td><td class="num">24952</td><td class="num">1370044</td><td class="num">unknown</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/react-tabs-selected-focus-overlay-001/task-card.md">react-tabs-selected-focus-overlay-001</a></td><td>regression</td><td class="num">6536</td><td class="num">75117</td><td class="num">unknown</td><td class="num">6536</td><td class="num">6536</td><td class="num">75117</td><td class="num">unknown</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/remotion-audio-context-autoplay-muted-001/task-card.md">remotion-audio-context-autoplay-muted-001</a></td><td>regression</td><td class="num">15050</td><td class="num">205845</td><td class="num">unknown</td><td class="num">15050</td><td class="num">15050</td><td class="num">205845</td><td class="num">unknown</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/todomvc-toggle-all-checkbox-001/task-card.md">todomvc-toggle-all-checkbox-001</a></td><td>regression</td><td class="num">13343</td><td class="num">426337</td><td class="num">unknown</td><td class="num">13343</td><td class="num">13343</td><td class="num">426337</td><td class="num">unknown</td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/vite-deno-workspace-root-001/task-card.md">vite-deno-workspace-root-001</a></td><td>regression</td><td class="num">15901</td><td class="num">604593</td><td class="num">unknown</td><td class="num">15901</td><td class="num">15901</td><td class="num">604593</td><td class="num">unknown</td></tr></tbody></table></div>
+    </section>
+
+
+    <section class="section">
+      <h2>Review and Patch Summary</h2>
+      <div class="table-wrap sticky-task"><table><thead><tr><th class="">Task</th><th class="">Type</th><th class="num">Median ms</th><th class="num">Median Files</th><th class="num">Median +Lines</th><th class="num">Median -Lines</th><th class="">Primary Review Labels</th><th class="">Secondary Review Labels</th><th class="">Exclusions</th></tr></thead><tbody><tr><td class="wrap"><a href="../../tasks/starter-coding/2048-advanced-snake-params-001/task-card.md">2048-advanced-snake-params-001</a></td><td>capability</td><td class="num">122067</td><td class="num">2</td><td class="num">8</td><td class="num">6</td><td class="wrap">success_clean:1</td><td class="wrap"></td><td class="wrap"></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-help-option-refactor-001/task-card.md">click-help-option-refactor-001</a></td><td>capability</td><td class="num">180085</td><td class="num">3</td><td class="num">34</td><td class="num">29</td><td class="wrap">success_clean:1</td><td class="wrap"></td><td class="wrap"></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-default-map-nargs-001/task-card.md">click-default-map-nargs-001</a></td><td>regression</td><td class="num">133938</td><td class="num">1</td><td class="num">6</td><td class="num">0</td><td class="wrap">success_clean:1</td><td class="wrap"></td><td class="wrap"></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-help-shadowed-option-001/task-card.md">click-help-shadowed-option-001</a></td><td>regression</td><td class="num">134321</td><td class="num">1</td><td class="num">17</td><td class="num">3</td><td class="wrap">success_clean:1</td><td class="wrap"></td><td class="wrap"></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-should-strip-ansi-tests-001/task-card.md">click-should-strip-ansi-tests-001</a></td><td>regression</td><td class="num">119317</td><td class="num">1</td><td class="num">46</td><td class="num">0</td><td class="wrap">test_gap:1</td><td class="wrap">spec_misread:1</td><td class="wrap"></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/datawrapper-mcp-docker-requirements-001/task-card.md">datawrapper-mcp-docker-requirements-001</a></td><td>regression</td><td class="num">80202</td><td class="num">1</td><td class="num">6</td><td class="num">3</td><td class="wrap">success_clean:1</td><td class="wrap"></td><td class="wrap"></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/httpx-verify-false-client-cert-001/task-card.md">httpx-verify-false-client-cert-001</a></td><td>regression</td><td class="num">70077</td><td class="num">1</td><td class="num">5</td><td class="num">4</td><td class="wrap">success_clean:1</td><td class="wrap"></td><td class="wrap"></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/prettier-duplicate-dangling-comments-001/task-card.md">prettier-duplicate-dangling-comments-001</a></td><td>regression</td><td class="num">335034</td><td class="num">1</td><td class="num">11</td><td class="num">0</td><td class="wrap">success_clean:1</td><td class="wrap">resource_inefficient:1</td><td class="wrap"></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/react-tabs-selected-focus-overlay-001/task-card.md">react-tabs-selected-focus-overlay-001</a></td><td>regression</td><td class="num">38484</td><td class="num">3</td><td class="num">0</td><td class="num">30</td><td class="wrap">success_clean:1</td><td class="wrap"></td><td class="wrap"></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/remotion-audio-context-autoplay-muted-001/task-card.md">remotion-audio-context-autoplay-muted-001</a></td><td>regression</td><td class="num">128744</td><td class="num">2</td><td class="num">40</td><td class="num">15</td><td class="wrap">success_clean:1</td><td class="wrap">resource_inefficient:1</td><td class="wrap"></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/todomvc-toggle-all-checkbox-001/task-card.md">todomvc-toggle-all-checkbox-001</a></td><td>regression</td><td class="num">123307</td><td class="num">4</td><td class="num">8</td><td class="num">10</td><td class="wrap">success_clean:1</td><td class="wrap"></td><td class="wrap"></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/vite-deno-workspace-root-001/task-card.md">vite-deno-workspace-root-001</a></td><td>regression</td><td class="num">165940</td><td class="num">6</td><td class="num">58</td><td class="num">0</td><td class="wrap">success_clean:1</td><td class="wrap"></td><td class="wrap"></td></tr></tbody></table></div>
+    </section>
+
+
+    <section class="section">
+      <h2>Trial Evidence</h2>
+      <div class="table-wrap sticky-task"><table><thead><tr><th class="">Task</th><th class="">Type</th><th class="">Trial</th><th class="">Grader Outcome</th><th class="">Validity</th><th class="">Primary Review Label</th><th class="">Secondary Review Labels</th><th class="">Exclusion</th><th class="num">Files</th><th class="num">+Lines</th><th class="num">-Lines</th><th class="num">Input Tokens</th><th class="num">Cached Input Tokens</th><th class="num">Output Tokens</th><th class="num">Reasoning Tokens</th><th class="num">Cost USD</th><th class="num">Duration ms</th><th class="">Report</th><th class="">Transcript</th><th class="">Diff</th><th class="">Result</th></tr></thead><tbody><tr><td class="wrap"><a href="../../tasks/starter-coding/2048-advanced-snake-params-001/task-card.md">2048-advanced-snake-params-001</a></td><td>capability</td><td class="wrap">20260604-111544-2048-advanced-snake-params-001-claude-606ff781</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">2</td><td class="num">8</td><td class="num">6</td><td class="num">3562</td><td class="num">470649</td><td class="num">7164</td><td class="num">unknown</td><td class="num">0.5481504999999999</td><td class="num">122067</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-default-map-nargs-001/task-card.md">click-default-map-nargs-001</a></td><td>regression</td><td class="wrap">20260604-111807-click-default-map-nargs-001-claude-07effe6e</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">1</td><td class="num">6</td><td class="num">0</td><td class="num">3423</td><td class="num">398579</td><td class="num">10036</td><td class="num">unknown</td><td class="num">0.60867075</td><td class="num">133938</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-help-option-refactor-001/task-card.md">click-help-option-refactor-001</a></td><td>capability</td><td class="wrap">20260604-112042-click-help-option-refactor-001-claude-c86536e8</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">3</td><td class="num">34</td><td class="num">29</td><td class="num">3711</td><td class="num">813122</td><td class="num">12930</td><td class="num">unknown</td><td class="num">0.91465725</td><td class="num">180085</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-help-shadowed-option-001/task-card.md">click-help-shadowed-option-001</a></td><td>regression</td><td class="wrap">20260604-112359-click-help-shadowed-option-001-claude-28fa6afc</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">1</td><td class="num">17</td><td class="num">3</td><td class="num">3435</td><td class="num">523251</td><td class="num">9902</td><td class="num">unknown</td><td class="num">0.6556644999999999</td><td class="num">134321</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/click-should-strip-ansi-tests-001/task-card.md">click-should-strip-ansi-tests-001</a></td><td>regression</td><td class="wrap">20260604-112633-click-should-strip-ansi-tests-001-claude-f93003c0</td><td>failed</td><td>valid</td><td class="wrap">test_gap</td><td class="wrap">spec_misread</td><td></td><td class="num">1</td><td class="num">46</td><td class="num">0</td><td class="num">3292</td><td class="num">331770</td><td class="num">7838</td><td class="num">unknown</td><td class="num">0.47994200000000015</td><td class="num">119317</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/datawrapper-mcp-docker-requirements-001/task-card.md">datawrapper-mcp-docker-requirements-001</a></td><td>regression</td><td class="wrap">20260604-112914-datawrapper-mcp-docker-requirements-001-claude-e159e640</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">1</td><td class="num">6</td><td class="num">3</td><td class="num">3284</td><td class="num">243339</td><td class="num">6144</td><td class="num">unknown</td><td class="num">0.39525550000000004</td><td class="num">80202</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/httpx-verify-false-client-cert-001/task-card.md">httpx-verify-false-client-cert-001</a></td><td>regression</td><td class="wrap">20260604-113059-httpx-verify-false-client-cert-001-claude-d1937af8</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">1</td><td class="num">5</td><td class="num">4</td><td class="num">3278</td><td class="num">184073</td><td class="num">5294</td><td class="num">unknown</td><td class="num">0.341875</td><td class="num">70077</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/prettier-duplicate-dangling-comments-001/task-card.md">prettier-duplicate-dangling-comments-001</a></td><td>regression</td><td class="wrap">20260604-113240-prettier-duplicate-dangling-comments-001-claude-c89fa9a6</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap">resource_inefficient</td><td></td><td class="num">1</td><td class="num">11</td><td class="num">0</td><td class="num">3852</td><td class="num">1370044</td><td class="num">21100</td><td class="num">unknown</td><td class="num">1.5157562500000001</td><td class="num">335034</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/react-tabs-selected-focus-overlay-001/task-card.md">react-tabs-selected-focus-overlay-001</a></td><td>regression</td><td class="wrap">20260604-113840-react-tabs-selected-focus-overlay-001-claude-254b9850</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">3</td><td class="num">0</td><td class="num">30</td><td class="num">3268</td><td class="num">75117</td><td class="num">3268</td><td class="num">unknown</td><td class="num">0.2143215</td><td class="num">38484</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/remotion-audio-context-autoplay-muted-001/task-card.md">remotion-audio-context-autoplay-muted-001</a></td><td>regression</td><td class="wrap">20260604-114530-remotion-audio-context-autoplay-muted-001-claude-785a8318</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap">resource_inefficient</td><td></td><td class="num">2</td><td class="num">40</td><td class="num">15</td><td class="num">3827</td><td class="num">205845</td><td class="num">11223</td><td class="num">unknown</td><td class="num">0.62159625</td><td class="num">128744</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/todomvc-toggle-all-checkbox-001/task-card.md">todomvc-toggle-all-checkbox-001</a></td><td>regression</td><td class="wrap">20260604-115522-todomvc-toggle-all-checkbox-001-claude-7613ddbd</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">4</td><td class="num">8</td><td class="num">10</td><td class="num">3417</td><td class="num">426337</td><td class="num">9926</td><td class="num">unknown</td><td class="num">0.6560580000000001</td><td class="num">123307</td><td></td><td></td><td></td><td></td></tr><tr><td class="wrap"><a href="../../tasks/starter-coding/vite-deno-workspace-root-001/task-card.md">vite-deno-workspace-root-001</a></td><td>regression</td><td class="wrap">20260604-115750-vite-deno-workspace-root-001-claude-0c83c058</td><td>passed</td><td>valid</td><td class="wrap">success_clean</td><td class="wrap"></td><td></td><td class="num">6</td><td class="num">58</td><td class="num">0</td><td class="num">3437</td><td class="num">604593</td><td class="num">12464</td><td class="num">unknown</td><td class="num">0.7889065000000001</td><td class="num">165940</td><td></td><td></td><td></td><td></td></tr></tbody></table></div>
+    </section>
+
+  </main>
+
+  </div>
+  <script>
+    (function () {
+      const pages = Array.from(document.querySelectorAll("[data-context-page]"));
+      const tabs = Array.from(document.querySelectorAll("[data-context]"));
+      const defaultContext = document.getElementById("contexts").dataset.defaultContext;
+      function setContext(key, updateUrl) {
+        const selected = pages.some((page) => page.dataset.contextPage === key) ? key : defaultContext;
+        pages.forEach((page) => page.classList.toggle("active", page.dataset.contextPage === selected));
+        tabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.context === selected));
+        if (updateUrl && selected) {
+          const params = new URLSearchParams(window.location.search);
+          params.set("context", selected);
+          window.history.replaceState(null, "", window.location.pathname + "?" + params.toString());
+        }
+      }
+      tabs.forEach((tab) => tab.addEventListener("click", () => setContext(tab.dataset.context, true)));
+      const params = new URLSearchParams(window.location.search);
+      setContext(params.get("context") || defaultContext, false);
+    })();
+  </script>
+</body>
+</html>

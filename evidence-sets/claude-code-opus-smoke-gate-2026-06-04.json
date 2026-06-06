@@ -1,0 +1,19 @@
+{
+  "name": "Claude Code Opus smoke gate, starter suite, 12 tasks, 1 valid trial per task, 2026-06-04",
+  "description": "Evidence set for GitHub issue #62. Contains exactly one valid Claude Code Opus smoke trial for each of the 12 starter-suite tasks. Baseline smoke config: --agent claude --claude-model opus --claude-permission-mode acceptEdits --claude-output-format stream-json --claude-timeout-seconds 1800, no max turns. Runtime event model resolved to claude-opus-4-8. Collection stopped after these 12 smoke trials.",
+  "outcome_evidence_snapshot": "claude-code-opus-smoke-gate-2026-06-04.outcome-evidence.json",
+  "trials": [
+    "20260604-111544-2048-advanced-snake-params-001-claude-606ff781",
+    "20260604-111807-click-default-map-nargs-001-claude-07effe6e",
+    "20260604-112042-click-help-option-refactor-001-claude-c86536e8",
+    "20260604-112359-click-help-shadowed-option-001-claude-28fa6afc",
+    "20260604-112633-click-should-strip-ansi-tests-001-claude-f93003c0",
+    "20260604-112914-datawrapper-mcp-docker-requirements-001-claude-e159e640",
+    "20260604-113059-httpx-verify-false-client-cert-001-claude-d1937af8",
+    "20260604-113240-prettier-duplicate-dangling-comments-001-claude-c89fa9a6",
+    "20260604-113840-react-tabs-selected-focus-overlay-001-claude-254b9850",
+    "20260604-114530-remotion-audio-context-autoplay-muted-001-claude-785a8318",
+    "20260604-115522-todomvc-toggle-all-checkbox-001-claude-7613ddbd",
+    "20260604-115750-vite-deno-workspace-root-001-claude-0c83c058"
+  ]
+}

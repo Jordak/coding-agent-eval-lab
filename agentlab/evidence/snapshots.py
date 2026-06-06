@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any, Iterable, Mapping
 
@@ -12,6 +13,11 @@ from agentlab.evidence.outcome import OutcomeEvidence, normalize_outcome_evidenc
 
 
 SNAPSHOT_SCHEMA = "agentlab.outcome-evidence-snapshot.v1"
+LOCAL_PATH_PATTERNS = (
+    re.compile(r"/Users/[^\s\"'`<>]+"),
+    re.compile(r"/private/[^\s\"'`<>]+"),
+    re.compile(r"[^\s\"'`<>]*\.codex/worktrees[^\s\"'`<>]*"),
+)
 
 
 def write_evidence_snapshot(
@@ -75,6 +81,12 @@ def outcome_evidence_to_snapshot_record(
     if isinstance(outcome, dict):
         outcome.pop("diff_path", None)
 
+    harness_config = result_data.get("agent_harness_config")
+    if isinstance(harness_config, dict):
+        harness_config["command_identity"] = None
+
+    result_data = _sanitize_local_paths(result_data)
+
     review = None
     if result.human_review_outcome is not None:
         review = human_review_outcome_to_mapping(result.human_review_outcome)
@@ -83,6 +95,19 @@ def outcome_evidence_to_snapshot_record(
         "outcome_evidence": result_data,
         "human_review_outcome": review,
     }
+
+
+def _sanitize_local_paths(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {key: _sanitize_local_paths(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_sanitize_local_paths(item) for item in value]
+    if isinstance(value, str):
+        sanitized = value
+        for pattern in LOCAL_PATH_PATTERNS:
+            sanitized = pattern.sub("<local-path>", sanitized)
+        return sanitized
+    return value
 
 
 def _outcome_evidence_from_snapshot_record(
