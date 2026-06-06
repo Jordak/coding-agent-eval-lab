@@ -46,6 +46,9 @@ class WorkspaceChangeBaseline:
     untracked_files: tuple[WorkspaceUntrackedBaseline, ...] = field(
         default_factory=tuple
     )
+    setup_index_entries: tuple[WorkspaceIndexBaseline, ...] = field(
+        default_factory=tuple
+    )
     reset_index_entries: tuple[WorkspaceIndexBaseline, ...] = field(
         default_factory=tuple
     )
@@ -94,31 +97,46 @@ def _safe_name(value: str) -> str:
 
 
 def capture_change_baseline(workspace: Path) -> WorkspaceChangeBaseline:
-    reset_existing_index = run_git(["reset", "--mixed", "HEAD"], cwd=workspace)
-    if reset_existing_index.returncode != 0:
-        raise RuntimeError(
-            f"git reset failed: {reset_existing_index.stderr.strip()}"
+    setup_index_entries = tuple(_setup_index_entries(workspace))
+
+    with tempfile.TemporaryDirectory(prefix="agentlab-index-") as temp:
+        index_env = {"GIT_INDEX_FILE": str(Path(temp) / "index")}
+        reset_existing_index = run_git(
+            ["read-tree", "--reset", "HEAD"],
+            cwd=workspace,
+            env=index_env,
         )
+        if reset_existing_index.returncode != 0:
+            raise RuntimeError(
+                f"git read-tree failed: {reset_existing_index.stderr.strip()}"
+            )
 
-    staged = run_git(["add", "-u", "--", "."], cwd=workspace)
-    if staged.returncode != 0:
-        raise RuntimeError(f"git add -u failed: {staged.stderr.strip()}")
+        staged = run_git(["add", "-u", "--", "."], cwd=workspace, env=index_env)
+        if staged.returncode != 0:
+            raise RuntimeError(f"git add -u failed: {staged.stderr.strip()}")
 
-    tree = run_git(["write-tree"], cwd=workspace)
-    if tree.returncode != 0:
-        raise RuntimeError(f"git write-tree failed: {tree.stderr.strip()}")
-    tree_ref = tree.stdout.strip()
+        tree = run_git(["write-tree"], cwd=workspace, env=index_env)
+        if tree.returncode != 0:
+            raise RuntimeError(f"git write-tree failed: {tree.stderr.strip()}")
+        tree_ref = tree.stdout.strip()
 
-    reset = run_git(["reset", "--mixed", "HEAD"], cwd=workspace)
-    if reset.returncode != 0:
-        raise RuntimeError(f"git reset failed: {reset.stderr.strip()}")
+        reset = run_git(
+            ["read-tree", "--reset", "HEAD"],
+            cwd=workspace,
+            env=index_env,
+        )
+        if reset.returncode != 0:
+            raise RuntimeError(f"git read-tree failed: {reset.stderr.strip()}")
 
-    reset_index_entries = tuple(_reset_index_entries(workspace, tree_ref))
-    untracked_files = tuple(_snapshot_untracked_files(workspace))
+        reset_index_entries = tuple(
+            _reset_index_entries(workspace, tree_ref, env=index_env)
+        )
+        untracked_files = tuple(_snapshot_untracked_files(workspace, env=index_env))
 
     return WorkspaceChangeBaseline(
         tree_ref=tree_ref,
         untracked_files=untracked_files,
+        setup_index_entries=setup_index_entries,
         reset_index_entries=reset_index_entries,
     )
 
@@ -128,6 +146,7 @@ def capture_diff(
     diff_path: Path,
     base_ref: str | None = None,
     baseline_untracked: Sequence[WorkspaceUntrackedBaseline] = (),
+    baseline_setup_index: Sequence[WorkspaceIndexBaseline] = (),
     baseline_reset_index: Sequence[WorkspaceIndexBaseline] = (),
 ) -> list[str]:
     return capture_diff_details(
@@ -135,6 +154,7 @@ def capture_diff(
         diff_path,
         base_ref=base_ref,
         baseline_untracked=baseline_untracked,
+        baseline_setup_index=baseline_setup_index,
         baseline_reset_index=baseline_reset_index,
     ).files_changed
 
@@ -144,6 +164,7 @@ def capture_diff_details(
     diff_path: Path,
     base_ref: str | None = None,
     baseline_untracked: Sequence[WorkspaceUntrackedBaseline] = (),
+    baseline_setup_index: Sequence[WorkspaceIndexBaseline] = (),
     baseline_reset_index: Sequence[WorkspaceIndexBaseline] = (),
 ) -> CapturedDiff:
     diff_ref = base_ref or "HEAD"
@@ -158,7 +179,6 @@ def capture_diff_details(
         if entry.path not in changed_baseline_paths
     ]
     _mark_untracked_for_diff(workspace, exclude_untracked=unchanged_baseline_paths)
-    diff_args = ["diff", "--binary", "--no-renames", diff_ref]
     name_args = ["diff", "--name-only", "-z", "--no-renames", diff_ref]
     cached_name_args = [
         "diff",
@@ -170,21 +190,29 @@ def capture_diff_details(
     ]
 
     git_env = isolated_git_env()
-    diff = run_git(diff_args, cwd=workspace, env=git_env)
-    if diff.returncode != 0:
-        raise RuntimeError(f"git diff failed: {diff.stderr.strip()}")
-
     worktree_paths = _diff_names(
         workspace,
         name_args,
         "git diff --name-only",
         env=git_env,
     )
+    worktree_paths = _filter_unchanged_setup_index_paths(
+        workspace,
+        worktree_paths,
+        unchanged_baseline_paths,
+        baseline_setup_index,
+    )
     cached_paths = _diff_names(
         workspace,
         cached_name_args,
         "git diff --cached --name-only",
         env=git_env,
+    )
+    cached_paths = _filter_unchanged_setup_index_paths(
+        workspace,
+        cached_paths,
+        unchanged_baseline_paths,
+        baseline_setup_index,
     )
     cached_paths = _filter_reset_baseline_cached_paths(
         workspace,
@@ -198,7 +226,12 @@ def capture_diff_details(
     ]
     diff_path.write_text(
         _join_diffs(
-            diff.stdout,
+            _worktree_diff_for_paths(
+                workspace,
+                diff_ref,
+                worktree_paths,
+                env=git_env,
+            ),
             _cached_diff_for_paths(
                 workspace,
                 diff_ref,
@@ -242,10 +275,15 @@ def _mark_untracked_for_diff(
         raise RuntimeError(f"git add --intent-to-add failed: {marked.stderr.strip()}")
 
 
-def _list_untracked(workspace: Path) -> list[str]:
+def _list_untracked(
+    workspace: Path,
+    *,
+    env: Mapping[str, str] | None = None,
+) -> list[str]:
     untracked = run_git(
         ["ls-files", "--others", "-z"],
         cwd=workspace,
+        env=env,
     )
     if untracked.returncode != 0:
         raise RuntimeError(f"git ls-files failed: {untracked.stderr.strip()}")
@@ -265,19 +303,37 @@ def _diff_names(
     return [path for path in changed.stdout.split("\0") if path]
 
 
-def _reset_index_entries(
-    workspace: Path,
-    tree_ref: str,
-) -> list[WorkspaceIndexBaseline]:
+def _setup_index_entries(workspace: Path) -> list[WorkspaceIndexBaseline]:
     paths = _diff_names(
         workspace,
-        ["diff", "--cached", "--name-only", "-z", "--no-renames", tree_ref],
+        ["diff", "--cached", "--name-only", "-z", "--no-renames", "HEAD"],
         "git diff --cached --name-only",
     )
     return [
         WorkspaceIndexBaseline(
             path=path,
             index_signature=_index_entry_signature(workspace, path),
+        )
+        for path in paths
+    ]
+
+
+def _reset_index_entries(
+    workspace: Path,
+    tree_ref: str,
+    *,
+    env: Mapping[str, str] | None = None,
+) -> list[WorkspaceIndexBaseline]:
+    paths = _diff_names(
+        workspace,
+        ["diff", "--cached", "--name-only", "-z", "--no-renames", tree_ref],
+        "git diff --cached --name-only",
+        env=env,
+    )
+    return [
+        WorkspaceIndexBaseline(
+            path=path,
+            index_signature=_index_entry_signature(workspace, path, env=env),
         )
         for path in paths
     ]
@@ -306,8 +362,36 @@ def _filter_reset_baseline_cached_paths(
     return filtered
 
 
-def _index_entry_signature(workspace: Path, path: str) -> str | None:
-    entry = run_git(["ls-files", "--stage", "-z", "--", path], cwd=workspace)
+def _filter_unchanged_setup_index_paths(
+    workspace: Path,
+    paths: Sequence[str],
+    unchanged_baseline_paths: Sequence[str],
+    baseline_setup_index: Sequence[WorkspaceIndexBaseline],
+) -> list[str]:
+    if not baseline_setup_index or not unchanged_baseline_paths:
+        return list(paths)
+
+    unchanged_path_set = set(unchanged_baseline_paths)
+    setup_signatures = {
+        entry.path: entry.index_signature for entry in baseline_setup_index
+    }
+    filtered: list[str] = []
+    for path in paths:
+        if path not in unchanged_path_set or path not in setup_signatures:
+            filtered.append(path)
+            continue
+        if _index_entry_signature(workspace, path) != setup_signatures[path]:
+            filtered.append(path)
+    return filtered
+
+
+def _index_entry_signature(
+    workspace: Path,
+    path: str,
+    *,
+    env: Mapping[str, str] | None = None,
+) -> str | None:
+    entry = run_git(["ls-files", "--stage", "-z", "--", path], cwd=workspace, env=env)
     if entry.returncode != 0:
         raise RuntimeError(f"git ls-files --stage failed: {entry.stderr.strip()}")
     entries = [part for part in entry.stdout.split("\0") if part]
@@ -336,6 +420,25 @@ def _cached_diff_for_paths(
     return cached_diff.stdout
 
 
+def _worktree_diff_for_paths(
+    workspace: Path,
+    diff_ref: str,
+    paths: Sequence[str],
+    *,
+    env: Mapping[str, str] | None = None,
+) -> str:
+    if not paths:
+        return ""
+    diff = run_git(
+        ["diff", "--binary", "--no-renames", diff_ref, "--"] + list(paths),
+        cwd=workspace,
+        env=env,
+    )
+    if diff.returncode != 0:
+        raise RuntimeError(f"git diff failed: {diff.stderr.strip()}")
+    return diff.stdout
+
+
 def _join_diffs(*diffs: str) -> str:
     chunks = [diff for diff in diffs if diff]
     if not chunks:
@@ -343,10 +446,14 @@ def _join_diffs(*diffs: str) -> str:
     return "\n".join(diff.rstrip("\n") for diff in chunks) + "\n"
 
 
-def _snapshot_untracked_files(workspace: Path) -> list[WorkspaceUntrackedBaseline]:
+def _snapshot_untracked_files(
+    workspace: Path,
+    *,
+    env: Mapping[str, str] | None = None,
+) -> list[WorkspaceUntrackedBaseline]:
     return [
         WorkspaceUntrackedBaseline(path=path, digest=digest)
-        for path in _list_untracked(workspace)
+        for path in _list_untracked(workspace, env=env)
         if (digest := _path_digest(workspace / path)) is not None
     ]
 

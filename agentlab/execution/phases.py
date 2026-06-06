@@ -76,6 +76,7 @@ def execute_task_phases(
         resolved_diff_path,
         base_ref=diff_base_ref or change_baseline.tree_ref,
         baseline_untracked=change_baseline.untracked_files,
+        baseline_setup_index=change_baseline.setup_index_entries,
         baseline_reset_index=change_baseline.reset_index_entries,
     )
     patch_stats = count_patch_lines(

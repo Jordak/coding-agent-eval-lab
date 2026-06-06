@@ -146,10 +146,111 @@ class TaskExecutionTest(unittest.TestCase):
                 ),
             )
 
+            def action(workspace, _task_env):
+                cached_paths = self._git(
+                    ["diff", "--cached", "--name-only"],
+                    workspace,
+                ).stdout.splitlines()
+                self.assertEqual(cached_paths, ["setup.log"])
+                return TaskActionResult()
+
             execution = execute_task_phases(
                 task,
                 temp_path / "workspace",
-                lambda _workspace, _task_env: TaskActionResult(),
+                action,
+                temp_path / "diff.patch",
+            )
+
+            self.assertEqual(execution.files_changed, [])
+            self.assertEqual(execution.lines_added, 0)
+            self.assertEqual(execution.lines_deleted, 0)
+            self.assertTrue(execution.score.tests_passed)
+            self.assertEqual(execution.score.notes, [])
+
+    def test_setup_staged_tracked_change_remains_visible_to_agent(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for task execution")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo, commit = self._repo_with_file(temp_path, "before\n")
+            task = EvalTask(
+                id="setup-staged-tracked-task",
+                title="Setup staged tracked task",
+                repo=str(repo),
+                commit=commit,
+                language="text",
+                prompt="Do nothing.",
+                setup=[
+                    f"{sys.executable} -c "
+                    "\"from pathlib import Path; "
+                    "Path('app.txt').write_text('setup\\\\n')\"",
+                    "git add app.txt",
+                ],
+                success=SuccessCriteria(
+                    forbidden_paths=["app.txt"],
+                    max_files_changed=0,
+                ),
+            )
+
+            def action(workspace, _task_env):
+                cached_paths = self._git(
+                    ["diff", "--cached", "--name-only"],
+                    workspace,
+                ).stdout.splitlines()
+                self.assertEqual(cached_paths, ["app.txt"])
+                return TaskActionResult()
+
+            execution = execute_task_phases(
+                task,
+                temp_path / "workspace",
+                action,
+                temp_path / "diff.patch",
+            )
+
+            self.assertEqual(execution.files_changed, [])
+            self.assertEqual(execution.lines_added, 0)
+            self.assertEqual(execution.lines_deleted, 0)
+            self.assertTrue(execution.score.tests_passed)
+            self.assertEqual(execution.score.notes, [])
+
+    def test_setup_staged_deletion_remains_visible_to_agent(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for task execution")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo, commit = self._repo_with_file(temp_path, "before\n")
+            task = EvalTask(
+                id="setup-staged-deletion-task",
+                title="Setup staged deletion task",
+                repo=str(repo),
+                commit=commit,
+                language="text",
+                prompt="Do nothing.",
+                setup=[
+                    f"{sys.executable} -c "
+                    "\"from pathlib import Path; Path('app.txt').unlink()\"",
+                    "git add app.txt",
+                ],
+                success=SuccessCriteria(
+                    forbidden_paths=["app.txt"],
+                    max_files_changed=0,
+                ),
+            )
+
+            def action(workspace, _task_env):
+                cached_paths = self._git(
+                    ["diff", "--cached", "--name-only"],
+                    workspace,
+                ).stdout.splitlines()
+                self.assertEqual(cached_paths, ["app.txt"])
+                return TaskActionResult()
+
+            execution = execute_task_phases(
+                task,
+                temp_path / "workspace",
+                action,
                 temp_path / "diff.patch",
             )
 
