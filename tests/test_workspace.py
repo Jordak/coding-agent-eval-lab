@@ -677,6 +677,14 @@ class WorkspaceTest(unittest.TestCase):
                 ],
             )
             self.assertIn("new.txt", diff_text)
+            self.assertEqual(
+                self._git(["ls-files", "--stage", "new.txt"], repo).stdout,
+                "",
+            )
+            self.assertIn(
+                "new.txt",
+                self._git(["ls-files", "--others"], repo).stdout.splitlines(),
+            )
 
 if __name__ == "__main__":
     unittest.main()

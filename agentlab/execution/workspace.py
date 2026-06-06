@@ -151,7 +151,7 @@ def capture_diff(
     baseline_setup_index: Sequence[WorkspaceIndexBaseline] = (),
     baseline_reset_index: Sequence[WorkspaceIndexBaseline] = (),
 ) -> list[str]:
-    return capture_diff_details(
+    return capture_diff_details_preserving_index(
         workspace,
         diff_path,
         base_ref=base_ref,
