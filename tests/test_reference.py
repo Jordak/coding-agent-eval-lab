@@ -11,7 +11,7 @@ from pathlib import Path
 from agentlab.evidence.outcome import load_outcome_evidences
 from agentlab.tasks.reference import ReferenceVerificationError, verify_reference
 from agentlab.execution.scoring import calculate_grader_outcome
-from agentlab.tasks import EvalTask, load_task
+from agentlab.tasks import EvalTask, ReferenceArtifact, SuccessCriteria, load_task
 from tests.git_fixtures import assert_base_only_repository
 from tests.git_fixtures import commit_all
 from tests.git_fixtures import commit_file
@@ -266,6 +266,63 @@ class ReferenceVerificationTest(unittest.TestCase):
 
             self.assertTrue(verification.success)
             self.assertEqual(verification.files_changed, ["app.txt"])
+
+    def test_commit_reference_uses_setup_aware_changed_file_baseline(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for reference verification")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo = temp_path / "repo"
+            repo.mkdir()
+            self._git(["init"], repo)
+            self._git(["config", "user.email", "agentlab@example.com"], repo)
+            self._git(["config", "user.name", "Agent Lab"], repo)
+            (repo / "app.txt").write_text("before\n", encoding="utf-8")
+            self._git(["add", "app.txt"], repo)
+            self._git(["commit", "-m", "initial"], repo)
+            commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+
+            allowed_dir = repo / "allowed"
+            allowed_dir.mkdir()
+            (allowed_dir / "result.txt").write_text("ok\n", encoding="utf-8")
+            self._git(["add", "allowed/result.txt"], repo)
+            self._git(["commit", "-m", "reference"], repo)
+            reference_commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+
+            task = EvalTask(
+                id="commit-reference-task",
+                title="Commit reference task",
+                repo=str(repo),
+                commit=commit,
+                language="text",
+                prompt="Create the allowed result file.",
+                reference_artifact=ReferenceArtifact(
+                    type="commit",
+                    commit=reference_commit,
+                ),
+                setup=[
+                    f"{sys.executable} -c "
+                    "\"from pathlib import Path; "
+                    "Path('app.txt').write_text('setup\\\\n')\""
+                ],
+                test=[
+                    f"{sys.executable} -c "
+                    "\"from pathlib import Path; "
+                    "assert Path('app.txt').read_text() == 'setup\\\\n'; "
+                    "assert Path('allowed/result.txt').read_text() == 'ok\\\\n'\""
+                ],
+                success=SuccessCriteria(
+                    allowed_paths=["allowed/"],
+                    max_files_changed=1,
+                ),
+            )
+
+            verification = verify_reference(task, temp_path / "work")
+
+        self.assertTrue(verification.success)
+        self.assertEqual(verification.files_changed, ["allowed/result.txt"])
+        self.assertEqual(verification.notes, [])
 
     def test_reference_verification_uses_shared_grader_outcome(self):
         if shutil.which("git") is None:

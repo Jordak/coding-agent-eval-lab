@@ -214,6 +214,16 @@ def capture_diff_details(
         unchanged_baseline_paths,
         baseline_setup_index,
     )
+    worktree_paths = _filter_unchanged_baseline_untracked_paths(
+        workspace,
+        worktree_paths,
+        unchanged_baseline_paths,
+    )
+    cached_paths = _filter_unchanged_baseline_untracked_paths(
+        workspace,
+        cached_paths,
+        unchanged_baseline_paths,
+    )
     cached_paths = _filter_reset_baseline_cached_paths(
         workspace,
         cached_paths,
@@ -385,6 +395,25 @@ def _filter_unchanged_setup_index_paths(
     return filtered
 
 
+def _filter_unchanged_baseline_untracked_paths(
+    workspace: Path,
+    paths: Sequence[str],
+    unchanged_baseline_paths: Sequence[str],
+) -> list[str]:
+    if not unchanged_baseline_paths:
+        return list(paths)
+
+    unchanged_path_set = set(unchanged_baseline_paths)
+    filtered: list[str] = []
+    for path in paths:
+        if path not in unchanged_path_set or not _index_matches_worktree(
+            workspace,
+            path,
+        ):
+            filtered.append(path)
+    return filtered
+
+
 def _index_entry_signature(
     workspace: Path,
     path: str,
@@ -398,6 +427,15 @@ def _index_entry_signature(
     if not entries:
         return None
     return "\0".join(part.split("\t", 1)[0] for part in entries)
+
+
+def _index_matches_worktree(workspace: Path, path: str) -> bool:
+    diff = run_git(["diff", "--quiet", "--", path], cwd=workspace)
+    if diff.returncode == 0:
+        return True
+    if diff.returncode == 1:
+        return False
+    raise RuntimeError(f"git diff --quiet failed: {diff.stderr.strip()}")
 
 
 def _cached_diff_for_paths(

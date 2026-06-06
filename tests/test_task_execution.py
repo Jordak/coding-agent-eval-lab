@@ -120,6 +120,52 @@ class TaskExecutionTest(unittest.TestCase):
             self.assertTrue(execution.score.tests_passed)
             self.assertEqual(execution.score.notes, [])
 
+    def test_staged_unchanged_setup_created_untracked_file_is_not_counted(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for task execution")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo, commit = self._repo_with_file(temp_path, "before\n")
+            task = EvalTask(
+                id="staged-setup-untracked-task",
+                title="Staged setup untracked task",
+                repo=str(repo),
+                commit=commit,
+                language="text",
+                prompt="Create the allowed result file.",
+                setup=[
+                    f"{sys.executable} -c "
+                    "\"from pathlib import Path; "
+                    "Path('setup.log').write_text('setup\\\\n')\""
+                ],
+                success=SuccessCriteria(
+                    allowed_paths=["allowed/"],
+                    forbidden_paths=["setup.log"],
+                    max_files_changed=1,
+                ),
+            )
+
+            def action(workspace, _task_env):
+                output_dir = workspace / "allowed"
+                output_dir.mkdir()
+                (output_dir / "result.txt").write_text("ok\n", encoding="utf-8")
+                self._git(["add", "."], workspace)
+                return TaskActionResult()
+
+            execution = execute_task_phases(
+                task,
+                temp_path / "workspace",
+                action,
+                temp_path / "diff.patch",
+            )
+
+            self.assertEqual(execution.files_changed, ["allowed/result.txt"])
+            self.assertEqual(execution.lines_added, 1)
+            self.assertEqual(execution.lines_deleted, 0)
+            self.assertTrue(execution.score.tests_passed)
+            self.assertEqual(execution.score.notes, [])
+
     def test_setup_staged_new_file_is_not_counted_as_agent_change(self):
         if shutil.which("git") is None:
             self.skipTest("git is required for task execution")
