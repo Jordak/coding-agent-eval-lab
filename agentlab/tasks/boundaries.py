@@ -33,20 +33,27 @@ class BoundaryViolation:
 
 
 def validate_boundary_glob(pattern: str, field_name: str) -> None:
-    normalized = _normalize_pattern(pattern)
-    if normalized == "":
+    if pattern == "":
         raise ValueError(f"{field_name} entries must be non-empty")
-    if normalized.startswith("!"):
-        raise ValueError(f"{field_name} entries must not use negation")
-    if "[" in normalized or "]" in normalized:
-        raise ValueError(
-            f"{field_name} entries may only use *, ?, **, and trailing / globs"
-        )
-    if normalized.startswith("/") or "//" in normalized:
+    if pattern != pattern.strip():
         raise ValueError(
             f"{field_name} entries must be normalized repo-root-relative path globs"
         )
-    trimmed = normalized.rstrip("/")
+    if "\\" in pattern:
+        raise ValueError(
+            f"{field_name} entries must use / path separators"
+        )
+    if pattern.startswith("!"):
+        raise ValueError(f"{field_name} entries must not use negation")
+    if "[" in pattern or "]" in pattern:
+        raise ValueError(
+            f"{field_name} entries may only use *, ?, **, and trailing / globs"
+        )
+    if pattern.startswith("/") or "//" in pattern:
+        raise ValueError(
+            f"{field_name} entries must be normalized repo-root-relative path globs"
+        )
+    trimmed = pattern.rstrip("/")
     if trimmed in {"", "."}:
         raise ValueError(f"{field_name} entries must be non-empty")
     if "." in trimmed.split("/"):
@@ -105,15 +112,14 @@ def find_boundary_violations(
 
 def path_matches_boundary_glob(path: str, pattern: str) -> bool:
     normalized_path = _normalize_changed_path(path)
-    normalized_pattern = _normalize_pattern(pattern)
-    if normalized_pattern.endswith("/"):
+    if pattern.endswith("/"):
         return _matches_directory_prefix(
             normalized_path.split("/"),
-            normalized_pattern.rstrip("/").split("/"),
+            pattern.rstrip("/").split("/"),
         )
     return _match_segments(
         normalized_path.split("/"),
-        normalized_pattern.split("/"),
+        pattern.split("/"),
     )
 
 
@@ -173,12 +179,7 @@ def _match_segment(path_part: str, pattern: str) -> bool:
 
 
 def _normalize_changed_path(path: str) -> str:
-    normalized = _normalize_pattern(path)
-    return _strip_current_directory_prefix(normalized)
-
-
-def _normalize_pattern(pattern: str) -> str:
-    return pattern.strip().replace("\\", "/")
+    return _strip_current_directory_prefix(path)
 
 
 def _strip_current_directory_prefix(value: str) -> str:

@@ -31,6 +31,14 @@ class BoundaryGlobTest(unittest.TestCase):
         self.assertFalse(path_matches_boundary_glob("docs", "docs/"))
         self.assertFalse(path_matches_boundary_glob("docs2/design.md", "docs/"))
 
+    def test_changed_paths_only_strip_leading_current_directory_prefix(self):
+        self.assertTrue(path_matches_boundary_glob("./docs/design.md", "docs/"))
+        self.assertFalse(path_matches_boundary_glob(" docs/design.md", "docs/"))
+        self.assertFalse(
+            path_matches_boundary_glob("docs/design.md ", "docs/design.md")
+        )
+        self.assertFalse(path_matches_boundary_glob("docs\\design.md", "docs/"))
+
     def test_forbidden_paths_win_over_allowed_paths(self):
         violations = find_boundary_violations(
             ["src/app.py", "src/private/secret.py", "README.md"],
