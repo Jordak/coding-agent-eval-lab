@@ -17,6 +17,7 @@ from agentlab.execution.commands import (
 )
 from agentlab.execution.synthetic_workspace import materialize_synthetic_base
 from agentlab.tasks import EvalTask
+from agentlab.tasks.boundaries import path_matches_boundary_glob
 
 
 WORKSPACE_HISTORY_POLICY = "base_only"
@@ -33,7 +34,7 @@ class PreparedWorkspace:
 @dataclass(frozen=True)
 class WorkspaceUntrackedBaseline:
     path: str
-    digest: str
+    fingerprint: str
 
 
 @dataclass(frozen=True)
@@ -98,7 +99,11 @@ def _safe_name(value: str) -> str:
     return safe.strip("-") or "task"
 
 
-def capture_change_baseline(workspace: Path) -> WorkspaceChangeBaseline:
+def capture_change_baseline(
+    workspace: Path,
+    *,
+    exact_untracked_patterns: Sequence[str] = (),
+) -> WorkspaceChangeBaseline:
     setup_index_entries = tuple(_setup_index_entries(workspace))
 
     with tempfile.TemporaryDirectory(prefix="agentlab-index-") as temp:
@@ -133,7 +138,13 @@ def capture_change_baseline(workspace: Path) -> WorkspaceChangeBaseline:
         reset_index_entries = tuple(
             _reset_index_entries(workspace, tree_ref, env=index_env)
         )
-        untracked_files = tuple(_snapshot_untracked_files(workspace, env=index_env))
+        untracked_files = tuple(
+            _snapshot_untracked_files(
+                workspace,
+                env=index_env,
+                exact_patterns=exact_untracked_patterns,
+            )
+        )
 
     return WorkspaceChangeBaseline(
         tree_ref=tree_ref,
@@ -541,11 +552,18 @@ def _snapshot_untracked_files(
     workspace: Path,
     *,
     env: Mapping[str, str] | None = None,
+    exact_patterns: Sequence[str] = (),
 ) -> list[WorkspaceUntrackedBaseline]:
     return [
-        WorkspaceUntrackedBaseline(path=path, digest=digest)
+        WorkspaceUntrackedBaseline(path=path, fingerprint=fingerprint)
         for path in _list_untracked(workspace, env=env)
-        if (digest := _path_digest(workspace / path)) is not None
+        if (
+            fingerprint := _path_fingerprint(
+                workspace / path,
+                exact=_matches_any_boundary_pattern(path, exact_patterns),
+            )
+        )
+        is not None
     ]
 
 
@@ -556,11 +574,15 @@ def _changed_baseline_untracked(
     return [
         entry
         for entry in baseline_untracked
-        if _path_digest(workspace / entry.path) != entry.digest
+        if _path_fingerprint(
+            workspace / entry.path,
+            exact=_is_exact_fingerprint(entry.fingerprint),
+        )
+        != entry.fingerprint
     ]
 
 
-def _path_digest(path: Path) -> str | None:
+def _path_fingerprint(path: Path, *, exact: bool) -> str | None:
     try:
         file_stat = path.lstat()
     except FileNotFoundError:
@@ -571,6 +593,12 @@ def _path_digest(path: Path) -> str | None:
         return f"symlink:{mode:o}:{os.readlink(path)}"
     if not stat.S_ISREG(file_stat.st_mode):
         return f"other:{mode:o}:{file_stat.st_size}:{file_stat.st_mtime_ns}"
+    if not exact:
+        return (
+            "file-stat:"
+            f"{mode:o}:{file_stat.st_size}:"
+            f"{file_stat.st_mtime_ns}:{file_stat.st_ctime_ns}"
+        )
 
     digest = hashlib.sha256()
     digest.update(f"file:{mode:o}:".encode("utf-8"))
@@ -578,6 +606,14 @@ def _path_digest(path: Path) -> str | None:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def _matches_any_boundary_pattern(path: str, patterns: Sequence[str]) -> bool:
+    return any(path_matches_boundary_glob(path, pattern) for pattern in patterns)
+
+
+def _is_exact_fingerprint(fingerprint: str) -> bool:
+    return not fingerprint.startswith("file-stat:")
 
 
 def _is_excluded_untracked(path: str, excluded: Sequence[str]) -> bool:

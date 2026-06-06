@@ -482,6 +482,52 @@ class TaskExecutionTest(unittest.TestCase):
             self.assertTrue(execution.score.tests_passed)
             self.assertEqual(execution.score.notes, [])
 
+    def test_setup_created_byproduct_tree_does_not_require_content_hashing(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for task execution")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo, commit = self._repo_with_file(temp_path, "before\n")
+            task = EvalTask(
+                id="setup-byproduct-task",
+                title="Setup byproduct task",
+                repo=str(repo),
+                commit=commit,
+                language="text",
+                prompt="Create the allowed result file.",
+                setup=[
+                    f"{sys.executable} -c "
+                    "\"from pathlib import Path; "
+                    "path = Path('.agentlab/venv/unreadable.py'); "
+                    "path.parent.mkdir(parents=True); "
+                    "path.write_text('setup byproduct\\\\n'); "
+                    "path.chmod(0)\""
+                ],
+                success=SuccessCriteria(
+                    allowed_paths=["allowed/"],
+                    max_files_changed=1,
+                ),
+            )
+
+            def action(workspace, _task_env):
+                output_dir = workspace / "allowed"
+                output_dir.mkdir()
+                (output_dir / "result.txt").write_text("ok\n", encoding="utf-8")
+                return TaskActionResult()
+
+            execution = execute_task_phases(
+                task,
+                temp_path / "workspace",
+                action,
+                temp_path / "diff.patch",
+            )
+            (execution.workspace / ".agentlab/venv/unreadable.py").chmod(0o600)
+
+            self.assertEqual(execution.files_changed, ["allowed/result.txt"])
+            self.assertTrue(execution.score.tests_passed)
+            self.assertEqual(execution.score.notes, [])
+
     def test_target_created_files_are_not_counted_as_agent_changes(self):
         if shutil.which("git") is None:
             self.skipTest("git is required for task execution")

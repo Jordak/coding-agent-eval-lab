@@ -65,7 +65,10 @@ def execute_task_phases(
     task_env = build_task_environment(task, prepared.path)
     setup_checks = run_commands(task.setup, prepared.path, env=task_env)
     baseline_checks = run_commands(task.baseline, prepared.path, env=task_env)
-    change_baseline = capture_change_baseline(prepared.path)
+    change_baseline = capture_change_baseline(
+        prepared.path,
+        exact_untracked_patterns=_boundary_untracked_patterns(task),
+    )
 
     action_result = action(prepared.path, task_env)
 
@@ -121,3 +124,10 @@ def _resolve_diff_path(
     if isinstance(diff_path, Path):
         return diff_path
     return diff_path(workspace)
+
+
+def _boundary_untracked_patterns(task: EvalTask) -> list[str]:
+    patterns = list(task.success.forbidden_paths)
+    if task.success.allowed_paths is not None:
+        patterns.extend(task.success.allowed_paths)
+    return patterns
