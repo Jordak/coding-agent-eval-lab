@@ -60,6 +60,24 @@ reference_artifact:
   path: reference.patch
 ```
 
+Optional scope-oracle metadata can declare consent posture and path boundaries
+without injecting those details into trial prompts:
+
+```yaml
+consent_style: explicit_allow
+success:
+  allowed_paths:
+    - src/
+  forbidden_paths:
+    - secrets/
+```
+
+Valid `consent_style` values are `silent`, `implicit_deny`, `explicit_deny`,
+`implicit_allow`, and `explicit_allow`. Boundary globs are repo-root-relative;
+v1 has no negation, trailing slash means recursive directory match, and
+forbidden paths win over allowed paths. See `docs/design.md` for the global
+path-glob contract.
+
 ## Workflow
 
 1. Edit or create `task.yaml` in a task bundle.

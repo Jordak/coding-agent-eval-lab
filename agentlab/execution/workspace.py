@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import hashlib
 import os
+import shutil
 import stat
 import tempfile
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Mapping, Sequence
+from typing import Iterator, Mapping, Sequence
 
 from agentlab.execution.commands import (
     clone_no_checkout,
@@ -159,6 +161,25 @@ def capture_diff(
     ).files_changed
 
 
+def capture_diff_details_preserving_index(
+    workspace: Path,
+    diff_path: Path,
+    base_ref: str | None = None,
+    baseline_untracked: Sequence[WorkspaceUntrackedBaseline] = (),
+    baseline_setup_index: Sequence[WorkspaceIndexBaseline] = (),
+    baseline_reset_index: Sequence[WorkspaceIndexBaseline] = (),
+) -> CapturedDiff:
+    with _preserve_git_index(workspace):
+        return capture_diff_details(
+            workspace,
+            diff_path,
+            base_ref=base_ref,
+            baseline_untracked=baseline_untracked,
+            baseline_setup_index=baseline_setup_index,
+            baseline_reset_index=baseline_reset_index,
+        )
+
+
 def capture_diff_details(
     workspace: Path,
     diff_path: Path,
@@ -263,6 +284,38 @@ def capture_diff_details(
             entry.path for entry in changed_baseline_untracked
         ],
     )
+
+
+@contextmanager
+def _preserve_git_index(workspace: Path) -> Iterator[None]:
+    index_path = _git_index_path(workspace)
+    with tempfile.TemporaryDirectory(prefix="agentlab-index-backup-") as temp:
+        backup_path = Path(temp) / "index"
+        index_existed = index_path.exists()
+        if index_existed:
+            shutil.copy2(index_path, backup_path)
+
+        try:
+            yield
+        finally:
+            if index_existed:
+                index_path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(backup_path, index_path)
+            else:
+                try:
+                    index_path.unlink()
+                except FileNotFoundError:
+                    pass
+
+
+def _git_index_path(workspace: Path) -> Path:
+    index = run_git(["rev-parse", "--git-path", "index"], cwd=workspace)
+    if index.returncode != 0:
+        raise RuntimeError(f"git rev-parse failed: {index.stderr.strip()}")
+    index_path = Path(index.stdout.strip())
+    if index_path.is_absolute():
+        return index_path
+    return workspace / index_path
 
 
 def _mark_untracked_for_diff(

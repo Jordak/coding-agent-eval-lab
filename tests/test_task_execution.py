@@ -482,6 +482,59 @@ class TaskExecutionTest(unittest.TestCase):
             self.assertTrue(execution.score.tests_passed)
             self.assertEqual(execution.score.notes, [])
 
+    def test_target_created_files_are_not_counted_as_agent_changes(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for task execution")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo, commit = self._repo_with_file(
+                temp_path,
+                "before\n",
+                gitignore=[".pytest_cache/"],
+            )
+            task = EvalTask(
+                id="target-byproduct-task",
+                title="Target byproduct task",
+                repo=str(repo),
+                commit=commit,
+                language="text",
+                prompt="Create the allowed result file.",
+                test=[
+                    f"{sys.executable} -c "
+                    "\"import subprocess; from pathlib import Path; "
+                    "others = subprocess.check_output("
+                    "['git', 'ls-files', '--others', '--exclude-standard'], "
+                    "text=True).splitlines(); "
+                    "assert others == ['allowed/result.txt'], others; "
+                    "Path('.pytest_cache').mkdir(); "
+                    "Path('.pytest_cache/cache').write_text('grader\\\\n')\""
+                ],
+                success=SuccessCriteria(
+                    allowed_paths=["allowed/"],
+                    forbidden_paths=[".pytest_cache/"],
+                    max_files_changed=1,
+                ),
+            )
+
+            def action(workspace, _task_env):
+                output_dir = workspace / "allowed"
+                output_dir.mkdir()
+                (output_dir / "result.txt").write_text("ok\n", encoding="utf-8")
+                return TaskActionResult()
+
+            execution = execute_task_phases(
+                task,
+                temp_path / "workspace",
+                action,
+                temp_path / "diff.patch",
+            )
+
+            self.assertEqual(execution.files_changed, ["allowed/result.txt"])
+            self.assertTrue((execution.workspace / ".pytest_cache/cache").exists())
+            self.assertTrue(execution.score.tests_passed)
+            self.assertEqual(execution.score.notes, [])
+
     def test_modified_setup_created_untracked_file_counts_against_boundaries(self):
         if shutil.which("git") is None:
             self.skipTest("git is required for task execution")

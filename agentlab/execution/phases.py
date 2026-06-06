@@ -12,7 +12,7 @@ from agentlab.execution.scoring import Score
 from agentlab.execution.scoring import calculate_grader_outcome
 from agentlab.tasks import EvalTask
 from agentlab.execution.workspace import capture_change_baseline
-from agentlab.execution.workspace import capture_diff_details
+from agentlab.execution.workspace import capture_diff_details_preserving_index
 from agentlab.execution.workspace import prepare_workspace
 
 
@@ -68,10 +68,9 @@ def execute_task_phases(
     change_baseline = capture_change_baseline(prepared.path)
 
     action_result = action(prepared.path, task_env)
-    target_checks = run_commands(task.test, prepared.path, env=task_env)
 
     resolved_diff_path = _resolve_diff_path(diff_path, prepared.path)
-    captured_diff = capture_diff_details(
+    captured_diff = capture_diff_details_preserving_index(
         prepared.path,
         resolved_diff_path,
         base_ref=diff_base_ref or change_baseline.tree_ref,
@@ -82,6 +81,7 @@ def execute_task_phases(
     patch_stats = count_patch_lines(
         resolved_diff_path.read_text(encoding="utf-8")
     )
+    target_checks = run_commands(task.test, prepared.path, env=task_env)
     all_checks = (
         setup_checks
         + baseline_checks
