@@ -193,6 +193,8 @@ class TaskLoadingTest(unittest.TestCase):
             "!src/**",
             "./!src/**",
             "././!src/**",
+            "./src/",
+            "./*.py",
             "../secret",
             "/absolute/path",
             "src//app.py",
@@ -201,19 +203,20 @@ class TaskLoadingTest(unittest.TestCase):
             "src/[ab].py",
         ]
         for pattern in invalid_patterns:
-            with self.subTest(pattern=pattern):
-                with self.assertRaises(TaskLoadError):
-                    EvalTask.from_mapping(
-                        {
-                            "id": "demo-001",
-                            "title": "Demo task",
-                            "repo": "https://github.com/example/demo",
-                            "commit": "abc123",
-                            "language": "python",
-                            "prompt": "Fix it.",
-                            "success": {"forbidden_paths": [pattern]},
-                        }
-                    )
+            for field_name in ("allowed_paths", "forbidden_paths"):
+                with self.subTest(pattern=pattern, field_name=field_name):
+                    with self.assertRaises(TaskLoadError):
+                        EvalTask.from_mapping(
+                            {
+                                "id": "demo-001",
+                                "title": "Demo task",
+                                "repo": "https://github.com/example/demo",
+                                "commit": "abc123",
+                                "language": "python",
+                                "prompt": "Fix it.",
+                                "success": {field_name: [pattern]},
+                            }
+                        )
 
     def test_requires_core_fields(self):
         with self.assertRaises(TaskLoadError):

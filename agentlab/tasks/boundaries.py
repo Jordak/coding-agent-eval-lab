@@ -33,7 +33,7 @@ class BoundaryViolation:
 
 
 def validate_boundary_glob(pattern: str, field_name: str) -> None:
-    normalized = _strip_current_directory_prefix(_normalize_pattern(pattern))
+    normalized = _normalize_pattern(pattern)
     if normalized == "":
         raise ValueError(f"{field_name} entries must be non-empty")
     if normalized.startswith("!"):
@@ -105,7 +105,7 @@ def find_boundary_violations(
 
 def path_matches_boundary_glob(path: str, pattern: str) -> bool:
     normalized_path = _normalize_changed_path(path)
-    normalized_pattern = _strip_current_directory_prefix(_normalize_pattern(pattern))
+    normalized_pattern = _normalize_pattern(pattern)
     if normalized_pattern.endswith("/"):
         return _matches_directory_prefix(
             normalized_path.split("/"),
