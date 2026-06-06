@@ -1,7 +1,9 @@
 import shutil
+import os
 import subprocess
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 from agentlab.tasks import EvalTask
@@ -113,6 +115,125 @@ class WorkspaceTest(unittest.TestCase):
             self.assertEqual(
                 (prepared.path / "app.txt").read_text(encoding="utf-8"),
                 "base\n",
+            )
+
+    def test_prepare_workspace_preserves_exact_source_tree(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for workspace preparation")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo = temp_path / "repo"
+            repo.mkdir()
+            self._git(["init"], repo)
+            self._git(["config", "user.email", "agentlab@example.com"], repo)
+            self._git(["config", "user.name", "Agent Lab"], repo)
+            (repo / ".gitignore").write_text("ignored.txt\n", encoding="utf-8")
+            (repo / ".gitattributes").write_text(
+                "exported.txt export-ignore\nsubstituted.txt export-subst\n",
+                encoding="utf-8",
+            )
+            (repo / "exported.txt").write_text("must stay\n", encoding="utf-8")
+            (repo / "ignored.txt").write_text("tracked anyway\n", encoding="utf-8")
+            (repo / "substituted.txt").write_text(
+                "$Format:%H$\n",
+                encoding="utf-8",
+            )
+            self._git(
+                [
+                    "add",
+                    ".gitignore",
+                    ".gitattributes",
+                    "exported.txt",
+                    "substituted.txt",
+                ],
+                repo,
+            )
+            self._git(["add", "-f", "ignored.txt"], repo)
+            self._git(["commit", "-m", "base"], repo)
+            commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+
+            task = EvalTask(
+                id="exact-tree-task",
+                title="Exact tree task",
+                repo=str(repo),
+                commit=commit,
+                language="text",
+                prompt="Do nothing.",
+            )
+
+            prepared = prepare_workspace(task, temp_path / "workspace")
+
+            self.assertEqual(
+                self._git(["rev-parse", f"{commit}^{{tree}}"], repo).stdout.strip(),
+                self._git(["rev-parse", "HEAD^{tree}"], prepared.path).stdout.strip(),
+            )
+            self.assertEqual(
+                (prepared.path / "exported.txt").read_text(encoding="utf-8"),
+                "must stay\n",
+            )
+            self.assertEqual(
+                (prepared.path / "ignored.txt").read_text(encoding="utf-8"),
+                "tracked anyway\n",
+            )
+            self.assertEqual(
+                (prepared.path / "substituted.txt").read_text(encoding="utf-8"),
+                "$Format:%H$\n",
+            )
+
+    def test_synthetic_commit_uses_fixed_identity_and_date(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for workspace preparation")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo = temp_path / "repo"
+            repo.mkdir()
+            self._git(["init"], repo)
+            self._git(["config", "user.email", "agentlab@example.com"], repo)
+            self._git(["config", "user.name", "Agent Lab"], repo)
+            (repo / "app.txt").write_text("base\n", encoding="utf-8")
+            self._git(["add", "app.txt"], repo)
+            self._git(["commit", "-m", "base"], repo)
+            commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+            task = EvalTask(
+                id="stable-base-task",
+                title="Stable base task",
+                repo=str(repo),
+                commit=commit,
+                language="text",
+                prompt="Do nothing.",
+            )
+
+            with mock.patch.dict(
+                os.environ,
+                {
+                    "GIT_AUTHOR_NAME": "Local User",
+                    "GIT_AUTHOR_EMAIL": "local@example.com",
+                    "GIT_AUTHOR_DATE": "2026-06-06T12:00:00+00:00",
+                    "GIT_COMMITTER_NAME": "Local User",
+                    "GIT_COMMITTER_EMAIL": "local@example.com",
+                    "GIT_COMMITTER_DATE": "2026-06-06T12:00:00+00:00",
+                },
+            ):
+                prepared_a = prepare_workspace(task, temp_path / "workspace-a")
+                prepared_b = prepare_workspace(task, temp_path / "workspace-b")
+
+            self.assertEqual(
+                prepared_a.workspace_base_ref,
+                prepared_b.workspace_base_ref,
+            )
+            self.assertEqual(
+                self._git(
+                    ["log", "-1", "--format=%an <%ae>|%cn <%ce>|%aI|%cI"],
+                    prepared_a.path,
+                ).stdout.strip(),
+                (
+                    "Agent Eval Lab <agentlab@example.com>|"
+                    "Agent Eval Lab <agentlab@example.com>|"
+                    "2000-01-01T00:00:00Z|"
+                    "2000-01-01T00:00:00Z"
+                ),
             )
 
     def test_capture_diff_uses_explicit_synthetic_base_ref(self):

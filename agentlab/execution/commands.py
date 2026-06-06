@@ -42,10 +42,15 @@ def run_commands(
     ]
 
 
-def run_git(args: List[str], cwd: Path) -> subprocess.CompletedProcess[str]:
+def run_git(
+    args: List[str],
+    cwd: Path,
+    env: Optional[Mapping[str, str]] = None,
+) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         ["git"] + args,
         cwd=str(cwd),
         text=True,
         capture_output=True,
+        env=dict(env) if env is not None else None,
     )

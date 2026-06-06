@@ -226,7 +226,7 @@ The project is evaluation infrastructure, not a general coding assistant or IDE.
   generated `task-card.md`, and reference artifacts.
 - Task smoke tests verify the reference artifact, then run exactly one agent
   trial with one job before repeated or parallel trials are interpreted.
-- Each trial gets an isolated cloned workspace under `runs/<trial-id>/workspace`.
+- Each trial gets an isolated base-only workspace under `runs/<trial-id>/workspace`.
 - Agent adapters implement the `AgentAdapter` protocol in `agentlab.agents`.
 - Trial artifacts include `report.md`, `result.json`, `diff.patch`, and an
   adapter-specific transcript or trace. New `result.json` artifacts include

@@ -165,7 +165,13 @@ class RunSurfaceTest(unittest.TestCase):
         )
         agent_harness_config["reasoning_effort"] = "xhigh"
         run = SimpleNamespace(
-            task=SimpleNamespace(id="task-a", suite="starter", eval_type="regression"),
+            task=SimpleNamespace(
+                id="task-a",
+                suite="starter",
+                eval_type="regression",
+                repo="https://example.test/repo.git",
+                commit="task-commit",
+            ),
             run_dir=Path("runs/trial-a"),
             score=SimpleNamespace(tests_passed=True, checks=[], notes=[]),
             agent_run=SimpleNamespace(
@@ -191,6 +197,11 @@ class RunSurfaceTest(unittest.TestCase):
         report = render_markdown_report(run)
 
         self.assertIn("## Run Surface", report)
+        self.assertIn(
+            "- Task repository: `https://example.test/repo.git`",
+            report,
+        )
+        self.assertIn("- Task commit: `task-commit`", report)
         self.assertIn("- Execution surface: `local_cli`", report)
         self.assertIn("- Runtime version: `codex 1.2.3`", report)
         self.assertIn("- Sandbox mode: `workspace-write`", report)
