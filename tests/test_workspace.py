@@ -236,6 +236,157 @@ class WorkspaceTest(unittest.TestCase):
                 ),
             )
 
+    def test_prepare_workspace_uses_source_blob_bytes_without_smudge_filters(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for workspace preparation")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            home = temp_path / "home"
+            xdg_config = temp_path / "xdg"
+            home.mkdir()
+            xdg_config.mkdir()
+            (home / ".gitconfig").write_text(
+                "\n".join(
+                    [
+                        '[filter "hydrate"]',
+                        "    smudge = sed s/pointer/HYDRATED/",
+                        "    clean = sed s/HYDRATED/pointer/",
+                        "",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            repo = temp_path / "repo"
+            repo.mkdir()
+
+            with mock.patch.dict(
+                os.environ,
+                {
+                    "GIT_CONFIG_GLOBAL": str(home / ".gitconfig"),
+                    "HOME": str(home),
+                    "XDG_CONFIG_HOME": str(xdg_config),
+                },
+            ):
+                self._git(["init"], repo)
+                self._git(["config", "user.email", "agentlab@example.com"], repo)
+                self._git(["config", "user.name", "Agent Lab"], repo)
+                (repo / ".gitattributes").write_text(
+                    "asset.dat filter=hydrate\n",
+                    encoding="utf-8",
+                )
+                (repo / "asset.dat").write_text("pointer\n", encoding="utf-8")
+                self._git(["add", ".gitattributes", "asset.dat"], repo)
+                self._git(["commit", "-m", "base"], repo)
+                commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+                task = EvalTask(
+                    id="filter-task",
+                    title="Filter task",
+                    repo=str(repo),
+                    commit=commit,
+                    language="text",
+                    prompt="Do nothing.",
+                )
+
+                prepared = prepare_workspace(task, temp_path / "workspace")
+
+            source_blob = self._git(
+                ["cat-file", "blob", f"{commit}:asset.dat"],
+                repo,
+            ).stdout
+            self.assertEqual(source_blob, "pointer\n")
+            self.assertEqual(
+                (prepared.path / "asset.dat").read_text(encoding="utf-8"),
+                source_blob,
+            )
+            self.assertEqual(
+                self._git(["status", "--short"], prepared.path).stdout.strip(),
+                "",
+            )
+
+    def test_synthetic_commit_ignores_global_hooks_and_templates(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for workspace preparation")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo = temp_path / "repo"
+            repo.mkdir()
+            self._git(["init"], repo)
+            self._git(["config", "user.email", "agentlab@example.com"], repo)
+            self._git(["config", "user.name", "Agent Lab"], repo)
+            (repo / "app.txt").write_text("base\n", encoding="utf-8")
+            self._git(["add", "app.txt"], repo)
+            self._git(["commit", "-m", "base"], repo)
+            commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+
+            home = temp_path / "home"
+            xdg_config = temp_path / "xdg"
+            global_hooks = temp_path / "global-hooks"
+            template = temp_path / "template"
+            home.mkdir()
+            xdg_config.mkdir()
+            global_hooks.mkdir()
+            (template / "hooks").mkdir(parents=True)
+            (home / ".gitconfig").write_text(
+                "\n".join(
+                    [
+                        "[core]",
+                        f"    hooksPath = {global_hooks}",
+                        "[init]",
+                        f"    templateDir = {template}",
+                        "",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            hook = global_hooks / "prepare-commit-msg"
+            hook.write_text("#!/bin/sh\nexit 1\n", encoding="utf-8")
+            hook.chmod(0o755)
+            template_hook = template / "hooks" / "template-hook"
+            template_hook.write_text("#!/bin/sh\nexit 1\n", encoding="utf-8")
+            template_hook.chmod(0o755)
+
+            task = EvalTask(
+                id="global-hooks-task",
+                title="Global hooks task",
+                repo=str(repo),
+                commit=commit,
+                language="text",
+                prompt="Do nothing.",
+            )
+
+            with mock.patch.dict(
+                os.environ,
+                {
+                    "GIT_CONFIG_GLOBAL": str(home / ".gitconfig"),
+                    "HOME": str(home),
+                    "XDG_CONFIG_HOME": str(xdg_config),
+                },
+            ):
+                prepared = prepare_workspace(task, temp_path / "workspace")
+
+            self.assertFalse(
+                (prepared.path / ".git" / "hooks" / "template-hook").exists()
+            )
+            self.assertEqual(
+                self._git(["config", "--get", "core.hooksPath"], prepared.path)
+                .stdout.strip(),
+                ".git/hooks",
+            )
+            self.assertEqual(
+                self._git(
+                    ["log", "-1", "--format=%an <%ae>|%cn <%ce>|%aI|%cI"],
+                    prepared.path,
+                ).stdout.strip(),
+                (
+                    "Agent Eval Lab <agentlab@example.com>|"
+                    "Agent Eval Lab <agentlab@example.com>|"
+                    "2000-01-01T00:00:00Z|"
+                    "2000-01-01T00:00:00Z"
+                ),
+            )
+
     def test_capture_diff_uses_explicit_synthetic_base_ref(self):
         if shutil.which("git") is None:
             self.skipTest("git is required for workspace preparation")

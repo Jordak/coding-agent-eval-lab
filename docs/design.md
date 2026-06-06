@@ -116,8 +116,8 @@ available inside the trial workspace.
 
 Agent-facing trial and reference-verification workspaces expose only one
 synthetic base commit for the pinned task tree. Full repository history may
-exist temporarily in private prep state to fetch and export the base tree, but it
-is not present in the workspace handed to the agent harness. Result JSON and
+exist temporarily in private prep state to fetch and materialize the base tree,
+but it is not present in the workspace handed to the agent harness. Result JSON and
 reports record both the original task repository/commit and the synthetic
 workspace base ref. See [ADR 0010](adr/0010-use-base-only-agent-workspaces.md).
 

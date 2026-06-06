@@ -54,3 +54,18 @@ def run_git(
         capture_output=True,
         env=dict(env) if env is not None else None,
     )
+
+
+def run_git_bytes(
+    args: List[str],
+    cwd: Path,
+    env: Optional[Mapping[str, str]] = None,
+    input_bytes: Optional[bytes] = None,
+) -> subprocess.CompletedProcess[bytes]:
+    return subprocess.run(
+        ["git"] + args,
+        cwd=str(cwd),
+        capture_output=True,
+        env=dict(env) if env is not None else None,
+        input=input_bytes,
+    )
