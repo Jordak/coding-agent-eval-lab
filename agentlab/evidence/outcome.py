@@ -38,6 +38,8 @@ class OutcomeEvidence:
     run_id: str
     task_id: str
     task_title: str
+    task_repo: str
+    task_commit: str
     eval_suite: str
     eval_type: str
     reference_artifact: Dict[str, Any] | None
@@ -215,6 +217,8 @@ class OutcomeEvidence:
                 "run_id": self.run_id,
                 "task_id": self.task_id,
                 "task_title": self.task_title,
+                "task_repo": self.task_repo,
+                "task_commit": self.task_commit,
                 "eval_suite": self.eval_suite,
                 "eval_type": self.eval_type,
                 "reference_artifact": self.reference_artifact,
@@ -340,6 +344,8 @@ def normalize_outcome_evidence(
         run_id=run_id,
         task_id=str(data.get("task_id") or ""),
         task_title=str(data.get("task_title") or ""),
+        task_repo=str(data.get("task_repo") or ""),
+        task_commit=str(data.get("task_commit") or ""),
         eval_suite=str(data.get("eval_suite") or ""),
         eval_type=str(data.get("eval_type") or ""),
         reference_artifact=_optional_dict(data.get("reference_artifact")),

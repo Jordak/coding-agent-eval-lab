@@ -38,6 +38,8 @@ class TaskExecution:
     lines_added: int = 0
     lines_deleted: int = 0
     diff_path: Path = Path("diff.patch")
+    workspace_history_policy: str = "unknown"
+    workspace_base_ref: str = "unknown"
 
     @property
     def all_checks(self) -> list[CheckResult]:
@@ -69,7 +71,7 @@ def execute_task_phases(
     files_changed = capture_diff(
         prepared.path,
         resolved_diff_path,
-        base_ref=diff_base_ref,
+        base_ref=diff_base_ref or prepared.workspace_base_ref,
     )
     patch_stats = count_patch_lines(
         resolved_diff_path.read_text(encoding="utf-8")
@@ -98,6 +100,8 @@ def execute_task_phases(
         lines_added=patch_stats.lines_added,
         lines_deleted=patch_stats.lines_deleted,
         diff_path=resolved_diff_path,
+        workspace_history_policy=prepared.workspace_history_policy,
+        workspace_base_ref=prepared.workspace_base_ref,
     )
 
 

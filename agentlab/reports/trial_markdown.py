@@ -31,7 +31,7 @@ def render_markdown_report(run: "EvaluationRun") -> str:
 
     agent_harness_config = getattr(run.agent_run, "agent_harness_config", {})
     run_surface = normalize_run_surface(
-        None,
+        _workspace_run_surface(run),
         agent_harness_config=agent_harness_config,
         agent_name=run.agent_run.agent_name,
         status=status,
@@ -126,7 +126,7 @@ def render_reference_report(verification: "ReferenceVerification") -> str:
         "",
         *_render_run_surface(
             normalize_run_surface(
-                None,
+                _workspace_run_surface(verification),
                 agent_name="reference",
                 status=status,
                 success=verification.success,
@@ -244,6 +244,11 @@ def _render_run_surface(run_surface: object) -> list[str]:
             "Human intervention events",
             run_surface.get("human_intervention_events"),
         ),
+        (
+            "Workspace history policy",
+            run_surface.get("workspace_history_policy"),
+        ),
+        ("Workspace base ref", run_surface.get("workspace_base_ref")),
     ]
     return [
         f"- {label}: `{_display_run_surface_value(value)}`"
@@ -261,3 +266,14 @@ def _display_run_surface_value(value: object) -> str:
     if isinstance(value, dict):
         return json.dumps(value, sort_keys=True)
     return str(value)
+
+
+def _workspace_run_surface(source: object) -> dict[str, object]:
+    return {
+        "workspace_history_policy": getattr(
+            source,
+            "workspace_history_policy",
+            None,
+        ),
+        "workspace_base_ref": getattr(source, "workspace_base_ref", None),
+    }

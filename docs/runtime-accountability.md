@@ -70,10 +70,13 @@ New `result.json` artifacts include `run_surface` with these fields:
 - `turn_or_step_budget`
 - `stop_reason`
 - `human_intervention_events`
+- `workspace_history_policy`
+- `workspace_base_ref`
 
 Codex CLI and Claude Code CLI results map existing adapter configuration and
 runtime facts into this structure when available. Manual and reference results
-use the same structure but leave unsupported facts as `unknown`, except for
+use the same structure and record the base-only workspace policy plus synthetic
+base ref when available. Unsupported facts remain `unknown`, except for
 explicitly recorded manual intervention events. Historical results that do not
 store `run_surface` are normalized at load time from `agent_harness_config`, so
 existing artifacts remain readable without migration.

@@ -22,6 +22,8 @@ class EvaluationRun:
     run_dir: Path
     report_path: Path
     result_path: Path
+    workspace_history_policy: str = "unknown"
+    workspace_base_ref: str = "unknown"
 
 
 def run_task(task: EvalTask, agent: AgentAdapter, runs_dir: Path) -> EvaluationRun:
@@ -65,6 +67,8 @@ def run_task(task: EvalTask, agent: AgentAdapter, runs_dir: Path) -> EvaluationR
         run_dir=run_dir,
         report_path=report_path,
         result_path=result_path,
+        workspace_history_policy=execution.workspace_history_policy,
+        workspace_base_ref=execution.workspace_base_ref,
     )
     report_path.write_text(render_markdown_report(evaluation), encoding="utf-8")
     from agentlab.evidence.results import write_result_json

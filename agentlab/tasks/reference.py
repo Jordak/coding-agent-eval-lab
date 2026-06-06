@@ -4,6 +4,7 @@ import subprocess
 from dataclasses import dataclass, field
 import json
 from pathlib import Path
+import tempfile
 
 from agentlab.execution.commands import run_git
 from agentlab.reports.trial_markdown import render_reference_report
@@ -34,6 +35,8 @@ class ReferenceVerification:
     diff_path: Path = Path("reference.diff")
     report_path: Path = Path("reference-report.md")
     result_path: Path = Path("reference-result.json")
+    workspace_history_policy: str = "unknown"
+    workspace_base_ref: str = "unknown"
 
     @property
     def success(self) -> bool:
@@ -69,7 +72,7 @@ def verify_reference(
         if artifact.type == "patch":
             artifact_check = _apply_patch_artifact(task, workspace)
         elif artifact.type == "commit":
-            artifact_check = _checkout_commit_artifact(task, workspace)
+            artifact_check = _apply_commit_artifact(task, workspace)
         else:
             raise ReferenceVerificationError(
                 f"unsupported reference artifact type: {artifact.type}"
@@ -88,7 +91,6 @@ def verify_reference(
         workspace_root,
         apply_reference_artifact,
         reference_diff_path,
-        diff_base_ref=_reference_diff_base_ref(task),
     )
     if artifact_check is None:
         raise RuntimeError("reference artifact did not produce a check")
@@ -109,6 +111,8 @@ def verify_reference(
         diff_path=execution.diff_path,
         report_path=output_dir / "reference-report.md",
         result_path=output_dir / "reference-result.json",
+        workspace_history_policy=execution.workspace_history_policy,
+        workspace_base_ref=execution.workspace_base_ref,
     )
     if write_artifacts:
         write_reference_artifacts(verification)
@@ -145,20 +149,42 @@ def _apply_patch_artifact(task: EvalTask, workspace: Path) -> CheckResult:
     return _git_check_result(completed, f"git apply {artifact.path}")
 
 
-def _checkout_commit_artifact(task: EvalTask, workspace: Path) -> CheckResult:
+def _apply_commit_artifact(task: EvalTask, workspace: Path) -> CheckResult:
     artifact = task.reference_artifact
     assert artifact is not None
     if not artifact.commit:
         raise ReferenceVerificationError("commit reference artifact is missing commit")
 
-    completed = run_git(["checkout", artifact.commit], cwd=workspace)
-    return _git_check_result(completed, f"git checkout {artifact.commit}")
+    with tempfile.TemporaryDirectory(
+        prefix=f"agentlab-reference-{task.id}-"
+    ) as prep_temp:
+        prep_root = Path(prep_temp)
+        prep_repo = prep_root / "repo"
+        patch_path = prep_root / "reference.patch"
 
+        clone = run_git(["clone", task.repo, prep_repo.name], cwd=prep_root)
+        if clone.returncode != 0:
+            return _git_check_result(
+                clone,
+                f"git clone {task.repo}",
+            )
 
-def _reference_diff_base_ref(task: EvalTask) -> str | None:
-    if task.reference_artifact and task.reference_artifact.type == "commit":
-        return task.commit
-    return None
+        diff = run_git(
+            ["diff", "--binary", task.commit, artifact.commit],
+            cwd=prep_repo,
+        )
+        if diff.returncode != 0:
+            return _git_check_result(
+                diff,
+                f"git diff {task.commit} {artifact.commit}",
+            )
+        patch_path.write_text(diff.stdout, encoding="utf-8")
+
+        completed = run_git(["apply", str(patch_path)], cwd=workspace)
+        return _git_check_result(
+            completed,
+            f"git apply reference commit {artifact.commit}",
+        )
 
 
 def _git_check_result(

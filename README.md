@@ -28,8 +28,8 @@ The first scaffold supports:
   verified reference artifacts.
 - Task-local environment setup for exposing per-task tools such as `pytest`.
 - `agentlab run --agent manual --task ...` for one manual trial.
-- Git checkout preparation, configured command execution, diff capture, and
-  Markdown/JSON trial artifacts.
+- Base-only git workspace preparation, configured command execution, diff
+  capture, and Markdown/JSON trial artifacts.
 - Outcome evidence including changed files and line additions/deletions.
 - Codex token usage capture when `codex-events.jsonl` exposes usage metadata.
 - Codex CLI, Claude Code, and manual agent adapters.
@@ -85,11 +85,11 @@ an accessible Git repository:
 python3 -m agentlab run --agent manual --task path/to/task-bundle
 ```
 
-The manual adapter pauses after workspace setup so a human can edit the cloned
-repo. Press Enter in the terminal when edits are complete; the evaluation
-harness will then capture the diff and run the task graders. Use `--no-pause`
-for a negative-control trial where the manual adapter intentionally changes
-nothing.
+The manual adapter pauses after workspace setup so a human can edit the
+base-only task workspace. Press Enter in the terminal when edits are complete;
+the evaluation harness will then capture the diff and run the task graders. Use
+`--no-pause` for a negative-control trial where the manual adapter intentionally
+changes nothing.
 
 Run a task through Codex CLI:
 
@@ -127,7 +127,9 @@ python3 -m agentlab run \
 The Codex adapter stores `codex-events.jsonl`, `codex-last-message.md`,
 `transcript.md`, `diff.patch`, `report.md`, and `result.json` in the run
 directory. Reports and result metadata include changed-file counts plus line
-additions/deletions from the captured patch. When JSON events expose the actual
+additions/deletions from the captured patch, the original task repository and
+commit, and the synthetic base-only workspace ref used for diff capture. When
+JSON events expose the actual
 model used, `result.json` and reports derive `model_name` and `model_source`
 from those events; an explicit CLI `--model` is retained as the requested model
 rather than treated as authoritative runtime identity. `--codex-reasoning-effort`

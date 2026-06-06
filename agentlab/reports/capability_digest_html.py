@@ -466,6 +466,8 @@ def _context_page(
       <div class="fact"><span>Sandbox</span><strong>{_text(_surface_context_value(context.results, "sandbox_mode"))}</strong></div>
       <div class="fact"><span>Approval</span><strong>{_text(_surface_context_value(context.results, "approval_policy"))}</strong></div>
       <div class="fact"><span>Network</span><strong>{_text(_surface_context_value(context.results, "network_policy"))}</strong></div>
+      <div class="fact"><span>Workspace history</span><strong>{_text(_surface_context_value(context.results, "workspace_history_policy"))}</strong></div>
+      <div class="fact"><span>Workspace base ref</span><strong>{_text(_surface_context_value(context.results, "workspace_base_ref"))}</strong></div>
       <div class="fact"><span>Source</span><strong>{source}</strong></div>
     </div>
     <div class="score-grid">

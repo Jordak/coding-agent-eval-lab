@@ -68,6 +68,11 @@ class TaskExecutionTest(unittest.TestCase):
             self.assertEqual(execution.lines_added, 2)
             self.assertEqual(execution.lines_deleted, 1)
             self.assertTrue(execution.diff_path.exists())
+            self.assertEqual(execution.workspace_history_policy, "base_only")
+            self.assertEqual(
+                self._git(["rev-parse", "HEAD"], execution.workspace).stdout.strip(),
+                execution.workspace_base_ref,
+            )
 
     def test_agent_error_makes_grader_outcome_fail(self):
         if shutil.which("git") is None:

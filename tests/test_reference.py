@@ -63,8 +63,75 @@ class ReferenceVerificationTest(unittest.TestCase):
             task = load_task(bundle)
             verification = verify_reference(task, temp_path / "work")
 
-        self.assertTrue(verification.success)
-        self.assertEqual(verification.files_changed, ["app.txt"])
+            self.assertTrue(verification.success)
+            self.assertEqual(verification.files_changed, ["app.txt"])
+            self.assertEqual(verification.workspace_history_policy, "base_only")
+            self.assertEqual(
+                self._git(["rev-list", "--count", "--all"], verification.workspace)
+                .stdout.strip(),
+                "1",
+            )
+
+    def test_commit_reference_artifact_is_converted_to_patch(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for reference verification")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo = temp_path / "repo"
+            repo.mkdir()
+            self._git(["init"], repo)
+            self._git(["config", "user.email", "agentlab@example.com"], repo)
+            self._git(["config", "user.name", "Agent Lab"], repo)
+            (repo / "app.txt").write_text("before\n", encoding="utf-8")
+            self._git(["add", "app.txt"], repo)
+            self._git(["commit", "-m", "base"], repo)
+            base_commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+
+            (repo / "app.txt").write_text("after\n", encoding="utf-8")
+            self._git(["commit", "-am", "reference"], repo)
+            reference_commit = (
+                self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+            )
+
+            bundle = temp_path / "task"
+            bundle.mkdir()
+            (bundle / "task.yaml").write_text(
+                textwrap.dedent(
+                    f"""
+                    id: commit-reference-task
+                    title: Commit reference task
+                    repo: {repo}
+                    commit: {base_commit}
+                    language: text
+                    prompt: Change before to after.
+                    reference_artifact:
+                      type: commit
+                      commit: {reference_commit}
+                    test:
+                      - {sys.executable} -c "from pathlib import Path; assert Path('app.txt').read_text() == 'after\\n'"
+                    """
+                ),
+                encoding="utf-8",
+            )
+
+            task = load_task(bundle)
+            verification = verify_reference(task, temp_path / "work")
+
+            self.assertTrue(verification.success)
+            self.assertEqual(verification.files_changed, ["app.txt"])
+            self.assertEqual(
+                self._git(["rev-list", "--count", "--all"], verification.workspace)
+                .stdout.strip(),
+                "1",
+            )
+            self.assertNotIn(
+                reference_commit,
+                self._git(
+                    ["log", "--all", "--format=%H"],
+                    verification.workspace,
+                ).stdout,
+            )
 
     def test_reference_verification_uses_shared_grader_outcome(self):
         if shutil.which("git") is None:

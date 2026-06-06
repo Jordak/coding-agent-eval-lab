@@ -29,7 +29,7 @@ def to_result_dict(run: Any) -> Dict[str, Any]:
         cost_usd=run.agent_run.cost_usd,
     )
     run_surface = normalize_run_surface(
-        None,
+        _workspace_run_surface(run),
         agent_harness_config=agent_harness_config,
         agent_name=run.agent_run.agent_name,
         status=status,
@@ -42,6 +42,8 @@ def to_result_dict(run: Any) -> Dict[str, Any]:
         "run_id": run.run_dir.name,
         "task_id": run.task.id,
         "task_title": run.task.title,
+        "task_repo": run.task.repo,
+        "task_commit": run.task.commit,
         "eval_suite": run.task.suite,
         "eval_type": run.task.eval_type,
         "reference_artifact": _reference_artifact_to_dict(
@@ -101,7 +103,7 @@ def reference_verification_to_result_dict(verification: Any) -> Dict[str, Any]:
         cost_usd=None,
     )
     run_surface = normalize_run_surface(
-        None,
+        _workspace_run_surface(verification),
         agent_harness_config=agent_harness_config,
         agent_name="reference",
         status=status,
@@ -114,6 +116,8 @@ def reference_verification_to_result_dict(verification: Any) -> Dict[str, Any]:
         "run_id": f"{verification.task.id}-reference",
         "task_id": verification.task.id,
         "task_title": verification.task.title,
+        "task_repo": verification.task.repo,
+        "task_commit": verification.task.commit,
         "eval_suite": verification.task.suite,
         "eval_type": verification.task.eval_type,
         "reference_artifact": _reference_artifact_to_dict(
@@ -161,6 +165,17 @@ def discover_result_files(runs_dir: Path) -> List[Path]:
     if not runs_dir.exists():
         return []
     return sorted(runs_dir.glob("*/result.json"))
+
+
+def _workspace_run_surface(run: Any) -> Dict[str, Any]:
+    return {
+        "workspace_history_policy": getattr(
+            run,
+            "workspace_history_policy",
+            None,
+        ),
+        "workspace_base_ref": getattr(run, "workspace_base_ref", None),
+    }
 
 
 def _check_to_dict(check: CheckResult) -> Dict[str, Any]:
