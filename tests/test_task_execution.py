@@ -150,13 +150,33 @@ class TaskExecutionTest(unittest.TestCase):
                 setup=[git_guard],
                 baseline=[git_guard],
                 test=[git_guard],
+                environment={
+                    "GIT_CONFIG_COUNT": "1",
+                    "GIT_CONFIG_KEY_0": "remote.origin.url",
+                    "GIT_CONFIG_VALUE_0": "https://example.com/task-future.git",
+                    "GIT_DIR": "/task/hidden.git",
+                    "GIT_WORK_TREE": "/task/worktree",
+                    "GIT_GRAFT_FILE": "/task/grafts",
+                    "GIT_PREFIX": "task-prefix/",
+                    "GIT_REPLACE_REF_BASE": "refs/task-replace",
+                    "GIT_SHALLOW_FILE": "/task/shallow",
+                },
             )
 
             def action(_workspace, task_env):
-                self.assertNotIn("GIT_DIR", task_env)
-                self.assertNotIn("GIT_WORK_TREE", task_env)
-                self.assertNotIn("GIT_CONFIG_COUNT", task_env)
-                self.assertNotIn("GIT_CONFIG_KEY_0", task_env)
+                for key in [
+                    "GIT_CONFIG_COUNT",
+                    "GIT_CONFIG_KEY_0",
+                    "GIT_CONFIG_VALUE_0",
+                    "GIT_DIR",
+                    "GIT_GRAFT_FILE",
+                    "GIT_PREFIX",
+                    "GIT_REPLACE_REF_BASE",
+                    "GIT_SHALLOW_FILE",
+                    "GIT_WORK_TREE",
+                ]:
+                    self.assertNotIn(key, task_env)
+                self.assertEqual(task_env["GIT_CONFIG_GLOBAL"], os.devnull)
                 self.assertEqual(task_env["GIT_CONFIG_NOSYSTEM"], "1")
                 return TaskActionResult()
 
@@ -171,6 +191,10 @@ class TaskExecutionTest(unittest.TestCase):
                     "GIT_CONFIG_VALUE_0": "https://example.com/future.git",
                     "GIT_CONFIG_KEY_1": "remote.origin.fetch",
                     "GIT_CONFIG_VALUE_1": "+refs/heads/*:refs/remotes/origin/*",
+                    "GIT_GRAFT_FILE": str(temp_path / "grafts"),
+                    "GIT_PREFIX": "host-prefix/",
+                    "GIT_REPLACE_REF_BASE": "refs/host-replace",
+                    "GIT_SHALLOW_FILE": str(temp_path / "shallow"),
                 },
             ):
                 execution = execute_task_phases(
