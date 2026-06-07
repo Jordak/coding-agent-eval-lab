@@ -18,6 +18,8 @@ RUN_SURFACE_FIELDS = (
     "turn_or_step_budget",
     "stop_reason",
     "human_intervention_events",
+    "workspace_history_policy",
+    "workspace_base_ref",
 )
 
 
@@ -110,6 +112,8 @@ def _run_surface_from_config(
             error=error,
         ),
         "human_intervention_events": _human_intervention_events(config),
+        "workspace_history_policy": UNKNOWN,
+        "workspace_base_ref": UNKNOWN,
     }
 
 

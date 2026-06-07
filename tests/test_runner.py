@@ -56,6 +56,18 @@ class RunnerTest(unittest.TestCase):
             self.assertEqual(evaluation.agent_run.files_changed, [])
             self.assertEqual(evaluation.agent_run.lines_added, 0)
             self.assertEqual(evaluation.agent_run.lines_deleted, 0)
+            result = json.loads(evaluation.result_path.read_text(encoding="utf-8"))
+            self.assertEqual(result["task_repo"], str(repo))
+            self.assertEqual(result["task_commit"], commit)
+            self.assertEqual(
+                result["run_surface"]["workspace_history_policy"],
+                "base_only",
+            )
+            self.assertEqual(
+                result["run_surface"]["workspace_base_ref"],
+                evaluation.workspace_base_ref,
+            )
+            self.assertNotEqual(evaluation.workspace_base_ref, commit)
 
     def test_task_environment_path_is_used_by_graders(self):
         if shutil.which("git") is None:

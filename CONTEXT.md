@@ -25,6 +25,10 @@ The project is evaluation infrastructure, not a general coding assistant or IDE.
   success criteria.
 - **Task bundle**: the canonical on-disk unit for a task: a directory containing
   `task.yaml`, generated `task-card.md`, and any reference artifacts.
+- **Task workspace**: the git repository materialized for one trial or
+  reference verification. Agent-facing workspaces are base-only: they contain
+  the pinned task tree as one synthetic base commit and do not expose upstream
+  remotes, tags, branches, or later source history.
 - **Task card**: generated Markdown summary of a task bundle for humans and AI
   assistants. It is committed next to `task.yaml` but regenerated from task
   metadata rather than hand-edited.
@@ -76,9 +80,9 @@ The project is evaluation infrastructure, not a general coding assistant or IDE.
 - **Run surface metadata**: vendor-neutral trial metadata that describes the
   runtime surface used by an agent harness, including execution surface,
   runtime version, model identity source, sandbox or permission mode, tool and
-  memory policy, network policy, timeout or step budget, stop reason, and
-  recorded human interventions. Unsupported facts should appear as `unknown`
-  rather than being omitted.
+  memory policy, network policy, timeout or step budget, stop reason, recorded
+  human interventions, and workspace history policy/base ref. Unsupported facts
+  should appear as `unknown` rather than being omitted.
 - **Agent harness operability evidence**: side-by-side evidence about how an
   agent harness can be run, bounded, inspected, and audited from currently
   stored artifacts. It can use run surface metadata, agent harness
@@ -222,7 +226,7 @@ The project is evaluation infrastructure, not a general coding assistant or IDE.
   generated `task-card.md`, and reference artifacts.
 - Task smoke tests verify the reference artifact, then run exactly one agent
   trial with one job before repeated or parallel trials are interpreted.
-- Each trial gets an isolated cloned workspace under `runs/<trial-id>/workspace`.
+- Each trial gets an isolated base-only workspace under `runs/<trial-id>/workspace`.
 - Agent adapters implement the `AgentAdapter` protocol in `agentlab.agents`.
 - Trial artifacts include `report.md`, `result.json`, `diff.patch`, and an
   adapter-specific transcript or trace. New `result.json` artifacts include

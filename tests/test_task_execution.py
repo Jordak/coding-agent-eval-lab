@@ -1,9 +1,11 @@
+import os
 import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from agentlab.execution.scoring import CheckResult
 from agentlab.execution.phases import TaskActionResult
@@ -68,6 +70,11 @@ class TaskExecutionTest(unittest.TestCase):
             self.assertEqual(execution.lines_added, 2)
             self.assertEqual(execution.lines_deleted, 1)
             self.assertTrue(execution.diff_path.exists())
+            self.assertEqual(execution.workspace_history_policy, "base_only")
+            self.assertEqual(
+                self._git(["rev-parse", "HEAD"], execution.workspace).stdout.strip(),
+                execution.workspace_base_ref,
+            )
 
     def test_agent_error_makes_grader_outcome_fail(self):
         if shutil.which("git") is None:
@@ -96,6 +103,108 @@ class TaskExecutionTest(unittest.TestCase):
 
             self.assertFalse(execution.score.tests_passed)
             self.assertEqual(execution.all_checks, [])
+            self.assertEqual(execution.files_changed, [])
+
+    def test_task_environment_strips_repo_context_git_env(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for task execution")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo, base_commit = self._repo_with_file(temp_path, "base\n")
+            (repo / "app.txt").write_text("gold\n", encoding="utf-8")
+            self._git(["commit", "-am", "gold"], repo)
+            gold_commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+            git_guard = (
+                f"{sys.executable} -c "
+                "\"import subprocess; "
+                "log = subprocess.check_output("
+                "['git', 'log', '--all', '--format=%H'], text=True"
+                ").splitlines(); "
+                "remotes = subprocess.check_output("
+                "['git', 'remote'], text=True"
+                ").splitlines(); "
+                f"assert {gold_commit!r} not in log, log; "
+                "assert len(log) == 1, log; "
+                "assert remotes == [], remotes\""
+            )
+            hostile_config = temp_path / "hostile.gitconfig"
+            hostile_config.write_text(
+                "\n".join(
+                    [
+                        '[remote "origin"]',
+                        "    url = https://example.com/future.git",
+                        "    fetch = +refs/heads/*:refs/remotes/origin/*",
+                        "",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            task = EvalTask(
+                id="git-env-task",
+                title="Git env task",
+                repo=str(repo),
+                commit=base_commit,
+                language="text",
+                prompt="Do nothing.",
+                setup=[git_guard],
+                baseline=[git_guard],
+                test=[git_guard],
+                environment={
+                    "GIT_CONFIG_COUNT": "1",
+                    "GIT_CONFIG_KEY_0": "remote.origin.url",
+                    "GIT_CONFIG_VALUE_0": "https://example.com/task-future.git",
+                    "GIT_DIR": "/task/hidden.git",
+                    "GIT_WORK_TREE": "/task/worktree",
+                    "GIT_GRAFT_FILE": "/task/grafts",
+                    "GIT_PREFIX": "task-prefix/",
+                    "GIT_REPLACE_REF_BASE": "refs/task-replace",
+                    "GIT_SHALLOW_FILE": "/task/shallow",
+                },
+            )
+
+            def action(_workspace, task_env):
+                for key in [
+                    "GIT_CONFIG_COUNT",
+                    "GIT_CONFIG_KEY_0",
+                    "GIT_CONFIG_VALUE_0",
+                    "GIT_DIR",
+                    "GIT_GRAFT_FILE",
+                    "GIT_PREFIX",
+                    "GIT_REPLACE_REF_BASE",
+                    "GIT_SHALLOW_FILE",
+                    "GIT_WORK_TREE",
+                ]:
+                    self.assertNotIn(key, task_env)
+                self.assertEqual(task_env["GIT_CONFIG_GLOBAL"], os.devnull)
+                self.assertEqual(task_env["GIT_CONFIG_NOSYSTEM"], "1")
+                return TaskActionResult()
+
+            with mock.patch.dict(
+                os.environ,
+                {
+                    "GIT_DIR": str(repo / ".git"),
+                    "GIT_WORK_TREE": str(repo),
+                    "GIT_CONFIG_GLOBAL": str(hostile_config),
+                    "GIT_CONFIG_COUNT": "2",
+                    "GIT_CONFIG_KEY_0": "remote.origin.url",
+                    "GIT_CONFIG_VALUE_0": "https://example.com/future.git",
+                    "GIT_CONFIG_KEY_1": "remote.origin.fetch",
+                    "GIT_CONFIG_VALUE_1": "+refs/heads/*:refs/remotes/origin/*",
+                    "GIT_GRAFT_FILE": str(temp_path / "grafts"),
+                    "GIT_PREFIX": "host-prefix/",
+                    "GIT_REPLACE_REF_BASE": "refs/host-replace",
+                    "GIT_SHALLOW_FILE": str(temp_path / "shallow"),
+                },
+            ):
+                execution = execute_task_phases(
+                    task,
+                    temp_path / "workspace",
+                    action,
+                    temp_path / "diff.patch",
+                )
+
+            self.assertTrue(execution.score.tests_passed)
             self.assertEqual(execution.files_changed, [])
 
     def _repo_with_file(self, root, contents):

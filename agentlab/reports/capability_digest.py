@@ -180,6 +180,8 @@ def _run_surface_summary_lines(results: List[OutcomeEvidence]) -> List[str]:
             _surface_context_value(results, "network_policy"),
             _surface_context_value(results, "timeout_seconds"),
             _surface_context_value(results, "stop_reason"),
+            _surface_context_value(results, "workspace_history_policy"),
+            _surface_context_value(results, "workspace_base_ref"),
         ]
     ]
     return [
@@ -196,6 +198,8 @@ def _run_surface_summary_lines(results: List[OutcomeEvidence]) -> List[str]:
                 "Network",
                 "Timeout Seconds",
                 "Stop Reason",
+                "Workspace History",
+                "Workspace Base Ref",
             ],
             rows,
         ),

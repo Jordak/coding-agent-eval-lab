@@ -49,6 +49,8 @@ class RunSurfaceTest(unittest.TestCase):
         self.assertEqual(surface["timeout_seconds"], 60)
         self.assertEqual(surface["stop_reason"], "success")
         self.assertEqual(surface["human_intervention_events"], [])
+        self.assertEqual(surface["workspace_history_policy"], "unknown")
+        self.assertEqual(surface["workspace_base_ref"], "unknown")
 
     def test_reasoning_effort_is_not_turn_or_step_budget(self):
         surface = normalize_run_surface(
@@ -148,6 +150,8 @@ class RunSurfaceTest(unittest.TestCase):
         self.assertEqual(surface["timeout_seconds"], "unknown")
         self.assertEqual(surface["turn_or_step_budget"], "unknown")
         self.assertEqual(surface["human_intervention_events"], ["manual_edit_pause"])
+        self.assertEqual(surface["workspace_history_policy"], "unknown")
+        self.assertEqual(surface["workspace_base_ref"], "unknown")
 
     def test_trial_report_renders_run_surface(self):
         agent_harness_config = codex_agent_harness_config(
@@ -161,7 +165,13 @@ class RunSurfaceTest(unittest.TestCase):
         )
         agent_harness_config["reasoning_effort"] = "xhigh"
         run = SimpleNamespace(
-            task=SimpleNamespace(id="task-a", suite="starter", eval_type="regression"),
+            task=SimpleNamespace(
+                id="task-a",
+                suite="starter",
+                eval_type="regression",
+                repo="https://example.test/repo.git",
+                commit="task-commit",
+            ),
             run_dir=Path("runs/trial-a"),
             score=SimpleNamespace(tests_passed=True, checks=[], notes=[]),
             agent_run=SimpleNamespace(
@@ -180,17 +190,26 @@ class RunSurfaceTest(unittest.TestCase):
                 cost_usd=None,
                 error=None,
             ),
+            workspace_history_policy="base_only",
+            workspace_base_ref="abc123",
         )
 
         report = render_markdown_report(run)
 
         self.assertIn("## Run Surface", report)
+        self.assertIn(
+            "- Task repository: `https://example.test/repo.git`",
+            report,
+        )
+        self.assertIn("- Task commit: `task-commit`", report)
         self.assertIn("- Execution surface: `local_cli`", report)
         self.assertIn("- Runtime version: `codex 1.2.3`", report)
         self.assertIn("- Sandbox mode: `workspace-write`", report)
         self.assertIn("- Approval policy: `never`", report)
         self.assertIn("- Turn or step budget: `unknown`", report)
         self.assertIn("- Stop reason: `success`", report)
+        self.assertIn("- Workspace history policy: `base_only`", report)
+        self.assertIn("- Workspace base ref: `abc123`", report)
         self.assertIn("## Agent Harness Configuration", report)
         self.assertIn("- Reasoning effort: `xhigh`", report)
 
@@ -214,6 +233,10 @@ class RunSurfaceTest(unittest.TestCase):
                 },
                 "status": "passed",
                 "success": True,
+                "run_surface": {
+                    "workspace_history_policy": "base_only",
+                    "workspace_base_ref": "abc123",
+                },
                 "duration_ms": 123,
                 "files_changed": [],
                 "lines_added": 0,
@@ -226,11 +249,11 @@ class RunSurfaceTest(unittest.TestCase):
 
         self.assertIn("### Run Surface", digest)
         self.assertIn(
-            "| Execution Surface | Runtime Version | Model Source | Sandbox | Approval | Memory | Network | Timeout Seconds | Stop Reason |",
+            "| Execution Surface | Runtime Version | Model Source | Sandbox | Approval | Memory | Network | Timeout Seconds | Stop Reason | Workspace History | Workspace Base Ref |",
             digest,
         )
         self.assertIn(
-            "| local_cli | codex 1.2.3 | events | workspace-write | never | unknown | unknown | 60 | success |",
+            "| local_cli | codex 1.2.3 | events | workspace-write | never | unknown | unknown | 60 | success | base_only | abc123 |",
             digest,
         )
 
@@ -258,3 +281,5 @@ class RunSurfaceTest(unittest.TestCase):
             "no_session_persistence",
         )
         self.assertEqual(result.run_surface["stop_reason"], "grader_failure")
+        self.assertEqual(result.run_surface["workspace_history_policy"], "unknown")
+        self.assertEqual(result.run_surface["workspace_base_ref"], "unknown")

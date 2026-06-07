@@ -18,11 +18,11 @@ Agent-facing trial and reference-verification workspaces use a base-only git his
 
 The evaluation harness may use a private temporary prep checkout with full repository history to fetch and materialize the requested base tree. That prep checkout is outside the trial artifact tree and is removed after workspace materialization.
 
-The agent-facing workspace is created by exporting the pinned base tree with a git-native archive operation, initializing a fresh git repository, and creating one synthetic base commit. The synthetic repository has no upstream remotes, branches, tags, or later commits. Synthetic commits use a fixed local identity such as `Agent Eval Lab <agentlab@example.com>` and a generic commit message. They do not embed the upstream commit SHA in the agent-facing git history.
+The agent-facing workspace is created by materializing the pinned base tree from Git object data, initializing a fresh git repository from an empty template, staging the pinned tree directly into the synthetic index, and creating one synthetic base commit with Git plumbing. Materialization preserves tracked blob bytes as stored in the pinned commit; it does not use `git archive`, checkout smudge filters, LFS hydration, or local git hooks. The synthetic repository has no upstream remotes, branches, tags, or later commits. Synthetic commits use a fixed local identity such as `Agent Eval Lab <agentlab@example.com>` and a generic commit message. They do not embed the upstream commit SHA in the agent-facing git history.
 
 Diff capture is performed explicitly against the synthetic base commit. Run surface metadata records the workspace history policy and synthetic base ref. Result metadata also records the original task repository and pinned task commit separately from the synthetic base ref.
 
-Base-only workspaces are the only supported agent-facing workspace shape. Do not add task-level workspace history modes. If a task requires tags, richer git history, submodule initialization, Git LFS hydration, or other repository features beyond the exported base tree, treat that as a task/environment design problem to resolve explicitly rather than falling back to a full-history workspace.
+Base-only workspaces are the only supported agent-facing workspace shape. Do not add task-level workspace history modes. If a task requires tags, richer git history, submodule initialization, Git LFS hydration, checkout filters, or other repository features beyond the materialized base tree, treat that as a task/environment design problem to resolve explicitly rather than falling back to a full-history workspace.
 
 Reference verification uses the same base-only workspace policy as agent trials. Patch reference artifacts are applied to the synthetic base workspace. Commit reference artifacts may remain supported, but the evaluation harness must convert the commit difference into a patch in the private prep checkout before applying it to the base-only workspace.
 
@@ -32,8 +32,8 @@ Setup commands remain outside the synthetic base commit. The base commit represe
 
 - Keep full clone workspaces: rejected because local git history can leak later fixes and makes benchmark evidence less trustworthy.
 - Add task-level `history_mode` options: rejected because multiple agent-facing workspace modes would create an avoidable comparability and maintenance burden.
-- Delete or rewrite `.git` after cloning: rejected because it is less explicit than materializing a fresh repository from an exported tree, and it is easier to leave stray remotes or history behind.
-- Use shallow clone/fetch directly as the trial workspace: rejected for v1 because server support for fetching arbitrary pinned commits varies, while a private full clone followed by archive export preserves current task compatibility.
+- Delete or rewrite `.git` after cloning: rejected because it is less explicit than materializing a fresh repository from the pinned tree, and it is easier to leave stray remotes or history behind.
+- Use shallow clone/fetch directly as the trial workspace: rejected for v1 because server support for fetching arbitrary pinned commits varies, while a private full clone followed by object-level materialization preserves current task compatibility.
 - Use a durable shared clone cache: deferred. A temporary prep checkout keeps the first integrity slice simple and avoids cache invalidation, concurrency, and artifact-surface questions.
 - Add special submodule or Git LFS behavior in v1: rejected. Preserve tracked `.gitmodules` and pointer files as normal files, and design richer task environments only when a publishable task requires them.
 

@@ -21,7 +21,7 @@ harness/scaffold, and evaluation suites.
 - `agentlab.tasks.integrity` is the shared task-bundle integrity boundary
   for source YAML validation, generated task-card drift checks, reference
   artifact readiness, and smoke-test readiness.
-- `agentlab.execution.workspace` prepares clean checkouts for each trial.
+- `agentlab.execution.workspace` prepares base-only git workspaces for each trial.
 - `agentlab.agents` defines agent harness adapters.
 - `agentlab.execution.runner` coordinates workspace setup, agent execution, code-based
   graders, outcome capture, and artifact writing.
@@ -62,12 +62,15 @@ and that graders can accept a known-good outcome. Reference artifacts may be
 AI-authored, but they must be human-reviewed and validated before the task is
 treated as publishable.
 
-Use `agentlab task verify-reference <task-bundle>` to clone the pinned repo,
-apply or check out the reference artifact, run setup/baseline/target graders,
-and enforce success criteria such as max files changed. Reference verification
-writes `reference-report.md`, `reference-result.json`, and `reference.diff` next
-to the task bundle by default; use `--no-write-artifacts` for a transient check.
-These artifacts use the same report/result shape as agent trials, but are marked with
+Use `agentlab task verify-reference <task-bundle>` to materialize the pinned
+base tree in a base-only git workspace, apply the reference artifact, run
+setup/baseline/target graders, and enforce success criteria such as max files
+changed. Patch artifacts are applied directly; commit artifacts are converted to
+patches in a private prep clone before being applied to the base-only workspace.
+Reference verification writes `reference-report.md`, `reference-result.json`,
+and `reference.diff` next to the task bundle by default; use
+`--no-write-artifacts` for a transient check. These artifacts use the same
+report/result shape as agent trials, but are marked with
 `trial_kind: reference_verification` and excluded from normal trial summaries.
 
 Use `agentlab task smoke-test` before repeated trials. The smoke-test workflow
@@ -110,6 +113,13 @@ cost, language runtime requirements, and whether full upstream tests are
 available inside the trial workspace.
 
 ## Agent Adapters
+
+Agent-facing trial and reference-verification workspaces expose only one
+synthetic base commit for the pinned task tree. Full repository history may
+exist temporarily in private prep state to fetch and materialize the base tree,
+but it is not present in the workspace handed to the agent harness. Result JSON and
+reports record both the original task repository/commit and the synthetic
+workspace base ref. See [ADR 0010](adr/0010-use-base-only-agent-workspaces.md).
 
 The manual adapter is the positive/negative-control baseline. It can pause for a
 human edit or run with `--no-pause` to intentionally make no changes.
