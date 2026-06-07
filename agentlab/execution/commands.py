@@ -9,12 +9,21 @@ from typing import Iterable, List, Mapping, Optional
 from agentlab.execution.scoring import CheckResult
 
 
-_REPO_CONTEXT_ENV_KEYS = {
+_GIT_CONTEXT_ENV_KEYS = {
     "GIT_ALTERNATE_OBJECT_DIRECTORIES",
     "GIT_COMMON_DIR",
+    "GIT_CONFIG",
+    "GIT_CONFIG_COUNT",
+    "GIT_CONFIG_PARAMETERS",
     "GIT_DIR",
+    "GIT_GRAFT_FILE",
+    "GIT_IMPLICIT_WORK_TREE",
     "GIT_INDEX_FILE",
+    "GIT_NO_REPLACE_OBJECTS",
     "GIT_OBJECT_DIRECTORY",
+    "GIT_PREFIX",
+    "GIT_REPLACE_REF_BASE",
+    "GIT_SHALLOW_FILE",
     "GIT_WORK_TREE",
 }
 
@@ -105,22 +114,19 @@ def isolated_git_env(extra: Optional[Mapping[str, str]] = None) -> dict[str, str
     return env
 
 
-def without_repo_context_git_env(env: Mapping[str, str]) -> dict[str, str]:
-    return {
+def git_context_isolated_env(env: Mapping[str, str]) -> dict[str, str]:
+    isolated = {
         key: value
         for key, value in env.items()
-        if key not in _REPO_CONTEXT_ENV_KEYS
+        if not _is_git_context_env_key(key)
     }
+    isolated["GIT_CONFIG_NOSYSTEM"] = "1"
+    isolated["GIT_CONFIG_GLOBAL"] = os.devnull
+    return isolated
 
 
 def clone_no_checkout(repo: str, destination: Path) -> subprocess.CompletedProcess[str]:
-    env = {
-        key: value
-        for key, value in without_repo_context_git_env(os.environ).items()
-        if not _is_git_config_env_key(key)
-    }
-    env["GIT_CONFIG_NOSYSTEM"] = "1"
-    env["GIT_CONFIG_GLOBAL"] = os.devnull
+    env = git_context_isolated_env(os.environ)
     with tempfile.TemporaryDirectory(prefix="agentlab-empty-template-") as template:
         return run_git(
             [
@@ -133,6 +139,10 @@ def clone_no_checkout(repo: str, destination: Path) -> subprocess.CompletedProce
             cwd=destination.parent,
             env=env,
         )
+
+
+def _is_git_context_env_key(key: str) -> bool:
+    return key in _GIT_CONTEXT_ENV_KEYS or _is_git_config_env_key(key)
 
 
 def _is_git_config_env_key(key: str) -> bool:

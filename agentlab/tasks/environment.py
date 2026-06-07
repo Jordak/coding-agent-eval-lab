@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from typing import Mapping
 
-from agentlab.execution.commands import without_repo_context_git_env
+from agentlab.execution.commands import git_context_isolated_env
 from agentlab.tasks import EvalTask
 
 
@@ -16,7 +16,7 @@ def build_task_environment(
     workspace: Path,
     base_env: Mapping[str, str] | None = None,
 ) -> dict[str, str]:
-    env = without_repo_context_git_env(os.environ if base_env is None else base_env)
+    env = git_context_isolated_env(os.environ if base_env is None else base_env)
     workspace = workspace.resolve()
 
     path_entries = [
@@ -31,7 +31,7 @@ def build_task_environment(
     for key, value in task.environment.items():
         env[key] = value.replace(WORKSPACE_TOKEN, str(workspace))
 
-    return env
+    return git_context_isolated_env(env)
 
 
 def describe_task_environment(task: EvalTask) -> list[str]:

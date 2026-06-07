@@ -121,8 +121,24 @@ class TaskExecutionTest(unittest.TestCase):
                 "log = subprocess.check_output("
                 "['git', 'log', '--all', '--format=%H'], text=True"
                 ").splitlines(); "
+                "remotes = subprocess.check_output("
+                "['git', 'remote'], text=True"
+                ").splitlines(); "
                 f"assert {gold_commit!r} not in log, log; "
-                "assert len(log) == 1, log\""
+                "assert len(log) == 1, log; "
+                "assert remotes == [], remotes\""
+            )
+            hostile_config = temp_path / "hostile.gitconfig"
+            hostile_config.write_text(
+                "\n".join(
+                    [
+                        '[remote "origin"]',
+                        "    url = https://example.com/future.git",
+                        "    fetch = +refs/heads/*:refs/remotes/origin/*",
+                        "",
+                    ]
+                ),
+                encoding="utf-8",
             )
             task = EvalTask(
                 id="git-env-task",
@@ -139,6 +155,9 @@ class TaskExecutionTest(unittest.TestCase):
             def action(_workspace, task_env):
                 self.assertNotIn("GIT_DIR", task_env)
                 self.assertNotIn("GIT_WORK_TREE", task_env)
+                self.assertNotIn("GIT_CONFIG_COUNT", task_env)
+                self.assertNotIn("GIT_CONFIG_KEY_0", task_env)
+                self.assertEqual(task_env["GIT_CONFIG_NOSYSTEM"], "1")
                 return TaskActionResult()
 
             with mock.patch.dict(
@@ -146,6 +165,12 @@ class TaskExecutionTest(unittest.TestCase):
                 {
                     "GIT_DIR": str(repo / ".git"),
                     "GIT_WORK_TREE": str(repo),
+                    "GIT_CONFIG_GLOBAL": str(hostile_config),
+                    "GIT_CONFIG_COUNT": "2",
+                    "GIT_CONFIG_KEY_0": "remote.origin.url",
+                    "GIT_CONFIG_VALUE_0": "https://example.com/future.git",
+                    "GIT_CONFIG_KEY_1": "remote.origin.fetch",
+                    "GIT_CONFIG_VALUE_1": "+refs/heads/*:refs/remotes/origin/*",
                 },
             ):
                 execution = execute_task_phases(
