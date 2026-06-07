@@ -1,10 +1,22 @@
 from __future__ import annotations
 
+import os
 import subprocess
+import tempfile
 from pathlib import Path
 from typing import Iterable, List, Mapping, Optional
 
 from agentlab.execution.scoring import CheckResult
+
+
+_REPO_CONTEXT_ENV_KEYS = {
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+    "GIT_COMMON_DIR",
+    "GIT_DIR",
+    "GIT_INDEX_FILE",
+    "GIT_OBJECT_DIRECTORY",
+    "GIT_WORK_TREE",
+}
 
 
 def run_command(
@@ -69,3 +81,36 @@ def run_git_bytes(
         env=dict(env) if env is not None else None,
         input=input_bytes,
     )
+
+
+def isolated_git_env(extra: Optional[Mapping[str, str]] = None) -> dict[str, str]:
+    env = {
+        key: value
+        for key, value in os.environ.items()
+        if not key.startswith("GIT_")
+    }
+    env["GIT_CONFIG_NOSYSTEM"] = "1"
+    env["GIT_CONFIG_GLOBAL"] = os.devnull
+    if extra:
+        env.update(dict(extra))
+    return env
+
+
+def clone_no_checkout(repo: str, destination: Path) -> subprocess.CompletedProcess[str]:
+    env = {
+        key: value
+        for key, value in os.environ.items()
+        if key not in _REPO_CONTEXT_ENV_KEYS
+    }
+    with tempfile.TemporaryDirectory(prefix="agentlab-empty-template-") as template:
+        return run_git(
+            [
+                "clone",
+                "--no-checkout",
+                f"--template={template}",
+                repo,
+                destination.name,
+            ],
+            cwd=destination.parent,
+            env=env,
+        )

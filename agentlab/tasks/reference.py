@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 import tempfile
 
-from agentlab.execution.commands import run_git
+from agentlab.execution.commands import clone_no_checkout, isolated_git_env, run_git
 from agentlab.reports.trial_markdown import render_reference_report
 from agentlab.evidence.results import reference_verification_to_result_dict
 from agentlab.execution.scoring import CheckResult
@@ -145,7 +145,11 @@ def _apply_patch_artifact(task: EvalTask, workspace: Path) -> CheckResult:
         raise ReferenceVerificationError("patch reference artifact is missing path")
 
     patch_path = task.source_path.parent / artifact.path
-    completed = run_git(["apply", str(patch_path.resolve())], cwd=workspace)
+    completed = run_git(
+        ["apply", str(patch_path.resolve())],
+        cwd=workspace,
+        env=isolated_git_env(),
+    )
     return _git_check_result(completed, f"git apply {artifact.path}")
 
 
@@ -162,16 +166,18 @@ def _apply_commit_artifact(task: EvalTask, workspace: Path) -> CheckResult:
         prep_repo = prep_root / "repo"
         patch_path = prep_root / "reference.patch"
 
-        clone = run_git(["clone", task.repo, prep_repo.name], cwd=prep_root)
+        clone = clone_no_checkout(task.repo, prep_repo)
         if clone.returncode != 0:
             return _git_check_result(
                 clone,
                 f"git clone {task.repo}",
             )
 
+        git_env = isolated_git_env()
         diff = run_git(
             ["diff", "--binary", task.commit, artifact.commit],
             cwd=prep_repo,
+            env=git_env,
         )
         if diff.returncode != 0:
             return _git_check_result(
@@ -180,7 +186,11 @@ def _apply_commit_artifact(task: EvalTask, workspace: Path) -> CheckResult:
             )
         patch_path.write_text(diff.stdout, encoding="utf-8")
 
-        completed = run_git(["apply", str(patch_path)], cwd=workspace)
+        completed = run_git(
+            ["apply", str(patch_path)],
+            cwd=workspace,
+            env=git_env,
+        )
         return _git_check_result(
             completed,
             f"git apply reference commit {artifact.commit}",

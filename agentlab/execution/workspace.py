@@ -5,7 +5,12 @@ from pathlib import Path
 import os
 import tempfile
 
-from agentlab.execution.commands import run_git, run_git_bytes
+from agentlab.execution.commands import (
+    clone_no_checkout,
+    isolated_git_env,
+    run_git,
+    run_git_bytes,
+)
 from agentlab.tasks import EvalTask
 
 
@@ -45,27 +50,30 @@ def prepare_workspace(task: EvalTask, root: Path) -> PreparedWorkspace:
         prep_root = Path(prep_temp)
         prep_repo = prep_root / "repo"
 
-        clone = run_git(["clone", task.repo, prep_repo.name], cwd=prep_root)
+        clone = clone_no_checkout(task.repo, prep_repo)
         if clone.returncode != 0:
             raise RuntimeError(f"git clone failed: {clone.stderr.strip()}")
 
+        prep_env = isolated_git_env()
         source_tree = run_git(
             ["rev-parse", f"{task.commit}^{{tree}}"],
             cwd=prep_repo,
+            env=prep_env,
         )
         if source_tree.returncode != 0:
             raise RuntimeError(f"git rev-parse failed: {source_tree.stderr.strip()}")
+        object_format = _source_object_format(prep_repo, prep_env)
 
         workspace.mkdir(parents=True)
-        entries = _source_tree_entries(prep_repo, task.commit)
-        _materialize_source_tree(prep_repo, workspace, entries)
-        _commit_synthetic_base(workspace, entries)
+        entries = _source_tree_entries(prep_repo, task.commit, prep_env)
+        _materialize_source_tree(prep_repo, workspace, entries, prep_env)
+        _commit_synthetic_base(workspace, entries, object_format)
         _assert_tree_matches_source(
             workspace,
             source_tree.stdout.strip(),
         )
 
-    base_ref = run_git(["rev-parse", "HEAD"], cwd=workspace)
+    base_ref = run_git(["rev-parse", "HEAD"], cwd=workspace, env=_synthetic_git_env())
     if base_ref.returncode != 0:
         raise RuntimeError(f"git rev-parse failed: {base_ref.stderr.strip()}")
 
@@ -82,10 +90,26 @@ def _safe_name(value: str) -> str:
     return safe.strip("-") or "task"
 
 
-def _source_tree_entries(prep_repo: Path, commit: str) -> list[_TreeEntry]:
+def _source_object_format(prep_repo: Path, git_env: dict[str, str]) -> str:
+    object_format = run_git(
+        ["rev-parse", "--show-object-format"],
+        cwd=prep_repo,
+        env=git_env,
+    )
+    if object_format.returncode != 0:
+        raise RuntimeError(f"git rev-parse failed: {object_format.stderr.strip()}")
+    return object_format.stdout.strip()
+
+
+def _source_tree_entries(
+    prep_repo: Path,
+    commit: str,
+    git_env: dict[str, str],
+) -> list[_TreeEntry]:
     tree = run_git(
         ["ls-tree", "-rz", "-r", "--full-tree", commit],
         cwd=prep_repo,
+        env=git_env,
     )
     if tree.returncode != 0:
         raise RuntimeError(f"git ls-tree failed: {tree.stderr.strip()}")
@@ -116,6 +140,7 @@ def _materialize_source_tree(
     prep_repo: Path,
     workspace: Path,
     entries: list[_TreeEntry],
+    git_env: dict[str, str],
 ) -> None:
     for entry in entries:
         destination = _workspace_entry_path(workspace, entry.path)
@@ -130,7 +155,7 @@ def _materialize_source_tree(
                 f"unsupported tree entry {entry.mode} {entry.object_type} {entry.path}"
             )
 
-        blob = _cat_blob(prep_repo, entry.object_id)
+        blob = _cat_blob(prep_repo, entry.object_id, git_env)
         if entry.mode == "120000":
             os.symlink(os.fsdecode(blob), destination)
             continue
@@ -153,17 +178,25 @@ def _workspace_entry_path(workspace: Path, path: str) -> Path:
     return workspace.joinpath(*parts)
 
 
-def _cat_blob(prep_repo: Path, object_id: str) -> bytes:
-    blob = run_git_bytes(["cat-file", "blob", object_id], cwd=prep_repo)
+def _cat_blob(prep_repo: Path, object_id: str, git_env: dict[str, str]) -> bytes:
+    blob = run_git_bytes(["cat-file", "blob", object_id], cwd=prep_repo, env=git_env)
     if blob.returncode != 0:
         raise RuntimeError(f"git cat-file failed: {blob.stderr.decode().strip()}")
     return blob.stdout
 
 
-def _commit_synthetic_base(workspace: Path, entries: list[_TreeEntry]) -> None:
+def _commit_synthetic_base(
+    workspace: Path,
+    entries: list[_TreeEntry],
+    object_format: str,
+) -> None:
     git_env = _synthetic_git_env()
     with tempfile.TemporaryDirectory(prefix="agentlab-empty-template-") as template:
-        init = run_git(["init", f"--template={template}"], cwd=workspace, env=git_env)
+        init = run_git(
+            ["init", f"--object-format={object_format}", f"--template={template}"],
+            cwd=workspace,
+            env=git_env,
+        )
     if init.returncode != 0:
         raise RuntimeError(f"git init failed: {init.stderr.strip()}")
 
@@ -176,7 +209,13 @@ def _commit_synthetic_base(workspace: Path, entries: list[_TreeEntry]) -> None:
         raise RuntimeError(f"git write-tree failed: {tree.stderr.strip()}")
 
     commit = run_git(
-        ["commit-tree", tree.stdout.strip(), "-m", SYNTHETIC_COMMIT_MESSAGE],
+        [
+            "commit-tree",
+            "--no-gpg-sign",
+            tree.stdout.strip(),
+            "-m",
+            SYNTHETIC_COMMIT_MESSAGE,
+        ],
         cwd=workspace,
         env=_synthetic_commit_env(),
     )
@@ -212,7 +251,7 @@ def _stage_tree_entry(
 ) -> None:
     object_id = entry.object_id
     if entry.object_type == "blob":
-        object_id = _store_workspace_blob(workspace, entry)
+        object_id = _store_workspace_blob(workspace, entry, git_env)
     elif not (entry.object_type == "commit" and entry.mode == "160000"):
         raise RuntimeError(
             f"unsupported tree entry {entry.mode} {entry.object_type} {entry.path}"
@@ -227,7 +266,11 @@ def _stage_tree_entry(
         raise RuntimeError(f"git update-index failed: {update_index.stderr.strip()}")
 
 
-def _store_workspace_blob(workspace: Path, entry: _TreeEntry) -> str:
+def _store_workspace_blob(
+    workspace: Path,
+    entry: _TreeEntry,
+    git_env: dict[str, str],
+) -> str:
     source = _workspace_entry_path(workspace, entry.path)
     if entry.mode == "120000":
         blob = os.fsencode(os.readlink(source))
@@ -236,6 +279,7 @@ def _store_workspace_blob(workspace: Path, entry: _TreeEntry) -> str:
     stored = run_git_bytes(
         ["hash-object", "-w", "--stdin"],
         cwd=workspace,
+        env=git_env,
         input_bytes=blob,
     )
     if stored.returncode != 0:
@@ -247,20 +291,11 @@ def _store_workspace_blob(workspace: Path, entry: _TreeEntry) -> str:
 
 
 def _synthetic_git_env() -> dict[str, str]:
-    return {
-        key: value
-        for key, value in os.environ.items()
-        if not key.startswith("GIT_")
-    }
+    return isolated_git_env()
 
 
 def _synthetic_commit_env() -> dict[str, str]:
-    env = {
-        key: value
-        for key, value in os.environ.items()
-        if not key.startswith("GIT_")
-    }
-    env.update(
+    return isolated_git_env(
         {
             "GIT_AUTHOR_NAME": SYNTHETIC_COMMIT_NAME,
             "GIT_AUTHOR_EMAIL": SYNTHETIC_COMMIT_EMAIL,
@@ -270,11 +305,14 @@ def _synthetic_commit_env() -> dict[str, str]:
             "GIT_COMMITTER_DATE": SYNTHETIC_COMMIT_DATE,
         }
     )
-    return env
 
 
 def _assert_tree_matches_source(workspace: Path, source_tree: str) -> None:
-    synthetic_tree = run_git(["rev-parse", "HEAD^{tree}"], cwd=workspace)
+    synthetic_tree = run_git(
+        ["rev-parse", "HEAD^{tree}"],
+        cwd=workspace,
+        env=_synthetic_git_env(),
+    )
     if synthetic_tree.returncode != 0:
         raise RuntimeError(f"git rev-parse failed: {synthetic_tree.stderr.strip()}")
     if synthetic_tree.stdout.strip() != source_tree:
@@ -292,12 +330,13 @@ def capture_diff(
         diff_args.append(base_ref)
         name_args.append(base_ref)
 
-    diff = run_git(diff_args, cwd=workspace)
+    git_env = _synthetic_git_env()
+    diff = run_git(diff_args, cwd=workspace, env=git_env)
     if diff.returncode != 0:
         raise RuntimeError(f"git diff failed: {diff.stderr.strip()}")
     diff_path.write_text(diff.stdout, encoding="utf-8")
 
-    changed = run_git(name_args, cwd=workspace)
+    changed = run_git(name_args, cwd=workspace, env=git_env)
     if changed.returncode != 0:
         raise RuntimeError(f"git diff --name-only failed: {changed.stderr.strip()}")
     return [line for line in changed.stdout.splitlines() if line.strip()]

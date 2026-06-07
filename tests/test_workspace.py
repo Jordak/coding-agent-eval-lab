@@ -304,6 +304,88 @@ class WorkspaceTest(unittest.TestCase):
                 "",
             )
 
+    def test_prepare_workspace_does_not_checkout_private_prep_clone(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for workspace preparation")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            home = temp_path / "home"
+            xdg_config = temp_path / "xdg"
+            template = temp_path / "template"
+            sentinel = temp_path / "checkout-invoked"
+            home.mkdir()
+            xdg_config.mkdir()
+            (template / "hooks").mkdir(parents=True)
+            smudge = temp_path / "fail-smudge.sh"
+            smudge.write_text(
+                f"#!/bin/sh\necho smudge > {sentinel}\nexit 1\n",
+                encoding="utf-8",
+            )
+            smudge.chmod(0o755)
+            post_checkout = template / "hooks" / "post-checkout"
+            post_checkout.write_text(
+                f"#!/bin/sh\necho hook > {sentinel}\nexit 1\n",
+                encoding="utf-8",
+            )
+            post_checkout.chmod(0o755)
+            (home / ".gitconfig").write_text(
+                "\n".join(
+                    [
+                        '[filter "block"]',
+                        f"    smudge = {smudge}",
+                        "    clean = cat",
+                        "    required = true",
+                        "[init]",
+                        f"    templateDir = {template}",
+                        "",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            repo = temp_path / "repo"
+            repo.mkdir()
+
+            with mock.patch.dict(
+                os.environ,
+                {
+                    "GIT_CONFIG_GLOBAL": str(home / ".gitconfig"),
+                    "HOME": str(home),
+                    "XDG_CONFIG_HOME": str(xdg_config),
+                },
+            ):
+                self._git(["init"], repo)
+                self._git(["config", "user.email", "agentlab@example.com"], repo)
+                self._git(["config", "user.name", "Agent Lab"], repo)
+                (repo / ".gitattributes").write_text(
+                    "asset.dat filter=block\n",
+                    encoding="utf-8",
+                )
+                (repo / "asset.dat").write_text("pointer\n", encoding="utf-8")
+                self._git(["add", ".gitattributes", "asset.dat"], repo)
+                self._git(["commit", "-m", "base"], repo)
+                commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+                task = EvalTask(
+                    id="no-prep-checkout-task",
+                    title="No prep checkout task",
+                    repo=str(repo),
+                    commit=commit,
+                    language="text",
+                    prompt="Do nothing.",
+                )
+
+                prepared = prepare_workspace(task, temp_path / "workspace")
+
+            self.assertFalse(sentinel.exists())
+            self.assertEqual(
+                (prepared.path / "asset.dat").read_text(encoding="utf-8"),
+                "pointer\n",
+            )
+            self.assertEqual(
+                self._git(["status", "--short"], prepared.path).stdout.strip(),
+                "",
+            )
+
     def test_synthetic_commit_ignores_global_hooks_and_templates(self):
         if shutil.which("git") is None:
             self.skipTest("git is required for workspace preparation")
@@ -385,6 +467,75 @@ class WorkspaceTest(unittest.TestCase):
                     "2000-01-01T00:00:00Z|"
                     "2000-01-01T00:00:00Z"
                 ),
+            )
+
+    def test_synthetic_commit_ignores_global_object_format_and_git_object_dir(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for workspace preparation")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo = temp_path / "repo"
+            repo.mkdir()
+            self._git(["init"], repo)
+            self._git(["config", "user.email", "agentlab@example.com"], repo)
+            self._git(["config", "user.name", "Agent Lab"], repo)
+            (repo / "app.txt").write_text("base\n", encoding="utf-8")
+            self._git(["add", "app.txt"], repo)
+            self._git(["commit", "-m", "base"], repo)
+            commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+
+            home = temp_path / "home"
+            xdg_config = temp_path / "xdg"
+            external_objects = temp_path / "external-objects"
+            home.mkdir()
+            xdg_config.mkdir()
+            external_objects.mkdir()
+            (home / ".gitconfig").write_text(
+                "\n".join(
+                    [
+                        "[init]",
+                        "    defaultObjectFormat = sha256",
+                        "",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            task = EvalTask(
+                id="global-object-config-task",
+                title="Global object config task",
+                repo=str(repo),
+                commit=commit,
+                language="text",
+                prompt="Do nothing.",
+            )
+
+            with mock.patch.dict(
+                os.environ,
+                {
+                    "GIT_CONFIG_GLOBAL": str(home / ".gitconfig"),
+                    "GIT_OBJECT_DIRECTORY": str(external_objects),
+                    "HOME": str(home),
+                    "XDG_CONFIG_HOME": str(xdg_config),
+                },
+            ):
+                prepared_a = prepare_workspace(task, temp_path / "workspace-a")
+                prepared_b = prepare_workspace(task, temp_path / "workspace-b")
+
+            self.assertEqual(prepared_a.workspace_base_ref, prepared_b.workspace_base_ref)
+            self.assertEqual(
+                self._git(
+                    ["rev-parse", "--show-object-format"],
+                    prepared_a.path,
+                ).stdout.strip(),
+                self._git(
+                    ["rev-parse", "--show-object-format"],
+                    repo,
+                ).stdout.strip(),
+            )
+            self.assertEqual(
+                self._git(["status", "--short"], prepared_a.path).stdout.strip(),
+                "",
             )
 
     def test_capture_diff_uses_explicit_synthetic_base_ref(self):

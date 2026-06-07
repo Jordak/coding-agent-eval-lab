@@ -1,10 +1,12 @@
 import shutil
+import os
 import subprocess
 import sys
 import tempfile
 import textwrap
 import json
 import unittest
+from unittest import mock
 from pathlib import Path
 
 from agentlab.evidence.outcome import load_outcome_evidences
@@ -132,6 +134,102 @@ class ReferenceVerificationTest(unittest.TestCase):
                     verification.workspace,
                 ).stdout,
             )
+
+    def test_commit_reference_prep_clone_does_not_checkout_filters(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for reference verification")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            home = temp_path / "home"
+            xdg_config = temp_path / "xdg"
+            template = temp_path / "template"
+            sentinel = temp_path / "checkout-invoked"
+            home.mkdir()
+            xdg_config.mkdir()
+            (template / "hooks").mkdir(parents=True)
+            smudge = temp_path / "fail-smudge.sh"
+            smudge.write_text(
+                f"#!/bin/sh\necho smudge > {sentinel}\nexit 1\n",
+                encoding="utf-8",
+            )
+            smudge.chmod(0o755)
+            post_checkout = template / "hooks" / "post-checkout"
+            post_checkout.write_text(
+                f"#!/bin/sh\necho hook > {sentinel}\nexit 1\n",
+                encoding="utf-8",
+            )
+            post_checkout.chmod(0o755)
+            (home / ".gitconfig").write_text(
+                "\n".join(
+                    [
+                        '[filter "block"]',
+                        f"    smudge = {smudge}",
+                        "    clean = cat",
+                        "    required = true",
+                        "[init]",
+                        f"    templateDir = {template}",
+                        "",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            repo = temp_path / "repo"
+            repo.mkdir()
+
+            with mock.patch.dict(
+                os.environ,
+                {
+                    "GIT_CONFIG_GLOBAL": str(home / ".gitconfig"),
+                    "HOME": str(home),
+                    "XDG_CONFIG_HOME": str(xdg_config),
+                },
+            ):
+                self._git(["init"], repo)
+                self._git(["config", "user.email", "agentlab@example.com"], repo)
+                self._git(["config", "user.name", "Agent Lab"], repo)
+                (repo / ".gitattributes").write_text(
+                    "app.txt filter=block\n",
+                    encoding="utf-8",
+                )
+                (repo / "app.txt").write_text("before\n", encoding="utf-8")
+                self._git(["add", ".gitattributes", "app.txt"], repo)
+                self._git(["commit", "-m", "base"], repo)
+                base_commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+
+                (repo / "app.txt").write_text("after\n", encoding="utf-8")
+                self._git(["commit", "-am", "reference"], repo)
+                reference_commit = (
+                    self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+                )
+
+                bundle = temp_path / "task"
+                bundle.mkdir()
+                (bundle / "task.yaml").write_text(
+                    textwrap.dedent(
+                        f"""
+                        id: commit-reference-no-checkout-task
+                        title: Commit reference no checkout task
+                        repo: {repo}
+                        commit: {base_commit}
+                        language: text
+                        prompt: Change before to after.
+                        reference_artifact:
+                          type: commit
+                          commit: {reference_commit}
+                        test:
+                          - {sys.executable} -c "from pathlib import Path; assert Path('app.txt').read_text() == 'after\\n'"
+                        """
+                    ),
+                    encoding="utf-8",
+                )
+
+                task = load_task(bundle)
+                verification = verify_reference(task, temp_path / "work")
+
+            self.assertTrue(verification.success)
+            self.assertFalse(sentinel.exists())
+            self.assertEqual(verification.files_changed, ["app.txt"])
 
     def test_reference_verification_uses_shared_grader_outcome(self):
         if shutil.which("git") is None:
