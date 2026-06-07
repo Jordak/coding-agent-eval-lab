@@ -68,11 +68,7 @@ class ReferenceVerificationTest(unittest.TestCase):
             self.assertTrue(verification.success)
             self.assertEqual(verification.files_changed, ["app.txt"])
             self.assertEqual(verification.workspace_history_policy, "base_only")
-            self.assertEqual(
-                self._git(["rev-list", "--count", "--all"], verification.workspace)
-                .stdout.strip(),
-                "1",
-            )
+            self._assert_base_only_repository(verification.workspace)
 
     def test_commit_reference_artifact_is_converted_to_patch(self):
         if shutil.which("git") is None:
@@ -122,11 +118,7 @@ class ReferenceVerificationTest(unittest.TestCase):
 
             self.assertTrue(verification.success)
             self.assertEqual(verification.files_changed, ["app.txt"])
-            self.assertEqual(
-                self._git(["rev-list", "--count", "--all"], verification.workspace)
-                .stdout.strip(),
-                "1",
-            )
+            self._assert_base_only_repository(verification.workspace)
             self.assertNotIn(
                 reference_commit,
                 self._git(
@@ -478,6 +470,26 @@ class ReferenceVerificationTest(unittest.TestCase):
         if completed.returncode != 0:
             self.fail(completed.stderr)
         return completed
+
+    def _assert_base_only_repository(self, workspace):
+        self.assertEqual(
+            self._git(["rev-list", "--count", "HEAD"], workspace).stdout.strip(),
+            "1",
+        )
+        self.assertEqual(
+            self._git(
+                [
+                    "for-each-ref",
+                    "--format=%(refname)",
+                    "refs/heads",
+                    "refs/remotes",
+                    "refs/tags",
+                ],
+                workspace,
+            ).stdout.strip(),
+            "",
+        )
+        self.assertFalse((workspace / ".git" / "logs").exists())
 
 
 if __name__ == "__main__":

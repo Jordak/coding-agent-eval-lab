@@ -56,8 +56,6 @@ def execute_task_phases(
     workspace_root: Path,
     action: TaskAction,
     diff_path: Path | DiffPathResolver,
-    *,
-    diff_base_ref: str | None = None,
 ) -> TaskExecution:
     prepared = prepare_workspace(task, workspace_root)
     task_env = build_task_environment(task, prepared.path)
@@ -71,7 +69,7 @@ def execute_task_phases(
     files_changed = capture_diff(
         prepared.path,
         resolved_diff_path,
-        base_ref=diff_base_ref or prepared.workspace_base_ref,
+        base_ref=prepared.workspace_base_ref,
     )
     patch_stats = count_patch_lines(
         resolved_diff_path.read_text(encoding="utf-8")

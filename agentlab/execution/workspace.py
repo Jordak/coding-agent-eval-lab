@@ -175,6 +175,8 @@ def _workspace_entry_path(workspace: Path, path: str) -> Path:
     parts = path.split("/")
     if any(part in {"", ".", ".."} for part in parts):
         raise RuntimeError(f"unsafe tree path: {path}")
+    if any(part.casefold() == ".git" for part in parts):
+        raise RuntimeError(f"unsafe git control tree path: {path}")
     return workspace.joinpath(*parts)
 
 
@@ -223,7 +225,7 @@ def _commit_synthetic_base(
         raise RuntimeError(f"git commit-tree failed: {commit.stderr.strip()}")
 
     update_ref = run_git(
-        ["update-ref", "HEAD", commit.stdout.strip()],
+        ["update-ref", "--no-deref", "HEAD", commit.stdout.strip()],
         cwd=workspace,
         env=git_env,
     )
@@ -232,6 +234,13 @@ def _commit_synthetic_base(
 
 
 def _disable_local_git_features(workspace: Path, git_env: dict[str, str]) -> None:
+    reflogs = run_git(
+        ["config", "core.logAllRefUpdates", "false"],
+        cwd=workspace,
+        env=git_env,
+    )
+    if reflogs.returncode != 0:
+        raise RuntimeError(f"git config failed: {reflogs.stderr.strip()}")
     config = run_git(
         ["config", "core.hooksPath", ".git/hooks"],
         cwd=workspace,

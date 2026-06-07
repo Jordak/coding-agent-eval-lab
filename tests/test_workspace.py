@@ -48,11 +48,7 @@ class WorkspaceTest(unittest.TestCase):
 
             self.assertTrue(prepared.path.exists())
             self.assertEqual(prepared.workspace_history_policy, "base_only")
-            self.assertEqual(
-                self._git(["rev-list", "--count", "--all"], prepared.path)
-                .stdout.strip(),
-                "1",
-            )
+            self._assert_base_only_repository(prepared.path)
             self.assertEqual(
                 self._git(["rev-parse", "HEAD"], prepared.path).stdout.strip(),
                 prepared.workspace_base_ref,
@@ -95,11 +91,7 @@ class WorkspaceTest(unittest.TestCase):
 
             prepared = prepare_workspace(task, temp_path / "workspace")
 
-            self.assertEqual(
-                self._git(["rev-list", "--count", "--all"], prepared.path)
-                .stdout.strip(),
-                "1",
-            )
+            self._assert_base_only_repository(prepared.path)
             self.assertNotIn(
                 gold_commit,
                 self._git(["log", "--all", "--format=%H"], prepared.path).stdout,
@@ -180,6 +172,55 @@ class WorkspaceTest(unittest.TestCase):
                 (prepared.path / "substituted.txt").read_text(encoding="utf-8"),
                 "$Format:%H$\n",
             )
+
+    def test_prepare_workspace_rejects_git_control_paths(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for workspace preparation")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo = temp_path / "repo"
+            repo.mkdir()
+            self._git(["init"], repo)
+            self._git(["config", "user.email", "agentlab@example.com"], repo)
+            self._git(["config", "user.name", "Agent Lab"], repo)
+            bad_config = temp_path / "bad-config"
+            bad_config.write_text(
+                '[remote "origin"]\n    url = https://example.com/source.git\n',
+                encoding="utf-8",
+            )
+            blob = self._git(
+                ["hash-object", "-w", str(bad_config)],
+                repo,
+            ).stdout.strip()
+            subtree = self._git_with_input(
+                ["mktree"],
+                repo,
+                f"100644 blob {blob}\tconfig\n",
+            ).stdout.strip()
+            tree = self._git_with_input(
+                ["mktree"],
+                repo,
+                f"040000 tree {subtree}\t.GIT\n",
+            ).stdout.strip()
+            commit = self._git(
+                ["commit-tree", tree, "-m", "malicious tree"],
+                repo,
+            ).stdout.strip()
+            task = EvalTask(
+                id="git-control-path-task",
+                title="Git control path task",
+                repo=str(repo),
+                commit=commit,
+                language="text",
+                prompt="Do nothing.",
+            )
+
+            with self.assertRaisesRegex(
+                RuntimeError,
+                "unsafe git control tree path",
+            ):
+                prepare_workspace(task, temp_path / "workspace")
 
     def test_synthetic_commit_uses_fixed_identity_and_date(self):
         if shutil.which("git") is None:
@@ -642,6 +683,38 @@ class WorkspaceTest(unittest.TestCase):
         if completed.returncode != 0:
             self.fail(completed.stderr)
         return completed
+
+    def _git_with_input(self, args, cwd, input_text):
+        completed = subprocess.run(
+            ["git"] + args,
+            cwd=str(cwd),
+            text=True,
+            input=input_text,
+            capture_output=True,
+        )
+        if completed.returncode != 0:
+            self.fail(completed.stderr)
+        return completed
+
+    def _assert_base_only_repository(self, workspace):
+        self.assertEqual(
+            self._git(["rev-list", "--count", "HEAD"], workspace).stdout.strip(),
+            "1",
+        )
+        self.assertEqual(
+            self._git(
+                [
+                    "for-each-ref",
+                    "--format=%(refname)",
+                    "refs/heads",
+                    "refs/remotes",
+                    "refs/tags",
+                ],
+                workspace,
+            ).stdout.strip(),
+            "",
+        )
+        self.assertFalse((workspace / ".git" / "logs").exists())
 
 
 if __name__ == "__main__":
