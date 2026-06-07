@@ -1,9 +1,11 @@
+import os
 import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from agentlab.execution.scoring import CheckResult
 from agentlab.execution.phases import TaskActionResult
@@ -101,6 +103,59 @@ class TaskExecutionTest(unittest.TestCase):
 
             self.assertFalse(execution.score.tests_passed)
             self.assertEqual(execution.all_checks, [])
+            self.assertEqual(execution.files_changed, [])
+
+    def test_task_environment_strips_repo_context_git_env(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for task execution")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo, base_commit = self._repo_with_file(temp_path, "base\n")
+            (repo / "app.txt").write_text("gold\n", encoding="utf-8")
+            self._git(["commit", "-am", "gold"], repo)
+            gold_commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+            git_guard = (
+                f"{sys.executable} -c "
+                "\"import subprocess; "
+                "log = subprocess.check_output("
+                "['git', 'log', '--all', '--format=%H'], text=True"
+                ").splitlines(); "
+                f"assert {gold_commit!r} not in log, log; "
+                "assert len(log) == 1, log\""
+            )
+            task = EvalTask(
+                id="git-env-task",
+                title="Git env task",
+                repo=str(repo),
+                commit=base_commit,
+                language="text",
+                prompt="Do nothing.",
+                setup=[git_guard],
+                baseline=[git_guard],
+                test=[git_guard],
+            )
+
+            def action(_workspace, task_env):
+                self.assertNotIn("GIT_DIR", task_env)
+                self.assertNotIn("GIT_WORK_TREE", task_env)
+                return TaskActionResult()
+
+            with mock.patch.dict(
+                os.environ,
+                {
+                    "GIT_DIR": str(repo / ".git"),
+                    "GIT_WORK_TREE": str(repo),
+                },
+            ):
+                execution = execute_task_phases(
+                    task,
+                    temp_path / "workspace",
+                    action,
+                    temp_path / "diff.patch",
+                )
+
+            self.assertTrue(execution.score.tests_passed)
             self.assertEqual(execution.files_changed, [])
 
     def _repo_with_file(self, root, contents):

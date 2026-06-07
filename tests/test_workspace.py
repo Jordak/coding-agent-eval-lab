@@ -386,6 +386,62 @@ class WorkspaceTest(unittest.TestCase):
                 "",
             )
 
+    def test_prepare_workspace_ignores_clone_time_git_config(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for workspace preparation")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo = temp_path / "repo"
+            repo.mkdir()
+            self._git(["init"], repo)
+            self._git(["config", "user.email", "agentlab@example.com"], repo)
+            self._git(["config", "user.name", "Agent Lab"], repo)
+            (repo / "app.txt").write_text("base\n", encoding="utf-8")
+            self._git(["add", "app.txt"], repo)
+            self._git(["commit", "-m", "base"], repo)
+            commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+
+            hostile_config = temp_path / "hostile.gitconfig"
+            hostile_config.write_text(
+                "\n".join(
+                    [
+                        '[protocol "file"]',
+                        "    allow = never",
+                        "",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            task = EvalTask(
+                id="clone-config-task",
+                title="Clone config task",
+                repo=repo.as_uri(),
+                commit=commit,
+                language="text",
+                prompt="Do nothing.",
+            )
+
+            with mock.patch.dict(
+                os.environ,
+                {
+                    "GIT_CONFIG_GLOBAL": str(hostile_config),
+                    "GIT_CONFIG_COUNT": "1",
+                    "GIT_CONFIG_KEY_0": "protocol.file.allow",
+                    "GIT_CONFIG_VALUE_0": "never",
+                },
+            ):
+                prepared = prepare_workspace(task, temp_path / "workspace")
+
+            self.assertEqual(
+                (prepared.path / "app.txt").read_text(encoding="utf-8"),
+                "base\n",
+            )
+            self.assertEqual(
+                self._git(["status", "--short"], prepared.path).stdout.strip(),
+                "",
+            )
+
     def test_synthetic_commit_ignores_global_hooks_and_templates(self):
         if shutil.which("git") is None:
             self.skipTest("git is required for workspace preparation")

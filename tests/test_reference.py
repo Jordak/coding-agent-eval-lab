@@ -231,6 +231,75 @@ class ReferenceVerificationTest(unittest.TestCase):
             self.assertFalse(sentinel.exists())
             self.assertEqual(verification.files_changed, ["app.txt"])
 
+    def test_commit_reference_ignores_clone_time_git_config(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for reference verification")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo = temp_path / "repo"
+            repo.mkdir()
+            self._git(["init"], repo)
+            self._git(["config", "user.email", "agentlab@example.com"], repo)
+            self._git(["config", "user.name", "Agent Lab"], repo)
+            (repo / "app.txt").write_text("before\n", encoding="utf-8")
+            self._git(["add", "app.txt"], repo)
+            self._git(["commit", "-m", "base"], repo)
+            base_commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+
+            (repo / "app.txt").write_text("after\n", encoding="utf-8")
+            self._git(["commit", "-am", "reference"], repo)
+            reference_commit = (
+                self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+            )
+
+            bundle = temp_path / "task"
+            bundle.mkdir()
+            (bundle / "task.yaml").write_text(
+                textwrap.dedent(
+                    f"""
+                    id: commit-reference-clone-config-task
+                    title: Commit reference clone config task
+                    repo: "{repo.as_uri()}"
+                    commit: {base_commit}
+                    language: text
+                    prompt: Change before to after.
+                    reference_artifact:
+                      type: commit
+                      commit: {reference_commit}
+                    test:
+                      - {sys.executable} -c "from pathlib import Path; assert Path('app.txt').read_text() == 'after\\n'"
+                    """
+                ),
+                encoding="utf-8",
+            )
+            hostile_config = temp_path / "hostile.gitconfig"
+            hostile_config.write_text(
+                "\n".join(
+                    [
+                        '[protocol "file"]',
+                        "    allow = never",
+                        "",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+
+            task = load_task(bundle)
+            with mock.patch.dict(
+                os.environ,
+                {
+                    "GIT_CONFIG_GLOBAL": str(hostile_config),
+                    "GIT_CONFIG_COUNT": "1",
+                    "GIT_CONFIG_KEY_0": "protocol.file.allow",
+                    "GIT_CONFIG_VALUE_0": "never",
+                },
+            ):
+                verification = verify_reference(task, temp_path / "work")
+
+            self.assertTrue(verification.success)
+            self.assertEqual(verification.files_changed, ["app.txt"])
+
     def test_reference_verification_uses_shared_grader_outcome(self):
         if shutil.which("git") is None:
             self.skipTest("git is required for reference verification")
