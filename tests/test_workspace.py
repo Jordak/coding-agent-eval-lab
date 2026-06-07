@@ -5,8 +5,9 @@ import unittest
 from unittest import mock
 from pathlib import Path
 
+from agentlab.execution.changed_paths import capture_diff
 from agentlab.tasks import EvalTask
-from agentlab.execution.workspace import capture_diff, prepare_workspace
+from agentlab.execution.workspace import prepare_workspace
 from tests.git_fixtures import assert_base_only_repository
 from tests.git_fixtures import commit_all
 from tests.git_fixtures import commit_file
@@ -678,12 +679,12 @@ class WorkspaceTest(unittest.TestCase):
             )
             self.assertIn("new.txt", diff_text)
             self.assertEqual(
-                self._git(["ls-files", "--stage", "new.txt"], repo).stdout,
+                git(["ls-files", "--stage", "new.txt"], repo).stdout,
                 "",
             )
             self.assertIn(
                 "new.txt",
-                self._git(["ls-files", "--others"], repo).stdout.splitlines(),
+                git(["ls-files", "--others"], repo).stdout.splitlines(),
             )
 
 if __name__ == "__main__":

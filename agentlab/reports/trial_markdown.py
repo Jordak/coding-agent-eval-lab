@@ -4,6 +4,7 @@ import json
 from typing import TYPE_CHECKING
 
 from agentlab.execution.scoring import CheckResult
+from agentlab.reports.patch_caveats import patch_size_caveat_note
 from agentlab.runtime.run_surface import normalize_run_surface
 from agentlab.tasks.boundaries import scope_oracle_metadata
 
@@ -236,12 +237,9 @@ def _patch_size_caveat_lines(caveat_paths: list[str]) -> list[str]:
         return []
     return [
         "",
-        (
-            "Patch size metrics marked with `*` have setup-created "
-            "untracked path caveats; changed-file counts/lists and boundary "
-            "metrics include detected caveat paths, but line-count metrics "
-            "may not fully represent "
-            f"{_inline_code_list(caveat_paths)}."
+        patch_size_caveat_note(
+            marker="`*`",
+            path_phrase=_inline_code_list(caveat_paths),
         ),
     ]
 

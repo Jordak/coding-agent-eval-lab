@@ -5,14 +5,14 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from agentlab.execution.commands import run_commands
+from agentlab.execution.changed_paths import capture_change_baseline
+from agentlab.execution.changed_paths import capture_diff_details_preserving_index
 from agentlab.tasks.environment import build_task_environment
 from agentlab.runtime.patches import count_patch_lines
 from agentlab.execution.scoring import CheckResult
 from agentlab.execution.scoring import Score
 from agentlab.execution.scoring import calculate_grader_outcome
 from agentlab.tasks import EvalTask
-from agentlab.execution.workspace import capture_change_baseline
-from agentlab.execution.workspace import capture_diff_details_preserving_index
 from agentlab.execution.workspace import prepare_workspace
 
 

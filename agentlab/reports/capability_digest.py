@@ -9,6 +9,7 @@ from agentlab.evidence.summary import TrialGroupSummary, summarize_trials
 from agentlab.reports.operability_evidence import (
     render_agent_harness_operability_table,
 )
+from agentlab.reports.patch_caveats import patch_size_caveat_note
 
 
 PORTABLE_MARKDOWN_POLICY = (
@@ -168,12 +169,7 @@ def _run_context_lines(context: MarkdownRunContext) -> List[str]:
         lines.extend(
             [
                 "",
-                (
-                    "Patch size metrics marked with `*` have setup-created "
-                    "untracked path caveats; changed-file counts/lists and "
-                    "boundary metrics include detected caveat paths, but "
-                    "line-count metrics may not fully represent those paths."
-                ),
+                patch_size_caveat_note(marker="`*`"),
             ]
         )
     lines.append("")
@@ -297,12 +293,7 @@ def _aggregate_summary_tables(
         lines.extend(
             [
                 "",
-                (
-                    "Patch size metrics marked with `*` have setup-created "
-                    "untracked path caveats; changed-file counts/lists and "
-                    "boundary metrics include detected caveat paths, but "
-                    "line-count metrics may not fully represent those paths."
-                ),
+                patch_size_caveat_note(marker="`*`"),
             ]
         )
     return lines

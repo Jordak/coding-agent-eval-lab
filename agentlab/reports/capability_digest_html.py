@@ -10,6 +10,7 @@ from typing import Iterable, Mapping, Sequence
 
 from agentlab.evidence.outcome import OutcomeEvidence
 from agentlab.evidence.summary import TrialGroupSummary, summarize_trials
+from agentlab.reports.patch_caveats import patch_size_caveat_note
 from agentlab.reports.operability_evidence import (
     agent_harness_operability_rows,
 )
@@ -746,12 +747,7 @@ def _trial_rows(
 def _patch_size_caveat_note(results: Sequence[OutcomeEvidence]) -> str:
     if not any(result.setup_created_untracked_changed_paths for result in results):
         return ""
-    return (
-        "Patch size metrics marked with * have setup-created untracked "
-        "path caveats; changed-file counts/lists and boundary metrics "
-        "include detected caveat paths, but line-count metrics may not "
-        "fully represent those paths."
-    )
+    return patch_size_caveat_note(marker="*")
 
 
 def _review_patch_size_caveat_note(context: RunContext) -> str:
@@ -760,12 +756,7 @@ def _review_patch_size_caveat_note(context: RunContext) -> str:
         for summary in context.summaries
     ):
         return ""
-    return (
-        "Patch size metrics marked with * have setup-created untracked "
-        "path caveats; changed-file counts/lists and boundary metrics "
-        "include detected caveat paths, but line-count metrics may not "
-        "fully represent those paths."
-    )
+    return patch_size_caveat_note(marker="*")
 
 
 def _summary_has_patch_size_caveat(
