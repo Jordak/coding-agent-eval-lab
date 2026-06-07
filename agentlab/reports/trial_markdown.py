@@ -237,8 +237,10 @@ def _patch_size_caveat_lines(caveat_paths: list[str]) -> list[str]:
     return [
         "",
         (
-            "Patch size metrics marked with `*` include setup-created "
-            "untracked path changes; line counts may not fully represent "
+            "Patch size metrics marked with `*` have setup-created "
+            "untracked path caveats; changed-file counts/lists and boundary "
+            "metrics include detected caveat paths, but line-count metrics "
+            "may not fully represent "
             f"{_inline_code_list(caveat_paths)}."
         ),
     ]

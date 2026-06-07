@@ -747,8 +747,10 @@ def _patch_size_caveat_note(results: Sequence[OutcomeEvidence]) -> str:
     if not any(result.setup_created_untracked_changed_paths for result in results):
         return ""
     return (
-        "Patch size metrics marked with * include setup-created untracked "
-        "path changes; line counts may not fully represent those paths."
+        "Patch size metrics marked with * have setup-created untracked "
+        "path caveats; changed-file counts/lists and boundary metrics "
+        "include detected caveat paths, but line-count metrics may not "
+        "fully represent those paths."
     )
 
 
@@ -759,8 +761,10 @@ def _review_patch_size_caveat_note(context: RunContext) -> str:
     ):
         return ""
     return (
-        "Patch size metrics marked with * include setup-created untracked "
-        "path changes; line counts may not fully represent those paths."
+        "Patch size metrics marked with * have setup-created untracked "
+        "path caveats; changed-file counts/lists and boundary metrics "
+        "include detected caveat paths, but line-count metrics may not "
+        "fully represent those paths."
     )
 
 

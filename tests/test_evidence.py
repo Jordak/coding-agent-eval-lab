@@ -138,12 +138,20 @@ class CapabilityEvidenceDigestTest(unittest.TestCase):
         self.assertIn("1*", digest)
         self.assertIn("| task-a | regression | 100 | 1 | 5* | 1* |", digest)
         self.assertIn("Patch size metrics marked with `*`", digest)
+        self.assertIn("have setup-created untracked path caveats", digest)
+        self.assertIn("changed-file counts/lists", digest)
+        self.assertIn("boundary metrics", digest)
+        self.assertIn("include detected caveat paths", digest)
         self.assertIn("5*", html_report)
         self.assertIn("1*", html_report)
         self.assertGreaterEqual(digest.count("Patch size metrics marked with `*`"), 2)
         self.assertGreaterEqual(html_report.count("Patch size metrics marked with *"), 2)
         self.assertGreaterEqual(html_report.count(">5*</td>"), 2)
         self.assertIn("Patch size metrics marked with *", html_report)
+        self.assertIn("have setup-created untracked path caveats", html_report)
+        self.assertIn("changed-file counts/lists", html_report)
+        self.assertIn("boundary metrics", html_report)
+        self.assertIn("include detected caveat paths", html_report)
 
     def test_nested_setup_created_untracked_patch_size_caveat_round_trips(self):
         result = normalize_outcome_evidence(

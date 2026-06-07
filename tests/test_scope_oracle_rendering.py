@@ -39,6 +39,9 @@ class ScopeOracleRenderingTest(unittest.TestCase):
         self.assertIn("- Lines added: `1`*", report)
         self.assertIn("- Lines deleted: `0`*", report)
         self.assertIn("Patch size metrics marked with `*`", report)
+        self.assertIn("changed-file counts/lists", report)
+        self.assertIn("boundary metrics", report)
+        self.assertIn("include detected caveat paths", report)
         self.assertIn("`setup.log`", report)
         self.assertEqual(
             result["setup_created_untracked_changed_paths"],
@@ -70,6 +73,9 @@ class ScopeOracleRenderingTest(unittest.TestCase):
         self.assertIn("- Lines added: `2`*", report)
         self.assertIn("- Lines deleted: `1`*", report)
         self.assertIn("Patch size metrics marked with `*`", report)
+        self.assertIn("changed-file counts/lists", report)
+        self.assertIn("boundary metrics", report)
+        self.assertIn("include detected caveat paths", report)
         self.assertIn("`setup.log`", report)
         self.assertEqual(
             result["setup_created_untracked_changed_paths"],

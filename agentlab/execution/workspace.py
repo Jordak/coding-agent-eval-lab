@@ -4,6 +4,7 @@ import hashlib
 import os
 import shutil
 import stat
+import subprocess
 import tempfile
 from contextlib import contextmanager
 from dataclasses import dataclass, field
@@ -35,21 +36,19 @@ class PreparedWorkspace:
 class WorkspaceUntrackedBaseline:
     path: str
     fingerprint: str
+    exact: bool = False
 
 
 @dataclass(frozen=True)
 class WorkspaceIndexBaseline:
     path: str
-    index_signature: str | None
+    setup_index_signature: str | None
 
 
 @dataclass(frozen=True)
 class WorkspaceChangeBaseline:
     tree_ref: str
     untracked_files: tuple[WorkspaceUntrackedBaseline, ...] = field(
-        default_factory=tuple
-    )
-    setup_index_entries: tuple[WorkspaceIndexBaseline, ...] = field(
         default_factory=tuple
     )
     reset_index_entries: tuple[WorkspaceIndexBaseline, ...] = field(
@@ -104,8 +103,6 @@ def capture_change_baseline(
     *,
     exact_untracked_patterns: Sequence[str] = (),
 ) -> WorkspaceChangeBaseline:
-    setup_index_entries = tuple(_setup_index_entries(workspace))
-
     with tempfile.TemporaryDirectory(prefix="agentlab-index-") as temp:
         index_env = {"GIT_INDEX_FILE": str(Path(temp) / "index")}
         reset_existing_index = run_git(
@@ -149,7 +146,6 @@ def capture_change_baseline(
     return WorkspaceChangeBaseline(
         tree_ref=tree_ref,
         untracked_files=untracked_files,
-        setup_index_entries=setup_index_entries,
         reset_index_entries=reset_index_entries,
     )
 
@@ -159,7 +155,6 @@ def capture_diff(
     diff_path: Path,
     base_ref: str | None = None,
     baseline_untracked: Sequence[WorkspaceUntrackedBaseline] = (),
-    baseline_setup_index: Sequence[WorkspaceIndexBaseline] = (),
     baseline_reset_index: Sequence[WorkspaceIndexBaseline] = (),
 ) -> list[str]:
     return capture_diff_details_preserving_index(
@@ -167,7 +162,6 @@ def capture_diff(
         diff_path,
         base_ref=base_ref,
         baseline_untracked=baseline_untracked,
-        baseline_setup_index=baseline_setup_index,
         baseline_reset_index=baseline_reset_index,
     ).files_changed
 
@@ -177,7 +171,6 @@ def capture_diff_details_preserving_index(
     diff_path: Path,
     base_ref: str | None = None,
     baseline_untracked: Sequence[WorkspaceUntrackedBaseline] = (),
-    baseline_setup_index: Sequence[WorkspaceIndexBaseline] = (),
     baseline_reset_index: Sequence[WorkspaceIndexBaseline] = (),
 ) -> CapturedDiff:
     with _preserve_git_index(workspace):
@@ -186,7 +179,6 @@ def capture_diff_details_preserving_index(
             diff_path,
             base_ref=base_ref,
             baseline_untracked=baseline_untracked,
-            baseline_setup_index=baseline_setup_index,
             baseline_reset_index=baseline_reset_index,
         )
 
@@ -196,7 +188,6 @@ def capture_diff_details(
     diff_path: Path,
     base_ref: str | None = None,
     baseline_untracked: Sequence[WorkspaceUntrackedBaseline] = (),
-    baseline_setup_index: Sequence[WorkspaceIndexBaseline] = (),
     baseline_reset_index: Sequence[WorkspaceIndexBaseline] = (),
 ) -> CapturedDiff:
     diff_ref = base_ref or "HEAD"
@@ -204,13 +195,18 @@ def capture_diff_details(
         workspace,
         baseline_untracked,
     )
-    changed_baseline_paths = {entry.path for entry in changed_baseline_untracked}
-    unchanged_baseline_paths = [
+    exact_changed_baseline_untracked = [
+        entry for entry in changed_baseline_untracked if entry.exact
+    ]
+    exact_changed_baseline_paths = {
+        entry.path for entry in exact_changed_baseline_untracked
+    }
+    suppressed_baseline_paths = [
         entry.path
         for entry in baseline_untracked
-        if entry.path not in changed_baseline_paths
+        if entry.path not in exact_changed_baseline_paths
     ]
-    _mark_untracked_for_diff(workspace, exclude_untracked=unchanged_baseline_paths)
+    _mark_untracked_for_diff(workspace, exclude_untracked=suppressed_baseline_paths)
     name_args = ["diff", "--name-only", "-z", "--no-renames", diff_ref]
     cached_name_args = [
         "diff",
@@ -228,33 +224,19 @@ def capture_diff_details(
         "git diff --name-only",
         env=git_env,
     )
-    worktree_paths = _filter_unchanged_setup_index_paths(
-        workspace,
-        worktree_paths,
-        unchanged_baseline_paths,
-        baseline_setup_index,
-    )
     cached_paths = _diff_names(
         workspace,
         cached_name_args,
         "git diff --cached --name-only",
         env=git_env,
     )
-    cached_paths = _filter_unchanged_setup_index_paths(
-        workspace,
-        cached_paths,
-        unchanged_baseline_paths,
-        baseline_setup_index,
-    )
-    worktree_paths = _filter_unchanged_baseline_untracked_paths(
-        workspace,
+    worktree_paths = _filter_suppressed_baseline_untracked_paths(
         worktree_paths,
-        unchanged_baseline_paths,
+        suppressed_baseline_paths,
     )
-    cached_paths = _filter_unchanged_baseline_untracked_paths(
-        workspace,
+    cached_paths = _filter_suppressed_baseline_untracked_paths(
         cached_paths,
-        unchanged_baseline_paths,
+        suppressed_baseline_paths,
     )
     cached_paths = _filter_reset_baseline_cached_paths(
         workspace,
@@ -377,21 +359,6 @@ def _diff_names(
     return [path for path in changed.stdout.split("\0") if path]
 
 
-def _setup_index_entries(workspace: Path) -> list[WorkspaceIndexBaseline]:
-    paths = _diff_names(
-        workspace,
-        ["diff", "--cached", "--name-only", "-z", "--no-renames", "HEAD"],
-        "git diff --cached --name-only",
-    )
-    return [
-        WorkspaceIndexBaseline(
-            path=path,
-            index_signature=_index_entry_signature(workspace, path),
-        )
-        for path in paths
-    ]
-
-
 def _reset_index_entries(
     workspace: Path,
     tree_ref: str,
@@ -407,7 +374,7 @@ def _reset_index_entries(
     return [
         WorkspaceIndexBaseline(
             path=path,
-            index_signature=_index_entry_signature(workspace, path, env=env),
+            setup_index_signature=_index_entry_signature(workspace, path),
         )
         for path in paths
     ]
@@ -423,59 +390,27 @@ def _filter_reset_baseline_cached_paths(
         return list(cached_paths)
 
     worktree_path_set = set(worktree_paths)
-    reset_signatures = {
-        entry.path: entry.index_signature for entry in baseline_reset_index
-    }
+    setup_index_by_path = {entry.path: entry for entry in baseline_reset_index}
     filtered: list[str] = []
     for path in cached_paths:
-        if path in worktree_path_set or path not in reset_signatures:
+        baseline = setup_index_by_path.get(path)
+        if path in worktree_path_set or baseline is None:
             filtered.append(path)
             continue
-        if _index_entry_signature(workspace, path) != reset_signatures[path]:
+        if _index_entry_signature(workspace, path) != baseline.setup_index_signature:
             filtered.append(path)
     return filtered
 
 
-def _filter_unchanged_setup_index_paths(
-    workspace: Path,
+def _filter_suppressed_baseline_untracked_paths(
     paths: Sequence[str],
-    unchanged_baseline_paths: Sequence[str],
-    baseline_setup_index: Sequence[WorkspaceIndexBaseline],
+    suppressed_baseline_paths: Sequence[str],
 ) -> list[str]:
-    if not baseline_setup_index or not unchanged_baseline_paths:
+    if not suppressed_baseline_paths:
         return list(paths)
 
-    unchanged_path_set = set(unchanged_baseline_paths)
-    setup_signatures = {
-        entry.path: entry.index_signature for entry in baseline_setup_index
-    }
-    filtered: list[str] = []
-    for path in paths:
-        if path not in unchanged_path_set or path not in setup_signatures:
-            filtered.append(path)
-            continue
-        if _index_entry_signature(workspace, path) != setup_signatures[path]:
-            filtered.append(path)
-    return filtered
-
-
-def _filter_unchanged_baseline_untracked_paths(
-    workspace: Path,
-    paths: Sequence[str],
-    unchanged_baseline_paths: Sequence[str],
-) -> list[str]:
-    if not unchanged_baseline_paths:
-        return list(paths)
-
-    unchanged_path_set = set(unchanged_baseline_paths)
-    filtered: list[str] = []
-    for path in paths:
-        if path not in unchanged_path_set or not _index_matches_worktree(
-            workspace,
-            path,
-        ):
-            filtered.append(path)
-    return filtered
+    suppressed_path_set = set(suppressed_baseline_paths)
+    return [path for path in paths if path not in suppressed_path_set]
 
 
 def _index_entry_signature(
@@ -491,15 +426,6 @@ def _index_entry_signature(
     if not entries:
         return None
     return "\0".join(part.split("\t", 1)[0] for part in entries)
-
-
-def _index_matches_worktree(workspace: Path, path: str) -> bool:
-    diff = run_git(["diff", "--quiet", "--", path], cwd=workspace)
-    if diff.returncode == 0:
-        return True
-    if diff.returncode == 1:
-        return False
-    raise RuntimeError(f"git diff --quiet failed: {diff.stderr.strip()}")
 
 
 def _cached_diff_for_paths(
@@ -554,32 +480,40 @@ def _snapshot_untracked_files(
     env: Mapping[str, str] | None = None,
     exact_patterns: Sequence[str] = (),
 ) -> list[WorkspaceUntrackedBaseline]:
-    return [
-        WorkspaceUntrackedBaseline(path=path, fingerprint=fingerprint)
-        for path in _list_untracked(workspace, env=env)
-        if (
-            fingerprint := _path_fingerprint(
-                workspace / path,
-                exact=_matches_any_boundary_pattern(path, exact_patterns),
+    entries: list[WorkspaceUntrackedBaseline] = []
+    for path in _list_untracked(workspace, env=env):
+        exact = _matches_any_boundary_pattern(path, exact_patterns)
+        fingerprint = _path_fingerprint(workspace / path, exact=exact)
+        if fingerprint is not None:
+            entries.append(
+                WorkspaceUntrackedBaseline(
+                    path=path,
+                    fingerprint=fingerprint,
+                    exact=exact,
+                )
             )
-        )
-        is not None
-    ]
+    return entries
 
 
 def _changed_baseline_untracked(
     workspace: Path,
     baseline_untracked: Sequence[WorkspaceUntrackedBaseline],
 ) -> list[WorkspaceUntrackedBaseline]:
-    return [
-        entry
-        for entry in baseline_untracked
-        if _path_fingerprint(
+    changed: list[WorkspaceUntrackedBaseline] = []
+    for entry in baseline_untracked:
+        worktree_fingerprint = _path_fingerprint(
             workspace / entry.path,
-            exact=_is_exact_fingerprint(entry.fingerprint),
+            exact=entry.exact,
         )
-        != entry.fingerprint
-    ]
+        if worktree_fingerprint != entry.fingerprint:
+            changed.append(entry)
+            continue
+        if entry.exact and _index_path_fingerprint(
+            workspace,
+            entry.path,
+        ) not in {None, entry.fingerprint}:
+            changed.append(entry)
+    return changed
 
 
 def _path_fingerprint(path: Path, *, exact: bool) -> str | None:
@@ -608,12 +542,51 @@ def _path_fingerprint(path: Path, *, exact: bool) -> str | None:
     return digest.hexdigest()
 
 
+def _index_path_fingerprint(workspace: Path, path: str) -> str | None:
+    entry = _index_entry(workspace, path)
+    if entry is None:
+        return None
+    mode_text, object_id = entry
+    blob = _git_blob(workspace, object_id)
+    if mode_text == "120000":
+        target = blob.decode("utf-8", errors="surrogateescape")
+        return f"symlink:777:{target}"
+    if mode_text not in {"100644", "100755"}:
+        return f"other:{mode_text}:{object_id}"
+
+    mode = int(mode_text[-3:], 8)
+    digest = hashlib.sha256()
+    digest.update(f"file:{mode:o}:".encode("utf-8"))
+    digest.update(blob)
+    return digest.hexdigest()
+
+
+def _index_entry(workspace: Path, path: str) -> tuple[str, str] | None:
+    entry = run_git(["ls-files", "--stage", "-z", "--", path], cwd=workspace)
+    if entry.returncode != 0:
+        raise RuntimeError(f"git ls-files --stage failed: {entry.stderr.strip()}")
+    entries = [part for part in entry.stdout.split("\0") if part]
+    if not entries:
+        return None
+    metadata = entries[0].split("\t", 1)[0]
+    mode_text, object_id, *_rest = metadata.split()
+    return mode_text, object_id
+
+
+def _git_blob(workspace: Path, object_id: str) -> bytes:
+    blob = subprocess.run(
+        ["git", "cat-file", "blob", object_id],
+        cwd=str(workspace),
+        capture_output=True,
+    )
+    if blob.returncode != 0:
+        stderr = blob.stderr.decode("utf-8", errors="replace").strip()
+        raise RuntimeError(f"git cat-file failed: {stderr}")
+    return blob.stdout
+
+
 def _matches_any_boundary_pattern(path: str, patterns: Sequence[str]) -> bool:
     return any(path_matches_boundary_glob(path, pattern) for pattern in patterns)
-
-
-def _is_exact_fingerprint(fingerprint: str) -> bool:
-    return not fingerprint.startswith("file-stat:")
 
 
 def _is_excluded_untracked(path: str, excluded: Sequence[str]) -> bool:

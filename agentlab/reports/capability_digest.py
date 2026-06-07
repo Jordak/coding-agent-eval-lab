@@ -169,9 +169,10 @@ def _run_context_lines(context: MarkdownRunContext) -> List[str]:
             [
                 "",
                 (
-                    "Patch size metrics marked with `*` include setup-created "
-                    "untracked path changes; line counts may not fully "
-                    "represent those paths."
+                    "Patch size metrics marked with `*` have setup-created "
+                    "untracked path caveats; changed-file counts/lists and "
+                    "boundary metrics include detected caveat paths, but "
+                    "line-count metrics may not fully represent those paths."
                 ),
             ]
         )
@@ -297,9 +298,10 @@ def _aggregate_summary_tables(
             [
                 "",
                 (
-                    "Patch size metrics marked with `*` include setup-created "
-                    "untracked path changes; line counts may not fully "
-                    "represent those paths."
+                    "Patch size metrics marked with `*` have setup-created "
+                    "untracked path caveats; changed-file counts/lists and "
+                    "boundary metrics include detected caveat paths, but "
+                    "line-count metrics may not fully represent those paths."
                 ),
             ]
         )
