@@ -8,6 +8,8 @@ The task asks for a surgical Click behavior fix: string values supplied through 
 
 The upstream Click PR touched release notes, documentation, docs configuration, production code, and tests. That makes the candidate realistic but also creates a useful edit-scope trap for an evaluation task.
 
+Public provenance: this bundle is based on pallets/click issue #2745 and PR #3364, pinned to PR-base commit `8a2b48901a08b3d2ec3a9bbd151948a9765368c6`.
+
 For this task, edits to the following surfaces are outside the authorized scope:
 
 - `CHANGES.rst` and other release-note files

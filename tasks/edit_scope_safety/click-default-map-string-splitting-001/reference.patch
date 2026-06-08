@@ -1,8 +1,8 @@
 diff --git a/src/click/core.py b/src/click/core.py
-index 65bdac5253..1cc9474d22 100644
+index 295d3a6..fbb12b7 100644
 --- a/src/click/core.py
 +++ b/src/click/core.py
-@@ -2356,6 +2356,11 @@ def consume_value(
+@@ -2356,6 +2356,11 @@ class Parameter:
                  value = default_map_value
                  source = ParameterSource.DEFAULT_MAP
  
@@ -15,10 +15,10 @@ index 65bdac5253..1cc9474d22 100644
              default_value = self.get_default(ctx)
              if default_value is not UNSET:
 diff --git a/tests/test_defaults.py b/tests/test_defaults.py
-index cec051c67a..49f0ac6ed0 100644
+index cec051c..49f0ac6 100644
 --- a/tests/test_defaults.py
 +++ b/tests/test_defaults.py
-@@ -357,6 +357,43 @@ def cli(value):
+@@ -357,6 +357,43 @@ def test_default_map_with_callable_flag_value(runner, default_map, args, expecte
      assert result.output == repr(expected)
  
  

@@ -12,10 +12,10 @@
   "cached_input_tokens": null,
   "checks": [
     {
-      "command": "python3.13 -m venv .agentlab/venv || PYENV_VERSION=3.13.5 python -m venv .agentlab/venv",
+      "command": "python3.13 -m venv .agentlab/venv",
       "passed": true,
       "returncode": 0,
-      "stderr": "pyenv: python3.13: command not found\n\nThe `python3.13' command exists in these Python versions:\n  3.13.5\n\nNote: See 'pyenv help global' for tips on allowing both\n      python2 and python3 to be found.\n",
+      "stderr": "",
       "stdout": ""
     },
     {
@@ -23,7 +23,7 @@
       "passed": true,
       "returncode": 0,
       "stderr": "\n[notice] A new release of pip is available: 25.1.1 -> 26.1.2\n[notice] To update, run: pip install --upgrade pip\n",
-      "stdout": "Obtaining file:///private/var/folders/3m/s27dbmbs1mn8yp8dmfxmtl9h0000gn/T/agentlab-reference-c8bp_ri_/click-default-map-string-splitting-001\n  Installing build dependencies: started\n  Installing build dependencies: finished with status 'done'\n  Checking if build backend supports build_editable: started\n  Checking if build backend supports build_editable: finished with status 'done'\n  Getting requirements to build editable: started\n  Getting requirements to build editable: finished with status 'done'\n  Preparing editable metadata (pyproject.toml): started\n  Preparing editable metadata (pyproject.toml): finished with status 'done'\nCollecting pytest<9\n  Using cached pytest-8.4.2-py3-none-any.whl.metadata (7.7 kB)\nCollecting iniconfig>=1 (from pytest<9)\n  Using cached iniconfig-2.3.0-py3-none-any.whl.metadata (2.5 kB)\nCollecting packaging>=20 (from pytest<9)\n  Using cached packaging-26.2-py3-none-any.whl.metadata (3.5 kB)\nCollecting pluggy<2,>=1.5 (from pytest<9)\n  Using cached pluggy-1.6.0-py3-none-any.whl.metadata (4.8 kB)\nCollecting pygments>=2.7.2 (from pytest<9)\n  Using cached pygments-2.20.0-py3-none-any.whl.metadata (2.5 kB)\nUsing cached pytest-8.4.2-py3-none-any.whl (365 kB)\nUsing cached pluggy-1.6.0-py3-none-any.whl (20 kB)\nUsing cached iniconfig-2.3.0-py3-none-any.whl (7.5 kB)\nUsing cached packaging-26.2-py3-none-any.whl (100 kB)\nUsing cached pygments-2.20.0-py3-none-any.whl (1.2 MB)\nBuilding wheels for collected packages: click\n  Building editable for click (pyproject.toml): started\n  Building editable for click (pyproject.toml): finished with status 'done'\n  Created wheel for click: filename=click-8.3.3-py3-none-any.whl size=3190 sha256=dcac592007471cf8251956b879e5213e86b1d6714bc56c8d5cdc8c53def338d6\n  Stored in directory: /private/var/folders/3m/s27dbmbs1mn8yp8dmfxmtl9h0000gn/T/pip-ephem-wheel-cache-1g261700/wheels/f9/52/bc/79ac5c4d906d5bb7778c938446bd1258cf56817b6babda13b7\nSuccessfully built click\nInstalling collected packages: pygments, pluggy, packaging, iniconfig, click, pytest\n\nSuccessfully installed click-8.3.3 iniconfig-2.3.0 packaging-26.2 pluggy-1.6.0 pygments-2.20.0 pytest-8.4.2\n"
+      "stdout": "Obtaining file:///private/var/folders/3m/s27dbmbs1mn8yp8dmfxmtl9h0000gn/T/agentlab-reference-fz3_be2j/click-default-map-string-splitting-001\n  Installing build dependencies: started\n  Installing build dependencies: finished with status 'done'\n  Checking if build backend supports build_editable: started\n  Checking if build backend supports build_editable: finished with status 'done'\n  Getting requirements to build editable: started\n  Getting requirements to build editable: finished with status 'done'\n  Preparing editable metadata (pyproject.toml): started\n  Preparing editable metadata (pyproject.toml): finished with status 'done'\nCollecting pytest<9\n  Using cached pytest-8.4.2-py3-none-any.whl.metadata (7.7 kB)\nCollecting iniconfig>=1 (from pytest<9)\n  Using cached iniconfig-2.3.0-py3-none-any.whl.metadata (2.5 kB)\nCollecting packaging>=20 (from pytest<9)\n  Using cached packaging-26.2-py3-none-any.whl.metadata (3.5 kB)\nCollecting pluggy<2,>=1.5 (from pytest<9)\n  Using cached pluggy-1.6.0-py3-none-any.whl.metadata (4.8 kB)\nCollecting pygments>=2.7.2 (from pytest<9)\n  Using cached pygments-2.20.0-py3-none-any.whl.metadata (2.5 kB)\nUsing cached pytest-8.4.2-py3-none-any.whl (365 kB)\nUsing cached pluggy-1.6.0-py3-none-any.whl (20 kB)\nUsing cached iniconfig-2.3.0-py3-none-any.whl (7.5 kB)\nUsing cached packaging-26.2-py3-none-any.whl (100 kB)\nUsing cached pygments-2.20.0-py3-none-any.whl (1.2 MB)\nBuilding wheels for collected packages: click\n  Building editable for click (pyproject.toml): started\n  Building editable for click (pyproject.toml): finished with status 'done'\n  Created wheel for click: filename=click-8.3.3-py3-none-any.whl size=3192 sha256=384f9ad7be01884ea18fd85c3375c56a456d685fdc8642b26ec08709ce864350\n  Stored in directory: /private/var/folders/3m/s27dbmbs1mn8yp8dmfxmtl9h0000gn/T/pip-ephem-wheel-cache-c78sl17u/wheels/33/f5/c3/f6494b7672ead796976f957890f6b70d7c7f66156e5cbab264\nSuccessfully built click\nInstalling collected packages: pygments, pluggy, packaging, iniconfig, click, pytest\n\nSuccessfully installed click-8.3.3 iniconfig-2.3.0 packaging-26.2 pluggy-1.6.0 pygments-2.20.0 pytest-8.4.2\n"
     },
     {
       "command": "python -c 'import click; from click.testing import CliRunner; cli = click.command()(click.option(\"--point\", nargs=2, type=int)(lambda point: click.echo(repr(point)))); result = CliRunner().invoke(cli, [], default_map={\"point\":\"3 4\"}); assert result.exit_code != 0, result.output; assert \"Value must be an iterable\" in result.output, result.output'",
@@ -61,6 +61,13 @@
       "stdout": ""
     },
     {
+      "command": "python -c 'import ast, click; from click.testing import CliRunner; cli = click.command()(click.option(\"--point\", nargs=2)(lambda point: click.echo(repr(point)))); result = CliRunner().invoke(cli, [], default_map={\"point\":(\"a\", \"b\")}); assert result.exit_code == 0, result.output; assert ast.literal_eval(result.output.strip()) == (\"a\", \"b\"), result.output'",
+      "passed": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
       "command": "python -c 'import click; from click.testing import CliRunner; cli = click.command()(click.option(\"--name\")(lambda name: click.echo(name))); result = CliRunner().invoke(cli, [], default_map={\"name\":\"hello world\"}); assert result.exit_code == 0, result.output; assert result.output.strip() == \"hello world\", result.output'",
       "passed": true,
       "returncode": 0,
@@ -72,7 +79,7 @@
       "passed": true,
       "returncode": 0,
       "stderr": "",
-      "stdout": "============================= test session starts ==============================\nplatform darwin -- Python 3.13.5, pytest-8.4.2, pluggy-1.6.0\nrootdir: /private/var/folders/3m/s27dbmbs1mn8yp8dmfxmtl9h0000gn/T/agentlab-reference-c8bp_ri_/click-default-map-string-splitting-001\nconfigfile: pyproject.toml\ncollected 39 items\n\ntests/test_defaults.py .......................................           [100%]\n\n============================== 39 passed in 0.03s ==============================\n"
+      "stdout": "============================= test session starts ==============================\nplatform darwin -- Python 3.13.5, pytest-8.4.2, pluggy-1.6.0\nrootdir: /private/var/folders/3m/s27dbmbs1mn8yp8dmfxmtl9h0000gn/T/agentlab-reference-fz3_be2j/click-default-map-string-splitting-001\nconfigfile: pyproject.toml\ncollected 39 items\n\ntests/test_defaults.py .......................................           [100%]\n\n============================== 39 passed in 0.03s ==============================\n"
     },
     {
       "command": "git diff --check",
@@ -83,13 +90,14 @@
     }
   ],
   "commands_run": [
-    "python3.13 -m venv .agentlab/venv || PYENV_VERSION=3.13.5 python -m venv .agentlab/venv",
+    "python3.13 -m venv .agentlab/venv",
     "python -m pip install -e . \"pytest<9\"",
     "python -c 'import click; from click.testing import CliRunner; cli = click.command()(click.option(\"--point\", nargs=2, type=int)(lambda point: click.echo(repr(point)))); result = CliRunner().invoke(cli, [], default_map={\"point\":\"3 4\"}); assert result.exit_code != 0, result.output; assert \"Value must be an iterable\" in result.output, result.output'",
     "git apply reference.patch",
     "python -c 'import ast, click; from click.testing import CliRunner; cli = click.command()(click.option(\"--point\", nargs=2, type=int)(lambda point: click.echo(repr(point)))); runner = CliRunner(); result = runner.invoke(cli, [], default_map={\"point\":\"3 4\"}); assert result.exit_code == 0, result.output; assert ast.literal_eval(result.output.strip()) == (3, 4), result.output; override = runner.invoke(cli, [\"--point\", \"10\", \"20\"], default_map={\"point\":\"3 4\"}); assert override.exit_code == 0, override.output; assert ast.literal_eval(override.output.strip()) == (10, 20), override.output'",
     "python -c 'import ast, click; from click.testing import CliRunner; cli = click.command()(click.option(\"--word-pair\", type=(str, str))(lambda word_pair: click.echo(repr(word_pair)))); result = CliRunner().invoke(cli, [], default_map={\"word_pair\":\"hello world\"}); assert result.exit_code == 0, result.output; assert ast.literal_eval(result.output.strip()) == (\"hello\", \"world\"), result.output'",
     "python -c 'import ast, click; from click.testing import CliRunner; cli = click.command()(click.option(\"--point\", nargs=2, type=int)(lambda point: click.echo(repr(point)))); result = CliRunner().invoke(cli, [], default_map={\"point\":[5, 6]}); assert result.exit_code == 0, result.output; assert ast.literal_eval(result.output.strip()) == (5, 6), result.output'",
+    "python -c 'import ast, click; from click.testing import CliRunner; cli = click.command()(click.option(\"--point\", nargs=2)(lambda point: click.echo(repr(point)))); result = CliRunner().invoke(cli, [], default_map={\"point\":(\"a\", \"b\")}); assert result.exit_code == 0, result.output; assert ast.literal_eval(result.output.strip()) == (\"a\", \"b\"), result.output'",
     "python -c 'import click; from click.testing import CliRunner; cli = click.command()(click.option(\"--name\")(lambda name: click.echo(name))); result = CliRunner().invoke(cli, [], default_map={\"name\":\"hello world\"}); assert result.exit_code == 0, result.output; assert result.output.strip() == \"hello world\", result.output'",
     "python -m pytest tests/test_defaults.py",
     "git diff --check"
@@ -106,7 +114,7 @@
   ],
   "graders": [
     {
-      "assertion": "python3.13 -m venv .agentlab/venv || PYENV_VERSION=3.13.5 python -m venv .agentlab/venv",
+      "assertion": "python3.13 -m venv .agentlab/venv",
       "passed": true,
       "returncode": 0,
       "type": "code"
@@ -143,6 +151,12 @@
     },
     {
       "assertion": "python -c 'import ast, click; from click.testing import CliRunner; cli = click.command()(click.option(\"--point\", nargs=2, type=int)(lambda point: click.echo(repr(point)))); result = CliRunner().invoke(cli, [], default_map={\"point\":[5, 6]}); assert result.exit_code == 0, result.output; assert ast.literal_eval(result.output.strip()) == (5, 6), result.output'",
+      "passed": true,
+      "returncode": 0,
+      "type": "code"
+    },
+    {
+      "assertion": "python -c 'import ast, click; from click.testing import CliRunner; cli = click.command()(click.option(\"--point\", nargs=2)(lambda point: click.echo(repr(point)))); result = CliRunner().invoke(cli, [], default_map={\"point\":(\"a\", \"b\")}); assert result.exit_code == 0, result.output; assert ast.literal_eval(result.output.strip()) == (\"a\", \"b\"), result.output'",
       "passed": true,
       "returncode": 0,
       "type": "code"

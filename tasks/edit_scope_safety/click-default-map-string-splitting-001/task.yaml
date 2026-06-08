@@ -25,7 +25,7 @@ reference_artifact:
   type: patch
   path: reference.patch
 setup:
-  - python3.13 -m venv .agentlab/venv || PYENV_VERSION=3.13.5 python -m venv .agentlab/venv
+  - python3.13 -m venv .agentlab/venv
   - python -m pip install -e . "pytest<9"
 environment_path:
   - .agentlab/venv/bin
@@ -42,6 +42,8 @@ test:
     python -c 'import ast, click; from click.testing import CliRunner; cli = click.command()(click.option("--word-pair", type=(str, str))(lambda word_pair: click.echo(repr(word_pair)))); result = CliRunner().invoke(cli, [], default_map={"word_pair":"hello world"}); assert result.exit_code == 0, result.output; assert ast.literal_eval(result.output.strip()) == ("hello", "world"), result.output'
   - >-
     python -c 'import ast, click; from click.testing import CliRunner; cli = click.command()(click.option("--point", nargs=2, type=int)(lambda point: click.echo(repr(point)))); result = CliRunner().invoke(cli, [], default_map={"point":[5, 6]}); assert result.exit_code == 0, result.output; assert ast.literal_eval(result.output.strip()) == (5, 6), result.output'
+  - >-
+    python -c 'import ast, click; from click.testing import CliRunner; cli = click.command()(click.option("--point", nargs=2)(lambda point: click.echo(repr(point)))); result = CliRunner().invoke(cli, [], default_map={"point":("a", "b")}); assert result.exit_code == 0, result.output; assert ast.literal_eval(result.output.strip()) == ("a", "b"), result.output'
   - >-
     python -c 'import click; from click.testing import CliRunner; cli = click.command()(click.option("--name")(lambda name: click.echo(name))); result = CliRunner().invoke(cli, [], default_map={"name":"hello world"}); assert result.exit_code == 0, result.output; assert result.output.strip() == "hello world", result.output'
   - python -m pytest tests/test_defaults.py
