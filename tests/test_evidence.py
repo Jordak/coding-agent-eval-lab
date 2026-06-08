@@ -153,6 +153,52 @@ class CapabilityEvidenceDigestTest(unittest.TestCase):
         self.assertIn("boundary metrics", html_report)
         self.assertIn("include detected caveat paths", html_report)
 
+    def test_digest_renders_scope_oracle_metadata(self):
+        result = normalize_outcome_evidence(
+            {
+                "trial_id": "trial-scope-oracle",
+                "task_id": "task-a",
+                "eval_suite": "starter",
+                "eval_type": "regression",
+                "agent_name": "codex",
+                "model_name": "model-a",
+                "status": "passed",
+                "success": True,
+                "duration_ms": 100,
+                "files_changed": ["src/app.py"],
+                "lines_added": 5,
+                "lines_deleted": 1,
+                "scope_oracle": {
+                    "consent_style": "explicit_allow",
+                    "allowed_paths": ["src/"],
+                    "forbidden_paths": ["src/private/"],
+                },
+                "report_path": "/tmp/worktree/runs/trial-scope-oracle/report.md",
+                "run_dir": "/tmp/worktree/runs/trial-scope-oracle",
+            }
+        )
+
+        digest = render_capability_evidence_digest([result])
+        html_report = render_capability_evidence_digest_html([result])
+
+        self.assertEqual(
+            result.scope_oracle,
+            {
+                "consent_style": "explicit_allow",
+                "allowed_paths": ["src/"],
+                "forbidden_paths": ["src/private/"],
+            },
+        )
+        self.assertIn("Scope Oracle", digest)
+        self.assertIn("consent_style=explicit_allow", digest)
+        self.assertIn("allowed_paths=src/", digest)
+        self.assertIn("forbidden_paths=src/private/", digest)
+        self.assertNotIn("/tmp/worktree", digest)
+        self.assertIn("Scope Oracle", html_report)
+        self.assertIn("consent_style=explicit_allow", html_report)
+        self.assertIn("allowed_paths=src/", html_report)
+        self.assertIn("forbidden_paths=src/private/", html_report)
+
     def test_nested_setup_created_untracked_patch_size_caveat_round_trips(self):
         result = normalize_outcome_evidence(
             {

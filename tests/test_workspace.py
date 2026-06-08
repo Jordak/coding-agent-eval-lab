@@ -5,6 +5,7 @@ import unittest
 from unittest import mock
 from pathlib import Path
 
+from agentlab.execution import changed_paths as changed_paths_module
 from agentlab.execution.changed_paths import capture_diff
 from agentlab.execution.changed_paths import capture_diff_details
 from agentlab.tasks import EvalTask
@@ -715,6 +716,84 @@ class WorkspaceTest(unittest.TestCase):
             self.assertIn(
                 "new.txt",
                 git(["ls-files", "--others"], repo).stdout.splitlines(),
+            )
+
+    def test_capture_diff_details_streams_path_heavy_git_pathspecs(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for workspace preparation")
+
+        with tempfile.TemporaryDirectory() as temp:
+            repo = Path(temp) / "repo"
+            init_repo(repo)
+            commit_file(repo, "tracked.txt", "before\n", message="initial")
+            (repo / "tracked.txt").write_text("after\n", encoding="utf-8")
+            git(["add", "tracked.txt"], repo)
+
+            bulk_dir = "bulk-" + "x" * 80
+            (repo / bulk_dir).mkdir()
+            untracked_paths = []
+            for index in range(24):
+                path = f"{bulk_dir}/new-{index:02d}-{'y' * 80}.txt"
+                untracked_paths.append(path)
+                (repo / path).write_text("new\n", encoding="utf-8")
+
+            original_run_git_bytes = changed_paths_module.run_git_bytes
+            original_run_git = changed_paths_module.run_git
+            pathspec_calls = []
+            diff_calls = []
+
+            def recording_run_git_bytes(args, cwd, env=None, input_bytes=None):
+                if "--pathspec-from-file=-" in args:
+                    pathspec_calls.append((list(args), input_bytes or b""))
+                return original_run_git_bytes(
+                    args,
+                    cwd,
+                    env=env,
+                    input_bytes=input_bytes,
+                )
+
+            def recording_run_git(args, cwd, env=None):
+                if args[:2] == ["diff", "--binary"]:
+                    diff_calls.append(list(args))
+                return original_run_git(args, cwd, env=env)
+
+            with mock.patch.object(
+                changed_paths_module,
+                "run_git_bytes",
+                recording_run_git_bytes,
+            ), mock.patch.object(
+                changed_paths_module,
+                "run_git",
+                recording_run_git,
+            ), mock.patch.object(
+                changed_paths_module,
+                "_MAX_GIT_PATHSPEC_ARG_BYTES",
+                300,
+            ):
+                captured = capture_diff_details(repo, Path(temp) / "diff.patch")
+
+            self.assertIn("tracked.txt", captured.files_changed)
+            self.assertIn(untracked_paths[0], captured.files_changed)
+            self.assertEqual(len(pathspec_calls), 1)
+            combined_pathspecs = b"".join(
+                input_bytes for _args, input_bytes in pathspec_calls
+            )
+            self.assertIn(
+                (untracked_paths[0] + "\0").encode("utf-8"),
+                combined_pathspecs,
+            )
+            for args, input_bytes in pathspec_calls:
+                self.assertIn("--pathspec-from-file=-", args)
+                self.assertIn("--pathspec-file-nul", args)
+                self.assertNotIn("tracked.txt", args)
+                self.assertNotIn(untracked_paths[0], args)
+                self.assertTrue(input_bytes.endswith(b"\0"))
+            self.assertGreater(len(diff_calls), 1)
+            self.assertTrue(any("tracked.txt" in args for args in diff_calls))
+            self.assertTrue(any(untracked_paths[0] in args for args in diff_calls))
+            self.assertLess(
+                max(len(args[args.index("--") + 1 :]) for args in diff_calls),
+                len(untracked_paths),
             )
 
 if __name__ == "__main__":

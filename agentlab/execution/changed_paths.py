@@ -14,6 +14,9 @@ from agentlab.execution.commands import isolated_git_env, run_git, run_git_bytes
 from agentlab.tasks.boundaries import path_matches_boundary_glob
 
 
+_MAX_GIT_PATHSPEC_ARG_BYTES = 32 * 1024
+
+
 @dataclass(frozen=True)
 class WorkspaceUntrackedBaseline:
     path: str
@@ -43,6 +46,13 @@ class CapturedDiff:
     files_changed: list[str]
     setup_created_untracked_changed_paths: list[str] = field(default_factory=list)
     setup_created_untracked_coverage_caveat_count: int = 0
+
+
+@dataclass(frozen=True)
+class _GitPathspecResult:
+    returncode: int
+    stdout: str
+    stderr: str
 
 
 def capture_change_baseline(
@@ -334,8 +344,9 @@ def _mark_untracked_for_diff(
     ]
     if not paths:
         return
-    marked = run_git(
-        ["add", "--intent-to-add", "--force", "--"] + paths,
+    marked = _run_git_pathspec(
+        ["add", "--intent-to-add", "--force"],
+        paths,
         cwd=workspace,
         env=env,
     )
@@ -459,15 +470,13 @@ def _cached_diff_for_paths(
 ) -> str:
     if not paths:
         return ""
-    cached_diff = run_git(
-        ["diff", "--binary", "--no-renames", "--cached", diff_ref, "--"]
-        + list(paths),
+    return _batched_git_diff(
+        ["diff", "--binary", "--no-renames", "--cached", diff_ref],
+        paths,
+        "git diff --cached",
         cwd=workspace,
         env=env,
     )
-    if cached_diff.returncode != 0:
-        raise RuntimeError(f"git diff --cached failed: {cached_diff.stderr.strip()}")
-    return cached_diff.stdout
 
 
 def _worktree_diff_for_paths(
@@ -479,14 +488,13 @@ def _worktree_diff_for_paths(
 ) -> str:
     if not paths:
         return ""
-    diff = run_git(
-        ["diff", "--binary", "--no-renames", diff_ref, "--"] + list(paths),
+    return _batched_git_diff(
+        ["diff", "--binary", "--no-renames", diff_ref],
+        paths,
+        "git diff",
         cwd=workspace,
         env=env,
     )
-    if diff.returncode != 0:
-        raise RuntimeError(f"git diff failed: {diff.stderr.strip()}")
-    return diff.stdout
 
 
 def _join_diffs(*diffs: str) -> str:
@@ -494,6 +502,72 @@ def _join_diffs(*diffs: str) -> str:
     if not chunks:
         return ""
     return "\n".join(diff.rstrip("\n") for diff in chunks) + "\n"
+
+
+def _batched_git_diff(
+    args: list[str],
+    paths: Sequence[str],
+    command_name: str,
+    *,
+    cwd: Path,
+    env: Mapping[str, str] | None,
+) -> str:
+    diffs: list[str] = []
+    for batch in _pathspec_arg_batches(args, paths):
+        completed = run_git(args + ["--"] + batch, cwd=cwd, env=env)
+        if completed.returncode != 0:
+            raise RuntimeError(
+                f"{command_name} failed: {completed.stderr.strip()}"
+            )
+        diffs.append(completed.stdout)
+    return _join_diffs(*diffs)
+
+
+def _pathspec_arg_batches(
+    args: Sequence[str],
+    paths: Sequence[str],
+) -> Iterator[list[str]]:
+    base_size = _argv_size(["git", *args, "--"])
+    batch: list[str] = []
+    batch_size = base_size
+    for path in paths:
+        path_size = _argv_size([path])
+        if batch and batch_size + path_size > _MAX_GIT_PATHSPEC_ARG_BYTES:
+            yield batch
+            batch = []
+            batch_size = base_size
+        batch.append(path)
+        batch_size += path_size
+    if batch:
+        yield batch
+
+
+def _argv_size(args: Sequence[str]) -> int:
+    return sum(len(arg.encode("utf-8", errors="surrogateescape")) + 1 for arg in args)
+
+
+def _run_git_pathspec(
+    args: list[str],
+    paths: Sequence[str],
+    *,
+    cwd: Path,
+    env: Mapping[str, str] | None,
+) -> _GitPathspecResult:
+    completed = run_git_bytes(
+        args + ["--pathspec-from-file=-", "--pathspec-file-nul"],
+        cwd=cwd,
+        env=env,
+        input_bytes=_pathspec_input(paths),
+    )
+    return _GitPathspecResult(
+        returncode=completed.returncode,
+        stdout=completed.stdout.decode("utf-8", errors="surrogateescape"),
+        stderr=completed.stderr.decode("utf-8", errors="replace"),
+    )
+
+
+def _pathspec_input(paths: Sequence[str]) -> bytes:
+    return ("\0".join(paths) + "\0").encode("utf-8", errors="surrogateescape")
 
 
 def _snapshot_untracked_files(

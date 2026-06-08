@@ -58,6 +58,7 @@ class OutcomeEvidence:
     n_files_changed: int
     lines_added: int
     lines_deleted: int
+    scope_oracle: Dict[str, Any]
     setup_created_untracked_changed_paths: list[str]
     setup_created_untracked_coverage_caveat_count: int
     commands_run: list[Any]
@@ -210,6 +211,7 @@ class OutcomeEvidence:
     def to_result_dict(self) -> Dict[str, Any]:
         result = dict(self.raw)
         result.pop("review", None)
+        result.pop("scope_oracle", None)
         result.pop("trial_validity", None)
         result.pop("exclusion_reason", None)
         result.update(
@@ -244,6 +246,7 @@ class OutcomeEvidence:
                 "n_files_changed": self.n_files_changed,
                 "lines_added": self.lines_added,
                 "lines_deleted": self.lines_deleted,
+                "scope_oracle": dict(self.scope_oracle),
                 "commands_run": list(self.commands_run),
                 "checks": list(self.checks),
                 "graders": list(self.graders),
@@ -253,6 +256,8 @@ class OutcomeEvidence:
                 "run_dir": self.run_dir,
             }
         )
+        if not self.scope_oracle:
+            result.pop("scope_oracle", None)
         if self.setup_created_untracked_changed_paths:
             result["setup_created_untracked_changed_paths"] = list(
                 self.setup_created_untracked_changed_paths
@@ -318,6 +323,7 @@ def normalize_outcome_evidence(
     setup_created_untracked_coverage_caveat_count = (
         _setup_created_untracked_coverage_caveat_count(data)
     )
+    scope_oracle = _scope_oracle(data)
     outcome = _outcome(
         data,
         status,
@@ -388,6 +394,7 @@ def normalize_outcome_evidence(
         n_files_changed=n_files_changed,
         lines_added=lines_added,
         lines_deleted=lines_deleted,
+        scope_oracle=scope_oracle,
         setup_created_untracked_changed_paths=(
             setup_created_untracked_changed_paths
         ),
@@ -495,6 +502,27 @@ def _setup_created_untracked_changed_paths(data: Mapping[str, Any]) -> list[str]
     if not isinstance(paths, list):
         return []
     return [str(path) for path in paths]
+
+
+def _scope_oracle(data: Mapping[str, Any]) -> Dict[str, Any]:
+    raw_metadata = data.get("scope_oracle")
+    if not isinstance(raw_metadata, Mapping):
+        return {}
+
+    metadata: Dict[str, Any] = {}
+    consent_style = _optional_nonempty_str(raw_metadata.get("consent_style"))
+    if consent_style is not None:
+        metadata["consent_style"] = consent_style
+
+    allowed_paths = raw_metadata.get("allowed_paths")
+    if isinstance(allowed_paths, list):
+        metadata["allowed_paths"] = [str(path) for path in allowed_paths]
+
+    forbidden_paths = raw_metadata.get("forbidden_paths")
+    if isinstance(forbidden_paths, list):
+        metadata["forbidden_paths"] = [str(path) for path in forbidden_paths]
+
+    return metadata
 
 
 def _setup_created_untracked_coverage_caveat_count(

@@ -22,6 +22,7 @@ from agentlab.reports.patch_caveats import (
 from agentlab.reports.operability_evidence import (
     agent_harness_operability_rows,
 )
+from agentlab.reports.scope_oracle import compact_scope_oracle_metadata
 
 
 INTRO_TEXT = (
@@ -68,6 +69,7 @@ WRAP_HEADERS = {
     "Secondary Review Labels",
     "Primary Review Label",
     "Exclusions",
+    "Scope Oracle",
     "Operability Dimension",
     "Evidence",
 }
@@ -498,7 +500,7 @@ def _context_page(
     {_summary_section("Outcome Summary", _outcome_rows(context, render_context), ["Task", "Type", "Total", "Fair", "Excluded", "Passes", "Accepted", "Pass Rate", "pass@k", "pass^k"])}
     {_summary_section("Token Summary", _token_rows(context, render_context), ["Task", "Type", "IO Tokens", "Cached Tokens", "Reason Tokens", "IO Tok / Verified", "IO Tok / Accepted", "Cached Tok / Verified", "Reason Tok / Verified"])}
     {_summary_section("Review and Patch Summary", _review_rows(context, render_context), ["Task", "Type", "Median ms", "Median Files", "Median +Lines", "Median -Lines", "Primary Review Labels", "Secondary Review Labels", "Exclusions"], note=_review_patch_size_caveat_note(context))}
-    {_summary_section("Trial Evidence", _trial_rows(context, render_context), ["Task", "Type", "Trial", "Grader Outcome", "Validity", "Primary Review Label", "Secondary Review Labels", "Exclusion", "Files", "+Lines", "-Lines", "Input Tokens", "Cached Input Tokens", "Output Tokens", "Reasoning Tokens", "Cost USD", "Duration ms", "Report", "Transcript", "Diff", "Result"], note=_trial_evidence_note(context.results))}
+    {_summary_section("Trial Evidence", _trial_rows(context, render_context), ["Task", "Type", "Trial", "Grader Outcome", "Validity", "Primary Review Label", "Secondary Review Labels", "Exclusion", "Files", "+Lines", "-Lines", "Input Tokens", "Cached Input Tokens", "Output Tokens", "Reasoning Tokens", "Cost USD", "Duration ms", "Scope Oracle", "Report", "Transcript", "Diff", "Result"], note=_trial_evidence_note(context.results))}
   </main>
 """
 
@@ -743,6 +745,7 @@ def _trial_rows(
             "Reasoning Tokens": _text(_unknown_if_none(result.reasoning_output_tokens)),
             "Cost USD": _text(_unknown_if_none(result.cost_usd)),
             "Duration ms": _text(result.duration_ms),
+            "Scope Oracle": _text(compact_scope_oracle_metadata(result.scope_oracle)),
             "Report": _path_link("report", result.report_path, render_context),
             "Transcript": _path_link("transcript", result.transcript_path, render_context),
             "Diff": _path_link("diff", result.diff_path, render_context),

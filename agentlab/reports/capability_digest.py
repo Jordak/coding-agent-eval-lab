@@ -18,6 +18,7 @@ from agentlab.reports.patch_caveats import (
     setup_created_untracked_coverage_caveat_note,
     summary_has_patch_size_caveat,
 )
+from agentlab.reports.scope_oracle import compact_scope_oracle_metadata
 
 
 PORTABLE_MARKDOWN_POLICY = (
@@ -169,6 +170,7 @@ def _run_context_lines(context: MarkdownRunContext) -> List[str]:
                 "Reasoning Tokens",
                 "Cost USD",
                 "Duration ms",
+                "Scope Oracle",
             ],
             [_trial_row(result) for result in context.results],
         )
@@ -447,6 +449,7 @@ def _trial_row(result: OutcomeEvidence) -> List[object]:
         _unknown_if_none(result.reasoning_output_tokens),
         _unknown_if_none(result.cost_usd),
         result.duration_ms,
+        compact_scope_oracle_metadata(result.scope_oracle),
     ]
 
 

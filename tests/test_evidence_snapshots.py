@@ -105,6 +105,14 @@ class EvidenceSnapshotTest(unittest.TestCase):
             loaded = load_evidence_snapshot(snapshot_path)
 
         self.assertEqual(
+            loaded[0].scope_oracle,
+            {
+                "consent_style": "explicit_allow",
+                "allowed_paths": ["src/"],
+                "forbidden_paths": ["src/private/"],
+            },
+        )
+        self.assertEqual(
             loaded[0].to_result_dict()["scope_oracle"],
             {
                 "consent_style": "explicit_allow",
