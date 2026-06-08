@@ -1,3 +1,4 @@
+import contextlib
 import json
 import shutil
 import sqlite3
@@ -515,7 +516,7 @@ class CodexCliAdapterTest(unittest.TestCase):
         )
 
     def _write_codex_state_db(self, path, *, thread_id):
-        with sqlite3.connect(path) as connection:
+        with contextlib.closing(sqlite3.connect(path)) as connection:
             connection.execute(
                 """
                 create table threads (
@@ -548,6 +549,7 @@ class CodexCliAdapterTest(unittest.TestCase):
                     "0.130.0-alpha.5",
                 ),
             )
+            connection.commit()
 
 
 if __name__ == "__main__":

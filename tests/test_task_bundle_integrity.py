@@ -44,6 +44,31 @@ class TaskBundleIntegrityTest(unittest.TestCase):
         self.assertEqual(result.failures[0].path, invalid_bundle / "task.yaml")
         self.assertIn("missing required field(s): title", result.failures[0].message)
 
+    def test_validates_python_tasks_suppress_runtime_cache_byproducts(self):
+        with tempfile.TemporaryDirectory() as temp:
+            suite_dir = Path(temp) / "example-suite"
+            bundle_dir = _write_task_bundle(
+                suite_dir,
+                "demo-001",
+                python_cache_environment=False,
+            )
+
+            result = validate_task_bundle_sources([bundle_dir.as_posix()])
+
+        self.assertEqual(result.matched_files, 1)
+        self.assertEqual(result.bundles, [])
+        self.assertEqual(len(result.failures), 1)
+        self.assertEqual(result.failures[0].path, bundle_dir / "task.yaml")
+        self.assertIn(
+            "python tasks must suppress runtime cache byproducts",
+            result.failures[0].message,
+        )
+        self.assertIn("PYTHONDONTWRITEBYTECODE=1", result.failures[0].message)
+        self.assertIn(
+            "PYTEST_ADDOPTS=-p no:cacheprovider",
+            result.failures[0].message,
+        )
+
     def test_detects_generated_task_card_drift_without_suite_indexes(self):
         with tempfile.TemporaryDirectory() as temp:
             suite_dir = Path(temp) / "example-suite"
@@ -136,6 +161,7 @@ def _write_task_bundle(
     task_id: str,
     *,
     reference_artifact: bool = True,
+    python_cache_environment: bool = True,
 ) -> Path:
     bundle_dir = suite_dir / task_id
     bundle_dir.mkdir(parents=True)
@@ -150,6 +176,14 @@ def _write_task_bundle(
         "prompt: Fix it.",
         "reference_solution: Change the focused branch.",
     ]
+    if python_cache_environment:
+        lines.extend(
+            [
+                "environment:",
+                '  PYTHONDONTWRITEBYTECODE: "1"',
+                '  PYTEST_ADDOPTS: "-p no:cacheprovider"',
+            ]
+        )
     if reference_artifact:
         (bundle_dir / "reference.patch").write_text(
             "diff --git a/demo.py b/demo.py\n",

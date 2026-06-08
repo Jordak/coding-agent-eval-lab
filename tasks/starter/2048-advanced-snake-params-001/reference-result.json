@@ -1,5 +1,15 @@
 {
+  "agent_harness_config": {
+    "agent_harness": "reference",
+    "model_name": null,
+    "runtime_accountability": {
+      "account": null,
+      "billing_context": null,
+      "cost_usd": null
+    }
+  },
   "agent_name": "reference",
+  "cached_input_tokens": null,
   "checks": [
     {
       "command": "python3 -c \"import numpy\"",
@@ -85,27 +95,60 @@
       "type": "code"
     }
   ],
+  "input_tokens": null,
+  "lines_added": 2,
+  "lines_deleted": 2,
   "model_name": null,
   "outcome": {
     "diff_path": "reference.diff",
     "files_changed": [
       "simulation.py"
     ],
+    "lines_added": 2,
+    "lines_deleted": 2,
     "n_files_changed": 1,
     "status": "passed"
   },
+  "output_tokens": null,
+  "reasoning_output_tokens": null,
   "reference_artifact": {
     "commit": null,
     "path": "reference.patch",
     "type": "patch"
   },
   "report_path": "reference-report.md",
+  "resource_usage": {
+    "cached_input_tokens": null,
+    "cost_usd": null,
+    "input_tokens": null,
+    "output_tokens": null,
+    "reasoning_output_tokens": null,
+    "total_tokens": null
+  },
   "run_dir": ".",
   "run_id": "2048-advanced-snake-params-001-reference",
+  "run_surface": {
+    "approval_policy": "unknown",
+    "execution_surface": "unknown",
+    "human_intervention_events": [],
+    "memory_scope": "unknown",
+    "model_identity_source": "unknown",
+    "network_policy": "unknown",
+    "runtime_version": "unknown",
+    "sandbox_mode": "unknown",
+    "stop_reason": "success",
+    "timeout_seconds": "unknown",
+    "tool_policy": "unknown",
+    "turn_or_step_budget": "unknown",
+    "workspace_base_ref": "f07a425c106ce205170bc3eb23e722ce1fa0233d",
+    "workspace_history_policy": "base_only"
+  },
   "score_notes": [],
   "status": "passed",
   "success": true,
+  "task_commit": "aec81a17d78a60f1f69d64aade4c108423d1f97e",
   "task_id": "2048-advanced-snake-params-001",
+  "task_repo": "https://github.com/Jordak/2048-game.git",
   "task_title": "Advanced-snake simulations should persist custom weights",
   "transcript_path": null,
   "trial_id": "2048-advanced-snake-params-001-reference",

@@ -51,6 +51,8 @@ class TaskCardPublicationTest(unittest.TestCase):
                 ## Environment
 
                 - PATH prepends: `.agentlab/venv/bin`
+                - PYTEST_ADDOPTS=-p no:cacheprovider
+                - PYTHONDONTWRITEBYTECODE=1
                 - VIRTUAL_ENV={workspace}/.agentlab/venv
 
                 ## Graders
@@ -186,6 +188,8 @@ test:
 environment_path:
   - .agentlab/venv/bin
 environment:
+  PYTHONDONTWRITEBYTECODE: "1"
+  PYTEST_ADDOPTS: "-p no:cacheprovider"
   VIRTUAL_ENV: "{{workspace}}/.agentlab/venv"
 success:
   tests_must_pass: true

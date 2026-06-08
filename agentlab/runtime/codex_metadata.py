@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import json
 import sqlite3
 from dataclasses import dataclass
@@ -77,7 +78,7 @@ def lookup_codex_thread_metadata(
 
     try:
         uri = state_db.resolve().as_uri() + "?mode=ro"
-        with sqlite3.connect(uri, uri=True) as connection:
+        with contextlib.closing(sqlite3.connect(uri, uri=True)) as connection:
             connection.row_factory = sqlite3.Row
             row = connection.execute(
                 """

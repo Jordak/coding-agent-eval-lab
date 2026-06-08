@@ -33,6 +33,8 @@ setup:
 environment_path:
   - .agentlab/venv/bin
 environment:
+  PYTHONDONTWRITEBYTECODE: "1"
+  PYTEST_ADDOPTS: "-p no:cacheprovider"
   VIRTUAL_ENV: "{workspace}/.agentlab/venv"
 baseline:
   - >-

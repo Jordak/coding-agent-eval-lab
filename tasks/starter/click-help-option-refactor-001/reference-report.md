@@ -4,6 +4,8 @@
 - Agent harness: `reference`
 - Evaluation suite: `starter-coding`
 - Evaluation type: `capability`
+- Task repository: `https://github.com/pallets/click.git`
+- Task commit: `9aeb586cbc622c229bbf80ad948e590f596a8d3e`
 - Reference artifact: patch `reference.patch`
 - Status: `passed`
 - Outcome: `passed`
@@ -11,13 +13,32 @@
 - Lines added: `39`
 - Lines deleted: `35`
 
+Setup-created untracked coverage caveat: 1802 setup-created untracked paths existed outside exact boundary-pattern matching. Changed-file counts/lists and boundary metrics include detected changes, but detection remains best-effort for worktree-only content-preserving edits to those paths.
+
+## Run Surface
+
+- Execution surface: `unknown`
+- Runtime version: `unknown`
+- Model identity source: `unknown`
+- Sandbox mode: `unknown`
+- Approval policy: `unknown`
+- Tool policy: `unknown`
+- Memory scope: `unknown`
+- Network policy: `unknown`
+- Timeout seconds: `unknown`
+- Turn or step budget: `unknown`
+- Stop reason: `success`
+- Human intervention events: `none`
+- Workspace history policy: `base_only`
+- Workspace base ref: `bfb2ef2dc56d8bc66a833a5c91a122ccb2eb63ba`
+
 ## Code-Based Graders
 
 1. Assertion `PYENV_VERSION=3.13.5 python3.13 -m venv .agentlab/venv`: passed (0)
 2. Assertion `python -m pip install -e . "pytest<9"`: passed (0)
 
 ```text
-[notice] A new release of pip is available: 25.1.1 -> 26.1.1
+[notice] A new release of pip is available: 25.1.1 -> 26.1.2
 [notice] To update, run: pip install --upgrade pip
 ```
 

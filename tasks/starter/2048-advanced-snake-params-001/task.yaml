@@ -20,6 +20,9 @@ reference_artifact:
   path: reference.patch
 setup:
   - python3 -c "import numpy"
+environment:
+  PYTHONDONTWRITEBYTECODE: "1"
+  PYTEST_ADDOPTS: "-p no:cacheprovider"
 baseline:
   - python3 -c "from game import Game; game = Game(); assert game.board.shape == (4, 4); assert not game.game_over()"
 test:

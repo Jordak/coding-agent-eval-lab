@@ -1,4 +1,13 @@
 {
+  "agent_harness_config": {
+    "agent_harness": "reference",
+    "model_name": null,
+    "runtime_accountability": {
+      "account": null,
+      "billing_context": null,
+      "cost_usd": null
+    }
+  },
   "agent_name": "reference",
   "cached_input_tokens": null,
   "checks": [
@@ -118,10 +127,28 @@
   },
   "run_dir": ".",
   "run_id": "datawrapper-mcp-docker-requirements-001-reference",
+  "run_surface": {
+    "approval_policy": "unknown",
+    "execution_surface": "unknown",
+    "human_intervention_events": [],
+    "memory_scope": "unknown",
+    "model_identity_source": "unknown",
+    "network_policy": "unknown",
+    "runtime_version": "unknown",
+    "sandbox_mode": "unknown",
+    "stop_reason": "success",
+    "timeout_seconds": "unknown",
+    "tool_policy": "unknown",
+    "turn_or_step_budget": "unknown",
+    "workspace_base_ref": "c9a9f3db7f6e2cc943ba81de798bb604d4ca487f",
+    "workspace_history_policy": "base_only"
+  },
   "score_notes": [],
   "status": "passed",
   "success": true,
+  "task_commit": "15b5389e068bf5e673789da82a20f31fe3e81bd7",
   "task_id": "datawrapper-mcp-docker-requirements-001",
+  "task_repo": "https://github.com/palewire/datawrapper-mcp.git",
   "task_title": "Datawrapper MCP Docker requirements should include app dependencies",
   "transcript_path": null,
   "trial_id": "datawrapper-mcp-docker-requirements-001-reference",

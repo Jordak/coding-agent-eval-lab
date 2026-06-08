@@ -12,6 +12,9 @@ reference_solution: >
   known passing reference patch before using in a publishable eval suite.
 setup:
   - python -m pip install -e .
+environment:
+  PYTHONDONTWRITEBYTECODE: "1"
+  PYTEST_ADDOPTS: "-p no:cacheprovider"
 baseline:
   - pytest
 test:

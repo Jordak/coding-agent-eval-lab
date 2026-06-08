@@ -4,10 +4,31 @@
 - Agent harness: `reference`
 - Evaluation suite: `starter-coding`
 - Evaluation type: `capability`
+- Task repository: `https://github.com/Jordak/2048-game.git`
+- Task commit: `aec81a17d78a60f1f69d64aade4c108423d1f97e`
 - Reference artifact: patch `reference.patch`
 - Status: `passed`
 - Outcome: `passed`
 - Files changed: `1`
+- Lines added: `2`
+- Lines deleted: `2`
+
+## Run Surface
+
+- Execution surface: `unknown`
+- Runtime version: `unknown`
+- Model identity source: `unknown`
+- Sandbox mode: `unknown`
+- Approval policy: `unknown`
+- Tool policy: `unknown`
+- Memory scope: `unknown`
+- Network policy: `unknown`
+- Timeout seconds: `unknown`
+- Turn or step budget: `unknown`
+- Stop reason: `success`
+- Human intervention events: `none`
+- Workspace history policy: `base_only`
+- Workspace base ref: `f07a425c106ce205170bc3eb23e722ce1fa0233d`
 
 ## Code-Based Graders
 

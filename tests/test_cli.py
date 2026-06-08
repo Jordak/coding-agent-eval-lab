@@ -1412,6 +1412,9 @@ class CliOutputTest(unittest.TestCase):
                         "commit: abc123",
                         "language: python",
                         "prompt: Fix it.",
+                        "environment:",
+                        '  PYTHONDONTWRITEBYTECODE: "1"',
+                        '  PYTEST_ADDOPTS: "-p no:cacheprovider"',
                         "reference_artifact:",
                         "  type: patch",
                         "  path: reference.patch",
@@ -1447,7 +1450,7 @@ class CliOutputTest(unittest.TestCase):
         self.assertIn("reference verification failed", stderr.getvalue())
 
     def _write_codex_state_db(self, path, *, thread_id):
-        with sqlite3.connect(path) as connection:
+        with contextlib.closing(sqlite3.connect(path)) as connection:
             connection.execute(
                 """
                 create table threads (
@@ -1480,6 +1483,7 @@ class CliOutputTest(unittest.TestCase):
                     "0.130.0-alpha.5",
                 ),
             )
+            connection.commit()
 
     def _write_result(self, run_dir, *, trial_id, agent_name, config):
         (run_dir / "result.json").write_text(
@@ -1529,6 +1533,9 @@ def _write_cli_task_bundle(
         "commit: abc123",
         "language: python",
         "prompt: Fix it.",
+        "environment:",
+        '  PYTHONDONTWRITEBYTECODE: "1"',
+        '  PYTEST_ADDOPTS: "-p no:cacheprovider"',
     ]
     if reference_artifact:
         (bundle_dir / "reference.patch").write_text(

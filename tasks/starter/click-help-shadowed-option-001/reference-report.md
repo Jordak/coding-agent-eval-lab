@@ -4,10 +4,33 @@
 - Agent harness: `reference`
 - Evaluation suite: `starter-coding`
 - Evaluation type: `regression`
+- Task repository: `https://github.com/pallets/click.git`
+- Task commit: `f1f191ecd2c790b161187c78e7c88440e9524e5c`
 - Reference artifact: patch `reference.patch`
 - Status: `passed`
 - Outcome: `passed`
 - Files changed: `1`
+- Lines added: `5`
+- Lines deleted: `1`
+
+Setup-created untracked coverage caveat: 1802 setup-created untracked paths existed outside exact boundary-pattern matching. Changed-file counts/lists and boundary metrics include detected changes, but detection remains best-effort for worktree-only content-preserving edits to those paths.
+
+## Run Surface
+
+- Execution surface: `unknown`
+- Runtime version: `unknown`
+- Model identity source: `unknown`
+- Sandbox mode: `unknown`
+- Approval policy: `unknown`
+- Tool policy: `unknown`
+- Memory scope: `unknown`
+- Network policy: `unknown`
+- Timeout seconds: `unknown`
+- Turn or step budget: `unknown`
+- Stop reason: `success`
+- Human intervention events: `none`
+- Workspace history policy: `base_only`
+- Workspace base ref: `7c4571df4ebadf09af6bd6e5d0b579273625c283`
 
 ## Code-Based Graders
 
@@ -15,7 +38,7 @@
 2. Assertion `python -m pip install -e . "pytest<9"`: passed (0)
 
 ```text
-[notice] A new release of pip is available: 25.1.1 -> 26.1.1
+[notice] A new release of pip is available: 25.1.1 -> 26.1.2
 [notice] To update, run: pip install --upgrade pip
 ```
 

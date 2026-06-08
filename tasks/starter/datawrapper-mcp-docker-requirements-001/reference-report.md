@@ -4,12 +4,31 @@
 - Agent harness: `reference`
 - Evaluation suite: `starter-coding`
 - Evaluation type: `regression`
+- Task repository: `https://github.com/palewire/datawrapper-mcp.git`
+- Task commit: `15b5389e068bf5e673789da82a20f31fe3e81bd7`
 - Reference artifact: patch `reference.patch`
 - Status: `passed`
 - Outcome: `passed`
 - Files changed: `1`
 - Lines added: `5`
 - Lines deleted: `2`
+
+## Run Surface
+
+- Execution surface: `unknown`
+- Runtime version: `unknown`
+- Model identity source: `unknown`
+- Sandbox mode: `unknown`
+- Approval policy: `unknown`
+- Tool policy: `unknown`
+- Memory scope: `unknown`
+- Network policy: `unknown`
+- Timeout seconds: `unknown`
+- Turn or step budget: `unknown`
+- Stop reason: `success`
+- Human intervention events: `none`
+- Workspace history policy: `base_only`
+- Workspace base ref: `c9a9f3db7f6e2cc943ba81de798bb604d4ca487f`
 
 ## Code-Based Graders
 

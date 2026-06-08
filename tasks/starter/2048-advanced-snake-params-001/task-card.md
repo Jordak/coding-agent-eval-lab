@@ -24,7 +24,8 @@ In simulation.py, persist params when args.heuristic is advanced-snake instead o
 
 ## Environment
 
-No task-local environment configured.
+- PYTEST_ADDOPTS=-p no:cacheprovider
+- PYTHONDONTWRITEBYTECODE=1
 
 ## Graders
 
