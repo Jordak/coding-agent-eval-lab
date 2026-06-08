@@ -22,6 +22,9 @@ reference_artifact:
   path: reference.patch
 setup:
   - python3 -c "from pathlib import Path; assert Path('pyproject.toml').is_file(); assert Path('Dockerfile').is_file(); assert Path('deployment/requirements.txt').is_file()"
+environment:
+  PYTHONDONTWRITEBYTECODE: "1"
+  PYTEST_ADDOPTS: "-p no:cacheprovider"
 baseline:
   - python3 -c "from pathlib import Path; req = Path('deployment/requirements.txt').read_text(); pyproject = Path('pyproject.toml').read_text(); dockerfile = Path('Dockerfile').read_text(); assert 'RUN pip install --no-cache-dir -r /app/deployment/requirements.txt' in dockerfile, dockerfile; assert 'prefab-ui==0.8.0' in pyproject and 'fastmcp[apps]==3.1.1' in pyproject and 'datawrapper>=2.0.14' in pyproject, pyproject; assert 'prefab-ui==0.8.0' not in req and 'fastmcp>=3.0.0' in req and 'datawrapper>=2.0.7' in req, req"
 test:

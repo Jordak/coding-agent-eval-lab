@@ -24,7 +24,8 @@ Sync deployment/requirements.txt with pyproject.toml by using fastmcp[apps]==3.1
 
 ## Environment
 
-No task-local environment configured.
+- PYTEST_ADDOPTS=-p no:cacheprovider
+- PYTHONDONTWRITEBYTECODE=1
 
 ## Graders
 

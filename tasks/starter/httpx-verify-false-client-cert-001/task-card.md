@@ -25,6 +25,8 @@ In create_ssl_context, make the verify=False branch assign the unverified SSL co
 ## Environment
 
 - PATH prepends: `.agentlab/venv/bin`
+- PYTEST_ADDOPTS=-p no:cacheprovider
+- PYTHONDONTWRITEBYTECODE=1
 - VIRTUAL_ENV={workspace}/.agentlab/venv
 
 ## Graders

@@ -26,6 +26,8 @@ environment_path:
   - .agentlab/venv/bin
 environment:
   PYTHONPATH: "{workspace}/src"
+  PYTHONDONTWRITEBYTECODE: "1"
+  PYTEST_ADDOPTS: "-p no:cacheprovider"
   VIRTUAL_ENV: "{workspace}/.agentlab/venv"
 baseline:
   - python -c 'import click; assert not hasattr(click, "HelpOption")'

@@ -22,7 +22,8 @@ No verified reference artifact configured yet.
 
 ## Environment
 
-No task-local environment configured.
+- PYTEST_ADDOPTS=-p no:cacheprovider
+- PYTHONDONTWRITEBYTECODE=1
 
 ## Graders
 

@@ -153,6 +153,12 @@ target grader commands. This lets a task create `.agentlab/venv` in setup and
 then expose `python`, `pip`, and `pytest` consistently to both the agent and the
 graders.
 
+Python tasks must suppress ordinary interpreter and pytest cache byproducts so
+changed-file scoring reflects agent edits rather than verification residue. Set
+`PYTHONDONTWRITEBYTECODE: "1"` and
+`PYTEST_ADDOPTS: "-p no:cacheprovider"` in each Python task environment unless
+the task explicitly evaluates Python or pytest cache behavior.
+
 The current lightweight evaluation harness still leaves interpreter/package-manager
 selection inside task setup commands. Candidate curation should record setup
 cost, language runtime requirements, and whether full upstream tests are

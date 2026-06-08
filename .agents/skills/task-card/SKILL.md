@@ -49,8 +49,15 @@ entries and variables in `task.yaml`:
 environment_path:
   - .agentlab/venv/bin
 environment:
+  PYTHONDONTWRITEBYTECODE: "1"
+  PYTEST_ADDOPTS: "-p no:cacheprovider"
   VIRTUAL_ENV: "{workspace}/.agentlab/venv"
 ```
+
+Python task bundles must include `PYTHONDONTWRITEBYTECODE: "1"` and
+`PYTEST_ADDOPTS: "-p no:cacheprovider"` unless the task explicitly evaluates
+Python or pytest cache behavior. This keeps ordinary `__pycache__/` and
+`.pytest_cache/` byproducts out of changed-file scoring.
 
 When a task has a verified reference patch or commit, record it in `task.yaml`:
 

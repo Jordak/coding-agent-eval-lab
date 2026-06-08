@@ -25,6 +25,8 @@ Update `tests/test_compat.py` to import Click, pytest, and sys; test `_is_jupyte
 ## Environment
 
 - PATH prepends: `.agentlab/venv/bin`
+- PYTEST_ADDOPTS=-p no:cacheprovider
+- PYTHONDONTWRITEBYTECODE=1
 - PYTHONPATH={workspace}/src
 - VIRTUAL_ENV={workspace}/.agentlab/venv
 

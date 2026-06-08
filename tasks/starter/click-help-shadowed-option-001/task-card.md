@@ -25,6 +25,8 @@ In UsageError.show, derive the available help option names from the current comm
 ## Environment
 
 - PATH prepends: `.agentlab/venv/bin`
+- PYTEST_ADDOPTS=-p no:cacheprovider
+- PYTHONDONTWRITEBYTECODE=1
 - PYTHONPATH={workspace}/src
 - VIRTUAL_ENV={workspace}/.agentlab/venv
 

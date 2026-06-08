@@ -1,3 +1,4 @@
+import contextlib
 import json
 import sqlite3
 import tempfile
@@ -147,7 +148,7 @@ class CodexRuntimeMetadataTest(unittest.TestCase):
         thread_id: str,
         model: str,
     ) -> None:
-        with sqlite3.connect(path) as connection:
+        with contextlib.closing(sqlite3.connect(path)) as connection:
             connection.execute(
                 """
                 create table threads (
@@ -180,6 +181,7 @@ class CodexRuntimeMetadataTest(unittest.TestCase):
                     "0.130.0-alpha.5",
                 ),
             )
+            connection.commit()
 
 
 if __name__ == "__main__":

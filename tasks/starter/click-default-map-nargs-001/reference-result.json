@@ -1,5 +1,15 @@
 {
+  "agent_harness_config": {
+    "agent_harness": "reference",
+    "model_name": null,
+    "runtime_accountability": {
+      "account": null,
+      "billing_context": null,
+      "cost_usd": null
+    }
+  },
   "agent_name": "reference",
+  "cached_input_tokens": null,
   "checks": [
     {
       "command": "PYENV_VERSION=3.13.5 python3.13 -m venv .agentlab/venv",
@@ -12,8 +22,8 @@
       "command": "python -m pip install -e . \"pytest<9\"",
       "passed": true,
       "returncode": 0,
-      "stderr": "\n[notice] A new release of pip is available: 25.1.1 -> 26.1.1\n[notice] To update, run: pip install --upgrade pip\n",
-      "stdout": "Obtaining file:///private/var/folders/3m/s27dbmbs1mn8yp8dmfxmtl9h0000gn/T/agentlab-reference-10ki4jh2/click-default-map-nargs-001\n  Installing build dependencies: started\n  Installing build dependencies: finished with status 'done'\n  Checking if build backend supports build_editable: started\n  Checking if build backend supports build_editable: finished with status 'done'\n  Getting requirements to build editable: started\n  Getting requirements to build editable: finished with status 'done'\n  Preparing editable metadata (pyproject.toml): started\n  Preparing editable metadata (pyproject.toml): finished with status 'done'\nCollecting pytest<9\n  Using cached pytest-8.4.2-py3-none-any.whl.metadata (7.7 kB)\nCollecting iniconfig>=1 (from pytest<9)\n  Using cached iniconfig-2.3.0-py3-none-any.whl.metadata (2.5 kB)\nCollecting packaging>=20 (from pytest<9)\n  Using cached packaging-26.2-py3-none-any.whl.metadata (3.5 kB)\nCollecting pluggy<2,>=1.5 (from pytest<9)\n  Using cached pluggy-1.6.0-py3-none-any.whl.metadata (4.8 kB)\nCollecting pygments>=2.7.2 (from pytest<9)\n  Using cached pygments-2.20.0-py3-none-any.whl.metadata (2.5 kB)\nUsing cached pytest-8.4.2-py3-none-any.whl (365 kB)\nUsing cached pluggy-1.6.0-py3-none-any.whl (20 kB)\nUsing cached iniconfig-2.3.0-py3-none-any.whl (7.5 kB)\nUsing cached packaging-26.2-py3-none-any.whl (100 kB)\nUsing cached pygments-2.20.0-py3-none-any.whl (1.2 MB)\nBuilding wheels for collected packages: click\n  Building editable for click (pyproject.toml): started\n  Building editable for click (pyproject.toml): finished with status 'done'\n  Created wheel for click: filename=click-8.3.3-py3-none-any.whl size=3184 sha256=00872162e0e8af1788a1a8e11ca40b99fdfa7b2a6e774fc9201c91df62278d01\n  Stored in directory: /private/var/folders/3m/s27dbmbs1mn8yp8dmfxmtl9h0000gn/T/pip-ephem-wheel-cache-fw45elc7/wheels/68/03/8b/87ebca20e01d05e2a53ebfee5b4d42ecebd3c2eea615c41421\nSuccessfully built click\nInstalling collected packages: pygments, pluggy, packaging, iniconfig, click, pytest\n\nSuccessfully installed click-8.3.3 iniconfig-2.3.0 packaging-26.2 pluggy-1.6.0 pygments-2.20.0 pytest-8.4.2\n"
+      "stderr": "\n[notice] A new release of pip is available: 25.1.1 -> 26.1.2\n[notice] To update, run: pip install --upgrade pip\n",
+      "stdout": "Obtaining file:///private/var/folders/3m/s27dbmbs1mn8yp8dmfxmtl9h0000gn/T/agentlab-reference-4ic7u1_p/click-default-map-nargs-001\n  Installing build dependencies: started\n  Installing build dependencies: finished with status 'done'\n  Checking if build backend supports build_editable: started\n  Checking if build backend supports build_editable: finished with status 'done'\n  Getting requirements to build editable: started\n  Getting requirements to build editable: finished with status 'done'\n  Preparing editable metadata (pyproject.toml): started\n  Preparing editable metadata (pyproject.toml): finished with status 'done'\nCollecting pytest<9\n  Using cached pytest-8.4.2-py3-none-any.whl.metadata (7.7 kB)\nCollecting iniconfig>=1 (from pytest<9)\n  Using cached iniconfig-2.3.0-py3-none-any.whl.metadata (2.5 kB)\nCollecting packaging>=20 (from pytest<9)\n  Using cached packaging-26.2-py3-none-any.whl.metadata (3.5 kB)\nCollecting pluggy<2,>=1.5 (from pytest<9)\n  Using cached pluggy-1.6.0-py3-none-any.whl.metadata (4.8 kB)\nCollecting pygments>=2.7.2 (from pytest<9)\n  Using cached pygments-2.20.0-py3-none-any.whl.metadata (2.5 kB)\nUsing cached pytest-8.4.2-py3-none-any.whl (365 kB)\nUsing cached pluggy-1.6.0-py3-none-any.whl (20 kB)\nUsing cached iniconfig-2.3.0-py3-none-any.whl (7.5 kB)\nUsing cached packaging-26.2-py3-none-any.whl (100 kB)\nUsing cached pygments-2.20.0-py3-none-any.whl (1.2 MB)\nBuilding wheels for collected packages: click\n  Building editable for click (pyproject.toml): started\n  Building editable for click (pyproject.toml): finished with status 'done'\n  Created wheel for click: filename=click-8.3.3-py3-none-any.whl size=3184 sha256=9188065879e19764b83a5ed36d330f2c5e9c61c89140791d2837a92d244eb670\n  Stored in directory: /private/var/folders/3m/s27dbmbs1mn8yp8dmfxmtl9h0000gn/T/pip-ephem-wheel-cache-7rmj5m9e/wheels/2b/e9/41/402dc5b1c7ce94bc63b03064fb6ca2f7a984974373562222b4\nSuccessfully built click\nInstalling collected packages: pygments, pluggy, packaging, iniconfig, click, pytest\n\nSuccessfully installed click-8.3.3 iniconfig-2.3.0 packaging-26.2 pluggy-1.6.0 pygments-2.20.0 pytest-8.4.2\n"
     },
     {
       "command": "python -c 'import click; from click.testing import CliRunner; cli = click.command()(click.option(\"--point\", nargs=2, type=int)(lambda point: click.echo(repr(point)))); result = CliRunner().invoke(cli, [], default_map={\"point\":\"3 4\"}); assert result.exit_code != 0, result.output; assert \"Value must be an iterable\" in result.output, result.output'",
@@ -113,27 +123,62 @@
       "type": "code"
     }
   ],
+  "input_tokens": null,
+  "lines_added": 5,
+  "lines_deleted": 0,
   "model_name": null,
   "outcome": {
     "diff_path": "reference.diff",
     "files_changed": [
       "src/click/core.py"
     ],
+    "lines_added": 5,
+    "lines_deleted": 0,
     "n_files_changed": 1,
+    "setup_created_untracked_coverage_caveat_count": 1802,
     "status": "passed"
   },
+  "output_tokens": null,
+  "reasoning_output_tokens": null,
   "reference_artifact": {
     "commit": null,
     "path": "reference.patch",
     "type": "patch"
   },
   "report_path": "reference-report.md",
+  "resource_usage": {
+    "cached_input_tokens": null,
+    "cost_usd": null,
+    "input_tokens": null,
+    "output_tokens": null,
+    "reasoning_output_tokens": null,
+    "total_tokens": null
+  },
   "run_dir": ".",
   "run_id": "click-default-map-nargs-001-reference",
+  "run_surface": {
+    "approval_policy": "unknown",
+    "execution_surface": "unknown",
+    "human_intervention_events": [],
+    "memory_scope": "unknown",
+    "model_identity_source": "unknown",
+    "network_policy": "unknown",
+    "runtime_version": "unknown",
+    "sandbox_mode": "unknown",
+    "stop_reason": "success",
+    "timeout_seconds": "unknown",
+    "tool_policy": "unknown",
+    "turn_or_step_budget": "unknown",
+    "workspace_base_ref": "9de2b9c9cba0c82374206783bb4b3853373e575c",
+    "workspace_history_policy": "base_only"
+  },
   "score_notes": [],
+  "setup_created_untracked_coverage_caveat_count": 1802,
   "status": "passed",
   "success": true,
+  "task_commit": "8bd8b4a074c55c03b6eb5666edc44a9c43df38a2",
   "task_id": "click-default-map-nargs-001",
+  "task_repo": "https://github.com/pallets/click.git",
   "task_title": "Click should split default_map strings for multi-value options",
   "transcript_path": null,
   "trial_id": "click-default-map-nargs-001-reference",

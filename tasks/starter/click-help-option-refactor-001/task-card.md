@@ -25,6 +25,8 @@ Extract a HelpOption subclass in click.decorators, make help_option use it as th
 ## Environment
 
 - PATH prepends: `.agentlab/venv/bin`
+- PYTEST_ADDOPTS=-p no:cacheprovider
+- PYTHONDONTWRITEBYTECODE=1
 - PYTHONPATH={workspace}/src
 - VIRTUAL_ENV={workspace}/.agentlab/venv
 

@@ -13,7 +13,7 @@
 - Lines added: `42`
 - Lines deleted: `0`
 
-Setup-created untracked coverage caveat: 1816 setup-created untracked paths existed outside exact boundary-pattern matching. Changed-file counts/lists and boundary metrics include detected changes, but detection remains best-effort for worktree-only content-preserving edits to those paths.
+Setup-created untracked coverage caveat: 1802 setup-created untracked paths existed outside exact boundary-pattern matching. Changed-file counts/lists and boundary metrics include detected changes, but detection remains best-effort for worktree-only content-preserving edits to those paths.
 
 ## Run Surface
 
@@ -60,7 +60,7 @@ Setup-created untracked coverage caveat: 1816 setup-created untracked paths exis
 ```text
 ============================= test session starts ==============================
 platform darwin -- Python 3.13.5, pytest-8.4.2, pluggy-1.6.0
-rootdir: /private/var/folders/3m/s27dbmbs1mn8yp8dmfxmtl9h0000gn/T/agentlab-reference-fz3_be2j/click-default-map-string-splitting-001
+rootdir: /private/var/folders/3m/s27dbmbs1mn8yp8dmfxmtl9h0000gn/T/agentlab-reference-4ic7u1_p/click-default-map-string-splitting-001
 configfile: pyproject.toml
 collected 39 items
 

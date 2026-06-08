@@ -99,14 +99,50 @@ def validate_task_bundle_sources(
 
     for path in files:
         try:
-            bundles.append(load_task_bundle(path))
+            bundle = load_task_bundle(path)
         except TaskLoadError as exc:
             failures.append(TaskBundleIntegrityFailure(path=Path(path), message=str(exc)))
+            continue
+
+        cache_env_failure = _python_cache_environment_failure(bundle)
+        if cache_env_failure is not None:
+            failures.append(cache_env_failure)
+            continue
+
+        bundles.append(bundle)
 
     return TaskBundleSourceValidationResult(
         matched_files=len(files),
         bundles=bundles,
         failures=failures,
+    )
+
+
+def _python_cache_environment_failure(
+    bundle: TaskBundle,
+) -> TaskBundleIntegrityFailure | None:
+    if bundle.task.language.lower() != "python":
+        return None
+
+    required = {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    }
+    missing_or_wrong = [
+        f"{key}={value}"
+        for key, value in required.items()
+        if bundle.task.environment.get(key) != value
+    ]
+    if not missing_or_wrong:
+        return None
+
+    return TaskBundleIntegrityFailure(
+        path=bundle.task_file,
+        message=(
+            "python tasks must suppress runtime cache byproducts with "
+            "environment entries: "
+            + ", ".join(missing_or_wrong)
+        ),
     )
 
 
