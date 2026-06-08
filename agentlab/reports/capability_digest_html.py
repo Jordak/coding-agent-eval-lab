@@ -69,6 +69,7 @@ WRAP_HEADERS = {
     "Secondary Review Labels",
     "Primary Review Label",
     "Exclusions",
+    "Task Provenance",
     "Scope Oracle",
     "Operability Dimension",
     "Evidence",
@@ -500,7 +501,7 @@ def _context_page(
     {_summary_section("Outcome Summary", _outcome_rows(context, render_context), ["Task", "Type", "Total", "Fair", "Excluded", "Passes", "Accepted", "Pass Rate", "pass@k", "pass^k"])}
     {_summary_section("Token Summary", _token_rows(context, render_context), ["Task", "Type", "IO Tokens", "Cached Tokens", "Reason Tokens", "IO Tok / Verified", "IO Tok / Accepted", "Cached Tok / Verified", "Reason Tok / Verified"])}
     {_summary_section("Review and Patch Summary", _review_rows(context, render_context), ["Task", "Type", "Median ms", "Median Files", "Median +Lines", "Median -Lines", "Primary Review Labels", "Secondary Review Labels", "Exclusions"], note=_review_patch_size_caveat_note(context))}
-    {_summary_section("Trial Evidence", _trial_rows(context, render_context), ["Task", "Type", "Trial", "Grader Outcome", "Validity", "Primary Review Label", "Secondary Review Labels", "Exclusion", "Files", "+Lines", "-Lines", "Input Tokens", "Cached Input Tokens", "Output Tokens", "Reasoning Tokens", "Cost USD", "Duration ms", "Scope Oracle", "Report", "Transcript", "Diff", "Result"], note=_trial_evidence_note(context.results))}
+    {_summary_section("Trial Evidence", _trial_rows(context, render_context), ["Task", "Type", "Trial", "Grader Outcome", "Validity", "Primary Review Label", "Secondary Review Labels", "Exclusion", "Files", "+Lines", "-Lines", "Input Tokens", "Cached Input Tokens", "Output Tokens", "Reasoning Tokens", "Cost USD", "Duration ms", "Scope Oracle", "Task Provenance", "Report", "Transcript", "Diff", "Result"], note=_trial_evidence_note(context.results))}
   </main>
 """
 
@@ -721,6 +722,7 @@ def _trial_rows(
             "Task": _task_link_from_result(result, render_context),
             "Type": _text(result.eval_type),
             "Trial": _text(result.trial_id),
+            "Task Provenance": _trial_provenance(result),
             "Grader Outcome": _text(result.status),
             "Validity": _text(result.trial_validity),
             "Primary Review Label": _text(result.primary_review_label),
@@ -753,6 +755,19 @@ def _trial_rows(
         }
         for result in context.results
     ]
+
+
+def _trial_provenance(result: OutcomeEvidence) -> str:
+    return "<br>".join(
+        [
+            _text(f"repo={_display_unknown(result.task_repo)}"),
+            _text(f"commit={_display_unknown(result.task_commit)}"),
+            _text(
+                "workspace_base_ref="
+                f"{_format_run_surface_value(result.run_surface.get('workspace_base_ref'))}"
+            ),
+        ]
+    )
 
 
 def _patch_size_caveat_note(results: Sequence[OutcomeEvidence]) -> str:
@@ -1070,6 +1085,11 @@ def _unknown_if_none(value: object) -> object:
     if value is None:
         return "unknown"
     return value
+
+
+def _display_unknown(value: object) -> str:
+    text = "" if value is None else str(value)
+    return text or "unknown"
 
 
 def _pill(text: str, kind: str = "") -> str:
