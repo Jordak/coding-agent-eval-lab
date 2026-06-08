@@ -33,6 +33,7 @@ class ReferenceVerification:
     lines_added: int = 0
     lines_deleted: int = 0
     setup_created_untracked_changed_paths: list[str] = field(default_factory=list)
+    setup_created_untracked_coverage_caveat_count: int = 0
     diff_path: Path = Path("reference.diff")
     report_path: Path = Path("reference-report.md")
     result_path: Path = Path("reference-result.json")
@@ -111,6 +112,9 @@ def verify_reference(
         lines_deleted=execution.lines_deleted,
         setup_created_untracked_changed_paths=(
             execution.setup_created_untracked_changed_paths
+        ),
+        setup_created_untracked_coverage_caveat_count=(
+            execution.setup_created_untracked_coverage_caveat_count
         ),
         diff_path=execution.diff_path,
         report_path=output_dir / "reference-report.md",

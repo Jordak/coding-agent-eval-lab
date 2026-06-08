@@ -5,6 +5,9 @@ from typing import TYPE_CHECKING
 
 from agentlab.execution.scoring import CheckResult
 from agentlab.reports.patch_caveats import patch_size_caveat_note
+from agentlab.reports.patch_caveats import (
+    setup_created_untracked_coverage_caveat_note,
+)
 from agentlab.runtime.run_surface import normalize_run_surface
 from agentlab.tasks.boundaries import scope_oracle_metadata
 
@@ -17,6 +20,9 @@ def render_markdown_report(run: "EvaluationRun") -> str:
     status = "passed" if run.score.tests_passed else "failed"
     setup_untracked_caveat_paths = _setup_created_untracked_changed_paths(
         run.agent_run
+    )
+    setup_untracked_coverage_caveat_count = (
+        _setup_created_untracked_coverage_caveat_count(run.agent_run)
     )
     lines = [
         f"# Evaluation Trial Report: {run.task.id}",
@@ -36,6 +42,11 @@ def render_markdown_report(run: "EvaluationRun") -> str:
         f"- Diff: `{run.agent_run.diff_path.name}`",
     ]
     lines.extend(_patch_size_caveat_lines(setup_untracked_caveat_paths))
+    lines.extend(
+        _setup_created_untracked_coverage_caveat_lines(
+            setup_untracked_coverage_caveat_count
+        )
+    )
 
     agent_harness_config = getattr(run.agent_run, "agent_harness_config", {})
     run_surface = normalize_run_surface(
@@ -117,6 +128,9 @@ def render_reference_report(verification: "ReferenceVerification") -> str:
     setup_untracked_caveat_paths = _setup_created_untracked_changed_paths(
         verification
     )
+    setup_untracked_coverage_caveat_count = (
+        _setup_created_untracked_coverage_caveat_count(verification)
+    )
     artifact = verification.task.reference_artifact
     artifact_summary = "not configured"
     if artifact is not None and artifact.type == "patch":
@@ -141,6 +155,11 @@ def render_reference_report(verification: "ReferenceVerification") -> str:
         f"- Lines deleted: {_patch_stat(verification.lines_deleted, setup_untracked_caveat_paths)}",
     ]
     lines.extend(_patch_size_caveat_lines(setup_untracked_caveat_paths))
+    lines.extend(
+        _setup_created_untracked_coverage_caveat_lines(
+            setup_untracked_coverage_caveat_count
+        )
+    )
     lines.extend(
         [
             "",
@@ -244,9 +263,27 @@ def _patch_size_caveat_lines(caveat_paths: list[str]) -> list[str]:
     ]
 
 
+def _setup_created_untracked_coverage_caveat_lines(count: int) -> list[str]:
+    if count <= 0:
+        return []
+    return [
+        "",
+        setup_created_untracked_coverage_caveat_note(count=count),
+    ]
+
+
 def _setup_created_untracked_changed_paths(value: object) -> list[str]:
     paths = getattr(value, "setup_created_untracked_changed_paths", [])
     return [str(path) for path in paths]
+
+
+def _setup_created_untracked_coverage_caveat_count(value: object) -> int:
+    raw_count = getattr(value, "setup_created_untracked_coverage_caveat_count", 0)
+    if isinstance(raw_count, bool):
+        return int(raw_count)
+    if isinstance(raw_count, int):
+        return max(raw_count, 0)
+    return 0
 
 
 def _inline_code_list(values: list[str]) -> str:

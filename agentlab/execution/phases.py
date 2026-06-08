@@ -39,6 +39,7 @@ class TaskExecution:
     lines_added: int = 0
     lines_deleted: int = 0
     setup_created_untracked_changed_paths: list[str] = field(default_factory=list)
+    setup_created_untracked_coverage_caveat_count: int = 0
     diff_path: Path = Path("diff.patch")
     workspace_history_policy: str = "unknown"
     workspace_base_ref: str = "unknown"
@@ -109,6 +110,9 @@ def execute_task_phases(
         lines_deleted=patch_stats.lines_deleted,
         setup_created_untracked_changed_paths=(
             captured_diff.setup_created_untracked_changed_paths
+        ),
+        setup_created_untracked_coverage_caveat_count=(
+            captured_diff.setup_created_untracked_coverage_caveat_count
         ),
         diff_path=resolved_diff_path,
         workspace_history_policy=prepared.workspace_history_policy,

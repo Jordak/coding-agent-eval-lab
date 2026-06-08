@@ -9,7 +9,15 @@ from agentlab.evidence.summary import TrialGroupSummary, summarize_trials
 from agentlab.reports.operability_evidence import (
     render_agent_harness_operability_table,
 )
-from agentlab.reports.patch_caveats import patch_size_caveat_note
+from agentlab.reports.patch_caveats import (
+    has_patch_size_caveats,
+    has_summary_patch_size_caveats,
+    patch_size_caveat_note,
+    patch_stat,
+    setup_created_untracked_coverage_caveat_count,
+    setup_created_untracked_coverage_caveat_note,
+    summary_has_patch_size_caveat,
+)
 
 
 PORTABLE_MARKDOWN_POLICY = (
@@ -165,11 +173,23 @@ def _run_context_lines(context: MarkdownRunContext) -> List[str]:
             [_trial_row(result) for result in context.results],
         )
     )
-    if _has_patch_size_caveats(context.results):
+    if has_patch_size_caveats(context.results):
         lines.extend(
             [
                 "",
                 patch_size_caveat_note(marker="`*`"),
+            ]
+        )
+    setup_coverage_caveat_count = (
+        setup_created_untracked_coverage_caveat_count(context.results)
+    )
+    if setup_coverage_caveat_count:
+        lines.extend(
+            [
+                "",
+                setup_created_untracked_coverage_caveat_note(
+                    count=setup_coverage_caveat_count
+                ),
             ]
         )
     lines.append("")
@@ -289,7 +309,7 @@ def _aggregate_summary_tables(
             [_review_summary_row(summary, results) for summary in summaries],
         )
     )
-    if _has_summary_patch_size_caveats(summaries, results):
+    if has_summary_patch_size_caveats(summaries, results):
         lines.extend(
             [
                 "",
@@ -335,15 +355,15 @@ def _review_summary_row(
     summary: TrialGroupSummary,
     results: List[OutcomeEvidence],
 ) -> List[object]:
-    has_patch_size_caveat = _summary_has_patch_size_caveat(summary, results)
+    has_patch_size_caveat = summary_has_patch_size_caveat(summary, results)
     return _summary_identity(summary) + [
         summary.median_duration_ms,
         summary.median_files_changed,
-        _patch_stat(
+        patch_stat(
             _format_optional_number(summary.median_lines_added),
             has_patch_size_caveat,
         ),
-        _patch_stat(
+        patch_stat(
             _format_optional_number(summary.median_lines_deleted),
             has_patch_size_caveat,
         ),
@@ -419,8 +439,8 @@ def _trial_row(result: OutcomeEvidence) -> List[object]:
         _format_labels(result.secondary_review_labels),
         result.exclusion_reason_display,
         result.files_changed_count,
-        _patch_stat(result.lines_added, has_patch_size_caveat),
-        _patch_stat(result.lines_deleted, has_patch_size_caveat),
+        patch_stat(result.lines_added, has_patch_size_caveat),
+        patch_stat(result.lines_deleted, has_patch_size_caveat),
         _unknown_if_none(result.input_tokens),
         _unknown_if_none(result.cached_input_tokens),
         _unknown_if_none(result.output_tokens),
@@ -428,42 +448,6 @@ def _trial_row(result: OutcomeEvidence) -> List[object]:
         _unknown_if_none(result.cost_usd),
         result.duration_ms,
     ]
-
-
-def _has_patch_size_caveats(results: list[OutcomeEvidence]) -> bool:
-    return any(result.setup_created_untracked_changed_paths for result in results)
-
-
-def _has_summary_patch_size_caveats(
-    summaries: List[TrialGroupSummary],
-    results: List[OutcomeEvidence],
-) -> bool:
-    return any(
-        _summary_has_patch_size_caveat(summary, results)
-        for summary in summaries
-    )
-
-
-def _summary_has_patch_size_caveat(
-    summary: TrialGroupSummary,
-    results: List[OutcomeEvidence],
-) -> bool:
-    return any(
-        result.is_valid_trial
-        and result.setup_created_untracked_changed_paths
-        and result.eval_suite == summary.eval_suite
-        and result.eval_type == summary.eval_type
-        and result.task_id == summary.task_id
-        and result.agent_name == summary.agent_name
-        and result.model_name_display == summary.model_name_display
-        and result.reasoning_effort_display == summary.reasoning_effort_display
-        for result in results
-    )
-
-
-def _patch_stat(value: object, has_caveat: bool) -> str:
-    suffix = "*" if has_caveat else ""
-    return f"{value}{suffix}"
 
 
 def _markdown_table(headers: List[str], rows: List[List[object]]) -> List[str]:

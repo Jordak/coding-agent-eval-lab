@@ -58,6 +58,9 @@ def run_task(task: EvalTask, agent: AgentAdapter, runs_dir: Path) -> EvaluationR
         setup_created_untracked_changed_paths=(
             execution.setup_created_untracked_changed_paths
         ),
+        setup_created_untracked_coverage_caveat_count=(
+            execution.setup_created_untracked_coverage_caveat_count
+        ),
         success=execution.score.tests_passed,
     )
 

@@ -6,6 +6,7 @@ from unittest import mock
 from pathlib import Path
 
 from agentlab.execution.changed_paths import capture_diff
+from agentlab.execution.changed_paths import capture_diff_details
 from agentlab.tasks import EvalTask
 from agentlab.execution.workspace import prepare_workspace
 from tests.git_fixtures import assert_base_only_repository
@@ -681,6 +682,35 @@ class WorkspaceTest(unittest.TestCase):
             self.assertEqual(
                 git(["ls-files", "--stage", "new.txt"], repo).stdout,
                 "",
+            )
+            self.assertIn(
+                "new.txt",
+                git(["ls-files", "--others"], repo).stdout.splitlines(),
+            )
+
+    def test_capture_diff_details_preserves_public_caller_index(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for workspace preparation")
+
+        with tempfile.TemporaryDirectory() as temp:
+            repo = Path(temp) / "repo"
+            init_repo(repo)
+            commit_file(repo, "app.txt", "before\n", message="initial")
+
+            (repo / "new.txt").write_text("new\n", encoding="utf-8")
+            before_stage = git(
+                ["ls-files", "--stage", "new.txt"],
+                repo,
+            ).stdout
+
+            diff_path = Path(temp) / "diff.patch"
+            captured = capture_diff_details(repo, diff_path)
+
+            self.assertEqual(before_stage, "")
+            self.assertEqual(captured.files_changed, ["new.txt"])
+            self.assertEqual(
+                git(["ls-files", "--stage", "new.txt"], repo).stdout,
+                before_stage,
             )
             self.assertIn(
                 "new.txt",

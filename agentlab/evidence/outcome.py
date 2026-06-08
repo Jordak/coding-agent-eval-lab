@@ -59,6 +59,7 @@ class OutcomeEvidence:
     lines_added: int
     lines_deleted: int
     setup_created_untracked_changed_paths: list[str]
+    setup_created_untracked_coverage_caveat_count: int
     commands_run: list[Any]
     checks: list[Any]
     graders: list[Any]
@@ -259,6 +260,13 @@ class OutcomeEvidence:
             result["outcome"]["setup_created_untracked_changed_paths"] = list(
                 self.setup_created_untracked_changed_paths
             )
+        if self.setup_created_untracked_coverage_caveat_count:
+            result["setup_created_untracked_coverage_caveat_count"] = (
+                self.setup_created_untracked_coverage_caveat_count
+            )
+            result["outcome"]["setup_created_untracked_coverage_caveat_count"] = (
+                self.setup_created_untracked_coverage_caveat_count
+            )
         return result
 
 
@@ -307,6 +315,9 @@ def normalize_outcome_evidence(
     setup_created_untracked_changed_paths = (
         _setup_created_untracked_changed_paths(data)
     )
+    setup_created_untracked_coverage_caveat_count = (
+        _setup_created_untracked_coverage_caveat_count(data)
+    )
     outcome = _outcome(
         data,
         status,
@@ -315,6 +326,7 @@ def normalize_outcome_evidence(
         lines_added,
         lines_deleted,
         setup_created_untracked_changed_paths,
+        setup_created_untracked_coverage_caveat_count,
     )
 
     trial_id = str(
@@ -379,6 +391,9 @@ def normalize_outcome_evidence(
         setup_created_untracked_changed_paths=(
             setup_created_untracked_changed_paths
         ),
+        setup_created_untracked_coverage_caveat_count=(
+            setup_created_untracked_coverage_caveat_count
+        ),
         commands_run=_list(data.get("commands_run")),
         checks=_list(data.get("checks")),
         graders=_list(data.get("graders")),
@@ -432,6 +447,7 @@ def _outcome(
     lines_added: int,
     lines_deleted: int,
     setup_created_untracked_changed_paths: list[str],
+    setup_created_untracked_coverage_caveat_count: int,
 ) -> Dict[str, Any]:
     raw_outcome = data.get("outcome")
     outcome = dict(raw_outcome) if isinstance(raw_outcome, Mapping) else {}
@@ -443,6 +459,10 @@ def _outcome(
     if setup_created_untracked_changed_paths:
         outcome["setup_created_untracked_changed_paths"] = (
             setup_created_untracked_changed_paths
+        )
+    if setup_created_untracked_coverage_caveat_count:
+        outcome["setup_created_untracked_coverage_caveat_count"] = (
+            setup_created_untracked_coverage_caveat_count
         )
     if data.get("diff_path") is not None:
         outcome["diff_path"] = str(data.get("diff_path"))
@@ -475,6 +495,23 @@ def _setup_created_untracked_changed_paths(data: Mapping[str, Any]) -> list[str]
     if not isinstance(paths, list):
         return []
     return [str(path) for path in paths]
+
+
+def _setup_created_untracked_coverage_caveat_count(
+    data: Mapping[str, Any],
+) -> int:
+    raw_count = _optional_int(
+        data.get("setup_created_untracked_coverage_caveat_count")
+    )
+    if raw_count is None:
+        outcome = data.get("outcome")
+        if isinstance(outcome, Mapping):
+            raw_count = _optional_int(
+                outcome.get("setup_created_untracked_coverage_caveat_count")
+            )
+    if raw_count is None:
+        return 0
+    return max(raw_count, 0)
 
 
 def _resource_usage(data: Mapping[str, Any]) -> ResourceUsage:

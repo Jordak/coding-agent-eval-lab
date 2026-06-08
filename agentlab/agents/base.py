@@ -19,6 +19,7 @@ class AgentRun:
     lines_added: int = 0
     lines_deleted: int = 0
     setup_created_untracked_changed_paths: List[str] = field(default_factory=list)
+    setup_created_untracked_coverage_caveat_count: int = 0
     input_tokens: Optional[int] = None
     cached_input_tokens: Optional[int] = None
     output_tokens: Optional[int] = None

@@ -26,6 +26,9 @@ def to_result_dict(run: Any) -> Dict[str, Any]:
     setup_created_untracked_changed_paths = (
         _setup_created_untracked_changed_paths(run.agent_run)
     )
+    setup_created_untracked_coverage_caveat_count = (
+        _setup_created_untracked_coverage_caveat_count(run.agent_run)
+    )
     agent_harness_config = normalize_agent_harness_config(
         getattr(run.agent_run, "agent_harness_config", {}),
         agent_name=run.agent_run.agent_name,
@@ -51,6 +54,10 @@ def to_result_dict(run: Any) -> Dict[str, Any]:
     if setup_created_untracked_changed_paths:
         outcome["setup_created_untracked_changed_paths"] = (
             setup_created_untracked_changed_paths
+        )
+    if setup_created_untracked_coverage_caveat_count:
+        outcome["setup_created_untracked_coverage_caveat_count"] = (
+            setup_created_untracked_coverage_caveat_count
         )
     result = {
         "trial_kind": "agent_trial",
@@ -104,6 +111,10 @@ def to_result_dict(run: Any) -> Dict[str, Any]:
         result["setup_created_untracked_changed_paths"] = (
             setup_created_untracked_changed_paths
         )
+    if setup_created_untracked_coverage_caveat_count:
+        result["setup_created_untracked_coverage_caveat_count"] = (
+            setup_created_untracked_coverage_caveat_count
+        )
     metadata = _scope_oracle_to_dict(run.task)
     if metadata:
         result["scope_oracle"] = metadata
@@ -115,6 +126,9 @@ def reference_verification_to_result_dict(verification: Any) -> Dict[str, Any]:
     output_dir = verification.result_path.parent
     setup_created_untracked_changed_paths = (
         _setup_created_untracked_changed_paths(verification)
+    )
+    setup_created_untracked_coverage_caveat_count = (
+        _setup_created_untracked_coverage_caveat_count(verification)
     )
     agent_harness_config = normalize_agent_harness_config(
         {},
@@ -141,6 +155,10 @@ def reference_verification_to_result_dict(verification: Any) -> Dict[str, Any]:
     if setup_created_untracked_changed_paths:
         outcome["setup_created_untracked_changed_paths"] = (
             setup_created_untracked_changed_paths
+        )
+    if setup_created_untracked_coverage_caveat_count:
+        outcome["setup_created_untracked_coverage_caveat_count"] = (
+            setup_created_untracked_coverage_caveat_count
         )
     result = {
         "trial_kind": "reference_verification",
@@ -187,6 +205,10 @@ def reference_verification_to_result_dict(verification: Any) -> Dict[str, Any]:
     if setup_created_untracked_changed_paths:
         result["setup_created_untracked_changed_paths"] = (
             setup_created_untracked_changed_paths
+        )
+    if setup_created_untracked_coverage_caveat_count:
+        result["setup_created_untracked_coverage_caveat_count"] = (
+            setup_created_untracked_coverage_caveat_count
         )
     metadata = _scope_oracle_to_dict(verification.task)
     if metadata:
@@ -242,6 +264,15 @@ def _scope_oracle_to_dict(task: Any) -> Dict[str, object]:
 def _setup_created_untracked_changed_paths(value: Any) -> list[str]:
     paths = getattr(value, "setup_created_untracked_changed_paths", [])
     return [str(path) for path in paths]
+
+
+def _setup_created_untracked_coverage_caveat_count(value: Any) -> int:
+    raw_count = getattr(value, "setup_created_untracked_coverage_caveat_count", 0)
+    if isinstance(raw_count, bool):
+        return int(raw_count)
+    if isinstance(raw_count, int):
+        return max(raw_count, 0)
+    return 0
 
 
 def _check_to_grader_dict(check: CheckResult) -> Dict[str, Any]:

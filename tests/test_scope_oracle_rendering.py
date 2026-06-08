@@ -52,6 +52,25 @@ class ScopeOracleRenderingTest(unittest.TestCase):
             ["setup.log"],
         )
 
+    def test_setup_created_untracked_coverage_caveat_renders(self):
+        run = _run_with_scope_oracle()
+        run.agent_run.setup_created_untracked_coverage_caveat_count = 1
+
+        report = render_markdown_report(run)
+        result = to_result_dict(run)
+
+        self.assertIn("Setup-created untracked coverage caveat", report)
+        self.assertIn("1 setup-created untracked path existed", report)
+        self.assertIn("detection remains best-effort", report)
+        self.assertEqual(
+            result["setup_created_untracked_coverage_caveat_count"],
+            1,
+        )
+        self.assertEqual(
+            result["outcome"]["setup_created_untracked_coverage_caveat_count"],
+            1,
+        )
+
     def test_reference_report_renders_setup_created_untracked_caveat(self):
         verification = SimpleNamespace(
             task=_run_with_scope_oracle().task,
@@ -60,6 +79,7 @@ class ScopeOracleRenderingTest(unittest.TestCase):
             lines_added=2,
             lines_deleted=1,
             setup_created_untracked_changed_paths=["setup.log"],
+            setup_created_untracked_coverage_caveat_count=0,
             all_checks=[],
             notes=[],
             report_path=Path("reference-report.md"),
@@ -119,6 +139,7 @@ def _run_with_scope_oracle():
             commands_run=[],
             duration_ms=123,
             setup_created_untracked_changed_paths=[],
+            setup_created_untracked_coverage_caveat_count=0,
             input_tokens=None,
             cached_input_tokens=None,
             output_tokens=None,

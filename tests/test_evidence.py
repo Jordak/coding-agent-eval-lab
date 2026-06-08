@@ -190,6 +190,77 @@ class CapabilityEvidenceDigestTest(unittest.TestCase):
             ["setup.log"],
         )
 
+    def test_setup_created_untracked_coverage_caveat_round_trips(self):
+        result = normalize_outcome_evidence(
+            {
+                "trial_id": "trial-caveat",
+                "task_id": "task-a",
+                "eval_suite": "starter",
+                "eval_type": "regression",
+                "agent_name": "codex",
+                "model_name": "model-a",
+                "status": "passed",
+                "success": True,
+                "duration_ms": 100,
+                "files_changed": ["app.py"],
+                "lines_added": 5,
+                "lines_deleted": 1,
+                "outcome": {
+                    "setup_created_untracked_coverage_caveat_count": 2,
+                },
+                "run_dir": "runs/trial-caveat",
+            }
+        )
+
+        result_dict = result.to_result_dict()
+
+        self.assertEqual(
+            result.setup_created_untracked_coverage_caveat_count,
+            2,
+        )
+        self.assertEqual(
+            result_dict["setup_created_untracked_coverage_caveat_count"],
+            2,
+        )
+        self.assertEqual(
+            result_dict["outcome"][
+                "setup_created_untracked_coverage_caveat_count"
+            ],
+            2,
+        )
+
+    def test_digest_marks_setup_created_untracked_coverage_caveat(self):
+        result = normalize_outcome_evidence(
+            {
+                "trial_id": "trial-caveat",
+                "task_id": "task-a",
+                "eval_suite": "starter",
+                "eval_type": "regression",
+                "agent_name": "codex",
+                "model_name": "model-a",
+                "status": "passed",
+                "success": True,
+                "duration_ms": 100,
+                "files_changed": ["app.py"],
+                "lines_added": 5,
+                "lines_deleted": 1,
+                "setup_created_untracked_coverage_caveat_count": 2,
+                "report_path": "runs/trial-caveat/report.md",
+                "diff_path": "runs/trial-caveat/diff.patch",
+                "run_dir": "runs/trial-caveat",
+            }
+        )
+
+        digest = render_capability_evidence_digest([result])
+        html_report = render_capability_evidence_digest_html([result])
+
+        self.assertIn("Setup-created untracked coverage caveat", digest)
+        self.assertIn("2 setup-created untracked paths existed", digest)
+        self.assertIn("detection remains best-effort", digest)
+        self.assertIn("Setup-created untracked coverage caveat", html_report)
+        self.assertIn("2 setup-created untracked paths existed", html_report)
+        self.assertIn("detection remains best-effort", html_report)
+
     def test_markdown_digest_omits_disposable_artifact_paths(self):
         digest = render_capability_evidence_digest(
             [

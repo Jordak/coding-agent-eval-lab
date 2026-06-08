@@ -274,21 +274,14 @@ class ReferenceVerificationTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             temp_path = Path(temp)
             repo = temp_path / "repo"
-            repo.mkdir()
-            self._git(["init"], repo)
-            self._git(["config", "user.email", "agentlab@example.com"], repo)
-            self._git(["config", "user.name", "Agent Lab"], repo)
-            (repo / "app.txt").write_text("before\n", encoding="utf-8")
-            self._git(["add", "app.txt"], repo)
-            self._git(["commit", "-m", "initial"], repo)
-            commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
-
-            allowed_dir = repo / "allowed"
-            allowed_dir.mkdir()
-            (allowed_dir / "result.txt").write_text("ok\n", encoding="utf-8")
-            self._git(["add", "allowed/result.txt"], repo)
-            self._git(["commit", "-m", "reference"], repo)
-            reference_commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+            init_repo(repo)
+            commit = commit_file(repo, "app.txt", "before\n", message="initial")
+            reference_commit = commit_file(
+                repo,
+                "allowed/result.txt",
+                "ok\n",
+                message="reference",
+            )
 
             task = EvalTask(
                 id="commit-reference-task",

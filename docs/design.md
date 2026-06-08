@@ -108,22 +108,27 @@ explicit empty `success.allowed_paths: []` is invalid task metadata. Missing or
 empty `success.forbidden_paths` means there is no forbidden-path constraint.
 When a changed path matches both lists, `success.forbidden_paths` wins.
 
-Boundary checks run against the final agent changed paths recorded by the
+Boundary checks run against the final agent-action changed paths recorded by the
 harness, including staged and unstaged tracked changes, untracked files,
-additions, modifications, deletes, and renames. The harness records those paths
-after the agent action and before target grader commands run, so byproducts
-created by deterministic graders are not treated as agent edits. Boundary
-violations fail the deterministic grader outcome with clear notes, but they do
-not automatically create human review labels.
+additions, modifications, deletes, and renames. The harness records those
+agent-action paths after the agent action and before target grader commands run,
+so byproducts created by deterministic graders are not treated as agent edits.
+Boundary violations fail the deterministic grader outcome with clear notes, but
+they do not automatically create human review labels.
 
 Setup-created untracked files can include large dependency or cache trees. To
 avoid hashing every setup byproduct, the harness enforces boundary checks exactly
 for setup-created untracked paths that match a configured boundary pattern and
-uses lightweight caveat detection for other setup-created untracked paths.
-Detected setup-created untracked changes are included in `files_changed` and
-boundary enforcement, but their patch text and line counts may be omitted. The
-lightweight detection remains best-effort and may miss staged-only or
-content-preserving changes outside configured boundary patterns.
+checks final staged content for setup-created untracked paths that appear in the
+index. For other setup-created untracked paths, the harness uses lightweight
+caveat detection. Detected setup-created untracked changes are included in
+`files_changed` and boundary enforcement, but their patch text and line counts
+may include setup-created baseline content, be omitted for suppressed paths, or
+otherwise not represent a pure agent-delta for those paths. When setup-created
+untracked paths fall back to lightweight detection, result and report surfaces
+include a coverage caveat count. The lightweight detection remains best-effort
+for worktree-only, content-preserving changes outside configured boundary
+patterns.
 
 ## Interaction Model
 

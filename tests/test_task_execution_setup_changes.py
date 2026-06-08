@@ -50,6 +50,10 @@ class TaskExecutionSetupChangeTest(TaskExecutionGitMixin, unittest.TestCase):
             )
 
             self.assertEqual(execution.files_changed, ["allowed/result.txt"])
+            self.assertEqual(
+                execution.setup_created_untracked_coverage_caveat_count,
+                1,
+            )
             self.assertTrue(execution.score.tests_passed)
             self.assertEqual(execution.score.notes, [])
 
@@ -620,6 +624,80 @@ class TaskExecutionSetupChangeTest(TaskExecutionGitMixin, unittest.TestCase):
                 ],
             )
 
+    def test_staged_only_setup_created_byproduct_counts_against_allowed_paths(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for task execution")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo, commit = self._repo_with_file(temp_path, "before\n")
+            task = EvalTask(
+                id="staged-setup-byproduct-task",
+                title="Staged setup byproduct task",
+                repo=str(repo),
+                commit=commit,
+                language="text",
+                prompt="Create the allowed result file.",
+                setup=[
+                    f"{sys.executable} -c "
+                    "\"from pathlib import Path; "
+                    "path = Path('.agentlab/venv/cache.py'); "
+                    "path.parent.mkdir(parents=True); "
+                    "path.write_text('setup byproduct\\\\n')\""
+                ],
+                success=SuccessCriteria(
+                    allowed_paths=["allowed/"],
+                    max_files_changed=1,
+                ),
+            )
+
+            def action(workspace, _task_env):
+                output_dir = workspace / "allowed"
+                output_dir.mkdir()
+                (output_dir / "result.txt").write_text("ok\n", encoding="utf-8")
+                object_id = self._git(
+                    ["hash-object", "-w", "--stdin"],
+                    workspace,
+                    input_text="setup byproduct\nagent staged\n",
+                ).stdout.strip()
+                self._git(
+                    [
+                        "update-index",
+                        "--add",
+                        "--cacheinfo",
+                        "100644",
+                        object_id,
+                        ".agentlab/venv/cache.py",
+                    ],
+                    workspace,
+                )
+                return TaskActionResult()
+
+            execution = execute_task_phases(
+                task,
+                temp_path / "workspace",
+                action,
+                temp_path / "diff.patch",
+            )
+
+            self.assertCountEqual(
+                execution.files_changed,
+                ["allowed/result.txt", ".agentlab/venv/cache.py"],
+            )
+            self.assertEqual(
+                execution.setup_created_untracked_changed_paths,
+                [".agentlab/venv/cache.py"],
+            )
+            self.assertFalse(execution.score.tests_passed)
+            self.assertEqual(
+                execution.score.notes,
+                [
+                    "changed 2 files; limit is 1",
+                    "scope boundary violation: `.agentlab/venv/cache.py` "
+                    "is outside allowed_paths",
+                ],
+            )
+
     def test_deleted_setup_created_byproduct_counts_against_allowed_paths(self):
         if shutil.which("git") is None:
             self.skipTest("git is required for task execution")
@@ -729,6 +807,53 @@ class TaskExecutionSetupChangeTest(TaskExecutionGitMixin, unittest.TestCase):
 
             self.assertEqual(execution.files_changed, ["allowed/result.txt"])
             self.assertTrue((execution.workspace / ".pytest_cache/cache").exists())
+            self.assertTrue(execution.score.tests_passed)
+            self.assertEqual(execution.score.notes, [])
+
+    def test_target_modified_tracked_files_are_not_counted_as_agent_changes(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for task execution")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo, commit = self._repo_with_file(temp_path, "before\n")
+            task = EvalTask(
+                id="target-tracked-byproduct-task",
+                title="Target tracked byproduct task",
+                repo=str(repo),
+                commit=commit,
+                language="text",
+                prompt="Create the allowed result file.",
+                test=[
+                    f"{sys.executable} -c "
+                    "\"from pathlib import Path; "
+                    "Path('app.txt').write_text('grader\\\\n')\""
+                ],
+                success=SuccessCriteria(
+                    allowed_paths=["allowed/"],
+                    forbidden_paths=["app.txt"],
+                    max_files_changed=1,
+                ),
+            )
+
+            def action(workspace, _task_env):
+                output_dir = workspace / "allowed"
+                output_dir.mkdir()
+                (output_dir / "result.txt").write_text("ok\n", encoding="utf-8")
+                return TaskActionResult()
+
+            execution = execute_task_phases(
+                task,
+                temp_path / "workspace",
+                action,
+                temp_path / "diff.patch",
+            )
+
+            self.assertEqual(execution.files_changed, ["allowed/result.txt"])
+            self.assertEqual(
+                (execution.workspace / "app.txt").read_text(encoding="utf-8"),
+                "grader\n",
+            )
             self.assertTrue(execution.score.tests_passed)
             self.assertEqual(execution.score.notes, [])
 

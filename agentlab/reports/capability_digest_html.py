@@ -10,7 +10,15 @@ from typing import Iterable, Mapping, Sequence
 
 from agentlab.evidence.outcome import OutcomeEvidence
 from agentlab.evidence.summary import TrialGroupSummary, summarize_trials
-from agentlab.reports.patch_caveats import patch_size_caveat_note
+from agentlab.reports.patch_caveats import (
+    has_patch_size_caveats,
+    has_summary_patch_size_caveats,
+    patch_size_caveat_note,
+    patch_stat,
+    setup_created_untracked_coverage_caveat_count,
+    setup_created_untracked_coverage_caveat_note,
+    summary_has_patch_size_caveat,
+)
 from agentlab.reports.operability_evidence import (
     agent_harness_operability_rows,
 )
@@ -490,7 +498,7 @@ def _context_page(
     {_summary_section("Outcome Summary", _outcome_rows(context, render_context), ["Task", "Type", "Total", "Fair", "Excluded", "Passes", "Accepted", "Pass Rate", "pass@k", "pass^k"])}
     {_summary_section("Token Summary", _token_rows(context, render_context), ["Task", "Type", "IO Tokens", "Cached Tokens", "Reason Tokens", "IO Tok / Verified", "IO Tok / Accepted", "Cached Tok / Verified", "Reason Tok / Verified"])}
     {_summary_section("Review and Patch Summary", _review_rows(context, render_context), ["Task", "Type", "Median ms", "Median Files", "Median +Lines", "Median -Lines", "Primary Review Labels", "Secondary Review Labels", "Exclusions"], note=_review_patch_size_caveat_note(context))}
-    {_summary_section("Trial Evidence", _trial_rows(context, render_context), ["Task", "Type", "Trial", "Grader Outcome", "Validity", "Primary Review Label", "Secondary Review Labels", "Exclusion", "Files", "+Lines", "-Lines", "Input Tokens", "Cached Input Tokens", "Output Tokens", "Reasoning Tokens", "Cost USD", "Duration ms", "Report", "Transcript", "Diff", "Result"], note=_patch_size_caveat_note(context.results))}
+    {_summary_section("Trial Evidence", _trial_rows(context, render_context), ["Task", "Type", "Trial", "Grader Outcome", "Validity", "Primary Review Label", "Secondary Review Labels", "Exclusion", "Files", "+Lines", "-Lines", "Input Tokens", "Cached Input Tokens", "Output Tokens", "Reasoning Tokens", "Cost USD", "Duration ms", "Report", "Transcript", "Diff", "Result"], note=_trial_evidence_note(context.results))}
   </main>
 """
 
@@ -670,15 +678,15 @@ def _review_rows(
             "Median ms": _text(summary.median_duration_ms),
             "Median Files": _text(_format_optional_number(summary.median_files_changed)),
             "Median +Lines": _text(
-                _patch_stat(
+                patch_stat(
                     _format_optional_number(summary.median_lines_added),
-                    _summary_has_patch_size_caveat(summary, context.results),
+                    summary_has_patch_size_caveat(summary, context.results),
                 )
             ),
             "Median -Lines": _text(
-                _patch_stat(
+                patch_stat(
                     _format_optional_number(summary.median_lines_deleted),
-                    _summary_has_patch_size_caveat(summary, context.results),
+                    summary_has_patch_size_caveat(summary, context.results),
                 )
             ),
             "Primary Review Labels": _text(_format_counts(summary.review_labels)),
@@ -718,13 +726,13 @@ def _trial_rows(
             "Exclusion": _text(result.exclusion_reason_display),
             "Files": _text(result.files_changed_count),
             "+Lines": _text(
-                _patch_stat(
+                patch_stat(
                     result.lines_added,
                     bool(result.setup_created_untracked_changed_paths),
                 )
             ),
             "-Lines": _text(
-                _patch_stat(
+                patch_stat(
                     result.lines_deleted,
                     bool(result.setup_created_untracked_changed_paths),
                 )
@@ -745,40 +753,36 @@ def _trial_rows(
 
 
 def _patch_size_caveat_note(results: Sequence[OutcomeEvidence]) -> str:
-    if not any(result.setup_created_untracked_changed_paths for result in results):
+    if not has_patch_size_caveats(results):
         return ""
     return patch_size_caveat_note(marker="*")
+
+
+def _trial_evidence_note(results: Sequence[OutcomeEvidence]) -> str:
+    notes = [
+        note
+        for note in (
+            _patch_size_caveat_note(results),
+            _setup_created_untracked_coverage_caveat_note(results),
+        )
+        if note
+    ]
+    return "\n".join(notes)
+
+
+def _setup_created_untracked_coverage_caveat_note(
+    results: Sequence[OutcomeEvidence],
+) -> str:
+    count = setup_created_untracked_coverage_caveat_count(results)
+    if not count:
+        return ""
+    return setup_created_untracked_coverage_caveat_note(count=count)
 
 
 def _review_patch_size_caveat_note(context: RunContext) -> str:
-    if not any(
-        _summary_has_patch_size_caveat(summary, context.results)
-        for summary in context.summaries
-    ):
+    if not has_summary_patch_size_caveats(context.summaries, context.results):
         return ""
     return patch_size_caveat_note(marker="*")
-
-
-def _summary_has_patch_size_caveat(
-    summary: TrialGroupSummary,
-    results: Sequence[OutcomeEvidence],
-) -> bool:
-    return any(
-        result.is_valid_trial
-        and result.setup_created_untracked_changed_paths
-        and result.eval_suite == summary.eval_suite
-        and result.eval_type == summary.eval_type
-        and result.task_id == summary.task_id
-        and result.agent_name == summary.agent_name
-        and result.model_name_display == summary.model_name_display
-        and result.reasoning_effort_display == summary.reasoning_effort_display
-        for result in results
-    )
-
-
-def _patch_stat(value: object, has_caveat: bool) -> str:
-    suffix = "*" if has_caveat else ""
-    return f"{value}{suffix}"
 
 
 def _run_contexts(results: Sequence[OutcomeEvidence]) -> list[RunContext]:
