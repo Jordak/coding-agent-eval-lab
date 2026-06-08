@@ -81,6 +81,46 @@ class EvidenceSnapshotTest(unittest.TestCase):
         self.assertIn("transcript: `1/1`", operability)
         self.assertIn("diff_patch: `1/1`", operability)
 
+    def test_snapshot_preserves_scope_oracle_metadata(self):
+        result = normalize_outcome_evidence(
+            {
+                "trial_id": "trial-scope-oracle",
+                "task_id": "task-a",
+                "eval_suite": "starter",
+                "eval_type": "capability",
+                "agent_name": "codex",
+                "status": "passed",
+                "success": True,
+                "scope_oracle": {
+                    "consent_style": "explicit_allow",
+                    "allowed_paths": ["src/"],
+                    "forbidden_paths": ["src/private/"],
+                },
+            }
+        )
+
+        with tempfile.TemporaryDirectory() as temp:
+            snapshot_path = Path(temp) / "evidence.json"
+            write_evidence_snapshot(snapshot_path, [result])
+            loaded = load_evidence_snapshot(snapshot_path)
+
+        self.assertEqual(
+            loaded[0].scope_oracle,
+            {
+                "consent_style": "explicit_allow",
+                "allowed_paths": ["src/"],
+                "forbidden_paths": ["src/private/"],
+            },
+        )
+        self.assertEqual(
+            loaded[0].to_result_dict()["scope_oracle"],
+            {
+                "consent_style": "explicit_allow",
+                "allowed_paths": ["src/"],
+                "forbidden_paths": ["src/private/"],
+            },
+        )
+
     def test_snapshot_scrubs_local_paths_from_nested_result_strings(self):
         result = normalize_outcome_evidence(
             {

@@ -107,6 +107,120 @@ class TaskLoadingTest(unittest.TestCase):
         )
         self.assertEqual(task.test, ['python -c "print(\'still one command\')"'])
 
+    def test_loads_boundary_metadata_and_consent_style(self):
+        task = EvalTask.from_mapping(
+            load_task_mapping(
+                textwrap.dedent(
+                    """
+                    id: demo-001
+                    title: Demo task
+                    repo: https://github.com/example/demo
+                    commit: abc123
+                    language: python
+                    prompt: Fix it.
+                    consent_style: explicit_allow
+                    success:
+                      allowed_paths:
+                        - src/
+                        - tests/**/*.py
+                      forbidden_paths:
+                        - src/private/
+                    """
+                )
+            )
+        )
+
+        self.assertEqual(task.consent_style, "explicit_allow")
+        self.assertEqual(task.success.allowed_paths, ["src/", "tests/**/*.py"])
+        self.assertEqual(task.success.forbidden_paths, ["src/private/"])
+
+    def test_missing_allowed_paths_has_no_allow_list(self):
+        task = EvalTask.from_mapping(
+            load_task_mapping(
+                textwrap.dedent(
+                    """
+                    id: demo-001
+                    title: Demo task
+                    repo: https://github.com/example/demo
+                    commit: abc123
+                    language: python
+                    prompt: Fix it.
+                    success:
+                      forbidden_paths: []
+                    """
+                )
+            )
+        )
+
+        self.assertIsNone(task.success.allowed_paths)
+        self.assertEqual(task.success.forbidden_paths, [])
+
+    def test_rejects_empty_allowed_paths(self):
+        with self.assertRaisesRegex(TaskLoadError, "success.allowed_paths"):
+            EvalTask.from_mapping(
+                load_task_mapping(
+                    textwrap.dedent(
+                        """
+                        id: demo-001
+                        title: Demo task
+                        repo: https://github.com/example/demo
+                        commit: abc123
+                        language: python
+                        prompt: Fix it.
+                        success:
+                          allowed_paths: []
+                        """
+                    )
+                )
+            )
+
+    def test_rejects_unknown_consent_style(self):
+        with self.assertRaisesRegex(TaskLoadError, "consent_style"):
+            EvalTask.from_mapping(
+                {
+                    "id": "demo-001",
+                    "title": "Demo task",
+                    "repo": "https://github.com/example/demo",
+                    "commit": "abc123",
+                    "language": "python",
+                    "prompt": "Fix it.",
+                    "consent_style": "maybe",
+                }
+            )
+
+    def test_rejects_invalid_boundary_globs(self):
+        invalid_patterns = [
+            "!src/**",
+            "./!src/**",
+            "././!src/**",
+            "./src/",
+            "./*.py",
+            " src/",
+            "src/ ",
+            "src\\app.py",
+            "../secret",
+            "/absolute/path",
+            "src//app.py",
+            "src/./private/",
+            "[!a]*.py",
+            "src/[ab].py",
+        ]
+        for pattern in invalid_patterns:
+            for field_name in ("allowed_paths", "forbidden_paths"):
+                with self.subTest(pattern=pattern, field_name=field_name):
+                    with self.assertRaises(TaskLoadError):
+                        EvalTask.from_mapping(
+                            {
+                                "id": "demo-001",
+                                "title": "Demo task",
+                                "repo": "https://github.com/example/demo",
+                                "commit": "abc123",
+                                "language": "python",
+                                "prompt": "Fix it.",
+                                "success": {field_name: [pattern]},
+                            }
+                        )
+
     def test_requires_core_fields(self):
         with self.assertRaises(TaskLoadError):
             EvalTask.from_mapping({"id": "missing-fields"})

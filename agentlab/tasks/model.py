@@ -9,6 +9,7 @@ from typing import Any, Dict, Iterable, List, Mapping, Optional
 import yaml  # type: ignore
 
 from agentlab.evidence.taxonomy import FAILURE_LABELS
+from agentlab.tasks.boundaries import CONSENT_STYLES, validate_boundary_glob
 
 EVAL_TYPES = ["capability", "regression"]
 TASK_BUNDLE_FILENAMES = ("task.yaml", "task.yml")
@@ -22,6 +23,8 @@ class TaskLoadError(ValueError):
 class SuccessCriteria:
     tests_must_pass: bool = True
     max_files_changed: Optional[int] = None
+    allowed_paths: Optional[List[str]] = None
+    forbidden_paths: List[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -49,6 +52,7 @@ class EvalTask:
     environment_path: List[str] = field(default_factory=list)
     environment: Dict[str, str] = field(default_factory=dict)
     success: SuccessCriteria = field(default_factory=SuccessCriteria)
+    consent_style: Optional[str] = None
     tags: List[str] = field(default_factory=list)
     failure_modes: List[str] = field(default_factory=list)
     source_path: Optional[Path] = None
@@ -71,6 +75,14 @@ class EvalTask:
                 success_mapping.get("max_files_changed"),
                 "success.max_files_changed",
             ),
+            allowed_paths=_optional_nonempty_boundary_globs(
+                success_mapping.get("allowed_paths"),
+                "success.allowed_paths",
+            ),
+            forbidden_paths=_boundary_globs(
+                success_mapping.get("forbidden_paths", []),
+                "success.forbidden_paths",
+            ),
         )
 
         failure_modes = _string_list(mapping.get("failure_modes", []), "failure_modes")
@@ -87,6 +99,12 @@ class EvalTask:
         if eval_type not in EVAL_TYPES:
             raise TaskLoadError(
                 "eval_type must be one of: " + ", ".join(EVAL_TYPES)
+            )
+
+        consent_style = _optional_string(mapping.get("consent_style"), "consent_style")
+        if consent_style is not None and consent_style not in CONSENT_STYLES:
+            raise TaskLoadError(
+                "consent_style must be one of: " + ", ".join(CONSENT_STYLES)
             )
 
         return cls(
@@ -118,6 +136,7 @@ class EvalTask:
                 "environment",
             ),
             success=success,
+            consent_style=consent_style,
             tags=_string_list(mapping.get("tags", []), "tags"),
             failure_modes=failure_modes,
             source_path=source_path,
@@ -253,6 +272,28 @@ def _environment_path(value: Any, field_name: str) -> List[str]:
     entries = _string_list(value, field_name)
     for entry in entries:
         _validate_relative_path(entry, field_name)
+    return entries
+
+
+def _optional_nonempty_boundary_globs(
+    value: Any,
+    field_name: str,
+) -> Optional[List[str]]:
+    if value is None:
+        return None
+    entries = _boundary_globs(value, field_name)
+    if not entries:
+        raise TaskLoadError(f"{field_name} must not be empty when configured")
+    return entries
+
+
+def _boundary_globs(value: Any, field_name: str) -> List[str]:
+    entries = _string_list(value, field_name)
+    for entry in entries:
+        try:
+            validate_boundary_glob(entry, field_name)
+        except ValueError as exc:
+            raise TaskLoadError(str(exc)) from exc
     return entries
 
 

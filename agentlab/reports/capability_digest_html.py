@@ -10,9 +10,19 @@ from typing import Iterable, Mapping, Sequence
 
 from agentlab.evidence.outcome import OutcomeEvidence
 from agentlab.evidence.summary import TrialGroupSummary, summarize_trials
+from agentlab.reports.patch_caveats import (
+    has_patch_size_caveats,
+    has_summary_patch_size_caveats,
+    patch_size_caveat_note,
+    patch_stat,
+    setup_created_untracked_coverage_caveat_count,
+    setup_created_untracked_coverage_caveat_note,
+    summary_has_patch_size_caveat,
+)
 from agentlab.reports.operability_evidence import (
     agent_harness_operability_rows,
 )
+from agentlab.reports.scope_oracle import compact_scope_oracle_metadata
 
 
 INTRO_TEXT = (
@@ -59,6 +69,7 @@ WRAP_HEADERS = {
     "Secondary Review Labels",
     "Primary Review Label",
     "Exclusions",
+    "Scope Oracle",
     "Operability Dimension",
     "Evidence",
 }
@@ -283,6 +294,11 @@ def _document(
     }}
     .section h2 {{ font-size: 20px; }}
     .section h3 {{ font-size: 15px; color: var(--muted); }}
+    .section-note {{
+      margin: -2px 0 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }}
     .two-col {{
       display: grid;
       grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr);
@@ -483,8 +499,8 @@ def _context_page(
     {_reviewer_focus(context, render_context)}
     {_summary_section("Outcome Summary", _outcome_rows(context, render_context), ["Task", "Type", "Total", "Fair", "Excluded", "Passes", "Accepted", "Pass Rate", "pass@k", "pass^k"])}
     {_summary_section("Token Summary", _token_rows(context, render_context), ["Task", "Type", "IO Tokens", "Cached Tokens", "Reason Tokens", "IO Tok / Verified", "IO Tok / Accepted", "Cached Tok / Verified", "Reason Tok / Verified"])}
-    {_summary_section("Review and Patch Summary", _review_rows(context, render_context), ["Task", "Type", "Median ms", "Median Files", "Median +Lines", "Median -Lines", "Primary Review Labels", "Secondary Review Labels", "Exclusions"])}
-    {_summary_section("Trial Evidence", _trial_rows(context, render_context), ["Task", "Type", "Trial", "Grader Outcome", "Validity", "Primary Review Label", "Secondary Review Labels", "Exclusion", "Files", "+Lines", "-Lines", "Input Tokens", "Cached Input Tokens", "Output Tokens", "Reasoning Tokens", "Cost USD", "Duration ms", "Report", "Transcript", "Diff", "Result"])}
+    {_summary_section("Review and Patch Summary", _review_rows(context, render_context), ["Task", "Type", "Median ms", "Median Files", "Median +Lines", "Median -Lines", "Primary Review Labels", "Secondary Review Labels", "Exclusions"], note=_review_patch_size_caveat_note(context))}
+    {_summary_section("Trial Evidence", _trial_rows(context, render_context), ["Task", "Type", "Trial", "Grader Outcome", "Validity", "Primary Review Label", "Secondary Review Labels", "Exclusion", "Files", "+Lines", "-Lines", "Input Tokens", "Cached Input Tokens", "Output Tokens", "Reasoning Tokens", "Cost USD", "Duration ms", "Scope Oracle", "Report", "Transcript", "Diff", "Result"], note=_trial_evidence_note(context.results))}
   </main>
 """
 
@@ -566,10 +582,14 @@ def _summary_section(
     heading: str,
     rows: Sequence[Mapping[str, str]],
     headers: Sequence[str],
+    *,
+    note: str = "",
 ) -> str:
+    note_html = f'<p class="section-note">{_text(note)}</p>' if note else ""
     return f"""
     <section class="section">
       <h2>{_text(heading)}</h2>
+      {note_html}
       {_table(headers, rows)}
     </section>
 """
@@ -659,8 +679,18 @@ def _review_rows(
             "Type": _text(summary.eval_type),
             "Median ms": _text(summary.median_duration_ms),
             "Median Files": _text(_format_optional_number(summary.median_files_changed)),
-            "Median +Lines": _text(_format_optional_number(summary.median_lines_added)),
-            "Median -Lines": _text(_format_optional_number(summary.median_lines_deleted)),
+            "Median +Lines": _text(
+                patch_stat(
+                    _format_optional_number(summary.median_lines_added),
+                    summary_has_patch_size_caveat(summary, context.results),
+                )
+            ),
+            "Median -Lines": _text(
+                patch_stat(
+                    _format_optional_number(summary.median_lines_deleted),
+                    summary_has_patch_size_caveat(summary, context.results),
+                )
+            ),
             "Primary Review Labels": _text(_format_counts(summary.review_labels)),
             "Secondary Review Labels": _text(_format_counts(summary.secondary_review_labels)),
             "Exclusions": _text(_format_counts(summary.exclusion_reasons)),
@@ -697,14 +727,25 @@ def _trial_rows(
             "Secondary Review Labels": _text(_format_labels(result.secondary_review_labels)),
             "Exclusion": _text(result.exclusion_reason_display),
             "Files": _text(result.files_changed_count),
-            "+Lines": _text(result.lines_added),
-            "-Lines": _text(result.lines_deleted),
+            "+Lines": _text(
+                patch_stat(
+                    result.lines_added,
+                    bool(result.setup_created_untracked_changed_paths),
+                )
+            ),
+            "-Lines": _text(
+                patch_stat(
+                    result.lines_deleted,
+                    bool(result.setup_created_untracked_changed_paths),
+                )
+            ),
             "Input Tokens": _text(_unknown_if_none(result.input_tokens)),
             "Cached Input Tokens": _text(_unknown_if_none(result.cached_input_tokens)),
             "Output Tokens": _text(_unknown_if_none(result.output_tokens)),
             "Reasoning Tokens": _text(_unknown_if_none(result.reasoning_output_tokens)),
             "Cost USD": _text(_unknown_if_none(result.cost_usd)),
             "Duration ms": _text(result.duration_ms),
+            "Scope Oracle": _text(compact_scope_oracle_metadata(result.scope_oracle)),
             "Report": _path_link("report", result.report_path, render_context),
             "Transcript": _path_link("transcript", result.transcript_path, render_context),
             "Diff": _path_link("diff", result.diff_path, render_context),
@@ -712,6 +753,39 @@ def _trial_rows(
         }
         for result in context.results
     ]
+
+
+def _patch_size_caveat_note(results: Sequence[OutcomeEvidence]) -> str:
+    if not has_patch_size_caveats(results):
+        return ""
+    return patch_size_caveat_note(marker="*")
+
+
+def _trial_evidence_note(results: Sequence[OutcomeEvidence]) -> str:
+    notes = [
+        note
+        for note in (
+            _patch_size_caveat_note(results),
+            _setup_created_untracked_coverage_caveat_note(results),
+        )
+        if note
+    ]
+    return "\n".join(notes)
+
+
+def _setup_created_untracked_coverage_caveat_note(
+    results: Sequence[OutcomeEvidence],
+) -> str:
+    count = setup_created_untracked_coverage_caveat_count(results)
+    if not count:
+        return ""
+    return setup_created_untracked_coverage_caveat_note(count=count)
+
+
+def _review_patch_size_caveat_note(context: RunContext) -> str:
+    if not has_summary_patch_size_caveats(context.summaries, context.results):
+        return ""
+    return patch_size_caveat_note(marker="*")
 
 
 def _run_contexts(results: Sequence[OutcomeEvidence]) -> list[RunContext]:

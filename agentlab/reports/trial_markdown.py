@@ -4,7 +4,12 @@ import json
 from typing import TYPE_CHECKING
 
 from agentlab.execution.scoring import CheckResult
+from agentlab.reports.patch_caveats import patch_size_caveat_note
+from agentlab.reports.patch_caveats import (
+    setup_created_untracked_coverage_caveat_note,
+)
 from agentlab.runtime.run_surface import normalize_run_surface
+from agentlab.tasks.boundaries import scope_oracle_metadata
 
 if TYPE_CHECKING:
     from agentlab.tasks.reference import ReferenceVerification
@@ -13,6 +18,12 @@ if TYPE_CHECKING:
 
 def render_markdown_report(run: "EvaluationRun") -> str:
     status = "passed" if run.score.tests_passed else "failed"
+    setup_untracked_caveat_paths = _setup_created_untracked_changed_paths(
+        run.agent_run
+    )
+    setup_untracked_coverage_caveat_count = (
+        _setup_created_untracked_coverage_caveat_count(run.agent_run)
+    )
     lines = [
         f"# Evaluation Trial Report: {run.task.id}",
         "",
@@ -25,11 +36,17 @@ def render_markdown_report(run: "EvaluationRun") -> str:
         f"- Status: `{status}`",
         f"- Outcome: `{status}`",
         f"- Files changed: `{len(run.agent_run.files_changed)}`",
-        f"- Lines added: `{run.agent_run.lines_added}`",
-        f"- Lines deleted: `{run.agent_run.lines_deleted}`",
+        f"- Lines added: {_patch_stat(run.agent_run.lines_added, setup_untracked_caveat_paths)}",
+        f"- Lines deleted: {_patch_stat(run.agent_run.lines_deleted, setup_untracked_caveat_paths)}",
         f"- Transcript/trace: `{run.agent_run.transcript_path.name}`",
         f"- Diff: `{run.agent_run.diff_path.name}`",
     ]
+    lines.extend(_patch_size_caveat_lines(setup_untracked_caveat_paths))
+    lines.extend(
+        _setup_created_untracked_coverage_caveat_lines(
+            setup_untracked_coverage_caveat_count
+        )
+    )
 
     agent_harness_config = getattr(run.agent_run, "agent_harness_config", {})
     run_surface = normalize_run_surface(
@@ -49,6 +66,11 @@ def render_markdown_report(run: "EvaluationRun") -> str:
     if config_lines:
         lines.extend(["", "## Agent Harness Configuration", ""])
         lines.extend(config_lines)
+
+    scope_oracle_lines = _render_scope_oracle_metadata(run.task)
+    if scope_oracle_lines:
+        lines.extend(["", "## Scope Oracle Metadata", ""])
+        lines.extend(scope_oracle_lines)
 
     lines.extend(["", "## Code-Based Graders", ""])
 
@@ -103,6 +125,12 @@ def render_markdown_report(run: "EvaluationRun") -> str:
 
 def render_reference_report(verification: "ReferenceVerification") -> str:
     status = "passed" if verification.success else "failed"
+    setup_untracked_caveat_paths = _setup_created_untracked_changed_paths(
+        verification
+    )
+    setup_untracked_coverage_caveat_count = (
+        _setup_created_untracked_coverage_caveat_count(verification)
+    )
     artifact = verification.task.reference_artifact
     artifact_summary = "not configured"
     if artifact is not None and artifact.type == "patch":
@@ -123,24 +151,38 @@ def render_reference_report(verification: "ReferenceVerification") -> str:
         f"- Status: `{status}`",
         f"- Outcome: `{status}`",
         f"- Files changed: `{len(verification.files_changed)}`",
-        f"- Lines added: `{verification.lines_added}`",
-        f"- Lines deleted: `{verification.lines_deleted}`",
-        "",
-        "## Run Surface",
-        "",
-        *_render_run_surface(
-            normalize_run_surface(
-                _workspace_run_surface(verification),
-                agent_name="reference",
-                status=status,
-                success=verification.success,
-                error=None,
-            )
-        ),
-        "",
-        "## Code-Based Graders",
-        "",
+        f"- Lines added: {_patch_stat(verification.lines_added, setup_untracked_caveat_paths)}",
+        f"- Lines deleted: {_patch_stat(verification.lines_deleted, setup_untracked_caveat_paths)}",
     ]
+    lines.extend(_patch_size_caveat_lines(setup_untracked_caveat_paths))
+    lines.extend(
+        _setup_created_untracked_coverage_caveat_lines(
+            setup_untracked_coverage_caveat_count
+        )
+    )
+    lines.extend(
+        [
+            "",
+            "## Run Surface",
+            "",
+            *_render_run_surface(
+                normalize_run_surface(
+                    _workspace_run_surface(verification),
+                    agent_name="reference",
+                    status=status,
+                    success=verification.success,
+                    error=None,
+                )
+            ),
+        ]
+    )
+
+    scope_oracle_lines = _render_scope_oracle_metadata(verification.task)
+    if scope_oracle_lines:
+        lines.extend(["", "## Scope Oracle Metadata", ""])
+        lines.extend(scope_oracle_lines)
+
+    lines.extend(["", "## Code-Based Graders", ""])
 
     checks = verification.all_checks
     if not checks:
@@ -174,6 +216,78 @@ def _render_check(index: int, check: CheckResult) -> str:
     if output:
         lines.extend(["", "```text", output, "```", ""])
     return "\n".join(lines)
+
+
+def _render_scope_oracle_metadata(task: object) -> list[str]:
+    success = getattr(task, "success", None)
+    consent_style = getattr(task, "consent_style", None)
+    allowed_paths = getattr(success, "allowed_paths", None)
+    forbidden_paths = getattr(success, "forbidden_paths", [])
+    metadata = scope_oracle_metadata(
+        consent_style=consent_style,
+        allowed_paths=allowed_paths,
+        forbidden_paths=forbidden_paths,
+    )
+    if not metadata:
+        return []
+    lines: list[str] = []
+    if consent_style is not None:
+        lines.append(f"- Consent style: `{consent_style}`")
+    if allowed_paths is not None:
+        lines.append(
+            "- Allowed paths: "
+            + ", ".join(f"`{path}`" for path in allowed_paths)
+        )
+    if forbidden_paths:
+        lines.append(
+            "- Forbidden paths: "
+            + ", ".join(f"`{path}`" for path in forbidden_paths)
+        )
+    return lines
+
+
+def _patch_stat(value: int, caveat_paths: list[str]) -> str:
+    suffix = "*" if caveat_paths else ""
+    return f"`{value}`{suffix}"
+
+
+def _patch_size_caveat_lines(caveat_paths: list[str]) -> list[str]:
+    if not caveat_paths:
+        return []
+    return [
+        "",
+        patch_size_caveat_note(
+            marker="`*`",
+            path_phrase=_inline_code_list(caveat_paths),
+        ),
+    ]
+
+
+def _setup_created_untracked_coverage_caveat_lines(count: int) -> list[str]:
+    if count <= 0:
+        return []
+    return [
+        "",
+        setup_created_untracked_coverage_caveat_note(count=count),
+    ]
+
+
+def _setup_created_untracked_changed_paths(value: object) -> list[str]:
+    paths = getattr(value, "setup_created_untracked_changed_paths", [])
+    return [str(path) for path in paths]
+
+
+def _setup_created_untracked_coverage_caveat_count(value: object) -> int:
+    raw_count = getattr(value, "setup_created_untracked_coverage_caveat_count", 0)
+    if isinstance(raw_count, bool):
+        return int(raw_count)
+    if isinstance(raw_count, int):
+        return max(raw_count, 0)
+    return 0
+
+
+def _inline_code_list(values: list[str]) -> str:
+    return ", ".join(f"`{value}`" for value in values)
 
 
 def _trim_output(output: str, max_chars: int = 2000) -> str:

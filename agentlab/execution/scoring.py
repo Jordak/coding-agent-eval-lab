@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Iterable, List, Optional, Sequence
 
+from agentlab.tasks.boundaries import find_boundary_violations
 from agentlab.tasks import EvalTask
 
 
@@ -58,4 +59,12 @@ def _outcome_notes(task: EvalTask, files_changed: Sequence[str]) -> List[str]:
             "changed "
             f"{len(files_changed)} files; limit is {max_files_changed}"
         )
+    notes.extend(
+        violation.note()
+        for violation in find_boundary_violations(
+            files_changed,
+            allowed_paths=task.success.allowed_paths,
+            forbidden_paths=task.success.forbidden_paths,
+        )
+    )
     return notes

@@ -10,12 +10,10 @@ from agentlab.execution.scoring import CheckResult
 from agentlab.execution.phases import TaskActionResult
 from agentlab.execution.phases import execute_task_phases
 from agentlab.tasks import EvalTask
-from tests.git_fixtures import commit_file
-from tests.git_fixtures import git
-from tests.git_fixtures import init_repo
+from tests.task_execution_helpers import TaskExecutionGitMixin
 
 
-class TaskExecutionTest(unittest.TestCase):
+class TaskExecutionTest(TaskExecutionGitMixin, unittest.TestCase):
     def test_runs_task_phases_in_order_and_records_outcome_facts(self):
         if shutil.which("git") is None:
             self.skipTest("git is required for task execution")
@@ -74,7 +72,7 @@ class TaskExecutionTest(unittest.TestCase):
             self.assertTrue(execution.diff_path.exists())
             self.assertEqual(execution.workspace_history_policy, "base_only")
             self.assertEqual(
-                git(["rev-parse", "HEAD"], execution.workspace).stdout.strip(),
+                self._git(["rev-parse", "HEAD"], execution.workspace).stdout.strip(),
                 execution.workspace_base_ref,
             )
 
@@ -115,8 +113,8 @@ class TaskExecutionTest(unittest.TestCase):
             temp_path = Path(temp)
             repo, base_commit = self._repo_with_file(temp_path, "base\n")
             (repo / "app.txt").write_text("gold\n", encoding="utf-8")
-            git(["commit", "-am", "gold"], repo)
-            gold_commit = git(["rev-parse", "HEAD"], repo).stdout.strip()
+            self._git(["commit", "-am", "gold"], repo)
+            gold_commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
             git_guard = (
                 f"{sys.executable} -c "
                 "\"import subprocess; "
@@ -208,12 +206,6 @@ class TaskExecutionTest(unittest.TestCase):
 
             self.assertTrue(execution.score.tests_passed)
             self.assertEqual(execution.files_changed, [])
-
-    def _repo_with_file(self, root, contents):
-        repo = root / "repo"
-        init_repo(repo)
-        commit = commit_file(repo, "app.txt", contents, message="initial")
-        return repo, commit
 
 
 if __name__ == "__main__":

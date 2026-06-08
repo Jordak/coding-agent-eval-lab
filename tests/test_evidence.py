@@ -109,6 +109,204 @@ class CapabilityEvidenceDigestTest(unittest.TestCase):
         self.assertNotIn("[result](", digest)
         self.assertNotIn("runs/trial-pass/report.md", digest)
 
+    def test_digest_marks_setup_created_untracked_patch_size_caveat(self):
+        result = normalize_outcome_evidence(
+            {
+                "trial_id": "trial-caveat",
+                "task_id": "task-a",
+                "eval_suite": "starter",
+                "eval_type": "regression",
+                "agent_name": "codex",
+                "model_name": "model-a",
+                "status": "passed",
+                "success": True,
+                "duration_ms": 100,
+                "files_changed": ["setup.log"],
+                "lines_added": 5,
+                "lines_deleted": 1,
+                "setup_created_untracked_changed_paths": ["setup.log"],
+                "report_path": "runs/trial-caveat/report.md",
+                "diff_path": "runs/trial-caveat/diff.patch",
+                "run_dir": "runs/trial-caveat",
+            }
+        )
+
+        digest = render_capability_evidence_digest([result])
+        html_report = render_capability_evidence_digest_html([result])
+
+        self.assertIn("5*", digest)
+        self.assertIn("1*", digest)
+        self.assertIn("| task-a | regression | 100 | 1 | 5* | 1* |", digest)
+        self.assertIn("Patch size metrics marked with `*`", digest)
+        self.assertIn("have setup-created untracked path caveats", digest)
+        self.assertIn("changed-file counts/lists", digest)
+        self.assertIn("boundary metrics", digest)
+        self.assertIn("include detected caveat paths", digest)
+        self.assertIn("5*", html_report)
+        self.assertIn("1*", html_report)
+        self.assertGreaterEqual(digest.count("Patch size metrics marked with `*`"), 2)
+        self.assertGreaterEqual(html_report.count("Patch size metrics marked with *"), 2)
+        self.assertGreaterEqual(html_report.count(">5*</td>"), 2)
+        self.assertIn("Patch size metrics marked with *", html_report)
+        self.assertIn("have setup-created untracked path caveats", html_report)
+        self.assertIn("changed-file counts/lists", html_report)
+        self.assertIn("boundary metrics", html_report)
+        self.assertIn("include detected caveat paths", html_report)
+
+    def test_digest_renders_scope_oracle_metadata(self):
+        result = normalize_outcome_evidence(
+            {
+                "trial_id": "trial-scope-oracle",
+                "task_id": "task-a",
+                "eval_suite": "starter",
+                "eval_type": "regression",
+                "agent_name": "codex",
+                "model_name": "model-a",
+                "status": "passed",
+                "success": True,
+                "duration_ms": 100,
+                "files_changed": ["src/app.py"],
+                "lines_added": 5,
+                "lines_deleted": 1,
+                "scope_oracle": {
+                    "consent_style": "explicit_allow",
+                    "allowed_paths": ["src/"],
+                    "forbidden_paths": ["src/private/"],
+                },
+                "report_path": "/tmp/worktree/runs/trial-scope-oracle/report.md",
+                "run_dir": "/tmp/worktree/runs/trial-scope-oracle",
+            }
+        )
+
+        digest = render_capability_evidence_digest([result])
+        html_report = render_capability_evidence_digest_html([result])
+
+        self.assertEqual(
+            result.scope_oracle,
+            {
+                "consent_style": "explicit_allow",
+                "allowed_paths": ["src/"],
+                "forbidden_paths": ["src/private/"],
+            },
+        )
+        self.assertIn("Scope Oracle", digest)
+        self.assertIn("consent_style=explicit_allow", digest)
+        self.assertIn("allowed_paths=src/", digest)
+        self.assertIn("forbidden_paths=src/private/", digest)
+        self.assertNotIn("/tmp/worktree", digest)
+        self.assertIn("Scope Oracle", html_report)
+        self.assertIn("consent_style=explicit_allow", html_report)
+        self.assertIn("allowed_paths=src/", html_report)
+        self.assertIn("forbidden_paths=src/private/", html_report)
+
+    def test_nested_setup_created_untracked_patch_size_caveat_round_trips(self):
+        result = normalize_outcome_evidence(
+            {
+                "trial_id": "trial-caveat",
+                "task_id": "task-a",
+                "eval_suite": "starter",
+                "eval_type": "regression",
+                "agent_name": "codex",
+                "model_name": "model-a",
+                "status": "passed",
+                "success": True,
+                "duration_ms": 100,
+                "files_changed": ["setup.log"],
+                "lines_added": 5,
+                "lines_deleted": 1,
+                "outcome": {
+                    "setup_created_untracked_changed_paths": ["setup.log"],
+                },
+                "run_dir": "runs/trial-caveat",
+            }
+        )
+
+        result_dict = result.to_result_dict()
+
+        self.assertEqual(
+            result.setup_created_untracked_changed_paths,
+            ["setup.log"],
+        )
+        self.assertEqual(
+            result_dict["setup_created_untracked_changed_paths"],
+            ["setup.log"],
+        )
+        self.assertEqual(
+            result_dict["outcome"]["setup_created_untracked_changed_paths"],
+            ["setup.log"],
+        )
+
+    def test_setup_created_untracked_coverage_caveat_round_trips(self):
+        result = normalize_outcome_evidence(
+            {
+                "trial_id": "trial-caveat",
+                "task_id": "task-a",
+                "eval_suite": "starter",
+                "eval_type": "regression",
+                "agent_name": "codex",
+                "model_name": "model-a",
+                "status": "passed",
+                "success": True,
+                "duration_ms": 100,
+                "files_changed": ["app.py"],
+                "lines_added": 5,
+                "lines_deleted": 1,
+                "outcome": {
+                    "setup_created_untracked_coverage_caveat_count": 2,
+                },
+                "run_dir": "runs/trial-caveat",
+            }
+        )
+
+        result_dict = result.to_result_dict()
+
+        self.assertEqual(
+            result.setup_created_untracked_coverage_caveat_count,
+            2,
+        )
+        self.assertEqual(
+            result_dict["setup_created_untracked_coverage_caveat_count"],
+            2,
+        )
+        self.assertEqual(
+            result_dict["outcome"][
+                "setup_created_untracked_coverage_caveat_count"
+            ],
+            2,
+        )
+
+    def test_digest_marks_setup_created_untracked_coverage_caveat(self):
+        result = normalize_outcome_evidence(
+            {
+                "trial_id": "trial-caveat",
+                "task_id": "task-a",
+                "eval_suite": "starter",
+                "eval_type": "regression",
+                "agent_name": "codex",
+                "model_name": "model-a",
+                "status": "passed",
+                "success": True,
+                "duration_ms": 100,
+                "files_changed": ["app.py"],
+                "lines_added": 5,
+                "lines_deleted": 1,
+                "setup_created_untracked_coverage_caveat_count": 2,
+                "report_path": "runs/trial-caveat/report.md",
+                "diff_path": "runs/trial-caveat/diff.patch",
+                "run_dir": "runs/trial-caveat",
+            }
+        )
+
+        digest = render_capability_evidence_digest([result])
+        html_report = render_capability_evidence_digest_html([result])
+
+        self.assertIn("Setup-created untracked coverage caveat", digest)
+        self.assertIn("2 setup-created untracked paths existed", digest)
+        self.assertIn("detection remains best-effort", digest)
+        self.assertIn("Setup-created untracked coverage caveat", html_report)
+        self.assertIn("2 setup-created untracked paths existed", html_report)
+        self.assertIn("detection remains best-effort", html_report)
+
     def test_markdown_digest_omits_disposable_artifact_paths(self):
         digest = render_capability_evidence_digest(
             [

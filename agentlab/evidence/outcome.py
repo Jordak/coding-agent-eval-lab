@@ -58,6 +58,9 @@ class OutcomeEvidence:
     n_files_changed: int
     lines_added: int
     lines_deleted: int
+    scope_oracle: Dict[str, Any]
+    setup_created_untracked_changed_paths: list[str]
+    setup_created_untracked_coverage_caveat_count: int
     commands_run: list[Any]
     checks: list[Any]
     graders: list[Any]
@@ -208,6 +211,7 @@ class OutcomeEvidence:
     def to_result_dict(self) -> Dict[str, Any]:
         result = dict(self.raw)
         result.pop("review", None)
+        result.pop("scope_oracle", None)
         result.pop("trial_validity", None)
         result.pop("exclusion_reason", None)
         result.update(
@@ -242,6 +246,7 @@ class OutcomeEvidence:
                 "n_files_changed": self.n_files_changed,
                 "lines_added": self.lines_added,
                 "lines_deleted": self.lines_deleted,
+                "scope_oracle": dict(self.scope_oracle),
                 "commands_run": list(self.commands_run),
                 "checks": list(self.checks),
                 "graders": list(self.graders),
@@ -251,6 +256,22 @@ class OutcomeEvidence:
                 "run_dir": self.run_dir,
             }
         )
+        if not self.scope_oracle:
+            result.pop("scope_oracle", None)
+        if self.setup_created_untracked_changed_paths:
+            result["setup_created_untracked_changed_paths"] = list(
+                self.setup_created_untracked_changed_paths
+            )
+            result["outcome"]["setup_created_untracked_changed_paths"] = list(
+                self.setup_created_untracked_changed_paths
+            )
+        if self.setup_created_untracked_coverage_caveat_count:
+            result["setup_created_untracked_coverage_caveat_count"] = (
+                self.setup_created_untracked_coverage_caveat_count
+            )
+            result["outcome"]["setup_created_untracked_coverage_caveat_count"] = (
+                self.setup_created_untracked_coverage_caveat_count
+            )
         return result
 
 
@@ -296,6 +317,13 @@ def normalize_outcome_evidence(
     n_files_changed = _files_changed_count(data, files_changed)
     lines_added = _optional_int(data.get("lines_added")) or 0
     lines_deleted = _optional_int(data.get("lines_deleted")) or 0
+    setup_created_untracked_changed_paths = (
+        _setup_created_untracked_changed_paths(data)
+    )
+    setup_created_untracked_coverage_caveat_count = (
+        _setup_created_untracked_coverage_caveat_count(data)
+    )
+    scope_oracle = _scope_oracle(data)
     outcome = _outcome(
         data,
         status,
@@ -303,6 +331,8 @@ def normalize_outcome_evidence(
         n_files_changed,
         lines_added,
         lines_deleted,
+        setup_created_untracked_changed_paths,
+        setup_created_untracked_coverage_caveat_count,
     )
 
     trial_id = str(
@@ -364,6 +394,13 @@ def normalize_outcome_evidence(
         n_files_changed=n_files_changed,
         lines_added=lines_added,
         lines_deleted=lines_deleted,
+        scope_oracle=scope_oracle,
+        setup_created_untracked_changed_paths=(
+            setup_created_untracked_changed_paths
+        ),
+        setup_created_untracked_coverage_caveat_count=(
+            setup_created_untracked_coverage_caveat_count
+        ),
         commands_run=_list(data.get("commands_run")),
         checks=_list(data.get("checks")),
         graders=_list(data.get("graders")),
@@ -416,6 +453,8 @@ def _outcome(
     n_files_changed: int,
     lines_added: int,
     lines_deleted: int,
+    setup_created_untracked_changed_paths: list[str],
+    setup_created_untracked_coverage_caveat_count: int,
 ) -> Dict[str, Any]:
     raw_outcome = data.get("outcome")
     outcome = dict(raw_outcome) if isinstance(raw_outcome, Mapping) else {}
@@ -424,6 +463,14 @@ def _outcome(
     outcome["n_files_changed"] = n_files_changed
     outcome["lines_added"] = lines_added
     outcome["lines_deleted"] = lines_deleted
+    if setup_created_untracked_changed_paths:
+        outcome["setup_created_untracked_changed_paths"] = (
+            setup_created_untracked_changed_paths
+        )
+    if setup_created_untracked_coverage_caveat_count:
+        outcome["setup_created_untracked_coverage_caveat_count"] = (
+            setup_created_untracked_coverage_caveat_count
+        )
     if data.get("diff_path") is not None:
         outcome["diff_path"] = str(data.get("diff_path"))
     return outcome
@@ -444,6 +491,55 @@ def _files_changed_count(
     if raw_count is not None:
         return raw_count
     return len(files_changed)
+
+
+def _setup_created_untracked_changed_paths(data: Mapping[str, Any]) -> list[str]:
+    paths = data.get("setup_created_untracked_changed_paths")
+    if not isinstance(paths, list):
+        outcome = data.get("outcome")
+        if isinstance(outcome, Mapping):
+            paths = outcome.get("setup_created_untracked_changed_paths")
+    if not isinstance(paths, list):
+        return []
+    return [str(path) for path in paths]
+
+
+def _scope_oracle(data: Mapping[str, Any]) -> Dict[str, Any]:
+    raw_metadata = data.get("scope_oracle")
+    if not isinstance(raw_metadata, Mapping):
+        return {}
+
+    metadata: Dict[str, Any] = {}
+    consent_style = _optional_nonempty_str(raw_metadata.get("consent_style"))
+    if consent_style is not None:
+        metadata["consent_style"] = consent_style
+
+    allowed_paths = raw_metadata.get("allowed_paths")
+    if isinstance(allowed_paths, list):
+        metadata["allowed_paths"] = [str(path) for path in allowed_paths]
+
+    forbidden_paths = raw_metadata.get("forbidden_paths")
+    if isinstance(forbidden_paths, list):
+        metadata["forbidden_paths"] = [str(path) for path in forbidden_paths]
+
+    return metadata
+
+
+def _setup_created_untracked_coverage_caveat_count(
+    data: Mapping[str, Any],
+) -> int:
+    raw_count = _optional_int(
+        data.get("setup_created_untracked_coverage_caveat_count")
+    )
+    if raw_count is None:
+        outcome = data.get("outcome")
+        if isinstance(outcome, Mapping):
+            raw_count = _optional_int(
+                outcome.get("setup_created_untracked_coverage_caveat_count")
+            )
+    if raw_count is None:
+        return 0
+    return max(raw_count, 0)
 
 
 def _resource_usage(data: Mapping[str, Any]) -> ResourceUsage:

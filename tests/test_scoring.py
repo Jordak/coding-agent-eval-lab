@@ -59,6 +59,28 @@ class GraderOutcomeTest(unittest.TestCase):
             ["changed 2 files; limit is 1"],
         )
 
+    def test_boundary_notes_fail_outcome(self):
+        outcome = calculate_grader_outcome(
+            self._task(
+                success=SuccessCriteria(
+                    allowed_paths=["src/"],
+                    forbidden_paths=["src/private/"],
+                )
+            ),
+            [CheckResult(command="python -m unittest", returncode=0)],
+            files_changed=["src/app.py", "src/private/secret.py", "README.md"],
+        )
+
+        self.assertFalse(outcome.tests_passed)
+        self.assertEqual(
+            outcome.notes,
+            [
+                "scope boundary violation: `src/private/secret.py` "
+                "matches forbidden_paths pattern `src/private/`",
+                "scope boundary violation: `README.md` is outside allowed_paths",
+            ],
+        )
+
     def _task(self, success=None):
         return EvalTask(
             id="fixture-task",

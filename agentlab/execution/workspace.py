@@ -1,16 +1,34 @@
 from __future__ import annotations
 
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-import tempfile
 
-from agentlab.execution.commands import (
-    clone_no_checkout,
-    isolated_git_env,
-    run_git,
-)
+from agentlab.execution.changed_paths import CapturedDiff
+from agentlab.execution.changed_paths import WorkspaceChangeBaseline
+from agentlab.execution.changed_paths import WorkspaceIndexBaseline
+from agentlab.execution.changed_paths import WorkspaceUntrackedBaseline
+from agentlab.execution.changed_paths import capture_change_baseline
+from agentlab.execution.changed_paths import capture_diff
+from agentlab.execution.changed_paths import capture_diff_details
+from agentlab.execution.changed_paths import capture_diff_details_preserving_index
+from agentlab.execution.commands import clone_no_checkout
 from agentlab.execution.synthetic_workspace import materialize_synthetic_base
 from agentlab.tasks import EvalTask
+
+
+__all__ = [
+    "CapturedDiff",
+    "PreparedWorkspace",
+    "WorkspaceChangeBaseline",
+    "WorkspaceIndexBaseline",
+    "WorkspaceUntrackedBaseline",
+    "capture_change_baseline",
+    "capture_diff",
+    "capture_diff_details",
+    "capture_diff_details_preserving_index",
+    "prepare_workspace",
+]
 
 
 WORKSPACE_HISTORY_POLICY = "base_only"
@@ -58,26 +76,3 @@ def prepare_workspace(task: EvalTask, root: Path) -> PreparedWorkspace:
 def _safe_name(value: str) -> str:
     safe = "".join(character if character.isalnum() else "-" for character in value)
     return safe.strip("-") or "task"
-
-
-def capture_diff(
-    workspace: Path,
-    diff_path: Path,
-    base_ref: str | None = None,
-) -> list[str]:
-    diff_args = ["diff", "--binary"]
-    name_args = ["diff", "--name-only"]
-    if base_ref is not None:
-        diff_args.append(base_ref)
-        name_args.append(base_ref)
-
-    git_env = isolated_git_env()
-    diff = run_git(diff_args, cwd=workspace, env=git_env)
-    if diff.returncode != 0:
-        raise RuntimeError(f"git diff failed: {diff.stderr.strip()}")
-    diff_path.write_text(diff.stdout, encoding="utf-8")
-
-    changed = run_git(name_args, cwd=workspace, env=git_env)
-    if changed.returncode != 0:
-        raise RuntimeError(f"git diff --name-only failed: {changed.stderr.strip()}")
-    return [line for line in changed.stdout.splitlines() if line.strip()]

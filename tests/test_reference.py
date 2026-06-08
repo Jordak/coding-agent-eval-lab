@@ -11,7 +11,7 @@ from pathlib import Path
 from agentlab.evidence.outcome import load_outcome_evidences
 from agentlab.tasks.reference import ReferenceVerificationError, verify_reference
 from agentlab.execution.scoring import calculate_grader_outcome
-from agentlab.tasks import EvalTask, load_task
+from agentlab.tasks import EvalTask, ReferenceArtifact, SuccessCriteria, load_task
 from tests.git_fixtures import assert_base_only_repository
 from tests.git_fixtures import commit_all
 from tests.git_fixtures import commit_file
@@ -267,6 +267,56 @@ class ReferenceVerificationTest(unittest.TestCase):
             self.assertTrue(verification.success)
             self.assertEqual(verification.files_changed, ["app.txt"])
 
+    def test_commit_reference_uses_setup_aware_changed_file_baseline(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for reference verification")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo = temp_path / "repo"
+            init_repo(repo)
+            commit = commit_file(repo, "app.txt", "before\n", message="initial")
+            reference_commit = commit_file(
+                repo,
+                "allowed/result.txt",
+                "ok\n",
+                message="reference",
+            )
+
+            task = EvalTask(
+                id="commit-reference-task",
+                title="Commit reference task",
+                repo=str(repo),
+                commit=commit,
+                language="text",
+                prompt="Create the allowed result file.",
+                reference_artifact=ReferenceArtifact(
+                    type="commit",
+                    commit=reference_commit,
+                ),
+                setup=[
+                    f"{sys.executable} -c "
+                    "\"from pathlib import Path; "
+                    "Path('app.txt').write_text('setup\\\\n')\""
+                ],
+                test=[
+                    f"{sys.executable} -c "
+                    "\"from pathlib import Path; "
+                    "assert Path('app.txt').read_text() == 'setup\\\\n'; "
+                    "assert Path('allowed/result.txt').read_text() == 'ok\\\\n'\""
+                ],
+                success=SuccessCriteria(
+                    allowed_paths=["allowed/"],
+                    max_files_changed=1,
+                ),
+            )
+
+            verification = verify_reference(task, temp_path / "work")
+
+        self.assertTrue(verification.success)
+        self.assertEqual(verification.files_changed, ["allowed/result.txt"])
+        self.assertEqual(verification.notes, [])
+
     def test_reference_verification_uses_shared_grader_outcome(self):
         if shutil.which("git") is None:
             self.skipTest("git is required for reference verification")
@@ -364,11 +414,17 @@ class ReferenceVerificationTest(unittest.TestCase):
                     commit: {commit}
                     language: text
                     prompt: Change before to after.
+                    consent_style: explicit_allow
                     reference_artifact:
                       type: patch
                       path: reference.patch
                     test:
                       - {sys.executable} -c "from pathlib import Path; assert Path('app.txt').read_text() == 'after\\n'"
+                    success:
+                      allowed_paths:
+                        - app.txt
+                      forbidden_paths:
+                        - docs/
                     """
                 ),
                 encoding="utf-8",
@@ -383,14 +439,26 @@ class ReferenceVerificationTest(unittest.TestCase):
             result = json.loads(
                 (bundle / "reference-result.json").read_text(encoding="utf-8")
             )
+            report = (bundle / "reference-report.md").read_text(encoding="utf-8")
 
             self.assertTrue(verification.success)
             self.assertTrue((bundle / "reference-report.md").exists())
             self.assertTrue((bundle / "reference-result.json").exists())
             self.assertTrue((bundle / "reference.diff").exists())
-            report = (bundle / "reference-report.md").read_text(encoding="utf-8")
             self.assertIn(f"- Task repository: `{repo}`", report)
             self.assertIn(f"- Task commit: `{commit}`", report)
+            self.assertIn("## Scope Oracle Metadata", report)
+            self.assertIn("- Consent style: `explicit_allow`", report)
+            self.assertIn("- Allowed paths: `app.txt`", report)
+            self.assertIn("- Forbidden paths: `docs/`", report)
+            self.assertEqual(
+                result["scope_oracle"],
+                {
+                    "consent_style": "explicit_allow",
+                    "allowed_paths": ["app.txt"],
+                    "forbidden_paths": ["docs/"],
+                },
+            )
             self.assertEqual(result["trial_kind"], "reference_verification")
             self.assertEqual(result["agent_name"], "reference")
             self.assertEqual(result["status"], "passed")

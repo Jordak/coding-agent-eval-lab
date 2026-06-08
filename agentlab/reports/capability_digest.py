@@ -9,6 +9,16 @@ from agentlab.evidence.summary import TrialGroupSummary, summarize_trials
 from agentlab.reports.operability_evidence import (
     render_agent_harness_operability_table,
 )
+from agentlab.reports.patch_caveats import (
+    has_patch_size_caveats,
+    has_summary_patch_size_caveats,
+    patch_size_caveat_note,
+    patch_stat,
+    setup_created_untracked_coverage_caveat_count,
+    setup_created_untracked_coverage_caveat_note,
+    summary_has_patch_size_caveat,
+)
+from agentlab.reports.scope_oracle import compact_scope_oracle_metadata
 
 
 PORTABLE_MARKDOWN_POLICY = (
@@ -138,7 +148,7 @@ def _run_context_lines(context: MarkdownRunContext) -> List[str]:
     ]
     lines.extend(_run_surface_summary_lines(context.results))
     lines.extend(render_agent_harness_operability_table(context.results))
-    lines.extend(_aggregate_summary_tables(context.summaries))
+    lines.extend(_aggregate_summary_tables(context.summaries, context.results))
     lines.extend(["", "### Trial Evidence", ""])
     lines.extend(
         _markdown_table(
@@ -160,10 +170,30 @@ def _run_context_lines(context: MarkdownRunContext) -> List[str]:
                 "Reasoning Tokens",
                 "Cost USD",
                 "Duration ms",
+                "Scope Oracle",
             ],
             [_trial_row(result) for result in context.results],
         )
     )
+    if has_patch_size_caveats(context.results):
+        lines.extend(
+            [
+                "",
+                patch_size_caveat_note(marker="`*`"),
+            ]
+        )
+    setup_coverage_caveat_count = (
+        setup_created_untracked_coverage_caveat_count(context.results)
+    )
+    if setup_coverage_caveat_count:
+        lines.extend(
+            [
+                "",
+                setup_created_untracked_coverage_caveat_note(
+                    count=setup_coverage_caveat_count
+                ),
+            ]
+        )
     lines.append("")
     return lines
 
@@ -224,7 +254,10 @@ def _surface_context_value(
     return "mixed: " + "; ".join(values)
 
 
-def _aggregate_summary_tables(summaries: List[TrialGroupSummary]) -> List[str]:
+def _aggregate_summary_tables(
+    summaries: List[TrialGroupSummary],
+    results: List[OutcomeEvidence],
+) -> List[str]:
     lines: List[str] = []
     lines.extend(["### Outcome Summary", ""])
     lines.extend(
@@ -275,9 +308,16 @@ def _aggregate_summary_tables(summaries: List[TrialGroupSummary]) -> List[str]:
                 "Secondary Review Labels",
                 "Exclusions",
             ],
-            [_review_summary_row(summary) for summary in summaries],
+            [_review_summary_row(summary, results) for summary in summaries],
         )
     )
+    if has_summary_patch_size_caveats(summaries, results):
+        lines.extend(
+            [
+                "",
+                patch_size_caveat_note(marker="`*`"),
+            ]
+        )
     return lines
 
 
@@ -313,12 +353,22 @@ def _token_summary_row(summary: TrialGroupSummary) -> List[object]:
     ]
 
 
-def _review_summary_row(summary: TrialGroupSummary) -> List[object]:
+def _review_summary_row(
+    summary: TrialGroupSummary,
+    results: List[OutcomeEvidence],
+) -> List[object]:
+    has_patch_size_caveat = summary_has_patch_size_caveat(summary, results)
     return _summary_identity(summary) + [
         summary.median_duration_ms,
         summary.median_files_changed,
-        summary.median_lines_added,
-        summary.median_lines_deleted,
+        patch_stat(
+            _format_optional_number(summary.median_lines_added),
+            has_patch_size_caveat,
+        ),
+        patch_stat(
+            _format_optional_number(summary.median_lines_deleted),
+            has_patch_size_caveat,
+        ),
         _format_counts(summary.review_labels),
         _format_counts(summary.secondary_review_labels),
         _format_counts(summary.exclusion_reasons),
@@ -380,6 +430,7 @@ def _evidence_set_context_lines(context: Mapping[str, object]) -> list[str]:
 
 
 def _trial_row(result: OutcomeEvidence) -> List[object]:
+    has_patch_size_caveat = bool(result.setup_created_untracked_changed_paths)
     return [
         result.task_id,
         result.eval_type,
@@ -390,14 +441,15 @@ def _trial_row(result: OutcomeEvidence) -> List[object]:
         _format_labels(result.secondary_review_labels),
         result.exclusion_reason_display,
         result.files_changed_count,
-        result.lines_added,
-        result.lines_deleted,
+        patch_stat(result.lines_added, has_patch_size_caveat),
+        patch_stat(result.lines_deleted, has_patch_size_caveat),
         _unknown_if_none(result.input_tokens),
         _unknown_if_none(result.cached_input_tokens),
         _unknown_if_none(result.output_tokens),
         _unknown_if_none(result.reasoning_output_tokens),
         _unknown_if_none(result.cost_usd),
         result.duration_ms,
+        compact_scope_oracle_metadata(result.scope_oracle),
     ]
 
 

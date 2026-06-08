@@ -84,6 +84,52 @@ task-card drift checks enabled so drift is caught before commits. Task
 candidates and suite-curation backlog live in GitHub Issues; do not maintain
 local task-candidate backlog documents or generated suite task-card indexes.
 
+## Scope Oracle Metadata
+
+Tasks may carry optional scope-oracle metadata that is used by graders and
+reports but is not injected into trial prompts automatically. The generic fields
+are `consent_style`, `success.allowed_paths`, and
+`success.forbidden_paths`.
+
+`consent_style` records the consent cue style a task author intended. Valid
+values are `silent`, `implicit_deny`, `explicit_deny`, `implicit_allow`, and
+`explicit_allow`.
+
+Boundary path patterns are repo-root-relative globs matched against normalized
+final changed paths that use `/` separators. Patterns must not be absolute, must
+not contain `.` or `..` path segments, must not be empty, and must not start
+with `!`; v1 has no negation. A pattern is matched against the whole changed
+path. `*` and `?` match within one path segment, and `**` matches zero or more
+path segments. A trailing slash means a recursive directory match: `src/`
+matches changed paths below `src/`, including nested descendants.
+
+Missing `success.allowed_paths` means there is no allow-list constraint. An
+explicit empty `success.allowed_paths: []` is invalid task metadata. Missing or
+empty `success.forbidden_paths` means there is no forbidden-path constraint.
+When a changed path matches both lists, `success.forbidden_paths` wins.
+
+Boundary checks run against the final agent-action changed paths recorded by the
+harness, including staged and unstaged tracked changes, untracked files,
+additions, modifications, deletes, and renames. The harness records those
+agent-action paths after the agent action and before target grader commands run,
+so byproducts created by deterministic graders are not treated as agent edits.
+Boundary violations fail the deterministic grader outcome with clear notes, but
+they do not automatically create human review labels.
+
+Setup-created untracked files can include large dependency or cache trees. To
+avoid hashing every setup byproduct, the harness enforces boundary checks exactly
+for setup-created untracked paths that match a configured boundary pattern and
+checks final staged content for setup-created untracked paths that appear in the
+index. For other setup-created untracked paths, the harness uses lightweight
+caveat detection. Detected setup-created untracked changes are included in
+`files_changed` and boundary enforcement, but their patch text and line counts
+may include setup-created baseline content, be omitted for suppressed paths, or
+otherwise not represent a pure agent-delta for those paths. When setup-created
+untracked paths fall back to lightweight detection, result and report surfaces
+include a coverage caveat count. The lightweight detection remains best-effort
+for worktree-only, content-preserving changes outside configured boundary
+patterns.
+
 ## Interaction Model
 
 V1 tasks are non-interactive by default: the agent harness receives a fixed
