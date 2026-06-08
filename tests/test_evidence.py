@@ -199,6 +199,95 @@ class CapabilityEvidenceDigestTest(unittest.TestCase):
         self.assertIn("allowed_paths=src/", html_report)
         self.assertIn("forbidden_paths=src/private/", html_report)
 
+    def test_digest_maps_trial_provenance_for_mixed_workspace_bases(self):
+        results = [
+            normalize_outcome_evidence(
+                {
+                    "trial_id": "trial-a",
+                    "task_id": "task-a",
+                    "task_repo": "https://github.com/example/repo-a",
+                    "task_commit": "aaa111",
+                    "eval_suite": "starter",
+                    "eval_type": "regression",
+                    "agent_name": "codex",
+                    "model_name": "model-a",
+                    "agent_harness_config": {"reasoning_effort": "xhigh"},
+                    "run_surface": {"workspace_base_ref": "refs/base-a"},
+                    "status": "passed",
+                    "success": True,
+                    "duration_ms": 100,
+                    "files_changed": ["app.py"],
+                    "lines_added": 5,
+                    "lines_deleted": 1,
+                    "run_dir": "runs/trial-a",
+                }
+            ),
+            normalize_outcome_evidence(
+                {
+                    "trial_id": "trial-b",
+                    "task_id": "task-b",
+                    "task_repo": "https://github.com/example/repo-b",
+                    "task_commit": "bbb222",
+                    "eval_suite": "starter",
+                    "eval_type": "regression",
+                    "agent_name": "codex",
+                    "model_name": "model-a",
+                    "agent_harness_config": {"reasoning_effort": "xhigh"},
+                    "run_surface": {"workspace_base_ref": "refs/base-b"},
+                    "status": "failed",
+                    "success": False,
+                    "duration_ms": 200,
+                    "files_changed": ["app.py"],
+                    "lines_added": 3,
+                    "lines_deleted": 0,
+                    "run_dir": "runs/trial-b",
+                }
+            ),
+        ]
+
+        digest = render_capability_evidence_digest(results)
+        html_report = render_capability_evidence_digest_html(results)
+
+        self.assertIn("Workspace Base Ref", digest)
+        self.assertIn("mixed: refs/base-a; refs/base-b", digest)
+        self.assertIn(
+            "| Task | Type | Trial | Grader Outcome | Validity |",
+            digest,
+        )
+        self.assertIn("Task Provenance", digest)
+        self.assertRegex(
+            digest,
+            (
+                r"\| task-a \| regression \| trial-a \| passed \| valid \|.*"
+                r"repo=https://github\.com/example/repo-a; "
+                r"commit=aaa111; workspace_base_ref=refs/base-a \|"
+            ),
+        )
+        self.assertRegex(
+            digest,
+            (
+                r"\| task-b \| regression \| trial-b \| failed \| valid \|.*"
+                r"repo=https://github\.com/example/repo-b; "
+                r"commit=bbb222; workspace_base_ref=refs/base-b \|"
+            ),
+        )
+        self.assertIn("Task Provenance", html_report)
+        self.assertIn("mixed: refs/base-a; refs/base-b", html_report)
+        self.assertIn(
+            (
+                "repo=https://github.com/example/repo-a<br>"
+                "commit=aaa111<br>workspace_base_ref=refs/base-a"
+            ),
+            html_report,
+        )
+        self.assertIn(
+            (
+                "repo=https://github.com/example/repo-b<br>"
+                "commit=bbb222<br>workspace_base_ref=refs/base-b"
+            ),
+            html_report,
+        )
+
     def test_nested_setup_created_untracked_patch_size_caveat_round_trips(self):
         result = normalize_outcome_evidence(
             {

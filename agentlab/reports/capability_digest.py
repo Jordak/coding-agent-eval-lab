@@ -171,6 +171,7 @@ def _run_context_lines(context: MarkdownRunContext) -> List[str]:
                 "Cost USD",
                 "Duration ms",
                 "Scope Oracle",
+                "Task Provenance",
             ],
             [_trial_row(result) for result in context.results],
         )
@@ -450,7 +451,21 @@ def _trial_row(result: OutcomeEvidence) -> List[object]:
         _unknown_if_none(result.cost_usd),
         result.duration_ms,
         compact_scope_oracle_metadata(result.scope_oracle),
+        _trial_provenance(result),
     ]
+
+
+def _trial_provenance(result: OutcomeEvidence) -> str:
+    return "; ".join(
+        [
+            f"repo={_display_unknown(result.task_repo)}",
+            f"commit={_display_unknown(result.task_commit)}",
+            (
+                "workspace_base_ref="
+                f"{_format_run_surface_value(result.run_surface.get('workspace_base_ref'))}"
+            ),
+        ]
+    )
 
 
 def _markdown_table(headers: List[str], rows: List[List[object]]) -> List[str]:
@@ -506,6 +521,11 @@ def _unknown_if_none(value: object) -> object:
     if value is None:
         return "unknown"
     return value
+
+
+def _display_unknown(value: object) -> str:
+    text = "" if value is None else str(value)
+    return text or "unknown"
 
 
 def _escape_cell(value: object) -> str:
