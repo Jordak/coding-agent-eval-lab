@@ -1,6 +1,5 @@
 import shutil
 import os
-import subprocess
 import sys
 import tempfile
 import textwrap
@@ -13,6 +12,12 @@ from agentlab.evidence.outcome import load_outcome_evidences
 from agentlab.tasks.reference import ReferenceVerificationError, verify_reference
 from agentlab.execution.scoring import calculate_grader_outcome
 from agentlab.tasks import EvalTask, load_task
+from tests.git_fixtures import assert_base_only_repository
+from tests.git_fixtures import commit_all
+from tests.git_fixtures import commit_file
+from tests.git_fixtures import git
+from tests.git_fixtures import head
+from tests.git_fixtures import init_repo
 
 
 class ReferenceVerificationTest(unittest.TestCase):
@@ -23,18 +28,12 @@ class ReferenceVerificationTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             temp_path = Path(temp)
             repo = temp_path / "repo"
-            repo.mkdir()
-            self._git(["init"], repo)
-            self._git(["config", "user.email", "agentlab@example.com"], repo)
-            self._git(["config", "user.name", "Agent Lab"], repo)
-            (repo / "app.txt").write_text("before\n", encoding="utf-8")
-            self._git(["add", "app.txt"], repo)
-            self._git(["commit", "-m", "initial"], repo)
-            commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+            init_repo(repo)
+            commit = commit_file(repo, "app.txt", "before\n", message="initial")
 
             (repo / "app.txt").write_text("after\n", encoding="utf-8")
-            patch = self._git(["diff"], repo).stdout
-            self._git(["checkout", "--", "app.txt"], repo)
+            patch = git(["diff"], repo).stdout
+            git(["checkout", "--", "app.txt"], repo)
 
             bundle = temp_path / "task"
             bundle.mkdir()
@@ -68,7 +67,7 @@ class ReferenceVerificationTest(unittest.TestCase):
             self.assertTrue(verification.success)
             self.assertEqual(verification.files_changed, ["app.txt"])
             self.assertEqual(verification.workspace_history_policy, "base_only")
-            self._assert_base_only_repository(verification.workspace)
+            assert_base_only_repository(self, verification.workspace)
 
     def test_commit_reference_artifact_is_converted_to_patch(self):
         if shutil.which("git") is None:
@@ -77,20 +76,11 @@ class ReferenceVerificationTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             temp_path = Path(temp)
             repo = temp_path / "repo"
-            repo.mkdir()
-            self._git(["init"], repo)
-            self._git(["config", "user.email", "agentlab@example.com"], repo)
-            self._git(["config", "user.name", "Agent Lab"], repo)
-            (repo / "app.txt").write_text("before\n", encoding="utf-8")
-            self._git(["add", "app.txt"], repo)
-            self._git(["commit", "-m", "base"], repo)
-            base_commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+            init_repo(repo)
+            base_commit = commit_file(repo, "app.txt", "before\n", message="base")
 
             (repo / "app.txt").write_text("after\n", encoding="utf-8")
-            self._git(["commit", "-am", "reference"], repo)
-            reference_commit = (
-                self._git(["rev-parse", "HEAD"], repo).stdout.strip()
-            )
+            reference_commit = commit_all(repo, "reference")
 
             bundle = temp_path / "task"
             bundle.mkdir()
@@ -118,10 +108,10 @@ class ReferenceVerificationTest(unittest.TestCase):
 
             self.assertTrue(verification.success)
             self.assertEqual(verification.files_changed, ["app.txt"])
-            self._assert_base_only_repository(verification.workspace)
+            assert_base_only_repository(self, verification.workspace)
             self.assertNotIn(
                 reference_commit,
-                self._git(
+                git(
                     ["log", "--all", "--format=%H"],
                     verification.workspace,
                 ).stdout,
@@ -167,7 +157,6 @@ class ReferenceVerificationTest(unittest.TestCase):
                 encoding="utf-8",
             )
             repo = temp_path / "repo"
-            repo.mkdir()
 
             with mock.patch.dict(
                 os.environ,
@@ -177,23 +166,18 @@ class ReferenceVerificationTest(unittest.TestCase):
                     "XDG_CONFIG_HOME": str(xdg_config),
                 },
             ):
-                self._git(["init"], repo)
-                self._git(["config", "user.email", "agentlab@example.com"], repo)
-                self._git(["config", "user.name", "Agent Lab"], repo)
+                init_repo(repo)
                 (repo / ".gitattributes").write_text(
                     "app.txt filter=block\n",
                     encoding="utf-8",
                 )
                 (repo / "app.txt").write_text("before\n", encoding="utf-8")
-                self._git(["add", ".gitattributes", "app.txt"], repo)
-                self._git(["commit", "-m", "base"], repo)
-                base_commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+                git(["add", ".gitattributes", "app.txt"], repo)
+                git(["commit", "-m", "base"], repo)
+                base_commit = head(repo)
 
                 (repo / "app.txt").write_text("after\n", encoding="utf-8")
-                self._git(["commit", "-am", "reference"], repo)
-                reference_commit = (
-                    self._git(["rev-parse", "HEAD"], repo).stdout.strip()
-                )
+                reference_commit = commit_all(repo, "reference")
 
                 bundle = temp_path / "task"
                 bundle.mkdir()
@@ -230,20 +214,11 @@ class ReferenceVerificationTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             temp_path = Path(temp)
             repo = temp_path / "repo"
-            repo.mkdir()
-            self._git(["init"], repo)
-            self._git(["config", "user.email", "agentlab@example.com"], repo)
-            self._git(["config", "user.name", "Agent Lab"], repo)
-            (repo / "app.txt").write_text("before\n", encoding="utf-8")
-            self._git(["add", "app.txt"], repo)
-            self._git(["commit", "-m", "base"], repo)
-            base_commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+            init_repo(repo)
+            base_commit = commit_file(repo, "app.txt", "before\n", message="base")
 
             (repo / "app.txt").write_text("after\n", encoding="utf-8")
-            self._git(["commit", "-am", "reference"], repo)
-            reference_commit = (
-                self._git(["rev-parse", "HEAD"], repo).stdout.strip()
-            )
+            reference_commit = commit_all(repo, "reference")
 
             bundle = temp_path / "task"
             bundle.mkdir()
@@ -299,18 +274,12 @@ class ReferenceVerificationTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             temp_path = Path(temp)
             repo = temp_path / "repo"
-            repo.mkdir()
-            self._git(["init"], repo)
-            self._git(["config", "user.email", "agentlab@example.com"], repo)
-            self._git(["config", "user.name", "Agent Lab"], repo)
-            (repo / "app.txt").write_text("before\n", encoding="utf-8")
-            self._git(["add", "app.txt"], repo)
-            self._git(["commit", "-m", "initial"], repo)
-            commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+            init_repo(repo)
+            commit = commit_file(repo, "app.txt", "before\n", message="initial")
 
             (repo / "app.txt").write_text("after\n", encoding="utf-8")
-            patch = self._git(["diff"], repo).stdout
-            self._git(["checkout", "--", "app.txt"], repo)
+            patch = git(["diff"], repo).stdout
+            git(["checkout", "--", "app.txt"], repo)
 
             bundle = temp_path / "task"
             bundle.mkdir()
@@ -376,18 +345,12 @@ class ReferenceVerificationTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             temp_path = Path(temp)
             repo = temp_path / "repo"
-            repo.mkdir()
-            self._git(["init"], repo)
-            self._git(["config", "user.email", "agentlab@example.com"], repo)
-            self._git(["config", "user.name", "Agent Lab"], repo)
-            (repo / "app.txt").write_text("before\n", encoding="utf-8")
-            self._git(["add", "app.txt"], repo)
-            self._git(["commit", "-m", "initial"], repo)
-            commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+            init_repo(repo)
+            commit = commit_file(repo, "app.txt", "before\n", message="initial")
 
             (repo / "app.txt").write_text("after\n", encoding="utf-8")
-            patch = self._git(["diff"], repo).stdout
-            self._git(["checkout", "--", "app.txt"], repo)
+            patch = git(["diff"], repo).stdout
+            git(["checkout", "--", "app.txt"], repo)
 
             bundle = temp_path / "task"
             bundle.mkdir()
@@ -459,38 +422,6 @@ class ReferenceVerificationTest(unittest.TestCase):
 
                 self.assertNotIn("trial_validity", result)
                 self.assertNotIn("exclusion_reason", result)
-
-    def _git(self, args, cwd):
-        completed = subprocess.run(
-            ["git"] + args,
-            cwd=str(cwd),
-            text=True,
-            capture_output=True,
-        )
-        if completed.returncode != 0:
-            self.fail(completed.stderr)
-        return completed
-
-    def _assert_base_only_repository(self, workspace):
-        self.assertEqual(
-            self._git(["rev-list", "--count", "HEAD"], workspace).stdout.strip(),
-            "1",
-        )
-        self.assertEqual(
-            self._git(
-                [
-                    "for-each-ref",
-                    "--format=%(refname)",
-                    "refs/heads",
-                    "refs/remotes",
-                    "refs/tags",
-                ],
-                workspace,
-            ).stdout.strip(),
-            "",
-        )
-        self.assertFalse((workspace / ".git" / "logs").exists())
-
 
 if __name__ == "__main__":
     unittest.main()

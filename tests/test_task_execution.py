@@ -1,6 +1,5 @@
 import os
 import shutil
-import subprocess
 import sys
 import tempfile
 import unittest
@@ -11,6 +10,9 @@ from agentlab.execution.scoring import CheckResult
 from agentlab.execution.phases import TaskActionResult
 from agentlab.execution.phases import execute_task_phases
 from agentlab.tasks import EvalTask
+from tests.git_fixtures import commit_file
+from tests.git_fixtures import git
+from tests.git_fixtures import init_repo
 
 
 class TaskExecutionTest(unittest.TestCase):
@@ -72,7 +74,7 @@ class TaskExecutionTest(unittest.TestCase):
             self.assertTrue(execution.diff_path.exists())
             self.assertEqual(execution.workspace_history_policy, "base_only")
             self.assertEqual(
-                self._git(["rev-parse", "HEAD"], execution.workspace).stdout.strip(),
+                git(["rev-parse", "HEAD"], execution.workspace).stdout.strip(),
                 execution.workspace_base_ref,
             )
 
@@ -113,8 +115,8 @@ class TaskExecutionTest(unittest.TestCase):
             temp_path = Path(temp)
             repo, base_commit = self._repo_with_file(temp_path, "base\n")
             (repo / "app.txt").write_text("gold\n", encoding="utf-8")
-            self._git(["commit", "-am", "gold"], repo)
-            gold_commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+            git(["commit", "-am", "gold"], repo)
+            gold_commit = git(["rev-parse", "HEAD"], repo).stdout.strip()
             git_guard = (
                 f"{sys.executable} -c "
                 "\"import subprocess; "
@@ -209,26 +211,9 @@ class TaskExecutionTest(unittest.TestCase):
 
     def _repo_with_file(self, root, contents):
         repo = root / "repo"
-        repo.mkdir()
-        self._git(["init"], repo)
-        self._git(["config", "user.email", "agentlab@example.com"], repo)
-        self._git(["config", "user.name", "Agent Lab"], repo)
-        (repo / "app.txt").write_text(contents, encoding="utf-8")
-        self._git(["add", "app.txt"], repo)
-        self._git(["commit", "-m", "initial"], repo)
-        commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+        init_repo(repo)
+        commit = commit_file(repo, "app.txt", contents, message="initial")
         return repo, commit
-
-    def _git(self, args, cwd):
-        completed = subprocess.run(
-            ["git"] + args,
-            cwd=str(cwd),
-            text=True,
-            capture_output=True,
-        )
-        if completed.returncode != 0:
-            self.fail(completed.stderr)
-        return completed
 
 
 if __name__ == "__main__":

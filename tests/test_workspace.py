@@ -1,6 +1,5 @@
 import shutil
 import os
-import subprocess
 import tempfile
 import unittest
 from unittest import mock
@@ -8,6 +7,13 @@ from pathlib import Path
 
 from agentlab.tasks import EvalTask
 from agentlab.execution.workspace import capture_diff, prepare_workspace
+from tests.git_fixtures import assert_base_only_repository
+from tests.git_fixtures import commit_all
+from tests.git_fixtures import commit_file
+from tests.git_fixtures import eval_task
+from tests.git_fixtures import git
+from tests.git_fixtures import head
+from tests.git_fixtures import init_repo
 
 
 class WorkspaceTest(unittest.TestCase):
@@ -18,14 +24,8 @@ class WorkspaceTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             temp_path = Path(temp)
             repo = temp_path / "repo"
-            repo.mkdir()
-            self._git(["init"], repo)
-            self._git(["config", "user.email", "agentlab@example.com"], repo)
-            self._git(["config", "user.name", "Agent Lab"], repo)
-            (repo / "README.md").write_text("# Fixture\n", encoding="utf-8")
-            self._git(["add", "README.md"], repo)
-            self._git(["commit", "-m", "initial"], repo)
-            commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+            init_repo(repo)
+            commit = commit_file(repo, "README.md", "# Fixture\n", message="initial")
 
             original_cwd = Path.cwd()
             try:
@@ -33,13 +33,12 @@ class WorkspaceTest(unittest.TestCase):
                 import os
 
                 os.chdir(temp_path)
-                task = EvalTask(
-                    id="fixture-task",
-                    title="Fixture task",
+                task = eval_task(
+                    task_id="fixture-task",
                     repo=str(repo),
                     commit=commit,
+                    title="Fixture task",
                     language="python",
-                    prompt="Do nothing.",
                 )
 
                 prepared = prepare_workspace(task, Path("runs/relative-root"))
@@ -48,9 +47,9 @@ class WorkspaceTest(unittest.TestCase):
 
             self.assertTrue(prepared.path.exists())
             self.assertEqual(prepared.workspace_history_policy, "base_only")
-            self._assert_base_only_repository(prepared.path)
+            assert_base_only_repository(self, prepared.path)
             self.assertEqual(
-                self._git(["rev-parse", "HEAD"], prepared.path).stdout.strip(),
+                git(["rev-parse", "HEAD"], prepared.path).stdout.strip(),
                 prepared.workspace_base_ref,
             )
             self.assertNotEqual(prepared.workspace_base_ref, commit)
@@ -66,42 +65,34 @@ class WorkspaceTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             temp_path = Path(temp)
             repo = temp_path / "repo"
-            repo.mkdir()
-            self._git(["init"], repo)
-            self._git(["config", "user.email", "agentlab@example.com"], repo)
-            self._git(["config", "user.name", "Agent Lab"], repo)
-            (repo / "app.txt").write_text("base\n", encoding="utf-8")
-            self._git(["add", "app.txt"], repo)
-            self._git(["commit", "-m", "base"], repo)
-            base_commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+            init_repo(repo)
+            base_commit = commit_file(repo, "app.txt", "base\n", message="base")
 
             (repo / "app.txt").write_text("gold\n", encoding="utf-8")
-            self._git(["commit", "-am", "gold"], repo)
-            gold_commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
-            self._git(["tag", "gold-fix"], repo)
+            gold_commit = commit_all(repo, "gold")
+            git(["tag", "gold-fix"], repo)
 
-            task = EvalTask(
-                id="leakage-task",
-                title="Leakage task",
+            task = eval_task(
+                task_id="leakage-task",
                 repo=str(repo),
                 commit=base_commit,
-                language="text",
+                title="Leakage task",
                 prompt="Do not inspect future commits.",
             )
 
             prepared = prepare_workspace(task, temp_path / "workspace")
 
-            self._assert_base_only_repository(prepared.path)
+            assert_base_only_repository(self, prepared.path)
             self.assertNotIn(
                 gold_commit,
-                self._git(["log", "--all", "--format=%H"], prepared.path).stdout,
+                git(["log", "--all", "--format=%H"], prepared.path).stdout,
             )
             self.assertEqual(
-                self._git(["remote"], prepared.path).stdout.strip(),
+                git(["remote"], prepared.path).stdout.strip(),
                 "",
             )
             self.assertEqual(
-                self._git(["tag"], prepared.path).stdout.strip(),
+                git(["tag"], prepared.path).stdout.strip(),
                 "",
             )
             self.assertEqual(
@@ -116,10 +107,7 @@ class WorkspaceTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             temp_path = Path(temp)
             repo = temp_path / "repo"
-            repo.mkdir()
-            self._git(["init"], repo)
-            self._git(["config", "user.email", "agentlab@example.com"], repo)
-            self._git(["config", "user.name", "Agent Lab"], repo)
+            init_repo(repo)
             (repo / ".gitignore").write_text("ignored.txt\n", encoding="utf-8")
             (repo / ".gitattributes").write_text(
                 "exported.txt export-ignore\nsubstituted.txt export-subst\n",
@@ -131,7 +119,7 @@ class WorkspaceTest(unittest.TestCase):
                 "$Format:%H$\n",
                 encoding="utf-8",
             )
-            self._git(
+            git(
                 [
                     "add",
                     ".gitignore",
@@ -141,9 +129,9 @@ class WorkspaceTest(unittest.TestCase):
                 ],
                 repo,
             )
-            self._git(["add", "-f", "ignored.txt"], repo)
-            self._git(["commit", "-m", "base"], repo)
-            commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+            git(["add", "-f", "ignored.txt"], repo)
+            git(["commit", "-m", "base"], repo)
+            commit = git(["rev-parse", "HEAD"], repo).stdout.strip()
 
             task = EvalTask(
                 id="exact-tree-task",
@@ -157,8 +145,8 @@ class WorkspaceTest(unittest.TestCase):
             prepared = prepare_workspace(task, temp_path / "workspace")
 
             self.assertEqual(
-                self._git(["rev-parse", f"{commit}^{{tree}}"], repo).stdout.strip(),
-                self._git(["rev-parse", "HEAD^{tree}"], prepared.path).stdout.strip(),
+                git(["rev-parse", f"{commit}^{{tree}}"], repo).stdout.strip(),
+                git(["rev-parse", "HEAD^{tree}"], prepared.path).stdout.strip(),
             )
             self.assertEqual(
                 (prepared.path / "exported.txt").read_text(encoding="utf-8"),
@@ -180,30 +168,27 @@ class WorkspaceTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             temp_path = Path(temp)
             repo = temp_path / "repo"
-            repo.mkdir()
-            self._git(["init"], repo)
-            self._git(["config", "user.email", "agentlab@example.com"], repo)
-            self._git(["config", "user.name", "Agent Lab"], repo)
+            init_repo(repo)
             bad_config = temp_path / "bad-config"
             bad_config.write_text(
                 '[remote "origin"]\n    url = https://example.com/source.git\n',
                 encoding="utf-8",
             )
-            blob = self._git(
+            blob = git(
                 ["hash-object", "-w", str(bad_config)],
                 repo,
             ).stdout.strip()
-            subtree = self._git_with_input(
+            subtree = git(
                 ["mktree"],
                 repo,
                 f"100644 blob {blob}\tconfig\n",
             ).stdout.strip()
-            tree = self._git_with_input(
+            tree = git(
                 ["mktree"],
                 repo,
                 f"040000 tree {subtree}\t.GIT\n",
             ).stdout.strip()
-            commit = self._git(
+            commit = git(
                 ["commit-tree", tree, "-m", "malicious tree"],
                 repo,
             ).stdout.strip()
@@ -222,6 +207,37 @@ class WorkspaceTest(unittest.TestCase):
             ):
                 prepare_workspace(task, temp_path / "workspace")
 
+    def test_prepare_workspace_invalid_commit_does_not_reserve_workspace(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for workspace preparation")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo = temp_path / "repo"
+            init_repo(repo)
+            commit = commit_file(repo, "app.txt", "base\n", message="base")
+            task = eval_task(
+                task_id="missing-commit-task",
+                repo=str(repo),
+                commit="0" * 40,
+                title="Missing commit task",
+            )
+
+            with self.assertRaisesRegex(RuntimeError, "git rev-parse failed"):
+                prepare_workspace(task, temp_path / "workspace")
+
+            self.assertFalse((temp_path / "workspace" / task.id).exists())
+
+            retry_task = eval_task(
+                task_id=task.id,
+                repo=str(repo),
+                commit=commit,
+                title="Missing commit task",
+            )
+            prepared = prepare_workspace(retry_task, temp_path / "workspace")
+
+            self.assertTrue(prepared.path.exists())
+
     def test_synthetic_commit_uses_fixed_identity_and_date(self):
         if shutil.which("git") is None:
             self.skipTest("git is required for workspace preparation")
@@ -229,21 +245,13 @@ class WorkspaceTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             temp_path = Path(temp)
             repo = temp_path / "repo"
-            repo.mkdir()
-            self._git(["init"], repo)
-            self._git(["config", "user.email", "agentlab@example.com"], repo)
-            self._git(["config", "user.name", "Agent Lab"], repo)
-            (repo / "app.txt").write_text("base\n", encoding="utf-8")
-            self._git(["add", "app.txt"], repo)
-            self._git(["commit", "-m", "base"], repo)
-            commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
-            task = EvalTask(
-                id="stable-base-task",
-                title="Stable base task",
+            init_repo(repo)
+            commit = commit_file(repo, "app.txt", "base\n", message="base")
+            task = eval_task(
+                task_id="stable-base-task",
                 repo=str(repo),
                 commit=commit,
-                language="text",
-                prompt="Do nothing.",
+                title="Stable base task",
             )
 
             with mock.patch.dict(
@@ -265,7 +273,7 @@ class WorkspaceTest(unittest.TestCase):
                 prepared_b.workspace_base_ref,
             )
             self.assertEqual(
-                self._git(
+                git(
                     ["log", "-1", "--format=%an <%ae>|%cn <%ce>|%aI|%cI"],
                     prepared_a.path,
                 ).stdout.strip(),
@@ -299,7 +307,6 @@ class WorkspaceTest(unittest.TestCase):
                 encoding="utf-8",
             )
             repo = temp_path / "repo"
-            repo.mkdir()
 
             with mock.patch.dict(
                 os.environ,
@@ -309,29 +316,25 @@ class WorkspaceTest(unittest.TestCase):
                     "XDG_CONFIG_HOME": str(xdg_config),
                 },
             ):
-                self._git(["init"], repo)
-                self._git(["config", "user.email", "agentlab@example.com"], repo)
-                self._git(["config", "user.name", "Agent Lab"], repo)
+                init_repo(repo)
                 (repo / ".gitattributes").write_text(
                     "asset.dat filter=hydrate\n",
                     encoding="utf-8",
                 )
                 (repo / "asset.dat").write_text("pointer\n", encoding="utf-8")
-                self._git(["add", ".gitattributes", "asset.dat"], repo)
-                self._git(["commit", "-m", "base"], repo)
-                commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
-                task = EvalTask(
-                    id="filter-task",
-                    title="Filter task",
+                git(["add", ".gitattributes", "asset.dat"], repo)
+                git(["commit", "-m", "base"], repo)
+                commit = head(repo)
+                task = eval_task(
+                    task_id="filter-task",
                     repo=str(repo),
                     commit=commit,
-                    language="text",
-                    prompt="Do nothing.",
+                    title="Filter task",
                 )
 
                 prepared = prepare_workspace(task, temp_path / "workspace")
 
-            source_blob = self._git(
+            source_blob = git(
                 ["cat-file", "blob", f"{commit}:asset.dat"],
                 repo,
             ).stdout
@@ -341,7 +344,7 @@ class WorkspaceTest(unittest.TestCase):
                 source_blob,
             )
             self.assertEqual(
-                self._git(["status", "--short"], prepared.path).stdout.strip(),
+                git(["status", "--short"], prepared.path).stdout.strip(),
                 "",
             )
 
@@ -385,7 +388,6 @@ class WorkspaceTest(unittest.TestCase):
                 encoding="utf-8",
             )
             repo = temp_path / "repo"
-            repo.mkdir()
 
             with mock.patch.dict(
                 os.environ,
@@ -395,24 +397,20 @@ class WorkspaceTest(unittest.TestCase):
                     "XDG_CONFIG_HOME": str(xdg_config),
                 },
             ):
-                self._git(["init"], repo)
-                self._git(["config", "user.email", "agentlab@example.com"], repo)
-                self._git(["config", "user.name", "Agent Lab"], repo)
+                init_repo(repo)
                 (repo / ".gitattributes").write_text(
                     "asset.dat filter=block\n",
                     encoding="utf-8",
                 )
                 (repo / "asset.dat").write_text("pointer\n", encoding="utf-8")
-                self._git(["add", ".gitattributes", "asset.dat"], repo)
-                self._git(["commit", "-m", "base"], repo)
-                commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
-                task = EvalTask(
-                    id="no-prep-checkout-task",
-                    title="No prep checkout task",
+                git(["add", ".gitattributes", "asset.dat"], repo)
+                git(["commit", "-m", "base"], repo)
+                commit = head(repo)
+                task = eval_task(
+                    task_id="no-prep-checkout-task",
                     repo=str(repo),
                     commit=commit,
-                    language="text",
-                    prompt="Do nothing.",
+                    title="No prep checkout task",
                 )
 
                 prepared = prepare_workspace(task, temp_path / "workspace")
@@ -423,7 +421,7 @@ class WorkspaceTest(unittest.TestCase):
                 "pointer\n",
             )
             self.assertEqual(
-                self._git(["status", "--short"], prepared.path).stdout.strip(),
+                git(["status", "--short"], prepared.path).stdout.strip(),
                 "",
             )
 
@@ -434,14 +432,8 @@ class WorkspaceTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             temp_path = Path(temp)
             repo = temp_path / "repo"
-            repo.mkdir()
-            self._git(["init"], repo)
-            self._git(["config", "user.email", "agentlab@example.com"], repo)
-            self._git(["config", "user.name", "Agent Lab"], repo)
-            (repo / "app.txt").write_text("base\n", encoding="utf-8")
-            self._git(["add", "app.txt"], repo)
-            self._git(["commit", "-m", "base"], repo)
-            commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+            init_repo(repo)
+            commit = commit_file(repo, "app.txt", "base\n", message="base")
 
             hostile_config = temp_path / "hostile.gitconfig"
             hostile_config.write_text(
@@ -454,13 +446,11 @@ class WorkspaceTest(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
-            task = EvalTask(
-                id="clone-config-task",
-                title="Clone config task",
+            task = eval_task(
+                task_id="clone-config-task",
                 repo=repo.as_uri(),
                 commit=commit,
-                language="text",
-                prompt="Do nothing.",
+                title="Clone config task",
             )
 
             with mock.patch.dict(
@@ -479,7 +469,7 @@ class WorkspaceTest(unittest.TestCase):
                 "base\n",
             )
             self.assertEqual(
-                self._git(["status", "--short"], prepared.path).stdout.strip(),
+                git(["status", "--short"], prepared.path).stdout.strip(),
                 "",
             )
 
@@ -490,14 +480,8 @@ class WorkspaceTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             temp_path = Path(temp)
             repo = temp_path / "repo"
-            repo.mkdir()
-            self._git(["init"], repo)
-            self._git(["config", "user.email", "agentlab@example.com"], repo)
-            self._git(["config", "user.name", "Agent Lab"], repo)
-            (repo / "app.txt").write_text("base\n", encoding="utf-8")
-            self._git(["add", "app.txt"], repo)
-            self._git(["commit", "-m", "base"], repo)
-            commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+            init_repo(repo)
+            commit = commit_file(repo, "app.txt", "base\n", message="base")
 
             home = temp_path / "home"
             xdg_config = temp_path / "xdg"
@@ -526,13 +510,11 @@ class WorkspaceTest(unittest.TestCase):
             template_hook.write_text("#!/bin/sh\nexit 1\n", encoding="utf-8")
             template_hook.chmod(0o755)
 
-            task = EvalTask(
-                id="global-hooks-task",
-                title="Global hooks task",
+            task = eval_task(
+                task_id="global-hooks-task",
                 repo=str(repo),
                 commit=commit,
-                language="text",
-                prompt="Do nothing.",
+                title="Global hooks task",
             )
 
             with mock.patch.dict(
@@ -549,12 +531,12 @@ class WorkspaceTest(unittest.TestCase):
                 (prepared.path / ".git" / "hooks" / "template-hook").exists()
             )
             self.assertEqual(
-                self._git(["config", "--get", "core.hooksPath"], prepared.path)
+                git(["config", "--get", "core.hooksPath"], prepared.path)
                 .stdout.strip(),
                 ".git/hooks",
             )
             self.assertEqual(
-                self._git(
+                git(
                     ["log", "-1", "--format=%an <%ae>|%cn <%ce>|%aI|%cI"],
                     prepared.path,
                 ).stdout.strip(),
@@ -573,14 +555,8 @@ class WorkspaceTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             temp_path = Path(temp)
             repo = temp_path / "repo"
-            repo.mkdir()
-            self._git(["init"], repo)
-            self._git(["config", "user.email", "agentlab@example.com"], repo)
-            self._git(["config", "user.name", "Agent Lab"], repo)
-            (repo / "app.txt").write_text("base\n", encoding="utf-8")
-            self._git(["add", "app.txt"], repo)
-            self._git(["commit", "-m", "base"], repo)
-            commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+            init_repo(repo)
+            commit = commit_file(repo, "app.txt", "base\n", message="base")
 
             home = temp_path / "home"
             xdg_config = temp_path / "xdg"
@@ -598,13 +574,11 @@ class WorkspaceTest(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
-            task = EvalTask(
-                id="global-object-config-task",
-                title="Global object config task",
+            task = eval_task(
+                task_id="global-object-config-task",
                 repo=str(repo),
                 commit=commit,
-                language="text",
-                prompt="Do nothing.",
+                title="Global object config task",
             )
 
             with mock.patch.dict(
@@ -621,17 +595,17 @@ class WorkspaceTest(unittest.TestCase):
 
             self.assertEqual(prepared_a.workspace_base_ref, prepared_b.workspace_base_ref)
             self.assertEqual(
-                self._git(
+                git(
                     ["rev-parse", "--show-object-format"],
                     prepared_a.path,
                 ).stdout.strip(),
-                self._git(
+                git(
                     ["rev-parse", "--show-object-format"],
                     repo,
                 ).stdout.strip(),
             )
             self.assertEqual(
-                self._git(["status", "--short"], prepared_a.path).stdout.strip(),
+                git(["status", "--short"], prepared_a.path).stdout.strip(),
                 "",
             )
 
@@ -642,20 +616,13 @@ class WorkspaceTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             temp_path = Path(temp)
             repo = temp_path / "repo"
-            repo.mkdir()
-            self._git(["init"], repo)
-            self._git(["config", "user.email", "agentlab@example.com"], repo)
-            self._git(["config", "user.name", "Agent Lab"], repo)
-            (repo / "app.txt").write_text("before\n", encoding="utf-8")
-            self._git(["add", "app.txt"], repo)
-            self._git(["commit", "-m", "base"], repo)
-            base_commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
-            task = EvalTask(
-                id="diff-base-task",
-                title="Diff base task",
+            init_repo(repo)
+            base_commit = commit_file(repo, "app.txt", "before\n", message="base")
+            task = eval_task(
+                task_id="diff-base-task",
                 repo=str(repo),
                 commit=base_commit,
-                language="text",
+                title="Diff base task",
                 prompt="Change the file.",
             )
             prepared = prepare_workspace(task, temp_path / "workspace")
@@ -672,50 +639,6 @@ class WorkspaceTest(unittest.TestCase):
                 "-before",
                 (temp_path / "diff.patch").read_text(encoding="utf-8"),
             )
-
-    def _git(self, args, cwd):
-        completed = subprocess.run(
-            ["git"] + args,
-            cwd=str(cwd),
-            text=True,
-            capture_output=True,
-        )
-        if completed.returncode != 0:
-            self.fail(completed.stderr)
-        return completed
-
-    def _git_with_input(self, args, cwd, input_text):
-        completed = subprocess.run(
-            ["git"] + args,
-            cwd=str(cwd),
-            text=True,
-            input=input_text,
-            capture_output=True,
-        )
-        if completed.returncode != 0:
-            self.fail(completed.stderr)
-        return completed
-
-    def _assert_base_only_repository(self, workspace):
-        self.assertEqual(
-            self._git(["rev-list", "--count", "HEAD"], workspace).stdout.strip(),
-            "1",
-        )
-        self.assertEqual(
-            self._git(
-                [
-                    "for-each-ref",
-                    "--format=%(refname)",
-                    "refs/heads",
-                    "refs/remotes",
-                    "refs/tags",
-                ],
-                workspace,
-            ).stdout.strip(),
-            "",
-        )
-        self.assertFalse((workspace / ".git" / "logs").exists())
-
 
 if __name__ == "__main__":
     unittest.main()

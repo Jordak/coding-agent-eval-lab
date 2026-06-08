@@ -17,6 +17,8 @@ from agentlab.agents.claude_code import (
 )
 from agentlab.execution.runner import run_task
 from agentlab.tasks import EvalTask
+from tests.git_fixtures import commit_file
+from tests.git_fixtures import init_repo
 
 
 class ClaudeCodeAdapterTest(unittest.TestCase):
@@ -299,14 +301,8 @@ class ClaudeCodeAdapterTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             temp_path = Path(temp)
             repo = temp_path / "repo"
-            repo.mkdir()
-            self._git(["init"], repo)
-            self._git(["config", "user.email", "agentlab@example.com"], repo)
-            self._git(["config", "user.name", "Agent Lab"], repo)
-            (repo / "answer.txt").write_text("before\n", encoding="utf-8")
-            self._git(["add", "answer.txt"], repo)
-            self._git(["commit", "-m", "initial"], repo)
-            commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+            init_repo(repo)
+            commit = commit_file(repo, "answer.txt", "before\n", message="initial")
 
             task = EvalTask(
                 id="claude-fixture",
@@ -395,18 +391,6 @@ class ClaudeCodeAdapterTest(unittest.TestCase):
             ),
             stderr="",
         )
-
-    def _git(self, args, cwd):
-        completed = subprocess.run(
-            ["git"] + args,
-            cwd=str(cwd),
-            text=True,
-            capture_output=True,
-        )
-        if completed.returncode != 0:
-            self.fail(completed.stderr)
-        return completed
-
 
 if __name__ == "__main__":
     unittest.main()
