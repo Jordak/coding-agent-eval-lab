@@ -207,6 +207,37 @@ class WorkspaceTest(unittest.TestCase):
             ):
                 prepare_workspace(task, temp_path / "workspace")
 
+    def test_prepare_workspace_invalid_commit_does_not_reserve_workspace(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for workspace preparation")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo = temp_path / "repo"
+            init_repo(repo)
+            commit = commit_file(repo, "app.txt", "base\n", message="base")
+            task = eval_task(
+                task_id="missing-commit-task",
+                repo=str(repo),
+                commit="0" * 40,
+                title="Missing commit task",
+            )
+
+            with self.assertRaisesRegex(RuntimeError, "git rev-parse failed"):
+                prepare_workspace(task, temp_path / "workspace")
+
+            self.assertFalse((temp_path / "workspace" / task.id).exists())
+
+            retry_task = eval_task(
+                task_id=task.id,
+                repo=str(repo),
+                commit=commit,
+                title="Missing commit task",
+            )
+            prepared = prepare_workspace(retry_task, temp_path / "workspace")
+
+            self.assertTrue(prepared.path.exists())
+
     def test_synthetic_commit_uses_fixed_identity_and_date(self):
         if shutil.which("git") is None:
             self.skipTest("git is required for workspace preparation")

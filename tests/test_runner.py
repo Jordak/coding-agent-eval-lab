@@ -1,6 +1,5 @@
 import json
 import shutil
-import subprocess
 import sys
 import tempfile
 import unittest
@@ -9,6 +8,10 @@ from pathlib import Path
 from agentlab.agents.manual import ManualAgentAdapter
 from agentlab.execution.runner import _run_id, run_task
 from agentlab.tasks import EvalTask, SuccessCriteria
+from tests.git_fixtures import commit_file
+from tests.git_fixtures import git
+from tests.git_fixtures import head
+from tests.git_fixtures import init_repo
 
 
 class RunnerTest(unittest.TestCase):
@@ -24,14 +27,8 @@ class RunnerTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             temp_path = Path(temp)
             repo = temp_path / "repo"
-            repo.mkdir()
-            self._git(["init"], repo)
-            self._git(["config", "user.email", "agentlab@example.com"], repo)
-            self._git(["config", "user.name", "Agent Lab"], repo)
-            (repo / "README.md").write_text("# Fixture\n", encoding="utf-8")
-            self._git(["add", "README.md"], repo)
-            self._git(["commit", "-m", "initial"], repo)
-            commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+            init_repo(repo)
+            commit = commit_file(repo, "README.md", "# Fixture\n", message="initial")
 
             task = EvalTask(
                 id="fixture-task",
@@ -76,18 +73,15 @@ class RunnerTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             temp_path = Path(temp)
             repo = temp_path / "repo"
-            repo.mkdir()
-            self._git(["init"], repo)
-            self._git(["config", "user.email", "agentlab@example.com"], repo)
-            self._git(["config", "user.name", "Agent Lab"], repo)
+            init_repo(repo)
             bin_dir = repo / "bin"
             bin_dir.mkdir()
             verifier = bin_dir / "verify-local-env"
             verifier.write_text("#!/bin/sh\necho ok\n", encoding="utf-8")
             verifier.chmod(0o755)
-            self._git(["add", "bin/verify-local-env"], repo)
-            self._git(["commit", "-m", "initial"], repo)
-            commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+            git(["add", "bin/verify-local-env"], repo)
+            git(["commit", "-m", "initial"], repo)
+            commit = head(repo)
 
             task = EvalTask(
                 id="env-path-task",
@@ -115,14 +109,8 @@ class RunnerTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             temp_path = Path(temp)
             repo = temp_path / "repo"
-            repo.mkdir()
-            self._git(["init"], repo)
-            self._git(["config", "user.email", "agentlab@example.com"], repo)
-            self._git(["config", "user.name", "Agent Lab"], repo)
-            (repo / "a.txt").write_text("before\n", encoding="utf-8")
-            self._git(["add", "a.txt"], repo)
-            self._git(["commit", "-m", "initial"], repo)
-            commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+            init_repo(repo)
+            commit = commit_file(repo, "a.txt", "before\n", message="initial")
 
             task = EvalTask(
                 id="file-limit-task",
@@ -155,14 +143,8 @@ class RunnerTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             temp_path = Path(temp)
             repo = temp_path / "repo"
-            repo.mkdir()
-            self._git(["init"], repo)
-            self._git(["config", "user.email", "agentlab@example.com"], repo)
-            self._git(["config", "user.name", "Agent Lab"], repo)
-            (repo / "app.txt").write_text("before\nsame\n", encoding="utf-8")
-            self._git(["add", "app.txt"], repo)
-            self._git(["commit", "-m", "initial"], repo)
-            commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
+            init_repo(repo)
+            commit = commit_file(repo, "app.txt", "before\nsame\n", message="initial")
 
             task = EvalTask(
                 id="line-metrics-task",
@@ -203,18 +185,6 @@ class RunnerTest(unittest.TestCase):
             self.assertEqual(result["outcome"]["lines_deleted"], 1)
             self.assertIn("- Lines added: `2`", report)
             self.assertIn("- Lines deleted: `1`", report)
-
-    def _git(self, args, cwd):
-        completed = subprocess.run(
-            ["git"] + args,
-            cwd=str(cwd),
-            text=True,
-            capture_output=True,
-        )
-        if completed.returncode != 0:
-            self.fail(completed.stderr)
-        return completed
-
 
 if __name__ == "__main__":
     unittest.main()

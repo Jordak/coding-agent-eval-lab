@@ -6,12 +6,10 @@ import tempfile
 
 from agentlab.execution.commands import (
     clone_no_checkout,
+    isolated_git_env,
     run_git,
 )
-from agentlab.execution.synthetic_workspace import (
-    materialize_synthetic_base,
-    synthetic_git_env,
-)
+from agentlab.execution.synthetic_workspace import materialize_synthetic_base
 from agentlab.tasks import EvalTask
 
 
@@ -43,7 +41,6 @@ def prepare_workspace(task: EvalTask, root: Path) -> PreparedWorkspace:
         if clone.returncode != 0:
             raise RuntimeError(f"git clone failed: {clone.stderr.strip()}")
 
-        workspace.mkdir(parents=True)
         base_ref = materialize_synthetic_base(
             prep_repo,
             task.commit,
@@ -74,7 +71,7 @@ def capture_diff(
         diff_args.append(base_ref)
         name_args.append(base_ref)
 
-    git_env = synthetic_git_env()
+    git_env = isolated_git_env()
     diff = run_git(diff_args, cwd=workspace, env=git_env)
     if diff.returncode != 0:
         raise RuntimeError(f"git diff failed: {diff.stderr.strip()}")

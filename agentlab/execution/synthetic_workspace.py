@@ -30,16 +30,13 @@ def materialize_synthetic_base(
     prep_env = isolated_git_env()
     source_tree = _source_tree(prep_repo, commit, prep_env)
     object_format = _source_object_format(prep_repo, prep_env)
+    workspace.mkdir(parents=True)
     entries = _source_tree_entries(prep_repo, commit, prep_env)
 
     _materialize_source_tree(prep_repo, workspace, entries, prep_env)
     _commit_synthetic_base(workspace, entries, object_format)
     _assert_tree_matches_source(workspace, source_tree)
     return _workspace_head(workspace)
-
-
-def synthetic_git_env() -> dict[str, str]:
-    return isolated_git_env()
 
 
 def _source_tree(prep_repo: Path, commit: str, git_env: dict[str, str]) -> str:
@@ -155,7 +152,7 @@ def _commit_synthetic_base(
     entries: list[_TreeEntry],
     object_format: str,
 ) -> None:
-    git_env = synthetic_git_env()
+    git_env = isolated_git_env()
     with tempfile.TemporaryDirectory(prefix="agentlab-empty-template-") as template:
         init = run_git(
             ["init", f"--object-format={object_format}", f"--template={template}"],
@@ -279,7 +276,7 @@ def _assert_tree_matches_source(workspace: Path, source_tree: str) -> None:
     synthetic_tree = run_git(
         ["rev-parse", "HEAD^{tree}"],
         cwd=workspace,
-        env=synthetic_git_env(),
+        env=isolated_git_env(),
     )
     if synthetic_tree.returncode != 0:
         raise RuntimeError(f"git rev-parse failed: {synthetic_tree.stderr.strip()}")
@@ -288,7 +285,7 @@ def _assert_tree_matches_source(workspace: Path, source_tree: str) -> None:
 
 
 def _workspace_head(workspace: Path) -> str:
-    base_ref = run_git(["rev-parse", "HEAD"], cwd=workspace, env=synthetic_git_env())
+    base_ref = run_git(["rev-parse", "HEAD"], cwd=workspace, env=isolated_git_env())
     if base_ref.returncode != 0:
         raise RuntimeError(f"git rev-parse failed: {base_ref.stderr.strip()}")
     return base_ref.stdout.strip()
