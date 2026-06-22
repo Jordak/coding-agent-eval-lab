@@ -26,6 +26,11 @@ Remove the obsolete focus `:after` pseudo-element from `style/react-tabs.css` an
 
 No task-local environment configured.
 
+## Visible Validation
+
+- `python3 -c 'from pathlib import Path; css = Path("style/react-tabs.css").read_text(); scss = Path("style/react-tabs.scss").read_text(); less = Path("style/react-tabs.less").read_text(); assert ".react-tabs__tab:focus:after" not in css, css; assert "&:after" not in scss, scss; assert "&:after" not in less, less; assert ".react-tabs__tab:focus" in css and "&:focus" in scss and "&:focus" in less; assert ".react-tabs__tab--selected" in css and "&--selected" in scss and "&--selected" in less; assert "border-color: #aaa" in css and "border-color: #aaa" in scss and "border-color: #aaa" in less'`
+- `git diff --check`
+
 ## Graders
 
 ### Setup

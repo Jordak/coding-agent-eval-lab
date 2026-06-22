@@ -26,6 +26,11 @@ In the JavaScript ternary printer, stop separately printing dangling comments fr
 
 No task-local environment configured.
 
+## Visible Validation
+
+- `node -e 'const prettier = require("./src/index.cjs"); (async () => { const cases = [`condition ? ifTrue\n: [\n      // Hello, world!\n  ]\n`, `condition ? [\n      // Hello, world!\n  ]\n: ifFalse\n`, `condition ? ifTrue\n: {\n      // Hello, world!\n  }\n`, `condition ? {\n    // Hello, world!\n  }\n: ifFalse\n`, `condition ? ifTrue\n: [\n      // Hello, world!\n    1,\n  ]\n`]; for (const input of cases) { const output = await prettier.format(input, { parser: "babel", tabWidth: 4, semi: false, experimentalTernaries: true }); const count = (output.match(/Hello, world!/g) || []).length; if (count !== 1) { console.error(output); throw new Error(`expected exactly one preserved comment, saw ${count}`); } } })().catch((error) => { console.error(error); process.exit(1); })'`
+- `git diff --check`
+
 ## Graders
 
 ### Setup
