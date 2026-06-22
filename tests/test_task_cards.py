@@ -150,6 +150,21 @@ class TaskCardPublicationTest(unittest.TestCase):
         self.assertIn("- Allowed paths: `src/`, `tests/**/*.py`", card)
         self.assertIn("- Forbidden paths: `src/private/`", card)
 
+    def test_renders_visible_validation_when_configured(self):
+        with tempfile.TemporaryDirectory() as temp:
+            bundle_dir = _write_task_bundle(
+                Path(temp) / "example-suite",
+                "demo-001",
+                visible_validation=True,
+            )
+            bundle = load_task_bundle(bundle_dir)
+
+            card = render_task_card(bundle)
+
+        self.assertIn("## Visible Validation", card)
+        self.assertIn("- `pytest tests/focused_check.py`", card)
+        self.assertIn("### Target\n\n- `pytest tests/test_demo.py`", card)
+
 
 def _write_task_bundle(
     suite_dir: Path,
@@ -159,6 +174,7 @@ def _write_task_bundle(
     eval_type: str = "regression",
     tags: list[str] | None = None,
     scope_oracle: bool = False,
+    visible_validation: bool = False,
 ) -> Path:
     bundle_dir = suite_dir / task_id
     bundle_dir.mkdir(parents=True)
@@ -183,6 +199,7 @@ setup:
   - python -m pip install -e .
 baseline:
   - pytest
+{_visible_validation(visible_validation)}
 test:
   - pytest tests/test_demo.py
 environment_path:
@@ -222,6 +239,12 @@ def _scope_oracle_success(enabled: bool) -> str:
         "  forbidden_paths:\n"
         "    - src/private/"
     )
+
+
+def _visible_validation(enabled: bool) -> str:
+    if not enabled:
+        return ""
+    return "visible_validation:\n  - pytest tests/focused_check.py"
 
 
 if __name__ == "__main__":

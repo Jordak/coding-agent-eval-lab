@@ -48,6 +48,7 @@ def render_task_card(bundle: TaskBundle) -> str:
         "",
         _environment_text(task),
         "",
+        *_visible_validation_section(task),
         "## Graders",
         "",
         "### Setup",
@@ -85,6 +86,17 @@ def _command_list(commands: List[str]) -> str:
     if not commands:
         return "None configured."
     return "\n".join(f"- `{command}`" for command in commands)
+
+
+def _visible_validation_section(task: EvalTask) -> list[str]:
+    if not task.visible_validation:
+        return []
+    return [
+        "## Visible Validation",
+        "",
+        _command_list(task.visible_validation),
+        "",
+    ]
 
 
 def _environment_text(task: EvalTask) -> str:

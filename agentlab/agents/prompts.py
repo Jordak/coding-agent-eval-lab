@@ -17,9 +17,9 @@ def build_agent_prompt(task: EvalTask) -> str:
         task.prompt,
         "",
     ]
-    if task.test:
-        lines.extend(["Validation commands that will be run after you finish:"])
-        lines.extend(f"- {command}" for command in task.test)
+    if task.visible_validation:
+        lines.extend(["Suggested validation commands:"])
+        lines.extend(f"- {command}" for command in task.visible_validation)
         lines.append("")
     environment_lines = describe_task_environment(task)
     if environment_lines:

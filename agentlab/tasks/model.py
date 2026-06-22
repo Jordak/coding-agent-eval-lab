@@ -49,6 +49,7 @@ class EvalTask:
     setup: List[str] = field(default_factory=list)
     baseline: List[str] = field(default_factory=list)
     test: List[str] = field(default_factory=list)
+    visible_validation: List[str] = field(default_factory=list)
     environment_path: List[str] = field(default_factory=list)
     environment: Dict[str, str] = field(default_factory=dict)
     success: SuccessCriteria = field(default_factory=SuccessCriteria)
@@ -127,6 +128,10 @@ class EvalTask:
             setup=_string_list(mapping.get("setup", []), "setup"),
             baseline=_string_list(mapping.get("baseline", []), "baseline"),
             test=_string_list(mapping.get("test", []), "test"),
+            visible_validation=_string_list(
+                mapping.get("visible_validation", []),
+                "visible_validation",
+            ),
             environment_path=_environment_path(
                 mapping.get("environment_path", []),
                 "environment_path",
