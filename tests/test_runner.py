@@ -102,6 +102,58 @@ class RunnerTest(unittest.TestCase):
 
             self.assertTrue(evaluation.score.tests_passed)
 
+    def test_visible_validation_is_not_executed_or_serialized_as_grader(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for workspace preparation")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo = temp_path / "repo"
+            init_repo(repo)
+            commit = commit_file(repo, "README.md", "# Fixture\n", message="initial")
+            visible_command = (
+                f"{sys.executable} -c "
+                "\"raise SystemExit('visible validation should not run')\""
+            )
+            target_command = f"{sys.executable} -c \"print('target ok')\""
+
+            task = EvalTask(
+                id="visible-validation-task",
+                title="Visible validation task",
+                repo=str(repo),
+                commit=commit,
+                language="python",
+                prompt="Do nothing.",
+                visible_validation=[visible_command],
+                test=[target_command],
+            )
+
+            evaluation = run_task(
+                task,
+                ManualAgentAdapter(pause=False),
+                temp_path / "runs",
+            )
+            result = json.loads(evaluation.result_path.read_text(encoding="utf-8"))
+            report = evaluation.report_path.read_text(encoding="utf-8")
+
+            self.assertTrue(evaluation.score.tests_passed)
+            self.assertEqual(
+                [check.command for check in evaluation.score.checks],
+                [target_command],
+            )
+            self.assertEqual(evaluation.agent_run.commands_run, [target_command])
+            self.assertEqual(
+                [check["command"] for check in result["checks"]],
+                [target_command],
+            )
+            self.assertEqual(
+                [grader["assertion"] for grader in result["graders"]],
+                [target_command],
+            )
+            self.assertIn(target_command, report)
+            self.assertNotIn(visible_command, report)
+            self.assertNotIn(visible_command, json.dumps(result))
+
     def test_max_files_changed_is_enforced(self):
         if shutil.which("git") is None:
             self.skipTest("git is required for workspace preparation")
