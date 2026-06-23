@@ -69,6 +69,22 @@ class CliOutputTest(unittest.TestCase):
         self.assertEqual(args.trials, 5)
         self.assertEqual(args.jobs, 3)
 
+    def test_run_parser_accepts_dry_run(self):
+        parser = build_parser()
+
+        args = parser.parse_args(
+            [
+                "run",
+                "--agent",
+                "codex",
+                "--task",
+                "tasks/starter/example",
+                "--dry-run",
+            ]
+        )
+
+        self.assertTrue(args.dry_run)
+
     def test_run_parser_accepts_suite(self):
         parser = build_parser()
 
@@ -1148,6 +1164,7 @@ class CliOutputTest(unittest.TestCase):
         args = SimpleNamespace(
             task="tasks/starter/example",
             suite=None,
+            dry_run=False,
             agent="codex",
             runs_dir="runs",
             trials=2,
@@ -1200,10 +1217,37 @@ class CliOutputTest(unittest.TestCase):
             stdout.getvalue(),
         )
 
+    def test_handle_run_dry_run_resolves_task_without_executing_trials(self):
+        args = SimpleNamespace(
+            task="tasks/starter/example",
+            suite=None,
+            dry_run=True,
+            agent="codex",
+            runs_dir="runs",
+            trials=2,
+            jobs=1,
+            no_pause=True,
+        )
+        task = SimpleNamespace(id="task-a")
+        stdout = io.StringIO()
+
+        with patch("agentlab.cli.run.load_task", return_value=task):
+            with patch("agentlab.cli.run.execute_trials") as execute:
+                with contextlib.redirect_stdout(stdout):
+                    status = handle_run(args)
+
+        self.assertEqual(status, 0)
+        self.assertEqual(execute.call_count, 0)
+        self.assertIn(
+            "Dry run: would run task-a with agent=codex, trials=2, jobs=1",
+            stdout.getvalue(),
+        )
+
     def test_handle_run_executes_suite_tasks_sequentially(self):
         args = SimpleNamespace(
             task=None,
             suite="tasks/starter",
+            dry_run=False,
             agent="codex",
             runs_dir="runs",
             trials=2,
@@ -1258,10 +1302,47 @@ class CliOutputTest(unittest.TestCase):
         self.assertIn("Running task 2/2: task-b", stdout.getvalue())
         self.assertIn("Suite summary: 4/4 passed across 2 task(s)", stdout.getvalue())
 
+    def test_handle_run_dry_run_resolves_suite_without_executing_trials(self):
+        args = SimpleNamespace(
+            task=None,
+            suite="tasks/starter",
+            dry_run=True,
+            agent="codex",
+            runs_dir="runs",
+            trials=2,
+            jobs=1,
+            no_pause=True,
+        )
+        task_a = SimpleNamespace(id="task-a")
+        task_b = SimpleNamespace(id="task-b")
+        bundles = [
+            SimpleNamespace(task=task_a),
+            SimpleNamespace(task=task_b),
+        ]
+        stdout = io.StringIO()
+
+        with patch("agentlab.cli.run.discover_task_bundles", return_value=bundles):
+            with patch("agentlab.cli.run.execute_trials") as execute:
+                with contextlib.redirect_stdout(stdout):
+                    status = handle_run(args)
+
+        self.assertEqual(status, 0)
+        self.assertEqual(execute.call_count, 0)
+        self.assertIn(
+            "Dry run task 1/2: would run task-a with agent=codex, trials=2, jobs=1",
+            stdout.getvalue(),
+        )
+        self.assertIn(
+            "Dry run task 2/2: would run task-b with agent=codex, trials=2, jobs=1",
+            stdout.getvalue(),
+        )
+        self.assertIn("Dry run summary: 2 task(s) selected", stdout.getvalue())
+
     def test_handle_run_reports_suite_no_matches(self):
         args = SimpleNamespace(
             task=None,
             suite="missing-suite",
+            dry_run=False,
             agent="codex",
             runs_dir="runs",
             trials=1,
@@ -1281,6 +1362,7 @@ class CliOutputTest(unittest.TestCase):
         args = SimpleNamespace(
             task=None,
             suite="tasks/starter",
+            dry_run=False,
             agent="codex",
             runs_dir="runs",
             trials=1,
@@ -1324,6 +1406,7 @@ class CliOutputTest(unittest.TestCase):
         args = SimpleNamespace(
             task="tasks/starter/example",
             suite=None,
+            dry_run=False,
             agent="claude",
             runs_dir="runs",
             trials=1,

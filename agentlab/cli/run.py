@@ -52,6 +52,11 @@ def add_run_command(subcommands: argparse._SubParsersAction) -> None:
         help="Maximum number of trials to run concurrently.",
     )
     run_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Resolve selected task(s) and print what would run without starting trials.",
+    )
+    run_parser.add_argument(
         "--no-pause",
         action="store_true",
         help="For the manual agent, do not wait for human edits.",
@@ -70,6 +75,10 @@ def handle_run(args: argparse.Namespace) -> int:
             return _handle_suite_run(args)
 
         task = load_task(args.task)
+        if getattr(args, "dry_run", False):
+            _print_dry_run_task(task, args)
+            return 0
+
         evaluations = _execute_task_run(args, task)
     except (RuntimeError, TaskLoadError) as exc:
         print_error(str(exc))
@@ -86,6 +95,17 @@ def _handle_suite_run(args: argparse.Namespace) -> int:
     if not bundles:
         print_error("No task files matched.")
         return 1
+
+    if getattr(args, "dry_run", False):
+        for index, bundle in enumerate(bundles, start=1):
+            _print_dry_run_task(
+                bundle.task,
+                args,
+                index=index,
+                total=len(bundles),
+            )
+        print(f"Dry run summary: {len(bundles)} task(s) selected")
+        return 0
 
     all_evaluations: list[object] = []
     task_errors: list[str] = []
@@ -116,6 +136,22 @@ def _handle_suite_run(args: argparse.Namespace) -> int:
         f"{passed}/{total} passed across {len(bundles)} task(s)"
     )
     return 0 if not task_errors and passed == total else 1
+
+
+def _print_dry_run_task(
+    task: EvalTask,
+    args: argparse.Namespace,
+    *,
+    index: int | None = None,
+    total: int | None = None,
+) -> None:
+    prefix = "Dry run"
+    if index is not None and total is not None:
+        prefix += f" task {index}/{total}"
+    print(
+        f"{prefix}: would run {task.id} "
+        f"with agent={args.agent}, trials={args.trials}, jobs={args.jobs}"
+    )
 
 
 def _execute_task_run(args: argparse.Namespace, task: EvalTask) -> list[object]:

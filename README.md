@@ -127,7 +127,12 @@ python3 -m agentlab run \
 with the same task-loading behavior used by task validation, then run those
 tasks sequentially in deterministic order. `--trials` and `--jobs` apply to each
 task in the suite. Failed suite runs print the affected task/trial report paths
-and finish with a suite summary.
+and finish with a suite summary. Add `--dry-run` to resolve the selected task or
+suite and print what would run without starting trials:
+
+```bash
+python3 -m agentlab run --agent codex --suite tasks/starter --dry-run
+```
 
 Useful Codex options:
 
