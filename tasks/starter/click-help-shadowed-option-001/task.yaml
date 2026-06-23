@@ -11,8 +11,7 @@ prompt: >
   --help, but a subcommand uses -h for another option, the missing-argument
   error should not suggest `cli foo -h` for help because that command no longer
   opens help. Suggest a help option that still works, and avoid printing a
-  misleading help hint when all configured help names are shadowed. Keep the
-  patch focused.
+  misleading help hint when all configured help names are shadowed.
 reference_solution: >
   In UsageError.show, derive the available help option names from the current
   command context instead of blindly using the first configured help name. A

@@ -10,7 +10,7 @@
 
 ## Prompt
 
-Fix Click's handling of string values supplied through default_map for multi-value parameters. When default_map provides a string for an option with nargs greater than 1, or for a tuple option type, Click should split the string the same way it splits environment variable values. Already-structured list or tuple values should still pass through unchanged, single-value string defaults should not be split, and explicit CLI arguments should still override default_map. Keep the production patch focused.
+Fix Click's handling of string values supplied through default_map for multi-value parameters. When default_map provides a string for an option with nargs greater than 1, or for a tuple option type, Click should split the string the same way it splits environment variable values. Already-structured list or tuple values should still pass through unchanged, single-value string defaults should not be split, and explicit CLI arguments should still override default_map.
 
 ## Reference
 

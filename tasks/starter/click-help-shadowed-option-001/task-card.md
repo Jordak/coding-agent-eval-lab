@@ -10,7 +10,7 @@
 
 ## Prompt
 
-Fix Click's usage-error help hint when a nested command shadows one of the configured help option names. If a group configures help names such as -h and --help, but a subcommand uses -h for another option, the missing-argument error should not suggest `cli foo -h` for help because that command no longer opens help. Suggest a help option that still works, and avoid printing a misleading help hint when all configured help names are shadowed. Keep the patch focused.
+Fix Click's usage-error help hint when a nested command shadows one of the configured help option names. If a group configures help names such as -h and --help, but a subcommand uses -h for another option, the missing-argument error should not suggest `cli foo -h` for help because that command no longer opens help. Suggest a help option that still works, and avoid printing a misleading help hint when all configured help names are shadowed.
 
 ## Reference
 

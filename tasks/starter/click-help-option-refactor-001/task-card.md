@@ -10,7 +10,7 @@
 
 ## Prompt
 
-Refactor Click's default help option construction so the automatic help option and the public help_option decorator share one reusable implementation. Preserve the existing CLI behavior for default help, custom help aliases, and commands with add_help_option disabled. Keep the production patch focused and avoid changing externally visible behavior.
+Refactor Click's default help option construction so the automatic help option and the public help_option decorator share one reusable implementation. Preserve the existing CLI behavior for default help, custom help aliases, and commands with add_help_option disabled. Avoid changing externally visible behavior.
 
 ## Reference
 

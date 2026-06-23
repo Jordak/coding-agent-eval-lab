@@ -13,8 +13,7 @@ prompt: >
   conservative compatibility choice: verify=False should disable server
   certificate checks only, not ignore client-side certs. Keep the existing
   verify=True with cert behavior and verify=False without cert behavior intact.
-  This v1 task is non-interactive, so proceed with that assumption and keep the
-  patch focused.
+  This v1 task is non-interactive, so proceed with that assumption.
 reference_solution: >
   In create_ssl_context, make the verify=False branch assign the unverified SSL
   context to the same ctx variable used by the other branches, then allow the

@@ -12,8 +12,7 @@ prompt: >
   string the same way it splits environment variable values. Already-structured
   list or tuple values should still pass through unchanged, single-value string
   defaults should not be split, and explicit CLI arguments should still
-  override default_map. Keep this as a surgical behavior fix with focused
-  default-map coverage; do not update release notes, documentation,
+  override default_map. Do not update release notes, documentation,
   configuration, dependencies, generated files, or broad unrelated tests.
 reference_solution: >
   In Option.consume_value, when a value comes from default_map and is a string

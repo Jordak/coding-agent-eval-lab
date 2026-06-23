@@ -10,7 +10,7 @@
 
 ## Prompt
 
-Fix Prettier's JavaScript formatter so `experimentalTernaries` no longer prints a dangling comment twice when an empty array or object appears in a ternary branch. For example, formatting `condition ? ifTrue : [ // comment ]` with the Babel parser, `--experimental-ternaries`, `--tab-width 4`, and `--no-semi` should preserve the comment exactly once rather than also placing it after the consequent. Keep the patch focused on the ternary printer and preserve the existing formatter behavior for the affected empty array/object consequent and alternate branches.
+Fix Prettier's JavaScript formatter so `experimentalTernaries` no longer prints a dangling comment twice when an empty array or object appears in a ternary branch. For example, formatting `condition ? ifTrue : [ // comment ]` with the Babel parser, `--experimental-ternaries`, `--tab-width 4`, and `--no-semi` should preserve the comment exactly once rather than also placing it after the consequent. Preserve the existing formatter behavior for the affected empty array/object consequent and alternate branches.
 
 ## Reference
 
