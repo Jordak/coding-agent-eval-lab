@@ -30,10 +30,6 @@ Update `tests/test_compat.py` to import Click, pytest, and sys; test `_is_jupyte
 - PYTHONPATH={workspace}/src
 - VIRTUAL_ENV={workspace}/.agentlab/venv
 
-## Visible Validation
-
-- `python -m pytest tests/test_compat.py -q`
-
 ## Graders
 
 ### Setup

@@ -38,8 +38,6 @@ baseline:
   - >-
     python -c 'import click, sys; compat = click._compat; compat.isatty = lambda stream: True; compat._is_jupyter_kernel_output = lambda stream: False; assert compat.should_strip_ansi(stream=sys.stdout, color=None) is False; assert compat.should_strip_ansi(stream=sys.stdout, color=True) is False; assert compat.should_strip_ansi(stream=sys.stdout, color=False) is True; compat.isatty = lambda stream: False; compat._is_jupyter_kernel_output = lambda stream: True; assert compat.should_strip_ansi(stream=None, color=None) is False; compat._is_jupyter_kernel_output = lambda stream: False; assert compat.should_strip_ansi(stream=None, color=None) is True'
   - python -c 'from pathlib import Path; text = Path("tests/test_compat.py").read_text(); assert "def test_should_strip_ansi" not in text'
-visible_validation:
-  - python -m pytest tests/test_compat.py -q
 test:
   - python -m pytest tests/test_compat.py -q
   - >-
