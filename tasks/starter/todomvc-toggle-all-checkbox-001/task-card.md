@@ -10,7 +10,7 @@
 
 ## Prompt
 
-Fix the JavaScript ES5 TodoMVC toggle-all control so the checkbox itself and its label both update all todos correctly. In examples/javascript-es5, the label's for attribute should point to the checkbox, rendering should keep the checkbox input's checked state in sync, and the view should listen for the checkbox's own state change instead of relying on a label click that manually clicks the input. Keep the src and dist copies consistent, avoid double-toggling the checkbox, and run the relevant checks.
+Fix the JavaScript ES5 TodoMVC toggle-all control so the checkbox itself and its label both update all todos correctly. In examples/javascript-es5, the label's for attribute should point to the checkbox, rendering should keep the checkbox input's checked state in sync, and the view should listen for the checkbox's own state change instead of relying on a label click that manually clicks the input. Keep the src and dist copies consistent, avoid double-toggling the checkbox.
 
 ## Reference
 

@@ -10,7 +10,7 @@
 
 ## Prompt
 
-Add focused tests for Click's existing `_compat.should_strip_ansi` behavior. Cover the explicit color override cases where `color=True` keeps ANSI and `color=False` strips ANSI, plus the automatic `color=None` decisions for TTY streams, Jupyter kernel output, and non-TTY/non-Jupyter streams. Include common stream inputs such as `None`, stdin, stdout, and stderr. This is a test-writing task only: do not modify production code, docs, packaging, or configuration. Keep the tests in the existing compat tests and run the targeted checks.
+Add focused tests for Click's existing `_compat.should_strip_ansi` behavior. Cover the explicit color override cases where `color=True` keeps ANSI and `color=False` strips ANSI, plus the automatic `color=None` decisions for TTY streams, Jupyter kernel output, and non-TTY/non-Jupyter streams. Include common stream inputs such as `None`, stdin, stdout, and stderr. This is a test-writing task only: do not modify production code, docs, packaging, or configuration. Keep the tests in the existing compat tests.
 
 ## Reference
 

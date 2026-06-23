@@ -12,8 +12,7 @@ prompt: >
   streams, Jupyter kernel output, and non-TTY/non-Jupyter streams. Include common
   stream inputs such as `None`, stdin, stdout, and stderr. This is a
   test-writing task only: do not modify production code, docs, packaging, or
-  configuration. Keep the tests in the existing compat tests and run the
-  targeted checks.
+  configuration. Keep the tests in the existing compat tests.
 reference_solution: >
   Update `tests/test_compat.py` to import Click, pytest, and sys; test
   `_is_jupyter_kernel_output` directly; and add a parametrized

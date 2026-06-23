@@ -10,7 +10,7 @@
 
 ## Prompt
 
-Fix the simulation metadata bug where trials using the advanced-snake heuristic do not persist their custom heuristic weights in the result payload. The CLI exposes this heuristic as advanced-snake, so a simulation with custom weights should return those weights in the params field and preserve the trial tag. Keep the patch focused and run the relevant tests.
+Fix the simulation metadata bug where trials using the advanced-snake heuristic do not persist their custom heuristic weights in the result payload. The CLI exposes this heuristic as advanced-snake, so a simulation with custom weights should return those weights in the params field and preserve the trial tag. Keep the patch focused.
 
 ## Reference
 

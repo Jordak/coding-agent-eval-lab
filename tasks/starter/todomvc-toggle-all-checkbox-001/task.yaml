@@ -12,7 +12,7 @@ prompt: >
   checkbox input's checked state in sync, and the view should listen for the
   checkbox's own state change instead of relying on a label click that manually
   clicks the input. Keep the src and dist copies consistent, avoid
-  double-toggling the checkbox, and run the relevant checks.
+  double-toggling the checkbox.
 reference_solution: >
   Add id="toggle-all" to the JavaScript ES5 toggle-all checkbox in both
   index.html files. In both View implementations, render the toggle-all checked
