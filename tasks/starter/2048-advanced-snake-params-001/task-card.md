@@ -27,6 +27,11 @@ In simulation.py, persist params when args.heuristic is advanced-snake instead o
 - PYTEST_ADDOPTS=-p no:cacheprovider
 - PYTHONDONTWRITEBYTECODE=1
 
+## Visible Validation
+
+- `python3 -c "from types import SimpleNamespace; from simulation import run_single_simulation; from ai.heuristics import get_advanced_heuristic_with_weights; weights = {'empty': 1.0, 'smooth': 2.0, 'mono': 3.0, 'snake': 4.0}; heuristic = get_advanced_heuristic_with_weights(weights); args = SimpleNamespace(ai='expectimax', heuristic='advanced-snake', depth=1, tag='eval-smoke'); result = run_single_simulation((args, weights, heuristic, {'name': heuristic.name, 'version': heuristic.version, 'description': heuristic.description})); assert result['params'] == weights, result; assert result['tag'] == 'eval-smoke', result"`
+- `python3 -c "from game import Game; game = Game(); assert game.board.shape == (4, 4); assert not game.game_over()"`
+
 ## Graders
 
 ### Setup

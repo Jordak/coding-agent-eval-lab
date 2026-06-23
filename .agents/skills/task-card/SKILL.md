@@ -67,6 +67,19 @@ reference_artifact:
   path: reference.patch
 ```
 
+Use `test` for deterministic target graders. Target grader commands run after
+the agent phase and affect the grader outcome, but they are not injected into
+trial prompts by default. When a task should intentionally give the agent a
+self-check recipe, put those commands in `visible_validation`:
+
+```yaml
+visible_validation:
+  - python -m pytest tests/test_focused.py -q
+test:
+  - python -m pytest tests/test_focused.py -q
+  - python -c "assert stricter_behavior_holds()"
+```
+
 Optional scope-oracle metadata can declare consent posture and path boundaries
 without injecting those details into trial prompts:
 

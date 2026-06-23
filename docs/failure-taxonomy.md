@@ -5,7 +5,7 @@
 - `context_miss`: agent harness did not find or use the relevant code.
 - `spec_misread`: agent harness misunderstood the requested behavior.
 - `bad_local_fix`: fixed one path but broke another or missed the root cause.
-- `test_gap`: passed visible graders but likely incomplete against intended behavior.
+- `test_gap`: passed configured graders but likely incomplete against intended behavior.
 - `over_edit`: changed too much or refactored unrelated code.
 - `resource_inefficient`: used disproportionate runtime, token budget, cost, or
   command churn relative to the task complexity and outcome quality.

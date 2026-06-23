@@ -30,6 +30,12 @@ Extract a HelpOption subclass in click.decorators, make help_option use it as th
 - PYTHONPATH={workspace}/src
 - VIRTUAL_ENV={workspace}/.agentlab/venv
 
+## Visible Validation
+
+- `python -c 'import click; assert hasattr(click, "HelpOption"); cmd = click.Command("demo"); ctx = click.Context(cmd); option = cmd.get_help_option(ctx); assert isinstance(option, click.HelpOption), type(option); assert option.is_flag is True; assert option.is_eager is True; assert option.expose_value is False'`
+- `python -c 'import click; from click.testing import CliRunner; cmd = click.Command("demo", params=[click.Option(["--name"], help="Name")], callback=lambda name: click.echo("hello " + name if name else "hello")); result = CliRunner().invoke(cmd, ["--help"]); assert result.exit_code == 0, result.output; assert "Usage: demo [OPTIONS]" in result.output, result.output; assert "--help" in result.output, result.output; assert "Show this message and exit." in result.output, result.output; disabled = click.Command("plain", add_help_option=False, callback=lambda: None); disabled_result = CliRunner().invoke(disabled, ["--help"]); assert disabled_result.exit_code == 2, disabled_result.output; assert "No such option: --help" in disabled_result.output, disabled_result.output'`
+- `python -c 'import click; from click.testing import CliRunner; cli = click.help_option("-h", "--halp")(click.command()(lambda: click.echo("ran"))); runner = CliRunner(); short_help = runner.invoke(cli, ["-h"]); long_help = runner.invoke(cli, ["--halp"]); normal_run = runner.invoke(cli, []); assert short_help.exit_code == 0, short_help.output; assert long_help.exit_code == 0, long_help.output; assert "Usage:" in short_help.output, short_help.output; assert "Usage:" in long_help.output, long_help.output; assert normal_run.exit_code == 0, normal_run.output; assert normal_run.output.strip() == "ran", normal_run.output'`
+
 ## Graders
 
 ### Setup

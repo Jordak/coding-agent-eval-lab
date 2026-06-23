@@ -82,9 +82,9 @@ def _print_manual_instructions(task: EvalTask, workspace: Path) -> None:
         print("Task-local environment used by setup, grader, and agent commands:")
         for line in environment_lines:
             print(f"- {line}")
-    if task.test:
+    if task.visible_validation:
         print("")
-        print("Code-based grader assertions that will run after you continue:")
-        for command in task.test:
+        print("Suggested validation commands:")
+        for command in task.visible_validation:
             print(f"- {command}")
     print("")

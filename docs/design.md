@@ -138,13 +138,19 @@ opt into bounded follow-up questions with explicit interaction metadata, but
 interactive tasks must be summarized separately from non-interactive tasks. See
 [ADR 0008](adr/0008-reserve-interactive-task-contracts.md).
 
+Task authors can include `visible_validation` commands when the fixed prompt
+should intentionally give an agent harness a self-check recipe. Target grader
+commands in `test` remain grader-facing by default: they run after the agent
+phase and contribute to the deterministic grader outcome, but they are not
+automatically injected into agent prompts.
+
 ## Task Environments
 
 Task setup should provision the dependencies needed by the deterministic graders
 and by the obvious self-checks an agent is likely to run. For example, a Python
 task that reasonably invites `pytest` should either make the relevant pytest
-entrypoint available or document that the intended validation scope is the
-listed grader commands.
+entrypoint available or provide explicit `visible_validation` commands when the
+task should tell the agent which self-checks to run.
 
 Tasks can declare `environment_path` entries to prepend workspace-relative
 directories to `PATH`, and an `environment` mapping for environment variables.

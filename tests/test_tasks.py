@@ -93,6 +93,9 @@ class TaskLoadingTest(unittest.TestCase):
                     baseline:
                       - >-
                         python -c "assert {'key': 'value'}['key'] == 'value'"
+                    visible_validation:
+                      - >-
+                        python -m pytest tests/test_demo.py -q
                     test:
                       - >-
                         python -c "print('still one command')"
@@ -104,6 +107,10 @@ class TaskLoadingTest(unittest.TestCase):
         self.assertEqual(
             task.baseline,
             ['python -c "assert {\'key\': \'value\'}[\'key\'] == \'value\'"'],
+        )
+        self.assertEqual(
+            task.visible_validation,
+            ["python -m pytest tests/test_demo.py -q"],
         )
         self.assertEqual(task.test, ['python -c "print(\'still one command\')"'])
 
