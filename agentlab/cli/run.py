@@ -9,7 +9,7 @@ from agentlab.cli.agent_options import (
     add_agent_argument,
     _agent_factory,
 )
-from agentlab.tasks import TaskLoadError, load_task
+from agentlab.tasks import EvalTask, TaskLoadError, discover_task_bundles, load_task
 from agentlab.terminal import print_error
 from agentlab.execution.trials import TrialExecutionConfig, execute_trials
 
@@ -17,12 +17,16 @@ from agentlab.execution.trials import TrialExecutionConfig, execute_trials
 def add_run_command(subcommands: argparse._SubParsersAction) -> None:
     run_parser = subcommands.add_parser(
         "run",
-        help="Run one trial for a task through an agent harness.",
+        help="Run task trials through an agent harness.",
     )
-    run_parser.add_argument(
+    task_selection = run_parser.add_mutually_exclusive_group(required=True)
+    task_selection.add_argument(
         "--task",
-        required=True,
         help="Task YAML file or task bundle directory to run.",
+    )
+    task_selection.add_argument(
+        "--suite",
+        help="Suite directory containing task bundles to run sequentially.",
     )
     add_agent_argument(
         run_parser,
@@ -62,18 +66,11 @@ def add_run_command(subcommands: argparse._SubParsersAction) -> None:
 
 def handle_run(args: argparse.Namespace) -> int:
     try:
+        if getattr(args, "suite", None):
+            return _handle_suite_run(args)
+
         task = load_task(args.task)
-        evaluations = execute_trials(
-            task,
-            _agent_factory(args),
-            TrialExecutionConfig(
-                runs_dir=Path(args.runs_dir),
-                trials=args.trials,
-                jobs=args.jobs,
-                agent_name=args.agent,
-                manual_parallel_allowed=args.no_pause,
-            ),
-        )
+        evaluations = _execute_task_run(args, task)
     except (RuntimeError, TaskLoadError) as exc:
         print_error(str(exc))
         return 1
@@ -82,6 +79,57 @@ def handle_run(args: argparse.Namespace) -> int:
     _print_run_summaries(evaluations)
     _print_aggregate_summary(evaluations, passed)
     return 0 if passed == len(evaluations) else 1
+
+
+def _handle_suite_run(args: argparse.Namespace) -> int:
+    bundles = discover_task_bundles([args.suite])
+    if not bundles:
+        print_error("No task files matched.")
+        return 1
+
+    all_evaluations: list[object] = []
+    task_errors: list[str] = []
+    for index, bundle in enumerate(bundles, start=1):
+        task = bundle.task
+        print(f"Running task {index}/{len(bundles)}: {task.id}")
+        try:
+            evaluations = _execute_task_run(args, task)
+        except RuntimeError as exc:
+            task_errors.append(f"{task.id}: {exc}")
+            print_error(f"{task.id}: {exc}")
+            continue
+
+        passed = sum(1 for evaluation in evaluations if evaluation.score.tests_passed)
+        _print_run_summaries(evaluations)
+        _print_aggregate_summary(evaluations, passed)
+        all_evaluations.extend(evaluations)
+
+    if task_errors:
+        print("Suite errors:")
+        for task_error in task_errors:
+            print(f"- {task_error}")
+
+    passed = sum(1 for evaluation in all_evaluations if evaluation.score.tests_passed)
+    total = len(all_evaluations)
+    print(
+        "Suite summary: "
+        f"{passed}/{total} passed across {len(bundles)} task(s)"
+    )
+    return 0 if not task_errors and passed == total else 1
+
+
+def _execute_task_run(args: argparse.Namespace, task: EvalTask) -> list[object]:
+    return execute_trials(
+        task,
+        _agent_factory(args),
+        TrialExecutionConfig(
+            runs_dir=Path(args.runs_dir),
+            trials=args.trials,
+            jobs=args.jobs,
+            agent_name=args.agent,
+            manual_parallel_allowed=args.no_pause,
+        ),
+    )
 
 
 def _print_run_summaries(evaluations: list[object]) -> None:

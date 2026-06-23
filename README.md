@@ -113,6 +113,22 @@ start information instead of per-agent progress bars. Passing batches print only
 the aggregate summary; failed batches also print the failed trial IDs and report
 paths.
 
+Run every task bundle in a suite directory:
+
+```bash
+python3 -m agentlab run \
+  --agent codex \
+  --suite tasks/starter \
+  --trials 1 \
+  --jobs 1
+```
+
+`--suite` and `--task` are mutually exclusive. Suite runs discover task bundles
+with the same task-loading behavior used by task validation, then run those
+tasks sequentially in deterministic order. `--trials` and `--jobs` apply to each
+task in the suite. Failed suite runs print the affected task/trial report paths
+and finish with a suite summary.
+
 Useful Codex options:
 
 ```bash

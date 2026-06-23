@@ -69,6 +69,49 @@ class CliOutputTest(unittest.TestCase):
         self.assertEqual(args.trials, 5)
         self.assertEqual(args.jobs, 3)
 
+    def test_run_parser_accepts_suite(self):
+        parser = build_parser()
+
+        args = parser.parse_args(
+            [
+                "run",
+                "--agent",
+                "codex",
+                "--suite",
+                "tasks/starter",
+                "--trials",
+                "5",
+                "--jobs",
+                "3",
+            ]
+        )
+
+        self.assertEqual(args.suite, "tasks/starter")
+        self.assertIsNone(args.task)
+        self.assertEqual(args.trials, 5)
+        self.assertEqual(args.jobs, 3)
+
+    def test_run_parser_rejects_task_and_suite_together(self):
+        parser = build_parser()
+        stderr = io.StringIO()
+
+        with contextlib.redirect_stderr(stderr):
+            with self.assertRaises(SystemExit) as raised:
+                parser.parse_args(
+                    [
+                        "run",
+                        "--agent",
+                        "codex",
+                        "--task",
+                        "tasks/starter/example",
+                        "--suite",
+                        "tasks/starter",
+                    ]
+                )
+
+        self.assertEqual(raised.exception.code, 2)
+        self.assertIn("not allowed with argument", stderr.getvalue())
+
     def test_top_level_help_keeps_existing_command_families(self):
         parser = build_parser()
 
@@ -1104,6 +1147,7 @@ class CliOutputTest(unittest.TestCase):
     def test_handle_run_preserves_cli_summary_from_trial_execution(self):
         args = SimpleNamespace(
             task="tasks/starter/example",
+            suite=None,
             agent="codex",
             runs_dir="runs",
             trials=2,
@@ -1156,9 +1200,130 @@ class CliOutputTest(unittest.TestCase):
             stdout.getvalue(),
         )
 
+    def test_handle_run_executes_suite_tasks_sequentially(self):
+        args = SimpleNamespace(
+            task=None,
+            suite="tasks/starter",
+            agent="codex",
+            runs_dir="runs",
+            trials=2,
+            jobs=1,
+            no_pause=True,
+            codex_command="codex-test",
+            codex_model=None,
+            codex_reasoning_effort=None,
+            codex_profile=None,
+            codex_sandbox=None,
+            codex_approval=None,
+            codex_timeout_seconds=9,
+        )
+        task_a = SimpleNamespace(id="task-a")
+        task_b = SimpleNamespace(id="task-b")
+        bundles = [
+            SimpleNamespace(task=task_a),
+            SimpleNamespace(task=task_b),
+        ]
+
+        def evaluations_for(task_id):
+            return [
+                SimpleNamespace(
+                    agent_run=SimpleNamespace(agent_name="codex", error=None),
+                    run_dir=Path(f"runs/{task_id}-trial-{index}"),
+                    report_path=Path(f"runs/{task_id}-trial-{index}/report.md"),
+                    result_path=Path(f"runs/{task_id}-trial-{index}/result.json"),
+                    score=SimpleNamespace(tests_passed=True),
+                )
+                for index in range(2)
+            ]
+
+        stdout = io.StringIO()
+
+        with patch("agentlab.cli.run.discover_task_bundles", return_value=bundles):
+            with patch(
+                "agentlab.cli.run.execute_trials",
+                side_effect=[
+                    evaluations_for("task-a"),
+                    evaluations_for("task-b"),
+                ],
+            ) as execute:
+                with contextlib.redirect_stdout(stdout):
+                    status = handle_run(args)
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            [call.args[0].id for call in execute.call_args_list],
+            ["task-a", "task-b"],
+        )
+        self.assertIn("Running task 1/2: task-a", stdout.getvalue())
+        self.assertIn("Running task 2/2: task-b", stdout.getvalue())
+        self.assertIn("Suite summary: 4/4 passed across 2 task(s)", stdout.getvalue())
+
+    def test_handle_run_reports_suite_no_matches(self):
+        args = SimpleNamespace(
+            task=None,
+            suite="missing-suite",
+            agent="codex",
+            runs_dir="runs",
+            trials=1,
+            jobs=1,
+            no_pause=True,
+        )
+        stderr = io.StringIO()
+
+        with patch("agentlab.cli.run.discover_task_bundles", return_value=[]):
+            with contextlib.redirect_stderr(stderr):
+                status = handle_run(args)
+
+        self.assertEqual(status, 1)
+        self.assertIn("No task files matched.", stderr.getvalue())
+
+    def test_handle_run_returns_nonzero_for_suite_trial_failures(self):
+        args = SimpleNamespace(
+            task=None,
+            suite="tasks/starter",
+            agent="codex",
+            runs_dir="runs",
+            trials=1,
+            jobs=1,
+            no_pause=True,
+            codex_command="codex-test",
+            codex_model=None,
+            codex_reasoning_effort=None,
+            codex_profile=None,
+            codex_sandbox=None,
+            codex_approval=None,
+            codex_timeout_seconds=9,
+        )
+        task = SimpleNamespace(id="task-a")
+        bundles = [SimpleNamespace(task=task)]
+        evaluations = [
+            SimpleNamespace(
+                agent_run=SimpleNamespace(agent_name="codex", error="agent failed"),
+                run_dir=Path("runs/task-a-trial-0"),
+                report_path=Path("runs/task-a-trial-0/report.md"),
+                result_path=Path("runs/task-a-trial-0/result.json"),
+                score=SimpleNamespace(tests_passed=False),
+            )
+        ]
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+
+        with patch("agentlab.cli.run.discover_task_bundles", return_value=bundles):
+            with patch("agentlab.cli.run.execute_trials", return_value=evaluations):
+                with contextlib.redirect_stdout(stdout):
+                    with contextlib.redirect_stderr(stderr):
+                        status = handle_run(args)
+
+        self.assertEqual(status, 1)
+        self.assertIn("Failed trials:", stdout.getvalue())
+        self.assertIn("- task-a-trial-0: failed", stdout.getvalue())
+        self.assertIn("Suite summary: 0/1 passed across 1 task(s)", stdout.getvalue())
+        self.assertIn("ERROR codex: agent failed", stderr.getvalue())
+
     def test_handle_run_builds_claude_agent(self):
         args = SimpleNamespace(
             task="tasks/starter/example",
+            suite=None,
             agent="claude",
             runs_dir="runs",
             trials=1,
