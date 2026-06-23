@@ -10,7 +10,7 @@
 
 ## Prompt
 
-Fix the default react-tabs styles so focusing or clicking a selected tab no longer paints a white pseudo-element over the bottom edge of the tab. The current `.react-tabs__tab:focus:after` overlay can hide custom `.react-tabs__tab--selected` bottom-border or underline styles, as reported in react-tabs issue #450. Keep the patch focused on the distributed CSS plus the matching SCSS and LESS style sources. Human visual review should confirm that a selected tab with a custom bottom border or underline remains visible while the tab is focused, clicked, and selected, with no white block covering the selected state.
+Fix the default react-tabs styles so focusing or clicking a selected tab no longer paints a white pseudo-element over the bottom edge of the tab. The current `.react-tabs__tab:focus:after` overlay can hide custom `.react-tabs__tab--selected` bottom-border or underline styles, as reported in react-tabs issue #450. Update the distributed CSS plus the matching SCSS and LESS style sources. Human visual review should confirm that a selected tab with a custom bottom border or underline remains visible while the tab is focused, clicked, and selected, with no white block covering the selected state.
 
 ## Reference
 
