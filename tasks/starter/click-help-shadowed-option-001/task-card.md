@@ -10,7 +10,7 @@
 
 ## Prompt
 
-Fix Click's usage-error help hint when a nested command shadows one of the configured help option names. If a group configures help names such as -h and --help, but a subcommand uses -h for another option, the missing-argument error should not suggest `cli foo -h` for help because that command no longer opens help. Suggest a help option that still works, and avoid printing a misleading help hint when all configured help names are shadowed. Keep the patch focused and run the relevant checks.
+Fix Click's usage-error help hint when a nested command shadows one of the configured help option names. If a group configures help names such as -h and --help, but a subcommand uses -h for another option, the missing-argument error should not suggest `cli foo -h` for help because that command no longer opens help. Suggest a help option that still works, and avoid printing a misleading help hint when all configured help names are shadowed.
 
 ## Reference
 
@@ -29,11 +29,6 @@ In UsageError.show, derive the available help option names from the current comm
 - PYTHONDONTWRITEBYTECODE=1
 - PYTHONPATH={workspace}/src
 - VIRTUAL_ENV={workspace}/.agentlab/venv
-
-## Visible Validation
-
-- `python -c 'import click; from click.testing import CliRunner; cli = click.group("cli", context_settings={"help_option_names":["-h","--help"]})(lambda: None); foo = click.command("foo")(click.option("--host","-h")(click.argument("required_arg")(lambda required_arg, host: None))); cli.add_command(foo); runner = CliRunner(); result = runner.invoke(cli, ["foo"]); expected = "Try " + chr(39) + "cli foo --help" + chr(39) + " for help."; bad = "Try " + chr(39) + "cli foo -h" + chr(39) + " for help."; assert result.exit_code == 2, result.output; assert expected in result.output, result.output; assert bad not in result.output, result.output; help_result = runner.invoke(cli, ["foo", "--help"]); assert help_result.exit_code == 0, help_result.output; assert "--help" in help_result.output, help_result.output'`
-- `python -c 'import click; from click.testing import CliRunner; cli = click.group("cli", context_settings={"help_option_names":["-h","--help"]})(lambda: None); foo = click.command("foo")(click.option("--host","-h")(click.option("--help-file","--help")(click.argument("required_arg")(lambda required_arg, help_file, host: None)))); cli.add_command(foo); result = CliRunner().invoke(cli, ["foo"]); assert result.exit_code == 2, result.output; assert "Try " not in result.output, result.output'`
 
 ## Graders
 

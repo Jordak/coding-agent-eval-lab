@@ -10,7 +10,7 @@
 
 ## Prompt
 
-Fix the default react-tabs styles so focusing or clicking a selected tab no longer paints a white pseudo-element over the bottom edge of the tab. The current `.react-tabs__tab:focus:after` overlay can hide custom `.react-tabs__tab--selected` bottom-border or underline styles, as reported in react-tabs issue #450. Keep the patch focused on the distributed CSS plus the matching SCSS and LESS style sources. Human visual review should confirm that a selected tab with a custom bottom border or underline remains visible while the tab is focused, clicked, and selected, with no white block covering the selected state.
+Fix the default react-tabs styles so focusing or clicking a selected tab no longer paints a white pseudo-element over the bottom edge of the tab. The current `.react-tabs__tab:focus:after` overlay can hide custom `.react-tabs__tab--selected` bottom-border or underline styles, as reported in react-tabs issue #450. Update the distributed CSS plus the matching SCSS and LESS style sources. Human visual review should confirm that a selected tab with a custom bottom border or underline remains visible while the tab is focused, clicked, and selected, with no white block covering the selected state.
 
 ## Reference
 
@@ -25,11 +25,6 @@ Remove the obsolete focus `:after` pseudo-element from `style/react-tabs.css` an
 ## Environment
 
 No task-local environment configured.
-
-## Visible Validation
-
-- `python3 -c 'from pathlib import Path; css = Path("style/react-tabs.css").read_text(); scss = Path("style/react-tabs.scss").read_text(); less = Path("style/react-tabs.less").read_text(); assert ".react-tabs__tab:focus:after" not in css, css; assert "&:after" not in scss, scss; assert "&:after" not in less, less; assert ".react-tabs__tab:focus" in css and "&:focus" in scss and "&:focus" in less; assert ".react-tabs__tab--selected" in css and "&--selected" in scss and "&--selected" in less; assert "border-color: #aaa" in css and "border-color: #aaa" in scss and "border-color: #aaa" in less'`
-- `git diff --check`
 
 ## Graders
 

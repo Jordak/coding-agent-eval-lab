@@ -10,7 +10,7 @@
 
 ## Prompt
 
-Fix Click's handling of string values supplied through default_map for multi-value parameters. When default_map provides a string for an option with nargs greater than 1, or for a tuple option type, Click should split the string the same way it splits environment variable values. Already-structured list or tuple values should still pass through unchanged, single-value string defaults should not be split, and explicit CLI arguments should still override default_map. Keep the production patch focused.
+Fix Click's handling of string values supplied through default_map for multi-value parameters. When default_map provides a string for an option with nargs greater than 1, or for a tuple option type, Click should split the string the same way it splits environment variable values. Already-structured list or tuple values should still pass through unchanged, single-value string defaults should not be split, and explicit CLI arguments should still override default_map.
 
 ## Reference
 
@@ -29,12 +29,6 @@ In Option.consume_value, when a value comes from default_map and is a string for
 - PYTHONDONTWRITEBYTECODE=1
 - PYTHONPATH={workspace}/src
 - VIRTUAL_ENV={workspace}/.agentlab/venv
-
-## Visible Validation
-
-- `python -c 'import ast, click; from click.testing import CliRunner; cli = click.command()(click.option("--point", nargs=2, type=int)(lambda point: click.echo(repr(point)))); runner = CliRunner(); result = runner.invoke(cli, [], default_map={"point":"3 4"}); assert result.exit_code == 0, result.output; assert ast.literal_eval(result.output.strip()) == (3, 4), result.output; override = runner.invoke(cli, ["--point", "10", "20"], default_map={"point":"3 4"}); assert override.exit_code == 0, override.output; assert ast.literal_eval(override.output.strip()) == (10, 20), override.output'`
-- `python -c 'import ast, click; from click.testing import CliRunner; cli = click.command()(click.option("--word-pair", type=(str, str))(lambda word_pair: click.echo(repr(word_pair)))); result = CliRunner().invoke(cli, [], default_map={"word_pair":"hello world"}); assert result.exit_code == 0, result.output; assert ast.literal_eval(result.output.strip()) == ("hello", "world"), result.output'`
-- `python -c 'import click; from click.testing import CliRunner; cli = click.command()(click.option("--name")(lambda name: click.echo(name))); result = CliRunner().invoke(cli, [], default_map={"name":"hello world"}); assert result.exit_code == 0, result.output; assert result.output.strip() == "hello world", result.output'`
 
 ## Graders
 

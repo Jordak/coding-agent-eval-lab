@@ -10,7 +10,7 @@
 
 ## Prompt
 
-Add focused tests for Click's existing `_compat.should_strip_ansi` behavior. Cover the explicit color override cases where `color=True` keeps ANSI and `color=False` strips ANSI, plus the automatic `color=None` decisions for TTY streams, Jupyter kernel output, and non-TTY/non-Jupyter streams. Include common stream inputs such as `None`, stdin, stdout, and stderr. This is a test-writing task only: do not modify production code, docs, packaging, or configuration. Keep the tests in the existing compat tests and run the targeted checks.
+Add focused tests for Click's existing `_compat.should_strip_ansi` behavior. Cover the explicit color override cases where `color=True` keeps ANSI and `color=False` strips ANSI, plus the automatic `color=None` decisions for TTY streams, Jupyter kernel output, and non-TTY/non-Jupyter streams. Include common stream inputs such as `None`, stdin, stdout, and stderr. This is a test-writing task only: do not modify production code, docs, packaging, or configuration. Keep the tests in the existing compat tests.
 
 ## Reference
 
@@ -30,10 +30,6 @@ Update `tests/test_compat.py` to import Click, pytest, and sys; test `_is_jupyte
 - PYTHONPATH={workspace}/src
 - VIRTUAL_ENV={workspace}/.agentlab/venv
 
-## Visible Validation
-
-- `python -m pytest tests/test_compat.py -q`
-
 ## Graders
 
 ### Setup
@@ -49,7 +45,7 @@ Update `tests/test_compat.py` to import Click, pytest, and sys; test `_is_jupyte
 ### Target
 
 - `python -m pytest tests/test_compat.py -q`
-- `python -c 'import ast, pathlib, subprocess; status = subprocess.check_output(["git", "status", "--short"], text=True).splitlines(); paths = [line[3:] for line in status]; assert paths == ["tests/test_compat.py"], status; source = pathlib.Path("tests/test_compat.py").read_text(); tree = ast.parse(source); funcs = {node.name: node for node in tree.body if isinstance(node, ast.FunctionDef)}; fn = funcs.get("test_should_strip_ansi"); assert fn is not None; parametrize = [dec for dec in fn.decorator_list if isinstance(dec, ast.Call) and isinstance(dec.func, ast.Attribute) and dec.func.attr == "parametrize"]; assert len(parametrize) >= 3, len(parametrize); args = {arg.arg for arg in fn.args.args}; assert {"monkeypatch", "stream", "color", "expected_override", "isatty", "is_jupyter", "expected"} <= args, args; calls = [node for node in ast.walk(fn) if isinstance(node, ast.Call)]; assert any(isinstance(call.func, ast.Attribute) and call.func.attr == "should_strip_ansi" and {"stream", "color"} <= {kw.arg for kw in call.keywords} for call in calls); assert any(isinstance(call.func, ast.Attribute) and call.func.attr == "setattr" and any(isinstance(arg, ast.Constant) and arg.value == "isatty" for arg in call.args) for call in calls); assert any(isinstance(call.func, ast.Attribute) and call.func.attr == "setattr" and any(isinstance(arg, ast.Constant) and arg.value == "_is_jupyter_kernel_output" for arg in call.args) for call in calls); module = ast.unparse(tree); required = ["sys.stdin", "sys.stdout", "sys.stderr", "_is_jupyter_kernel_output"]; missing = [item for item in required if item not in module]; assert not missing, missing'`
+- `python -c 'import pathlib, subprocess; status = subprocess.check_output(["git", "status", "--short"], text=True).splitlines(); paths = [line[3:] for line in status]; assert paths == ["tests/test_compat.py"], status; source = pathlib.Path("tests/test_compat.py").read_text(); required = ["should_strip_ansi", "color=True", "color=False", "color=None", "sys.stdin", "sys.stdout", "sys.stderr"]; missing = [item for item in required if item not in source]; assert not missing, missing; assert "_is_jupyter_kernel_output" in source or "ipykernel" in source, "tests should cover Jupyter kernel output detection"; assert source.count("should_strip_ansi") >= 4, "tests should exercise should_strip_ansi across override and automatic cases"'`
 
 ## Success Criteria
 

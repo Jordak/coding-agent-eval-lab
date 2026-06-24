@@ -10,7 +10,7 @@
 
 ## Prompt
 
-A user doing a local mTLS smoke test reports that HTTPX behaves oddly when they pass both verify=False and a client certificate. They are intentionally skipping server certificate verification for a local or self-signed endpoint, but they still expect the client certificate to be configured. Make the conservative compatibility choice: verify=False should disable server certificate checks only, not ignore client-side certs. Keep the existing verify=True with cert behavior and verify=False without cert behavior intact. This v1 task is non-interactive, so proceed with that assumption and keep the patch focused.
+A user doing a local mTLS smoke test reports that HTTPX behaves oddly when they pass both verify=False and a client certificate. They are intentionally skipping server certificate verification for a local or self-signed endpoint, but they still expect the client certificate to be configured. Make the conservative compatibility choice: verify=False should disable server certificate checks only, not ignore client-side certs. Keep the existing verify=True with cert behavior and verify=False without cert behavior intact. This v1 task is non-interactive, so proceed with that assumption.
 
 ## Reference
 
@@ -28,13 +28,6 @@ In create_ssl_context, make the verify=False branch assign the unverified SSL co
 - PYTEST_ADDOPTS=-p no:cacheprovider
 - PYTHONDONTWRITEBYTECODE=1
 - VIRTUAL_ENV={workspace}/.agentlab/venv
-
-## Visible Validation
-
-- `python -c 'import ssl, httpx; calls = []; ssl.SSLContext.load_cert_chain = lambda self, *args, **kwargs: calls.append(args); ctx = httpx.create_ssl_context(verify=False, cert=("client.pem", "client.key")); assert ctx.verify_mode == ssl.CERT_NONE, ctx.verify_mode; assert ctx.check_hostname is False, ctx.check_hostname; assert calls == [("client.pem", "client.key")], calls'`
-- `python -c 'import ssl, httpx; calls = []; ssl.SSLContext.load_cert_chain = lambda self, *args, **kwargs: calls.append(args); ctx = httpx.create_ssl_context(verify=False, cert="client.pem"); assert ctx.verify_mode == ssl.CERT_NONE, ctx.verify_mode; assert ctx.check_hostname is False, ctx.check_hostname; assert calls == [("client.pem",)], calls'`
-- `python -c 'import ssl, httpx; calls = []; ssl.SSLContext.load_cert_chain = lambda self, *args, **kwargs: calls.append(args); ctx = httpx.create_ssl_context(verify=False); assert ctx.verify_mode == ssl.CERT_NONE, ctx.verify_mode; assert ctx.check_hostname is False, ctx.check_hostname; assert calls == [], calls'`
-- `python -c 'import ssl, httpx; calls = []; ssl.SSLContext.load_cert_chain = lambda self, *args, **kwargs: calls.append(args); ctx = httpx.create_ssl_context(verify=True, cert=("client.pem", "client.key")); assert ctx.verify_mode == ssl.CERT_REQUIRED, ctx.verify_mode; assert ctx.check_hostname is True, ctx.check_hostname; assert calls == [("client.pem", "client.key")], calls'`
 
 ## Graders
 
