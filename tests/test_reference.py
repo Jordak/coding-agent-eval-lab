@@ -69,6 +69,74 @@ class ReferenceVerificationTest(unittest.TestCase):
             self.assertEqual(verification.workspace_history_policy, "base_only")
             assert_base_only_repository(self, verification.workspace)
 
+    def test_reference_verification_runs_hidden_verifier(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for reference verification")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo = temp_path / "repo"
+            init_repo(repo)
+            commit = commit_file(repo, "app.txt", "before\n", message="initial")
+
+            (repo / "app.txt").write_text("after\n", encoding="utf-8")
+            patch = git(["diff"], repo).stdout
+            git(["checkout", "--", "app.txt"], repo)
+
+            bundle = temp_path / "task"
+            bundle.mkdir()
+            (bundle / "reference.patch").write_text(patch, encoding="utf-8")
+            (bundle / "verifier.patch").write_text(
+                "\n".join(
+                    [
+                        "diff --git a/hidden_check.py b/hidden_check.py",
+                        "new file mode 100644",
+                        "--- /dev/null",
+                        "+++ b/hidden_check.py",
+                        "@@ -0,0 +1,2 @@",
+                        "+from pathlib import Path",
+                        "+assert Path('app.txt').read_text() == 'after\\n'",
+                        "",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            hidden_command = f"{sys.executable} hidden_check.py"
+            (bundle / "task.yaml").write_text(
+                textwrap.dedent(
+                    f"""
+                    id: reference-hidden-task
+                    title: Reference hidden task
+                    repo: {repo}
+                    commit: {commit}
+                    language: text
+                    prompt: Change before to after.
+                    reference_artifact:
+                      type: patch
+                      path: reference.patch
+                    hidden_verifier:
+                      patch: verifier.patch
+                      commands:
+                        - {hidden_command}
+                    """
+                ),
+                encoding="utf-8",
+            )
+
+            task = load_task(bundle)
+            verification = verify_reference(task, temp_path / "work")
+
+            self.assertTrue(verification.success)
+            self.assertEqual(verification.files_changed, ["app.txt"])
+            self.assertEqual(
+                [check.command for check in verification.hidden_verifier.checks],
+                [
+                    "git apply hidden verifier patch: verifier.patch",
+                    hidden_command,
+                ],
+            )
+            self.assertFalse((verification.workspace / "hidden_check.py").exists())
+
     def test_commit_reference_artifact_is_converted_to_patch(self):
         if shutil.which("git") is None:
             self.skipTest("git is required for reference verification")

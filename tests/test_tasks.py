@@ -5,6 +5,7 @@ from pathlib import Path
 
 from agentlab.tasks import (
     EvalTask,
+    HiddenVerifier,
     TaskLoadError,
     discover_task_bundles,
     discover_task_files,
@@ -113,6 +114,94 @@ class TaskLoadingTest(unittest.TestCase):
             ["python -m pytest tests/test_demo.py -q"],
         )
         self.assertEqual(task.test, ['python -c "print(\'still one command\')"'])
+
+    def test_loads_hidden_verifier_from_bundle(self):
+        with tempfile.TemporaryDirectory() as temp:
+            bundle = Path(temp)
+            (bundle / "verifier.patch").write_text(
+                "diff --git a/tests/hidden.py b/tests/hidden.py\n",
+                encoding="utf-8",
+            )
+            task_file = bundle / "task.yaml"
+            task_file.write_text(
+                textwrap.dedent(
+                    """
+                    id: hidden-task
+                    title: Hidden verifier task
+                    repo: https://github.com/example/demo
+                    commit: abc123
+                    language: python
+                    prompt: Fix it.
+                    hidden_verifier:
+                      patch: verifier.patch
+                      commands:
+                        - pytest tests/hidden.py
+                    """
+                ),
+                encoding="utf-8",
+            )
+
+            task = load_task(task_file)
+
+            self.assertEqual(
+                task.hidden_verifier,
+                HiddenVerifier(
+                    patch="verifier.patch",
+                    commands=["pytest tests/hidden.py"],
+                ),
+            )
+
+    def test_rejects_invalid_hidden_verifier(self):
+        base = {
+            "id": "demo-001",
+            "title": "Demo task",
+            "repo": "https://github.com/example/demo",
+            "commit": "abc123",
+            "language": "python",
+            "prompt": "Fix it.",
+        }
+        invalid_values = [
+            {"patch": "/tmp/verifier.patch", "commands": ["pytest"]},
+            {"patch": "../verifier.patch", "commands": ["pytest"]},
+            {"patch": "verifier.txt", "commands": ["pytest"]},
+            {"patch": "verifier.patch", "commands": [123]},
+            {"patch": "verifier.patch", "commands": []},
+            {"commands": ["pytest"]},
+            {"patch": "verifier.patch"},
+        ]
+        for hidden_verifier in invalid_values:
+            with self.subTest(hidden_verifier=hidden_verifier):
+                with self.assertRaises(TaskLoadError):
+                    EvalTask.from_mapping(
+                        {
+                            **base,
+                            "hidden_verifier": hidden_verifier,
+                        }
+                    )
+
+    def test_rejects_missing_hidden_verifier_patch_file_for_bundle(self):
+        with tempfile.TemporaryDirectory() as temp:
+            task_file = Path(temp) / "task.yaml"
+            task_file.write_text(
+                textwrap.dedent(
+                    """
+                    id: hidden-task
+                    title: Hidden verifier task
+                    repo: https://github.com/example/demo
+                    commit: abc123
+                    language: python
+                    prompt: Fix it.
+                    hidden_verifier:
+                      patch: verifier.patch
+                      commands:
+                        - pytest tests/hidden.py
+                    """
+                ),
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(TaskLoadError, "does not exist"):
+                load_task(task_file)
 
     def test_loads_boundary_metadata_and_consent_style(self):
         task = EvalTask.from_mapping(

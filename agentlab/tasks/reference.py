@@ -11,6 +11,7 @@ from agentlab.reports.trial_markdown import render_reference_report
 from agentlab.evidence.results import reference_verification_to_result_dict
 from agentlab.execution.scoring import CheckResult
 from agentlab.execution.scoring import Score
+from agentlab.execution.hidden_verifier import HiddenVerifierResult
 from agentlab.execution.phases import TaskActionResult
 from agentlab.execution.phases import execute_task_phases
 from agentlab.tasks import EvalTask
@@ -29,6 +30,9 @@ class ReferenceVerification:
     setup_checks: list[CheckResult] = field(default_factory=list)
     baseline_checks: list[CheckResult] = field(default_factory=list)
     target_checks: list[CheckResult] = field(default_factory=list)
+    hidden_verifier: HiddenVerifierResult = field(
+        default_factory=HiddenVerifierResult
+    )
     files_changed: list[str] = field(default_factory=list)
     lines_added: int = 0
     lines_deleted: int = 0
@@ -107,6 +111,7 @@ def verify_reference(
         setup_checks=execution.setup_checks,
         baseline_checks=execution.baseline_checks,
         target_checks=execution.target_checks,
+        hidden_verifier=execution.hidden_verifier,
         files_changed=execution.files_changed,
         lines_added=execution.lines_added,
         lines_deleted=execution.lines_deleted,

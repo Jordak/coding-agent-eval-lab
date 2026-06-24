@@ -49,6 +49,7 @@ def render_task_card(bundle: TaskBundle) -> str:
         _environment_text(task),
         "",
         *_visible_validation_section(task),
+        *_hidden_verifier_section(task),
         "## Graders",
         "",
         "### Setup",
@@ -95,6 +96,21 @@ def _visible_validation_section(task: EvalTask) -> list[str]:
         "## Visible Validation",
         "",
         _command_list(task.visible_validation),
+        "",
+    ]
+
+
+def _hidden_verifier_section(task: EvalTask) -> list[str]:
+    verifier = task.hidden_verifier
+    if verifier is None:
+        return []
+    command_count = len(verifier.commands)
+    command_word = "command" if command_count == 1 else "commands"
+    return [
+        "## Hidden Verifier",
+        "",
+        f"- Patch: `{verifier.patch}`",
+        f"- Commands: `{command_count} {command_word} configured`",
         "",
     ]
 

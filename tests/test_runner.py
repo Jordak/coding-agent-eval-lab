@@ -6,8 +6,9 @@ import unittest
 from pathlib import Path
 
 from agentlab.agents.manual import ManualAgentAdapter
+from agentlab.agents.base import AgentRun
 from agentlab.execution.runner import _run_id, run_task
-from agentlab.tasks import EvalTask, SuccessCriteria
+from agentlab.tasks import EvalTask, HiddenVerifier, SuccessCriteria
 from tests.git_fixtures import commit_file
 from tests.git_fixtures import git
 from tests.git_fixtures import head
@@ -153,6 +154,101 @@ class RunnerTest(unittest.TestCase):
             self.assertIn(target_command, report)
             self.assertNotIn(visible_command, report)
             self.assertNotIn(visible_command, json.dumps(result))
+
+    def test_hidden_verifier_is_serialized_separately_from_public_graders(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for workspace preparation")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo = temp_path / "repo"
+            init_repo(repo)
+            commit = commit_file(repo, "app.txt", "before\n", message="initial")
+            bundle = temp_path / "bundle"
+            bundle.mkdir()
+            task_file = bundle / "task.yaml"
+            task_file.write_text("id: hidden-task\n", encoding="utf-8")
+            (bundle / "verifier.patch").write_text(
+                "\n".join(
+                    [
+                        "diff --git a/hidden_check.py b/hidden_check.py",
+                        "new file mode 100644",
+                        "--- /dev/null",
+                        "+++ b/hidden_check.py",
+                        "@@ -0,0 +1,2 @@",
+                        "+from pathlib import Path",
+                        "+assert Path('app.txt').read_text() == 'after\\n'",
+                        "",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            public_command = f"{sys.executable} -c \"print('public ok')\""
+            hidden_command = f"{sys.executable} hidden_check.py"
+
+            task = EvalTask(
+                id="hidden-serialization-task",
+                title="Hidden serialization task",
+                repo=str(repo),
+                commit=commit,
+                language="text",
+                prompt="Change app.txt.",
+                test=[public_command],
+                hidden_verifier=HiddenVerifier(
+                    patch="verifier.patch",
+                    commands=[hidden_command],
+                ),
+                source_path=task_file,
+            )
+
+            class EditingAdapter:
+                name = "editing"
+
+                def run(self, task, workspace, run_dir):
+                    (workspace / "app.txt").write_text("after\n", encoding="utf-8")
+                    transcript_path = run_dir / "transcript.txt"
+                    transcript_path.write_text("edited\n", encoding="utf-8")
+                    return AgentRun(
+                        agent_name=self.name,
+                        task_id=task.id,
+                        transcript_path=transcript_path,
+                        diff_path=run_dir / "diff.patch",
+                    )
+
+            evaluation = run_task(task, EditingAdapter(), temp_path / "runs")
+            result = json.loads(evaluation.result_path.read_text(encoding="utf-8"))
+            report = evaluation.report_path.read_text(encoding="utf-8")
+
+            self.assertTrue(evaluation.score.tests_passed)
+            self.assertEqual(evaluation.agent_run.commands_run, [public_command])
+            self.assertEqual(
+                [check["command"] for check in result["checks"]],
+                [public_command],
+            )
+            self.assertEqual(
+                [grader["assertion"] for grader in result["graders"]],
+                [public_command],
+            )
+            self.assertEqual(result["hidden_verifier"]["patch"], "verifier.patch")
+            self.assertEqual(
+                [check["command"] for check in result["hidden_verifier"]["checks"]],
+                [
+                    "git apply hidden verifier patch: verifier.patch",
+                    hidden_command,
+                ],
+            )
+            self.assertIn("## Public Graders", report)
+            self.assertIn(public_command, report)
+            self.assertIn("## Hidden Verifier", report)
+            self.assertIn(hidden_command, report)
+            self.assertFalse(
+                (
+                    evaluation.run_dir
+                    / "workspace"
+                    / "hidden-serialization-task"
+                    / "hidden_check.py"
+                ).exists()
+            )
 
     def test_max_files_changed_is_enforced(self):
         if shutil.which("git") is None:

@@ -144,6 +144,13 @@ commands in `test` remain grader-facing by default: they run after the agent
 phase and contribute to the deterministic grader outcome, but they are not
 automatically injected into agent prompts.
 
+Task bundles can also configure one `hidden_verifier` overlay with a patch and
+commands. Hidden verifier details stay out of agent prompts and generated task
+cards show only summary metadata. After the agent phase, the runner captures the
+model diff first, applies the hidden verifier patch temporarily, runs hidden
+commands in the task environment, records those checks separately, and restores
+the workspace to the model-produced state.
+
 ## Task Environments
 
 Task setup should provision the dependencies needed by the deterministic graders
@@ -197,9 +204,9 @@ configuration metadata.
 ## Graders And Outcomes
 
 The current evaluation harness uses deterministic code-based graders: setup
-commands, baseline assertions, target assertions, and post-change assertions.
-These are fast, cheap, reproducible, and appropriate for early coding-agent
-evals.
+commands, baseline assertions, public target assertions, and optional hidden
+verifier assertions. These are fast, cheap, reproducible, and appropriate for
+early coding-agent evals.
 
 Reports emphasize the outcome: the final patch, changed files, command results,
 and grader pass/fail status. Tool-call and transcript graders should be added

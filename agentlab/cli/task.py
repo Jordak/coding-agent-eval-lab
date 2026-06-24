@@ -337,6 +337,7 @@ def _print_smoke_test_result(evaluation: object) -> None:
 def _print_failed_reference_checks(verification: ReferenceVerification) -> None:
     checks = verification.setup_checks + verification.baseline_checks
     checks += [verification.artifact_check] + verification.target_checks
+    checks += verification.hidden_verifier.checks
     for check in checks:
         if check.passed:
             continue

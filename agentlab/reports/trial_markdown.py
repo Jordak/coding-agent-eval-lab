@@ -72,15 +72,17 @@ def render_markdown_report(run: "EvaluationRun") -> str:
         lines.extend(["", "## Scope Oracle Metadata", ""])
         lines.extend(scope_oracle_lines)
 
-    lines.extend(["", "## Code-Based Graders", ""])
+    lines.extend(["", "## Public Graders", ""])
 
     if not run.score.checks:
-        lines.append("No code-based graders were configured.")
+        lines.append("No public graders were configured.")
     else:
         lines.extend(
             _render_check(command_index, check)
             for command_index, check in enumerate(run.score.checks, 1)
         )
+
+    lines.extend(_render_hidden_verifier_section(run))
 
     if run.score.notes:
         lines.extend(["", "## Grader Notes", ""])
@@ -182,16 +184,18 @@ def render_reference_report(verification: "ReferenceVerification") -> str:
         lines.extend(["", "## Scope Oracle Metadata", ""])
         lines.extend(scope_oracle_lines)
 
-    lines.extend(["", "## Code-Based Graders", ""])
+    lines.extend(["", "## Public Graders", ""])
 
     checks = verification.all_checks
     if not checks:
-        lines.append("No code-based graders were configured.")
+        lines.append("No public graders were configured.")
     else:
         lines.extend(
             _render_check(command_index, check)
             for command_index, check in enumerate(checks, 1)
         )
+
+    lines.extend(_render_hidden_verifier_section(verification))
 
     if verification.notes:
         lines.extend(["", "## Grader Notes", ""])
@@ -216,6 +220,32 @@ def _render_check(index: int, check: CheckResult) -> str:
     if output:
         lines.extend(["", "```text", output, "```", ""])
     return "\n".join(lines)
+
+
+def _render_hidden_verifier_section(run: object) -> list[str]:
+    hidden_verifier = getattr(run, "hidden_verifier", None)
+    if hidden_verifier is None or not getattr(hidden_verifier, "configured", False):
+        return []
+    lines = [
+        "",
+        "## Hidden Verifier",
+        "",
+        f"- Patch: `{getattr(hidden_verifier, 'patch', None)}`",
+    ]
+    restore_notes = list(getattr(hidden_verifier, "restore_notes", []))
+    if restore_notes:
+        lines.append("- Restore warnings:")
+        lines.extend(f"  - {note}" for note in restore_notes)
+    checks = list(getattr(hidden_verifier, "checks", []))
+    if not checks:
+        lines.extend(["", "No hidden verifier checks ran."])
+        return lines
+    lines.append("")
+    lines.extend(
+        _render_check(command_index, check)
+        for command_index, check in enumerate(checks, 1)
+    )
+    return lines
 
 
 def _render_scope_oracle_metadata(task: object) -> list[str]:

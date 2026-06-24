@@ -165,6 +165,22 @@ class TaskCardPublicationTest(unittest.TestCase):
         self.assertIn("- `pytest tests/focused_check.py`", card)
         self.assertIn("### Target\n\n- `pytest tests/test_demo.py`", card)
 
+    def test_renders_hidden_verifier_summary_without_commands(self):
+        with tempfile.TemporaryDirectory() as temp:
+            bundle_dir = _write_task_bundle(
+                Path(temp) / "example-suite",
+                "demo-001",
+                hidden_verifier=True,
+            )
+            bundle = load_task_bundle(bundle_dir)
+
+            card = render_task_card(bundle)
+
+        self.assertIn("## Hidden Verifier", card)
+        self.assertIn("- Patch: `verifier.patch`", card)
+        self.assertIn("- Commands: `1 command configured`", card)
+        self.assertNotIn("pytest tests/hidden_behavior.py", card)
+
 
 def _write_task_bundle(
     suite_dir: Path,
@@ -175,10 +191,16 @@ def _write_task_bundle(
     tags: list[str] | None = None,
     scope_oracle: bool = False,
     visible_validation: bool = False,
+    hidden_verifier: bool = False,
 ) -> Path:
     bundle_dir = suite_dir / task_id
     bundle_dir.mkdir(parents=True)
     (bundle_dir / "reference.patch").write_text("diff --git a/demo.py b/demo.py\n")
+    if hidden_verifier:
+        (bundle_dir / "verifier.patch").write_text(
+            "diff --git a/tests/hidden_behavior.py b/tests/hidden_behavior.py\n",
+            encoding="utf-8",
+        )
     tag_lines = "\n".join(f"  - {tag}" for tag in (tags or ["bugfix", "python"]))
     (bundle_dir / "task.yaml").write_text(
         f"""\
@@ -200,6 +222,7 @@ setup:
 baseline:
   - pytest
 {_visible_validation(visible_validation)}
+{_hidden_verifier(hidden_verifier)}
 test:
   - pytest tests/test_demo.py
 environment_path:
@@ -245,6 +268,17 @@ def _visible_validation(enabled: bool) -> str:
     if not enabled:
         return ""
     return "visible_validation:\n  - pytest tests/focused_check.py"
+
+
+def _hidden_verifier(enabled: bool) -> str:
+    if not enabled:
+        return ""
+    return (
+        "hidden_verifier:\n"
+        "  patch: verifier.patch\n"
+        "  commands:\n"
+        "    - pytest tests/hidden_behavior.py"
+    )
 
 
 if __name__ == "__main__":

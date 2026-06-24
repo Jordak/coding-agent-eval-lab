@@ -20,7 +20,7 @@ class TaskExecutionGitMixin:
         commit = self._git(["rev-parse", "HEAD"], repo).stdout.strip()
         return repo, commit
 
-    def _git(self, args, cwd, *, input_text=None):
+    def _git(self, args, cwd, *, input_text=None, check=True):
         completed = subprocess.run(
             ["git"] + args,
             cwd=str(cwd),
@@ -28,6 +28,6 @@ class TaskExecutionGitMixin:
             capture_output=True,
             input=input_text,
         )
-        if completed.returncode != 0:
+        if check and completed.returncode != 0:
             self.fail(completed.stderr)
         return completed
