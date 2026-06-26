@@ -43,13 +43,23 @@ index 0000000..0000000
 +    assert re.search(r"ctxAndGain\.audioContext\s*\.?\s*resume\(\)", shared), (
 +        "resume() should still call AudioContext.resume()"
 +    )
-+    catch_body = re.search(
-+        r"resumePromise\.catch\(\s*\(?\s*\w*\s*\)?\s*=>\s*{(?P<body>[\s\S]*?)\n\s*}\s*\)",
++    waiter_body = re.search(
++        r"isResuming\.current\s*=\s*new\s+Promise(?:<[^>]+>)?\s*\(\s*\(\s*resolve\s*\)\s*=>\s*{(?P<body>[\s\S]*?)}\s*\)\.finally",
 +        shared,
 +    )
-+    catch_resolve = re.search(r"resumePromise\.catch\(\s*resolve\s*\)", shared)
++    assert waiter_body, "isResuming.current should be assigned a shared resume waiter"
++    body = waiter_body.group("body")
++    assert re.search(
++        r"waitUntilActuallyResumed\([\s\S]*?\)\.then\(\s*resolve\s*\)",
++        body,
++    ), "the shared waiter should resolve when AudioContext actually resumes"
++    catch_body = re.search(
++        r"resumePromise\.catch\(\s*\(?\s*\w*\s*\)?\s*=>\s*{(?P<body>[\s\S]*?)\n\s*}\s*\)",
++        body,
++    )
++    catch_resolve = re.search(r"resumePromise\.catch\(\s*resolve\s*\)", body)
 +    assert catch_resolve or (catch_body and "resolve()" in catch_body.group("body")), (
-+        "AudioContext.resume() rejection must resolve the shared resume waiter"
++        "AudioContext.resume() rejection must resolve the same shared resume waiter"
 +    )
 +    assert "Log.warn" in shared or "Log.verbose" in shared, (
 +        "resume rejection should be logged"

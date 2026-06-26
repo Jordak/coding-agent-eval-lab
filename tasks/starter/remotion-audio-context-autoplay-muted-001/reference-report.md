@@ -52,7 +52,7 @@ check: assert_changed_files
 
 ## Grader Notes
 
-- Remotion full verify-reference was attempted twice and interrupted during large-repo synthetic-base materialization; this reference artifact was regenerated from the focused two-file validation workspace /private/tmp/ael-remotion-mini-123-fix using the same reference patch, hidden verifier patch, and public git diff --check command.
+- Remotion full verify-reference was attempted twice and interrupted during large-repo synthetic-base materialization; this reference artifact was regenerated from the focused two-file validation workspace /private/tmp/ael-remotion-mini-123-fix2 using the same reference patch, hidden verifier patch, and public git diff --check command.
 
 ## Changed Files
 
