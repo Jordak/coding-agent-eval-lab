@@ -207,6 +207,39 @@ class TaskLoadingTest(unittest.TestCase):
             with self.assertRaisesRegex(TaskLoadError, "does not exist"):
                 load_task(task_file)
 
+    def test_rejects_hidden_verifier_patch_symlink_escape(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            outside_patch = root / "outside.patch"
+            outside_patch.write_text(
+                "diff --git a/app.py b/app.py\n",
+                encoding="utf-8",
+            )
+            bundle = root / "bundle"
+            bundle.mkdir()
+            (bundle / "verifier.patch").symlink_to(outside_patch)
+            task_file = bundle / "task.yaml"
+            task_file.write_text(
+                textwrap.dedent(
+                    """
+                    id: hidden-task
+                    title: Hidden verifier task
+                    repo: https://github.com/example/demo
+                    commit: abc123
+                    language: python
+                    prompt: Fix it.
+                    hidden_verifier:
+                      patch: verifier.patch
+                      commands:
+                        - pytest tests/hidden.py
+                    """
+                ),
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(TaskLoadError, "inside the bundle"):
+                load_task(task_file)
+
     def test_loads_boundary_metadata_and_consent_style(self):
         task = EvalTask.from_mapping(
             load_task_mapping(

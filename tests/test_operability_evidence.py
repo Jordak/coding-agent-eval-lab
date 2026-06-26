@@ -65,6 +65,8 @@ class OperabilityEvidenceTest(unittest.TestCase):
         self.assertIn("normalized_or_derived_stop_reason", table)
         self.assertIn("first_class_halt_reason_taxonomy: `unknown`", table)
         self.assertIn("intermediate_verifier_movement: `unknown`", table)
+        self.assertIn("hidden_verifier_configured: `unknown`", table)
+        self.assertIn("hidden_verifier_checks: `unknown`", table)
         self.assertIn(
             "budget_operator_interruption_taxonomy: `unknown`",
             table,
@@ -136,6 +138,39 @@ class OperabilityEvidenceTest(unittest.TestCase):
         self.assertIn("turn_or_step_budget: `unknown`", table)
         self.assertNotIn('turn_or_step_budget: `{"reasoning_effort": "xhigh"}`', table)
 
+    def test_render_agent_harness_operability_table_reports_hidden_verifier_state(self):
+        result = _result(
+            trial_id="codex-hidden-verifier",
+            agent_name="codex",
+            model_name="gpt-test",
+            status="passed",
+            success=True,
+            config={"agent_harness": "codex"},
+            input_tokens=10,
+            output_tokens=5,
+            cost_usd=None,
+            commands_run=[],
+            checks=[],
+            graders=[],
+            hidden_verifier={
+                "patch": "verifier.patch",
+                "checks": [
+                    {
+                        "command": "pytest tests/hidden_behavior.py",
+                        "returncode": 0,
+                        "passed": True,
+                    }
+                ],
+            },
+        )
+
+        table = "\n".join(render_agent_harness_operability_table([result]))
+
+        self.assertIn("checks_array: `unknown`", table)
+        self.assertIn("graders_array: `unknown`", table)
+        self.assertIn("hidden_verifier_configured: `1/1`", table)
+        self.assertIn("hidden_verifier_checks: `1/1`", table)
+
 
 def _result(
     *,
@@ -148,10 +183,13 @@ def _result(
     input_tokens: int | None,
     output_tokens: int | None,
     cost_usd: float | None,
+    commands_run: list[object] | None = None,
+    checks: list[object] | None = None,
+    graders: list[object] | None = None,
+    hidden_verifier: dict[str, object] | None = None,
 ):
     run_dir = Path("/tmp") / trial_id
-    return normalize_outcome_evidence(
-        {
+    payload = {
             "trial_kind": "agent_trial",
             "trial_id": trial_id,
             "run_id": trial_id,
@@ -170,14 +208,22 @@ def _result(
             "files_changed": ["app.py"],
             "lines_added": 3,
             "lines_deleted": 1,
-            "commands_run": ["pytest"],
-            "checks": [{"name": "pytest", "status": status}],
-            "graders": [{"name": "pytest"}],
+            "commands_run": ["pytest"] if commands_run is None else commands_run,
+            "checks": (
+                [{"name": "pytest", "status": status}]
+                if checks is None
+                else checks
+            ),
+            "graders": [{"name": "pytest"}] if graders is None else graders,
             "report_path": str(run_dir / "report.md"),
             "transcript_path": str(run_dir / "transcript.md"),
             "diff_path": str(run_dir / "diff.patch"),
             "run_dir": str(run_dir),
-        },
+        }
+    if hidden_verifier is not None:
+        payload["hidden_verifier"] = hidden_verifier
+    return normalize_outcome_evidence(
+        payload,
         run_dir=run_dir,
     )
 

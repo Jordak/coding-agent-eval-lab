@@ -165,7 +165,7 @@ class TaskCardPublicationTest(unittest.TestCase):
         self.assertIn("- `pytest tests/focused_check.py`", card)
         self.assertIn("### Target\n\n- `pytest tests/test_demo.py`", card)
 
-    def test_renders_hidden_verifier_summary_without_hidden_details(self):
+    def test_renders_hidden_verifier_summary_without_commands(self):
         with tempfile.TemporaryDirectory() as temp:
             bundle_dir = _write_task_bundle(
                 Path(temp) / "example-suite",
@@ -177,9 +177,8 @@ class TaskCardPublicationTest(unittest.TestCase):
             card = render_task_card(bundle)
 
         self.assertIn("## Hidden Verifier", card)
-        self.assertIn("- Configured: yes", card)
+        self.assertIn("- Patch: `verifier.patch`", card)
         self.assertIn("- Commands: `1 command configured`", card)
-        self.assertNotIn("verifier.patch", card)
         self.assertNotIn("pytest tests/hidden_behavior.py", card)
 
 

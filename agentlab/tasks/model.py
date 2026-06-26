@@ -433,8 +433,19 @@ def _hidden_patch_path(value: Any, source_path: Optional[Path]) -> str:
         raise TaskLoadError(
             "hidden_verifier.patch must end with .patch or .diff"
         )
-    if source_path is not None and not (source_path.parent / patch).is_file():
-        raise TaskLoadError(f"hidden_verifier.patch does not exist: {patch}")
+    if source_path is not None:
+        bundle_dir = source_path.parent
+        candidate = bundle_dir / patch
+        if not candidate.is_file():
+            raise TaskLoadError(f"hidden_verifier.patch does not exist: {patch}")
+        try:
+            candidate.resolve(strict=True).relative_to(
+                bundle_dir.resolve(strict=True)
+            )
+        except (OSError, ValueError) as exc:
+            raise TaskLoadError(
+                "hidden_verifier.patch must stay inside the bundle"
+            ) from exc
     return patch
 
 

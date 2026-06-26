@@ -109,7 +109,7 @@ def _hidden_verifier_section(task: EvalTask) -> list[str]:
     return [
         "## Hidden Verifier",
         "",
-        "- Configured: yes",
+        f"- Patch: `{verifier.patch}`",
         f"- Commands: `{command_count} {command_word} configured`",
         "",
     ]
