@@ -124,7 +124,15 @@ class ReferenceVerificationTest(unittest.TestCase):
             )
 
             task = load_task(bundle)
-            verification = verify_reference(task, temp_path / "work")
+            verification = verify_reference(
+                task,
+                temp_path / "work",
+                write_artifacts=True,
+            )
+            result = json.loads(
+                (bundle / "reference-result.json").read_text(encoding="utf-8")
+            )
+            report = (bundle / "reference-report.md").read_text(encoding="utf-8")
 
             self.assertTrue(verification.success)
             self.assertEqual(verification.files_changed, ["app.txt"])
@@ -136,6 +144,25 @@ class ReferenceVerificationTest(unittest.TestCase):
                 ],
             )
             self.assertFalse((verification.workspace / "hidden_check.py").exists())
+            self.assertEqual(
+                [check["command"] for check in result["hidden_verifier"]["checks"]],
+                [
+                    "git apply hidden verifier patch: verifier.patch",
+                    hidden_command,
+                ],
+            )
+            self.assertNotIn(hidden_command, result["commands_run"])
+            self.assertNotIn(
+                hidden_command,
+                [check["command"] for check in result["checks"]],
+            )
+            self.assertNotIn(
+                hidden_command,
+                [grader["assertion"] for grader in result["graders"]],
+            )
+            self.assertIn("## Public Graders", report)
+            self.assertIn("## Hidden Verifier", report)
+            self.assertIn(f"Assertion `{hidden_command}`: passed", report)
 
     def test_commit_reference_artifact_is_converted_to_patch(self):
         if shutil.which("git") is None:
