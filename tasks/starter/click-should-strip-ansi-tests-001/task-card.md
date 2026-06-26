@@ -30,6 +30,11 @@ Update `tests/test_compat.py` to import Click, pytest, and sys; test `_is_jupyte
 - PYTHONPATH={workspace}/src
 - VIRTUAL_ENV={workspace}/.agentlab/venv
 
+## Hidden Verifier
+
+- Patch: `verifier.patch`
+- Commands: `1 command configured`
+
 ## Graders
 
 ### Setup
@@ -45,7 +50,6 @@ Update `tests/test_compat.py` to import Click, pytest, and sys; test `_is_jupyte
 ### Target
 
 - `python -m pytest tests/test_compat.py -q`
-- `python -c 'import pathlib, subprocess; status = subprocess.check_output(["git", "status", "--short"], text=True).splitlines(); paths = [line[3:] for line in status]; assert paths == ["tests/test_compat.py"], status; source = pathlib.Path("tests/test_compat.py").read_text(); required = ["should_strip_ansi", "color=True", "color=False", "color=None", "sys.stdin", "sys.stdout", "sys.stderr"]; missing = [item for item in required if item not in source]; assert not missing, missing; assert "_is_jupyter_kernel_output" in source or "ipykernel" in source, "tests should cover Jupyter kernel output detection"; assert source.count("should_strip_ansi") >= 4, "tests should exercise should_strip_ansi across override and automatic cases"'`
 
 ## Success Criteria
 

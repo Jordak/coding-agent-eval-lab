@@ -1,4 +1,13 @@
 {
+  "agent_harness_config": {
+    "agent_harness": "reference",
+    "model_name": null,
+    "runtime_accountability": {
+      "account": null,
+      "billing_context": null,
+      "cost_usd": null
+    }
+  },
   "agent_name": "reference",
   "cached_input_tokens": null,
   "checks": [
@@ -17,27 +26,6 @@
       "stdout": ""
     },
     {
-      "command": "python3 -c 'from pathlib import Path; import re; playback = Path(\"packages/player/src/use-playback.ts\").read_text(); guarded_resume = re.search(r\"if\\s*\\(\\s*!muted\\s*\\)\\s*{\\s*sharedAudioContext\\?\\.resume\\?\\.\\(\\);\\s*}\", playback); assert guarded_resume, \"sharedAudioContext.resume() must be guarded by !muted\"; unguarded_resume = playback.replace(guarded_resume.group(0), \"\"); assert \"sharedAudioContext?.resume?.();\" not in unguarded_resume, \"no unguarded sharedAudioContext.resume() calls should remain\"; assert re.search(r\"if\\s*\\(\\s*getIsResumingAudioContext\\s*!==\\s*null\\s*&&\\s*!muted\\s*\\)\", playback), \"muted playback must not wait on getIsResumingAudioContext()\"; assert \"getIsResumingAudioContext.then(\" in playback, \"non-muted playback should still wait for real audio-context resume work\"'",
-      "passed": true,
-      "returncode": 0,
-      "stderr": "",
-      "stdout": ""
-    },
-    {
-      "command": "python3 -c 'from pathlib import Path; import re; shared = Path(\"packages/core/src/audio/shared-audio-tags.tsx\").read_text(); assert \"const resumePromise = ctxAndGain.audioContext.resume();\" in shared, \"resume() should call AudioContext.resume() once and keep its promise\"; assert re.search(r\"isResuming\\.current\\s*=\\s*new Promise<void>\\(\\(resolve\\)\\s*=>\\s*{[\\s\\S]*?resumePromise\\.catch\\(\\(err\\)\\s*=>\\s*{[\\s\\S]*?Log\\.warn\\([\\s\\S]*?resolve\\(\\);[\\s\\S]*?}\\);[\\s\\S]*?}\\)\\.finally\", shared), \"resume rejection must resolve the shared resume waiter instead of hanging playback\"; assert re.search(r\"return\\s+resumePromise\\s*[\\s\\S]*?\\.then\\(\\(\\)\\s*=>\\s*{[\\s\\S]*?nodesToResume\\.current\\.clear\\(\\);[\\s\\S]*?}\\)\\s*[\\s\\S]*?\\.catch\\(\\(\\)\\s*=>\\s*{\", shared), \"resume() must swallow AudioContext.resume() rejection after logging\"; assert \"return ctxAndGain.audioContext.resume().then\" not in shared, \"returning the raw resume().then() chain can propagate autoplay-policy rejection\"'",
-      "passed": true,
-      "returncode": 0,
-      "stderr": "",
-      "stdout": ""
-    },
-    {
-      "command": "python3 -c 'import subprocess; changed = subprocess.check_output([\"git\", \"diff\", \"--name-only\"], text=True).splitlines(); assert changed == [\"packages/core/src/audio/shared-audio-tags.tsx\", \"packages/player/src/use-playback.ts\"], changed'",
-      "passed": true,
-      "returncode": 0,
-      "stderr": "",
-      "stdout": ""
-    },
-    {
       "command": "git diff --check",
       "passed": true,
       "returncode": 0,
@@ -48,9 +36,6 @@
   "commands_run": [
     "python3 -c 'from pathlib import Path; playback = Path(\"packages/player/src/use-playback.ts\").read_text(); shared = Path(\"packages/core/src/audio/shared-audio-tags.tsx\").read_text(); assert \"sharedAudioContext?.resume?.();\" in playback; assert \"if (!muted)\" not in playback.split(\"sharedAudioContext?.resume?.();\", 1)[0][-80:]; assert \"if (getIsResumingAudioContext !== null && !muted)\" not in playback; assert \"const resumePromise = ctxAndGain.audioContext.resume();\" not in shared; assert \"return ctxAndGain.audioContext.resume().then(() => {\" in shared'",
     "git apply reference.patch",
-    "python3 -c 'from pathlib import Path; import re; playback = Path(\"packages/player/src/use-playback.ts\").read_text(); guarded_resume = re.search(r\"if\\s*\\(\\s*!muted\\s*\\)\\s*{\\s*sharedAudioContext\\?\\.resume\\?\\.\\(\\);\\s*}\", playback); assert guarded_resume, \"sharedAudioContext.resume() must be guarded by !muted\"; unguarded_resume = playback.replace(guarded_resume.group(0), \"\"); assert \"sharedAudioContext?.resume?.();\" not in unguarded_resume, \"no unguarded sharedAudioContext.resume() calls should remain\"; assert re.search(r\"if\\s*\\(\\s*getIsResumingAudioContext\\s*!==\\s*null\\s*&&\\s*!muted\\s*\\)\", playback), \"muted playback must not wait on getIsResumingAudioContext()\"; assert \"getIsResumingAudioContext.then(\" in playback, \"non-muted playback should still wait for real audio-context resume work\"'",
-    "python3 -c 'from pathlib import Path; import re; shared = Path(\"packages/core/src/audio/shared-audio-tags.tsx\").read_text(); assert \"const resumePromise = ctxAndGain.audioContext.resume();\" in shared, \"resume() should call AudioContext.resume() once and keep its promise\"; assert re.search(r\"isResuming\\.current\\s*=\\s*new Promise<void>\\(\\(resolve\\)\\s*=>\\s*{[\\s\\S]*?resumePromise\\.catch\\(\\(err\\)\\s*=>\\s*{[\\s\\S]*?Log\\.warn\\([\\s\\S]*?resolve\\(\\);[\\s\\S]*?}\\);[\\s\\S]*?}\\)\\.finally\", shared), \"resume rejection must resolve the shared resume waiter instead of hanging playback\"; assert re.search(r\"return\\s+resumePromise\\s*[\\s\\S]*?\\.then\\(\\(\\)\\s*=>\\s*{[\\s\\S]*?nodesToResume\\.current\\.clear\\(\\);[\\s\\S]*?}\\)\\s*[\\s\\S]*?\\.catch\\(\\(\\)\\s*=>\\s*{\", shared), \"resume() must swallow AudioContext.resume() rejection after logging\"; assert \"return ctxAndGain.audioContext.resume().then\" not in shared, \"returning the raw resume().then() chain can propagate autoplay-policy rejection\"'",
-    "python3 -c 'import subprocess; changed = subprocess.check_output([\"git\", \"diff\", \"--name-only\"], text=True).splitlines(); assert changed == [\"packages/core/src/audio/shared-audio-tags.tsx\", \"packages/player/src/use-playback.ts\"], changed'",
     "git diff --check"
   ],
   "cost_usd": null,
@@ -77,30 +62,33 @@
       "type": "code"
     },
     {
-      "assertion": "python3 -c 'from pathlib import Path; import re; playback = Path(\"packages/player/src/use-playback.ts\").read_text(); guarded_resume = re.search(r\"if\\s*\\(\\s*!muted\\s*\\)\\s*{\\s*sharedAudioContext\\?\\.resume\\?\\.\\(\\);\\s*}\", playback); assert guarded_resume, \"sharedAudioContext.resume() must be guarded by !muted\"; unguarded_resume = playback.replace(guarded_resume.group(0), \"\"); assert \"sharedAudioContext?.resume?.();\" not in unguarded_resume, \"no unguarded sharedAudioContext.resume() calls should remain\"; assert re.search(r\"if\\s*\\(\\s*getIsResumingAudioContext\\s*!==\\s*null\\s*&&\\s*!muted\\s*\\)\", playback), \"muted playback must not wait on getIsResumingAudioContext()\"; assert \"getIsResumingAudioContext.then(\" in playback, \"non-muted playback should still wait for real audio-context resume work\"'",
-      "passed": true,
-      "returncode": 0,
-      "type": "code"
-    },
-    {
-      "assertion": "python3 -c 'from pathlib import Path; import re; shared = Path(\"packages/core/src/audio/shared-audio-tags.tsx\").read_text(); assert \"const resumePromise = ctxAndGain.audioContext.resume();\" in shared, \"resume() should call AudioContext.resume() once and keep its promise\"; assert re.search(r\"isResuming\\.current\\s*=\\s*new Promise<void>\\(\\(resolve\\)\\s*=>\\s*{[\\s\\S]*?resumePromise\\.catch\\(\\(err\\)\\s*=>\\s*{[\\s\\S]*?Log\\.warn\\([\\s\\S]*?resolve\\(\\);[\\s\\S]*?}\\);[\\s\\S]*?}\\)\\.finally\", shared), \"resume rejection must resolve the shared resume waiter instead of hanging playback\"; assert re.search(r\"return\\s+resumePromise\\s*[\\s\\S]*?\\.then\\(\\(\\)\\s*=>\\s*{[\\s\\S]*?nodesToResume\\.current\\.clear\\(\\);[\\s\\S]*?}\\)\\s*[\\s\\S]*?\\.catch\\(\\(\\)\\s*=>\\s*{\", shared), \"resume() must swallow AudioContext.resume() rejection after logging\"; assert \"return ctxAndGain.audioContext.resume().then\" not in shared, \"returning the raw resume().then() chain can propagate autoplay-policy rejection\"'",
-      "passed": true,
-      "returncode": 0,
-      "type": "code"
-    },
-    {
-      "assertion": "python3 -c 'import subprocess; changed = subprocess.check_output([\"git\", \"diff\", \"--name-only\"], text=True).splitlines(); assert changed == [\"packages/core/src/audio/shared-audio-tags.tsx\", \"packages/player/src/use-playback.ts\"], changed'",
-      "passed": true,
-      "returncode": 0,
-      "type": "code"
-    },
-    {
       "assertion": "git diff --check",
       "passed": true,
       "returncode": 0,
       "type": "code"
     }
   ],
+  "hidden_verifier": {
+    "checks": [
+      {
+        "command": "git apply hidden verifier patch: verifier.patch",
+        "passed": true,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": ""
+      },
+      {
+        "command": "python3 .agentlab_hidden/check_behavior.py",
+        "passed": true,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "check: assert_playback\ncheck: assert_shared_audio\ncheck: assert_changed_files\n"
+      }
+    ],
+    "configured": true,
+    "patch": "verifier.patch",
+    "restore_notes": []
+  },
   "input_tokens": null,
   "lines_added": 30,
   "lines_deleted": 15,
@@ -134,10 +122,30 @@
   },
   "run_dir": ".",
   "run_id": "remotion-audio-context-autoplay-muted-001-reference",
-  "score_notes": [],
+  "run_surface": {
+    "approval_policy": "unknown",
+    "execution_surface": "unknown",
+    "human_intervention_events": [],
+    "memory_scope": "unknown",
+    "model_identity_source": "unknown",
+    "network_policy": "unknown",
+    "runtime_version": "unknown",
+    "sandbox_mode": "unknown",
+    "stop_reason": "success",
+    "timeout_seconds": "unknown",
+    "tool_policy": "unknown",
+    "turn_or_step_budget": "unknown",
+    "workspace_base_ref": "focused-two-file-validation",
+    "workspace_history_policy": "focused_substitute"
+  },
+  "score_notes": [
+    "Remotion full verify-reference was attempted twice and interrupted during large-repo synthetic-base materialization; this reference artifact was regenerated from the focused two-file validation workspace /private/tmp/ael-remotion-mini-123-fix2 using the same reference patch, hidden verifier patch, and public git diff --check command."
+  ],
   "status": "passed",
   "success": true,
+  "task_commit": "631ce3d2ab757e44cfb542a108a21f1e9a9c6c0f",
   "task_id": "remotion-audio-context-autoplay-muted-001",
+  "task_repo": "https://github.com/remotion-dev/remotion.git",
   "task_title": "Remotion Player muted playback should not wait on AudioContext resume",
   "transcript_path": null,
   "trial_id": "remotion-audio-context-autoplay-muted-001-reference",

@@ -29,6 +29,11 @@ In create_ssl_context, make the verify=False branch assign the unverified SSL co
 - PYTHONDONTWRITEBYTECODE=1
 - VIRTUAL_ENV={workspace}/.agentlab/venv
 
+## Hidden Verifier
+
+- Patch: `verifier.patch`
+- Commands: `1 command configured`
+
 ## Graders
 
 ### Setup
@@ -43,10 +48,7 @@ In create_ssl_context, make the verify=False branch assign the unverified SSL co
 
 ### Target
 
-- `python -c 'import ssl, httpx; calls = []; ssl.SSLContext.load_cert_chain = lambda self, *args, **kwargs: calls.append(args); ctx = httpx.create_ssl_context(verify=False, cert=("client.pem", "client.key")); assert ctx.verify_mode == ssl.CERT_NONE, ctx.verify_mode; assert ctx.check_hostname is False, ctx.check_hostname; assert calls == [("client.pem", "client.key")], calls'`
-- `python -c 'import ssl, httpx; calls = []; ssl.SSLContext.load_cert_chain = lambda self, *args, **kwargs: calls.append(args); ctx = httpx.create_ssl_context(verify=False, cert="client.pem"); assert ctx.verify_mode == ssl.CERT_NONE, ctx.verify_mode; assert ctx.check_hostname is False, ctx.check_hostname; assert calls == [("client.pem",)], calls'`
-- `python -c 'import ssl, httpx; calls = []; ssl.SSLContext.load_cert_chain = lambda self, *args, **kwargs: calls.append(args); ctx = httpx.create_ssl_context(verify=False); assert ctx.verify_mode == ssl.CERT_NONE, ctx.verify_mode; assert ctx.check_hostname is False, ctx.check_hostname; assert calls == [], calls'`
-- `python -c 'import ssl, httpx; calls = []; ssl.SSLContext.load_cert_chain = lambda self, *args, **kwargs: calls.append(args); ctx = httpx.create_ssl_context(verify=True, cert=("client.pem", "client.key")); assert ctx.verify_mode == ssl.CERT_REQUIRED, ctx.verify_mode; assert ctx.check_hostname is True, ctx.check_hostname; assert calls == [("client.pem", "client.key")], calls'`
+None configured.
 
 ## Success Criteria
 

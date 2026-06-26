@@ -1,0 +1,37 @@
+diff --git a/.agentlab_hidden/check_behavior.py b/.agentlab_hidden/check_behavior.py
+new file mode 100644
+index 0000000..0000000
+--- /dev/null
++++ b/.agentlab_hidden/check_behavior.py
+@@ -0,0 +1,31 @@
++from __future__ import annotations
++
++import subprocess
++import sys
++
++COMMANDS = ['python -c \'import click; from click.testing import CliRunner; cli = click.group("cli", context_settings={"help_option_names":["-h","--help"]})(lambda: None); foo = click.command("foo")(click.option("--host","-h")(click.argument("required_arg")(lambda required_arg, host: None))); cli.add_command(foo); runner = CliRunner(); result = runner.invoke(cli, ["foo"]); expected = "Try " + chr(39) + "cli foo --help" + chr(39) + " for help."; bad = "Try " + chr(39) + "cli foo -h" + chr(39) + " for help."; assert result.exit_code == 2, result.output; assert expected in result.output, result.output; assert bad not in result.output, result.output; help_result = runner.invoke(cli, ["foo", "--help"]); assert help_result.exit_code == 0, help_result.output; assert "--help" in help_result.output, help_result.output\'', 'python -c \'import click; from click.testing import CliRunner; cli = click.group("cli", context_settings={"help_option_names":["-h","--help"]})(lambda: None); foo = click.command("foo")(click.option("--host","-h")(click.option("--help-file","--help")(click.argument("required_arg")(lambda required_arg, help_file, host: None)))); cli.add_command(foo); result = CliRunner().invoke(cli, ["foo"]); assert result.exit_code == 2, result.output; assert "Try " not in result.output, result.output\'']
++
++
++def main() -> int:
++    for command in COMMANDS:
++        print(f"$ {command}")
++        completed = subprocess.run(
++            command,
++            shell=True,
++            text=True,
++            stdout=subprocess.PIPE,
++            stderr=subprocess.STDOUT,
++        )
++        if completed.stdout:
++            print(completed.stdout, end="")
++        if completed.returncode != 0:
++            print(
++                f"hidden verifier command failed with exit code {completed.returncode}",
++                file=sys.stderr,
++            )
++            return completed.returncode
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())

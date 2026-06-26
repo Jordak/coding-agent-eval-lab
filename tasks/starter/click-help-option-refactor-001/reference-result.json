@@ -23,7 +23,7 @@
       "passed": true,
       "returncode": 0,
       "stderr": "\n[notice] A new release of pip is available: 25.1.1 -> 26.1.2\n[notice] To update, run: pip install --upgrade pip\n",
-      "stdout": "Obtaining file:///private/var/folders/3m/s27dbmbs1mn8yp8dmfxmtl9h0000gn/T/agentlab-reference-4ic7u1_p/click-help-option-refactor-001\n  Installing build dependencies: started\n  Installing build dependencies: finished with status 'done'\n  Checking if build backend supports build_editable: started\n  Checking if build backend supports build_editable: finished with status 'done'\n  Getting requirements to build editable: started\n  Getting requirements to build editable: finished with status 'done'\n  Preparing editable metadata (pyproject.toml): started\n  Preparing editable metadata (pyproject.toml): finished with status 'done'\nCollecting pytest<9\n  Using cached pytest-8.4.2-py3-none-any.whl.metadata (7.7 kB)\nCollecting iniconfig>=1 (from pytest<9)\n  Using cached iniconfig-2.3.0-py3-none-any.whl.metadata (2.5 kB)\nCollecting packaging>=20 (from pytest<9)\n  Using cached packaging-26.2-py3-none-any.whl.metadata (3.5 kB)\nCollecting pluggy<2,>=1.5 (from pytest<9)\n  Using cached pluggy-1.6.0-py3-none-any.whl.metadata (4.8 kB)\nCollecting pygments>=2.7.2 (from pytest<9)\n  Using cached pygments-2.20.0-py3-none-any.whl.metadata (2.5 kB)\nUsing cached pytest-8.4.2-py3-none-any.whl (365 kB)\nUsing cached pluggy-1.6.0-py3-none-any.whl (20 kB)\nUsing cached iniconfig-2.3.0-py3-none-any.whl (7.5 kB)\nUsing cached packaging-26.2-py3-none-any.whl (100 kB)\nUsing cached pygments-2.20.0-py3-none-any.whl (1.2 MB)\nBuilding wheels for collected packages: click\n  Building editable for click (pyproject.toml): started\n  Building editable for click (pyproject.toml): finished with status 'done'\n  Created wheel for click: filename=click-8.1.7-py3-none-any.whl size=3027 sha256=e07e21c8bfb3378b02413b3d98cbeefbd1d3c0d4674804303e09f813c752f270\n  Stored in directory: /private/var/folders/3m/s27dbmbs1mn8yp8dmfxmtl9h0000gn/T/pip-ephem-wheel-cache-eilv3u5s/wheels/75/04/ae/5feab7b60487f8b54b1605c75f430c5aa64f6001b29a469b1d\nSuccessfully built click\nInstalling collected packages: pygments, pluggy, packaging, iniconfig, click, pytest\n\nSuccessfully installed click-8.1.7 iniconfig-2.3.0 packaging-26.2 pluggy-1.6.0 pygments-2.20.0 pytest-8.4.2\n"
+      "stdout": "Obtaining file:///private/tmp/ael-ref-starter-123/click-help-option-refactor-001\n  Installing build dependencies: started\n  Installing build dependencies: finished with status 'done'\n  Checking if build backend supports build_editable: started\n  Checking if build backend supports build_editable: finished with status 'done'\n  Getting requirements to build editable: started\n  Getting requirements to build editable: finished with status 'done'\n  Preparing editable metadata (pyproject.toml): started\n  Preparing editable metadata (pyproject.toml): finished with status 'done'\nCollecting pytest<9\n  Using cached pytest-8.4.2-py3-none-any.whl.metadata (7.7 kB)\nCollecting iniconfig>=1 (from pytest<9)\n  Using cached iniconfig-2.3.0-py3-none-any.whl.metadata (2.5 kB)\nCollecting packaging>=20 (from pytest<9)\n  Using cached packaging-26.2-py3-none-any.whl.metadata (3.5 kB)\nCollecting pluggy<2,>=1.5 (from pytest<9)\n  Using cached pluggy-1.6.0-py3-none-any.whl.metadata (4.8 kB)\nCollecting pygments>=2.7.2 (from pytest<9)\n  Using cached pygments-2.20.0-py3-none-any.whl.metadata (2.5 kB)\nUsing cached pytest-8.4.2-py3-none-any.whl (365 kB)\nUsing cached pluggy-1.6.0-py3-none-any.whl (20 kB)\nUsing cached iniconfig-2.3.0-py3-none-any.whl (7.5 kB)\nUsing cached packaging-26.2-py3-none-any.whl (100 kB)\nUsing cached pygments-2.20.0-py3-none-any.whl (1.2 MB)\nBuilding wheels for collected packages: click\n  Building editable for click (pyproject.toml): started\n  Building editable for click (pyproject.toml): finished with status 'done'\n  Created wheel for click: filename=click-8.1.7-py3-none-any.whl size=2984 sha256=d890f7b0d8ed876a4c1d74a4784ab378e48537a568f9107b58f36dd1afb50781\n  Stored in directory: /private/var/folders/3m/s27dbmbs1mn8yp8dmfxmtl9h0000gn/T/pip-ephem-wheel-cache-e4bxb3b7/wheels/96/93/54/e80d1af63bd52d8de1d4fb2ae168ad13a8374dd201435ea0db\nSuccessfully built click\nInstalling collected packages: pygments, pluggy, packaging, iniconfig, click, pytest\n\nSuccessfully installed click-8.1.7 iniconfig-2.3.0 packaging-26.2 pluggy-1.6.0 pygments-2.20.0 pytest-8.4.2\n"
     },
     {
       "command": "python -c 'import click; assert not hasattr(click, \"HelpOption\")'",
@@ -52,27 +52,6 @@
       "returncode": 0,
       "stderr": "",
       "stdout": ""
-    },
-    {
-      "command": "python -c 'import click; assert hasattr(click, \"HelpOption\"); cmd = click.Command(\"demo\"); ctx = click.Context(cmd); option = cmd.get_help_option(ctx); assert isinstance(option, click.HelpOption), type(option); assert option.is_flag is True; assert option.is_eager is True; assert option.expose_value is False'",
-      "passed": true,
-      "returncode": 0,
-      "stderr": "",
-      "stdout": ""
-    },
-    {
-      "command": "python -c 'import click; from click.testing import CliRunner; cmd = click.Command(\"demo\", params=[click.Option([\"--name\"], help=\"Name\")], callback=lambda name: click.echo(\"hello \" + name if name else \"hello\")); result = CliRunner().invoke(cmd, [\"--help\"]); assert result.exit_code == 0, result.output; assert \"Usage: demo [OPTIONS]\" in result.output, result.output; assert \"--help\" in result.output, result.output; assert \"Show this message and exit.\" in result.output, result.output; disabled = click.Command(\"plain\", add_help_option=False, callback=lambda: None); disabled_result = CliRunner().invoke(disabled, [\"--help\"]); assert disabled_result.exit_code == 2, disabled_result.output; assert \"No such option: --help\" in disabled_result.output, disabled_result.output'",
-      "passed": true,
-      "returncode": 0,
-      "stderr": "",
-      "stdout": ""
-    },
-    {
-      "command": "python -c 'import click; from click.testing import CliRunner; cli = click.help_option(\"-h\", \"--halp\")(click.command()(lambda: click.echo(\"ran\"))); runner = CliRunner(); short_help = runner.invoke(cli, [\"-h\"]); long_help = runner.invoke(cli, [\"--halp\"]); normal_run = runner.invoke(cli, []); assert short_help.exit_code == 0, short_help.output; assert long_help.exit_code == 0, long_help.output; assert \"Usage:\" in short_help.output, short_help.output; assert \"Usage:\" in long_help.output, long_help.output; assert normal_run.exit_code == 0, normal_run.output; assert normal_run.output.strip() == \"ran\", normal_run.output'",
-      "passed": true,
-      "returncode": 0,
-      "stderr": "",
-      "stdout": ""
     }
   ],
   "commands_run": [
@@ -81,10 +60,7 @@
     "python -c 'import click; assert not hasattr(click, \"HelpOption\")'",
     "python -c 'import click; from click.testing import CliRunner; cmd = click.Command(\"demo\", params=[click.Option([\"--name\"], help=\"Name\")], callback=lambda name: click.echo(\"hello \" + name if name else \"hello\")); result = CliRunner().invoke(cmd, [\"--help\"]); assert result.exit_code == 0, result.output; assert \"Usage: demo [OPTIONS]\" in result.output, result.output; assert \"--help\" in result.output, result.output; assert \"Show this message and exit.\" in result.output, result.output; disabled = click.Command(\"plain\", add_help_option=False, callback=lambda: None); disabled_result = CliRunner().invoke(disabled, [\"--help\"]); assert disabled_result.exit_code == 2, disabled_result.output; assert \"No such option: --help\" in disabled_result.output, disabled_result.output'",
     "python -c 'import click; from click.testing import CliRunner; cli = click.help_option(\"-h\", \"--halp\")(click.command()(lambda: click.echo(\"ran\"))); runner = CliRunner(); short_help = runner.invoke(cli, [\"-h\"]); long_help = runner.invoke(cli, [\"--halp\"]); normal_run = runner.invoke(cli, []); assert short_help.exit_code == 0, short_help.output; assert long_help.exit_code == 0, long_help.output; assert \"Usage:\" in short_help.output, short_help.output; assert \"Usage:\" in long_help.output, long_help.output; assert normal_run.exit_code == 0, normal_run.output; assert normal_run.output.strip() == \"ran\", normal_run.output'",
-    "git apply reference.patch",
-    "python -c 'import click; assert hasattr(click, \"HelpOption\"); cmd = click.Command(\"demo\"); ctx = click.Context(cmd); option = cmd.get_help_option(ctx); assert isinstance(option, click.HelpOption), type(option); assert option.is_flag is True; assert option.is_eager is True; assert option.expose_value is False'",
-    "python -c 'import click; from click.testing import CliRunner; cmd = click.Command(\"demo\", params=[click.Option([\"--name\"], help=\"Name\")], callback=lambda name: click.echo(\"hello \" + name if name else \"hello\")); result = CliRunner().invoke(cmd, [\"--help\"]); assert result.exit_code == 0, result.output; assert \"Usage: demo [OPTIONS]\" in result.output, result.output; assert \"--help\" in result.output, result.output; assert \"Show this message and exit.\" in result.output, result.output; disabled = click.Command(\"plain\", add_help_option=False, callback=lambda: None); disabled_result = CliRunner().invoke(disabled, [\"--help\"]); assert disabled_result.exit_code == 2, disabled_result.output; assert \"No such option: --help\" in disabled_result.output, disabled_result.output'",
-    "python -c 'import click; from click.testing import CliRunner; cli = click.help_option(\"-h\", \"--halp\")(click.command()(lambda: click.echo(\"ran\"))); runner = CliRunner(); short_help = runner.invoke(cli, [\"-h\"]); long_help = runner.invoke(cli, [\"--halp\"]); normal_run = runner.invoke(cli, []); assert short_help.exit_code == 0, short_help.output; assert long_help.exit_code == 0, long_help.output; assert \"Usage:\" in short_help.output, short_help.output; assert \"Usage:\" in long_help.output, long_help.output; assert normal_run.exit_code == 0, normal_run.output; assert normal_run.output.strip() == \"ran\", normal_run.output'"
+    "git apply reference.patch"
   ],
   "cost_usd": null,
   "diff_path": "reference.diff",
@@ -133,26 +109,36 @@
       "passed": true,
       "returncode": 0,
       "type": "code"
-    },
-    {
-      "assertion": "python -c 'import click; assert hasattr(click, \"HelpOption\"); cmd = click.Command(\"demo\"); ctx = click.Context(cmd); option = cmd.get_help_option(ctx); assert isinstance(option, click.HelpOption), type(option); assert option.is_flag is True; assert option.is_eager is True; assert option.expose_value is False'",
-      "passed": true,
-      "returncode": 0,
-      "type": "code"
-    },
-    {
-      "assertion": "python -c 'import click; from click.testing import CliRunner; cmd = click.Command(\"demo\", params=[click.Option([\"--name\"], help=\"Name\")], callback=lambda name: click.echo(\"hello \" + name if name else \"hello\")); result = CliRunner().invoke(cmd, [\"--help\"]); assert result.exit_code == 0, result.output; assert \"Usage: demo [OPTIONS]\" in result.output, result.output; assert \"--help\" in result.output, result.output; assert \"Show this message and exit.\" in result.output, result.output; disabled = click.Command(\"plain\", add_help_option=False, callback=lambda: None); disabled_result = CliRunner().invoke(disabled, [\"--help\"]); assert disabled_result.exit_code == 2, disabled_result.output; assert \"No such option: --help\" in disabled_result.output, disabled_result.output'",
-      "passed": true,
-      "returncode": 0,
-      "type": "code"
-    },
-    {
-      "assertion": "python -c 'import click; from click.testing import CliRunner; cli = click.help_option(\"-h\", \"--halp\")(click.command()(lambda: click.echo(\"ran\"))); runner = CliRunner(); short_help = runner.invoke(cli, [\"-h\"]); long_help = runner.invoke(cli, [\"--halp\"]); normal_run = runner.invoke(cli, []); assert short_help.exit_code == 0, short_help.output; assert long_help.exit_code == 0, long_help.output; assert \"Usage:\" in short_help.output, short_help.output; assert \"Usage:\" in long_help.output, long_help.output; assert normal_run.exit_code == 0, normal_run.output; assert normal_run.output.strip() == \"ran\", normal_run.output'",
-      "passed": true,
-      "returncode": 0,
-      "type": "code"
     }
   ],
+  "hidden_verifier": {
+    "checks": [
+      {
+        "command": "git apply hidden verifier patch: verifier.patch",
+        "passed": true,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": ""
+      },
+      {
+        "command": "python .agentlab_hidden/check_behavior.py",
+        "passed": true,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "$ python -c 'import click; from click.testing import CliRunner; cmd = click.Command(\"demo\", params=[click.Option([\"--name\"], help=\"Name\")], callback=lambda name: click.echo(\"hello \" + name if name else \"hello\")); result = CliRunner().invoke(cmd, [\"--help\"]); assert result.exit_code == 0, result.output; assert \"Usage: demo [OPTIONS]\" in result.output, result.output; assert \"--help\" in result.output, result.output; assert \"Show this message and exit.\" in result.output, result.output; disabled = click.Command(\"plain\", add_help_option=False, callback=lambda: None); disabled_result = CliRunner().invoke(disabled, [\"--help\"]); assert disabled_result.exit_code == 2, disabled_result.output; assert \"No such option: --help\" in disabled_result.output, disabled_result.output'\n$ python -c 'import click; from click.testing import CliRunner; cli = click.help_option(\"-h\", \"--halp\")(click.command()(lambda: click.echo(\"ran\"))); runner = CliRunner(); short_help = runner.invoke(cli, [\"-h\"]); long_help = runner.invoke(cli, [\"--halp\"]); normal_run = runner.invoke(cli, []); assert short_help.exit_code == 0, short_help.output; assert long_help.exit_code == 0, long_help.output; assert \"Usage:\" in short_help.output, short_help.output; assert \"Usage:\" in long_help.output, long_help.output; assert normal_run.exit_code == 0, normal_run.output; assert normal_run.output.strip() == \"ran\", normal_run.output'\n"
+      },
+      {
+        "command": "python .agentlab_hidden/check_structure.py",
+        "passed": true,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": ""
+      }
+    ],
+    "configured": true,
+    "patch": "verifier.patch",
+    "restore_notes": []
+  },
   "input_tokens": null,
   "lines_added": 39,
   "lines_deleted": 35,

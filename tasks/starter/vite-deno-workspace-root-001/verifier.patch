@@ -1,0 +1,170 @@
+diff --git a/.agentlab_hidden/check_behavior.py b/.agentlab_hidden/check_behavior.py
+new file mode 100644
+index 0000000..0000000
+--- /dev/null
++++ b/.agentlab_hidden/check_behavior.py
+@@ -0,0 +1,33 @@
++from __future__ import annotations
++
++import subprocess
++import sys
++
++COMMANDS = [
++    ["node", ".agentlab_hidden/check_deno_workspace_root.cjs"],
++    ["node", ".agentlab_hidden/check_search_root_spec.cjs"],
++]
++
++
++def main() -> int:
++    for command in COMMANDS:
++        print("$ " + " ".join(command))
++        completed = subprocess.run(
++            command,
++            text=True,
++            stdout=subprocess.PIPE,
++            stderr=subprocess.STDOUT,
++        )
++        if completed.stdout:
++            print(completed.stdout, end="")
++        if completed.returncode != 0:
++            print(
++                f"hidden verifier command failed with exit code {completed.returncode}",
++                file=sys.stderr,
++            )
++            return completed.returncode
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/.agentlab_hidden/check_deno_workspace_root.cjs b/.agentlab_hidden/check_deno_workspace_root.cjs
+new file mode 100644
+index 0000000..0000000
+--- /dev/null
++++ b/.agentlab_hidden/check_deno_workspace_root.cjs
+@@ -0,0 +1,64 @@
++const fs = require("node:fs");
++const os = require("node:os");
++const path = require("node:path");
++const vm = require("node:vm");
++const assert = require("node:assert/strict");
++
++function write(file, data) {
++  fs.mkdirSync(path.dirname(file), {recursive: true});
++  fs.writeFileSync(file, data);
++}
++
++function fixture(tmp, name, configName) {
++  const root = path.join(tmp, name);
++  write(path.join(root, configName), JSON.stringify({workspace: ["nested"]}));
++  write(path.join(root, "nested/package.json"), JSON.stringify({private: true}));
++  return root;
++}
++
++function loadSearchForWorkspaceRoot() {
++  let source = fs
++    .readFileSync("packages/vite/src/node/server/searchRoot.ts", "utf8")
++    .split("\n")
++    .filter((line) => !line.startsWith("import "))
++    .join("\n");
++  source = source
++    .replace(/export function /g, "function ")
++    .replace(/\): [A-Za-z][A-Za-z0-9_<>, ]+/g, ")")
++    .replace(/(\w+): string/g, "$1");
++  const sandbox = {
++    fs,
++    dirname: path.dirname,
++    join: path.join,
++    isFileReadable(file) {
++      try {
++        fs.accessSync(file, fs.constants.R_OK);
++        return true;
++      } catch {
++        return false;
++      }
++    },
++    exports: {},
++  };
++  vm.runInNewContext(
++    source + "\nexports.searchForWorkspaceRoot = searchForWorkspaceRoot",
++    sandbox,
++  );
++  return sandbox.exports.searchForWorkspaceRoot;
++}
++
++const searchForWorkspaceRoot = loadSearchForWorkspaceRoot();
++const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "vite-deno-root-test-"));
++const denoJsonRoot = fixture(tmp, "deno-json", "deno.json");
++assert.equal(searchForWorkspaceRoot(path.join(denoJsonRoot, "nested")), denoJsonRoot);
++assert.equal(searchForWorkspaceRoot(denoJsonRoot), denoJsonRoot);
++const denoJsoncRoot = fixture(tmp, "deno-jsonc", "deno.jsonc");
++assert.equal(searchForWorkspaceRoot(path.join(denoJsoncRoot, "nested")), denoJsoncRoot);
++assert.equal(searchForWorkspaceRoot(denoJsoncRoot), denoJsoncRoot);
++const packageWorkspaceRoot = path.join(tmp, "package-workspace");
++write(path.join(packageWorkspaceRoot, "package.json"), JSON.stringify({workspaces: ["nested"]}));
++write(path.join(packageWorkspaceRoot, "nested/package.json"), JSON.stringify({private: true}));
++assert.equal(
++  searchForWorkspaceRoot(path.join(packageWorkspaceRoot, "nested")),
++  packageWorkspaceRoot,
++);
+diff --git a/.agentlab_hidden/check_search_root_spec.cjs b/.agentlab_hidden/check_search_root_spec.cjs
+new file mode 100644
+index 0000000..0000000
+--- /dev/null
++++ b/.agentlab_hidden/check_search_root_spec.cjs
+@@ -0,0 +1,55 @@
++const fs = require("node:fs");
++const path = require("node:path");
++const vm = require("node:vm");
++const assert = require("node:assert/strict");
++
++const specPath = "packages/vite/src/node/server/__tests__/search-root.spec.ts";
++const dirname = path.dirname(specPath);
++const spec = fs.readFileSync(specPath, "utf8");
++
++function loadSearchForWorkspaceRoot() {
++  let source = fs
++    .readFileSync("packages/vite/src/node/server/searchRoot.ts", "utf8")
++    .split("\n")
++    .filter((line) => !line.startsWith("import "))
++    .join("\n");
++  source = source
++    .replace(/export function /g, "function ")
++    .replace(/\): [A-Za-z][A-Za-z0-9_<>, ]+/g, ")")
++    .replace(/(\w+): string/g, "$1");
++  const sandbox = {
++    fs,
++    dirname: path.dirname,
++    join: path.join,
++    isFileReadable(file) {
++      try {
++        fs.accessSync(file, fs.constants.R_OK);
++        return true;
++      } catch {
++        return false;
++      }
++    },
++    exports: {},
++  };
++  vm.runInNewContext(
++    source + "\nexports.searchForWorkspaceRoot = searchForWorkspaceRoot",
++    sandbox,
++  );
++  return sandbox.exports.searchForWorkspaceRoot;
++}
++
++assert(spec.includes("test('deno'"), "missing deno nested spec case");
++assert(spec.includes("test('deno at root'"), "missing deno root spec case");
++assert(
++  spec.includes("fixtures/deno/nested") && spec.includes("fixtures/deno"),
++  "search-root.spec.ts should cover the deno workspace fixture",
++);
++
++const fixtureRoot = path.resolve(dirname, "fixtures/deno");
++const nested = path.resolve(dirname, "fixtures/deno/nested");
++assert(fs.existsSync(path.join(fixtureRoot, "deno.json")), "missing deno.json fixture");
++assert(fs.existsSync(path.join(nested, "package.json")), "missing nested package fixture");
++
++const searchForWorkspaceRoot = loadSearchForWorkspaceRoot();
++assert.equal(searchForWorkspaceRoot(nested), fixtureRoot);
++assert.equal(searchForWorkspaceRoot(fixtureRoot), fixtureRoot);

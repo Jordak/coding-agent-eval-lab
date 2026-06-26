@@ -1,0 +1,100 @@
+diff --git a/.agentlab_hidden/check_behavior.py b/.agentlab_hidden/check_behavior.py
+new file mode 100644
+index 0000000..0000000
+--- /dev/null
++++ b/.agentlab_hidden/check_behavior.py
+@@ -0,0 +1,84 @@
++from __future__ import annotations
++
++import re
++import subprocess
++import sys
++from pathlib import Path
++
++
++def assert_playback() -> None:
++    playback = Path("packages/player/src/use-playback.ts").read_text()
++    guarded_resume = re.search(
++        r"if\s*\(\s*!muted\s*\)\s*{\s*sharedAudioContext\?\.resume\?\.\(\);\s*}",
++        playback,
++    )
++    assert guarded_resume, "sharedAudioContext.resume() must be guarded by !muted"
++    unguarded_resume = playback.replace(guarded_resume.group(0), "")
++    assert "sharedAudioContext?.resume?.();" not in unguarded_resume, (
++        "no unguarded sharedAudioContext.resume() calls should remain"
++    )
++    waits_only_when_unmuted = re.search(
++        r"if\s*\(\s*getIsResumingAudioContext\s*!==\s*null\s*&&\s*!muted\s*\)",
++        playback,
++    ) or re.search(
++        r"const\s+getIsResumingAudioContext\s*=\s*muted\s*\?\s*null\s*:",
++        playback,
++    )
++    assert waits_only_when_unmuted, (
++        "muted playback must not wait on getIsResumingAudioContext()"
++    )
++    assert "getIsResumingAudioContext.then(" in playback, (
++        "non-muted playback should still wait for real audio-context resume work"
++    )
++
++
++def assert_shared_audio() -> None:
++    shared = Path("packages/core/src/audio/shared-audio-tags.tsx").read_text()
++    assert re.search(r"ctxAndGain\.audioContext\s*\.?\s*resume\(\)", shared), (
++        "resume() should still call AudioContext.resume()"
++    )
++    waiter_body = re.search(
++        r"isResuming\.current\s*=\s*new\s+Promise(?:<[^>]+>)?\s*\(\s*\(\s*resolve\s*\)\s*=>\s*{(?P<body>[\s\S]*?)}\s*\)\.finally",
++        shared,
++    )
++    assert waiter_body, "isResuming.current should be assigned a shared resume waiter"
++    body = waiter_body.group("body")
++    assert re.search(
++        r"waitUntilActuallyResumed\([\s\S]*?\)\.then\(\s*resolve\s*\)",
++        body,
++    ), "the shared waiter should resolve when AudioContext actually resumes"
++    catch_body = re.search(
++        r"resumePromise\.catch\(\s*\(?\s*\w*\s*\)?\s*=>\s*{(?P<body>[\s\S]*?)\n\s*}\s*\)",
++        body,
++    )
++    catch_resolve = re.search(r"resumePromise\.catch\(\s*resolve\s*\)", body)
++    assert catch_resolve or (catch_body and "resolve()" in catch_body.group("body")), (
++        "AudioContext.resume() rejection must resolve the same shared resume waiter"
++    )
++    assert "Log.warn" in shared or "Log.verbose" in shared, (
++        "resume rejection should be logged"
++    )
++    assert re.search(
++        r"isResuming\.current[\s\S]*?finally\(\(\)\s*=>\s*{[\s\S]*?isResuming\.current\s*=\s*null",
++        shared,
++    ), "resume waiter should be cleared"
++    assert "return ctxAndGain.audioContext.resume().then" not in shared, (
++        "returning the raw resume().then() chain can propagate autoplay-policy rejection"
++    )
++
++
++def assert_changed_files() -> None:
++    changed = subprocess.check_output(
++        ["git", "diff", "--name-only"],
++        text=True,
++    ).splitlines()
++    assert changed == [
++        "packages/core/src/audio/shared-audio-tags.tsx",
++        "packages/player/src/use-playback.ts",
++    ], changed
++
++
++def main() -> int:
++    checks = [assert_playback, assert_shared_audio, assert_changed_files]
++    for check in checks:
++        print(f"check: {check.__name__}")
++        try:
++            check()
++        except Exception as exc:
++            print(f"{check.__name__} failed: {exc}", file=sys.stderr)
++            return 1
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())

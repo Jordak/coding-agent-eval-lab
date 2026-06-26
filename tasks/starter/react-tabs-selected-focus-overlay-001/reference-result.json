@@ -1,4 +1,13 @@
 {
+  "agent_harness_config": {
+    "agent_harness": "reference",
+    "model_name": null,
+    "runtime_accountability": {
+      "account": null,
+      "billing_context": null,
+      "cost_usd": null
+    }
+  },
   "agent_name": "reference",
   "cached_input_tokens": null,
   "checks": [
@@ -17,13 +26,6 @@
       "stdout": ""
     },
     {
-      "command": "python3 -c 'from pathlib import Path; css = Path(\"style/react-tabs.css\").read_text(); scss = Path(\"style/react-tabs.scss\").read_text(); less = Path(\"style/react-tabs.less\").read_text(); assert \".react-tabs__tab:focus:after\" not in css, css; assert \"&:after\" not in scss, scss; assert \"&:after\" not in less, less; assert \".react-tabs__tab:focus\" in css and \"&:focus\" in scss and \"&:focus\" in less; assert \".react-tabs__tab--selected\" in css and \"&--selected\" in scss and \"&--selected\" in less; assert \"border-color: #aaa\" in css and \"border-color: #aaa\" in scss and \"border-color: #aaa\" in less'",
-      "passed": true,
-      "returncode": 0,
-      "stderr": "",
-      "stdout": ""
-    },
-    {
       "command": "git diff --check",
       "passed": true,
       "returncode": 0,
@@ -34,7 +36,6 @@
   "commands_run": [
     "python3 -c 'from pathlib import Path; css = Path(\"style/react-tabs.css\").read_text(); scss = Path(\"style/react-tabs.scss\").read_text(); less = Path(\"style/react-tabs.less\").read_text(); assert \".react-tabs__tab:focus:after\" in css, css; assert \"background: #fff\" in css and \"bottom: -5px\" in css, css; assert \"&:after\" in scss and \"&:after\" in less'",
     "git apply reference.patch",
-    "python3 -c 'from pathlib import Path; css = Path(\"style/react-tabs.css\").read_text(); scss = Path(\"style/react-tabs.scss\").read_text(); less = Path(\"style/react-tabs.less\").read_text(); assert \".react-tabs__tab:focus:after\" not in css, css; assert \"&:after\" not in scss, scss; assert \"&:after\" not in less, less; assert \".react-tabs__tab:focus\" in css and \"&:focus\" in scss and \"&:focus\" in less; assert \".react-tabs__tab--selected\" in css and \"&--selected\" in scss and \"&--selected\" in less; assert \"border-color: #aaa\" in css and \"border-color: #aaa\" in scss and \"border-color: #aaa\" in less'",
     "git diff --check"
   ],
   "cost_usd": null,
@@ -62,18 +63,33 @@
       "type": "code"
     },
     {
-      "assertion": "python3 -c 'from pathlib import Path; css = Path(\"style/react-tabs.css\").read_text(); scss = Path(\"style/react-tabs.scss\").read_text(); less = Path(\"style/react-tabs.less\").read_text(); assert \".react-tabs__tab:focus:after\" not in css, css; assert \"&:after\" not in scss, scss; assert \"&:after\" not in less, less; assert \".react-tabs__tab:focus\" in css and \"&:focus\" in scss and \"&:focus\" in less; assert \".react-tabs__tab--selected\" in css and \"&--selected\" in scss and \"&--selected\" in less; assert \"border-color: #aaa\" in css and \"border-color: #aaa\" in scss and \"border-color: #aaa\" in less'",
-      "passed": true,
-      "returncode": 0,
-      "type": "code"
-    },
-    {
       "assertion": "git diff --check",
       "passed": true,
       "returncode": 0,
       "type": "code"
     }
   ],
+  "hidden_verifier": {
+    "checks": [
+      {
+        "command": "git apply hidden verifier patch: verifier.patch",
+        "passed": true,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": ""
+      },
+      {
+        "command": "python3 .agentlab_hidden/check_behavior.py",
+        "passed": true,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "$ python3 -c 'from pathlib import Path; css = Path(\"style/react-tabs.css\").read_text(); scss = Path(\"style/react-tabs.scss\").read_text(); less = Path(\"style/react-tabs.less\").read_text(); assert \".react-tabs__tab:focus:after\" not in css, css; assert \"&:after\" not in scss, scss; assert \"&:after\" not in less, less; assert \".react-tabs__tab:focus\" in css and \"&:focus\" in scss and \"&:focus\" in less; assert \".react-tabs__tab--selected\" in css and \"&--selected\" in scss and \"&--selected\" in less; assert \"border-color: #aaa\" in css and \"border-color: #aaa\" in scss and \"border-color: #aaa\" in less'\n"
+      }
+    ],
+    "configured": true,
+    "patch": "verifier.patch",
+    "restore_notes": []
+  },
   "input_tokens": null,
   "lines_added": 0,
   "lines_deleted": 30,
@@ -108,10 +124,28 @@
   },
   "run_dir": ".",
   "run_id": "react-tabs-selected-focus-overlay-001-reference",
+  "run_surface": {
+    "approval_policy": "unknown",
+    "execution_surface": "unknown",
+    "human_intervention_events": [],
+    "memory_scope": "unknown",
+    "model_identity_source": "unknown",
+    "network_policy": "unknown",
+    "runtime_version": "unknown",
+    "sandbox_mode": "unknown",
+    "stop_reason": "success",
+    "timeout_seconds": "unknown",
+    "tool_policy": "unknown",
+    "turn_or_step_budget": "unknown",
+    "workspace_base_ref": "6988e9a8967cac275d083850c99ea400719f0054",
+    "workspace_history_policy": "base_only"
+  },
   "score_notes": [],
   "status": "passed",
   "success": true,
+  "task_commit": "186631aca0458e0b991c94180bc3a4a785151c04",
   "task_id": "react-tabs-selected-focus-overlay-001",
+  "task_repo": "https://github.com/reactjs/react-tabs.git",
   "task_title": "React Tabs selected-tab focus overlay should not mask custom borders",
   "transcript_path": null,
   "trial_id": "react-tabs-selected-focus-overlay-001-reference",
