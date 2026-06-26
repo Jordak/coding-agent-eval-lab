@@ -300,6 +300,8 @@ def _nonempty_strict_string_list(value: Any, field_name: str) -> List[str]:
         raise TaskLoadError(f"{field_name} must contain at least one value")
     if not all(isinstance(item, str) for item in value):
         raise TaskLoadError(f"{field_name} must contain only strings")
+    if any(not item.strip() for item in value):
+        raise TaskLoadError(f"{field_name} must not contain blank strings")
     return [item for item in value]
 
 
@@ -403,6 +405,13 @@ def _hidden_verifier(
     if value is None:
         return None
     mapping = _mapping(value, "hidden_verifier")
+    allowed_keys = {"patch", "commands"}
+    unknown_keys = sorted(str(key) for key in mapping if key not in allowed_keys)
+    if unknown_keys:
+        raise TaskLoadError(
+            "hidden_verifier contains unknown field(s): "
+            + ", ".join(unknown_keys)
+        )
     patch = _hidden_patch_path(mapping.get("patch"), source_path)
     commands = _nonempty_strict_string_list(
         mapping.get("commands"),

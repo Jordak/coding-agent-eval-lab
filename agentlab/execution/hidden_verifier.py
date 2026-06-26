@@ -125,10 +125,12 @@ def _copy_worktree_contents(source: Path, destination: Path) -> None:
     destination.mkdir(parents=True, exist_ok=True)
     for child in source.iterdir():
         target = destination / child.name
-        if child.is_dir():
+        if child.is_symlink():
+            shutil.copy2(child, target, follow_symlinks=False)
+        elif child.is_dir():
             shutil.copytree(child, target, symlinks=True)
         else:
-            shutil.copy2(child, target, follow_symlinks=False)
+            shutil.copy2(child, target)
 
 
 def _replace_worktree_contents(snapshot: Path, workspace: Path) -> None:

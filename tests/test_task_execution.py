@@ -143,6 +143,50 @@ class TaskExecutionTest(TaskExecutionGitMixin, unittest.TestCase):
             )
             self.assertEqual(execution.all_checks, [])
 
+    def test_hidden_verifier_restore_preserves_directory_symlinks(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for task execution")
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            repo, commit = self._repo_with_file(temp_path, "before\n")
+            outside_dir = temp_path / "outside-target"
+            outside_dir.mkdir()
+            (outside_dir / "secret.txt").write_text("outside\n", encoding="utf-8")
+            task_file = _hidden_task_file(
+                temp_path,
+                _new_file_patch("hidden_check.py", ["print('hidden ok')"]),
+            )
+            task = EvalTask(
+                id="hidden-symlink-task",
+                title="Hidden symlink task",
+                repo=str(repo),
+                commit=commit,
+                language="text",
+                prompt="Create a symlink.",
+                hidden_verifier=HiddenVerifier(
+                    patch="verifier.patch",
+                    commands=[f"{sys.executable} hidden_check.py"],
+                ),
+                source_path=task_file,
+            )
+
+            def action(workspace, _task_env):
+                os.symlink(outside_dir, workspace / "linked-dir")
+                return TaskActionResult()
+
+            execution = execute_task_phases(
+                task,
+                temp_path / "workspace",
+                action,
+                temp_path / "diff.patch",
+            )
+
+            restored_link = execution.workspace / "linked-dir"
+            self.assertTrue(execution.score.tests_passed)
+            self.assertTrue(restored_link.is_symlink())
+            self.assertEqual(os.readlink(restored_link), str(outside_dir))
+
     def test_visible_test_tampering_cannot_substitute_for_hidden_verifier(self):
         if shutil.which("git") is None:
             self.skipTest("git is required for task execution")

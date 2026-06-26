@@ -165,9 +165,13 @@ class TaskLoadingTest(unittest.TestCase):
             {"patch": "../verifier.patch", "commands": ["pytest"]},
             {"patch": "verifier.txt", "commands": ["pytest"]},
             {"patch": "verifier.patch", "commands": [123]},
+            {"patch": "verifier.patch", "commands": [""]},
+            {"patch": "verifier.patch", "commands": ["   "]},
             {"patch": "verifier.patch", "commands": []},
             {"commands": ["pytest"]},
             {"patch": "verifier.patch"},
+            {"patch": "verifier.patch", "commands": ["pytest"], "timeout": 30},
+            {"patch": "verifier.patch", "commands": ["pytest"], "phases": []},
         ]
         for hidden_verifier in invalid_values:
             with self.subTest(hidden_verifier=hidden_verifier):
