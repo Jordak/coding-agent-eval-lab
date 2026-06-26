@@ -5,7 +5,7 @@ from pathlib import Path
 
 from agentlab.agents.manual import _print_manual_instructions
 from agentlab.agents.prompts import build_agent_prompt
-from agentlab.tasks import EvalTask, SuccessCriteria
+from agentlab.tasks import EvalTask, HiddenVerifier, SuccessCriteria
 
 
 class AgentPromptTest(unittest.TestCase):
@@ -87,6 +87,34 @@ class AgentPromptTest(unittest.TestCase):
         self.assertNotIn("src/", prompt)
         self.assertNotIn("forbidden_paths", prompt)
         self.assertNotIn("allowed_paths", prompt)
+
+    def test_hidden_verifier_is_not_injected(self):
+        task = EvalTask(
+            id="hidden-task",
+            title="Hidden task",
+            repo="https://github.com/example/repo",
+            commit="abc123",
+            language="python",
+            prompt="Fix the behavior.",
+            visible_validation=["pytest tests/focused_check.py"],
+            hidden_verifier=HiddenVerifier(
+                patch="verifier.patch",
+                commands=["pytest tests/hidden_behavior.py"],
+            ),
+        )
+
+        prompt = build_agent_prompt(task)
+        output = StringIO()
+        with redirect_stdout(output):
+            _print_manual_instructions(task, Path("/tmp/workspace"))
+        printed = output.getvalue()
+
+        self.assertIn("pytest tests/focused_check.py", prompt)
+        self.assertNotIn("verifier.patch", prompt)
+        self.assertNotIn("pytest tests/hidden_behavior.py", prompt)
+        self.assertIn("pytest tests/focused_check.py", printed)
+        self.assertNotIn("verifier.patch", printed)
+        self.assertNotIn("pytest tests/hidden_behavior.py", printed)
 
 
 if __name__ == "__main__":

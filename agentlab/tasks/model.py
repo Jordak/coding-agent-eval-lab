@@ -3,7 +3,7 @@ from __future__ import annotations
 import glob
 import json
 from dataclasses import dataclass, field
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any, Dict, Iterable, List, Mapping, Optional
 
 import yaml  # type: ignore
@@ -35,6 +35,12 @@ class ReferenceArtifact:
 
 
 @dataclass(frozen=True)
+class HiddenVerifier:
+    patch: str
+    commands: List[str]
+
+
+@dataclass(frozen=True)
 class EvalTask:
     id: str
     title: str
@@ -50,6 +56,7 @@ class EvalTask:
     baseline: List[str] = field(default_factory=list)
     test: List[str] = field(default_factory=list)
     visible_validation: List[str] = field(default_factory=list)
+    hidden_verifier: Optional[HiddenVerifier] = None
     environment_path: List[str] = field(default_factory=list)
     environment: Dict[str, str] = field(default_factory=dict)
     success: SuccessCriteria = field(default_factory=SuccessCriteria)
@@ -131,6 +138,10 @@ class EvalTask:
             visible_validation=_string_list(
                 mapping.get("visible_validation", []),
                 "visible_validation",
+            ),
+            hidden_verifier=_hidden_verifier(
+                mapping.get("hidden_verifier"),
+                source_path,
             ),
             environment_path=_environment_path(
                 mapping.get("environment_path", []),
@@ -273,6 +284,27 @@ def _string_list(value: Any, field_name: str) -> List[str]:
     return [str(item) for item in value]
 
 
+def _nonempty_string_list(value: Any, field_name: str) -> List[str]:
+    entries = _string_list(value, field_name)
+    if not entries:
+        raise TaskLoadError(f"{field_name} must contain at least one value")
+    return entries
+
+
+def _nonempty_strict_string_list(value: Any, field_name: str) -> List[str]:
+    if value is None:
+        raise TaskLoadError(f"{field_name} must contain at least one value")
+    if not isinstance(value, list):
+        raise TaskLoadError(f"{field_name} must be a list")
+    if not value:
+        raise TaskLoadError(f"{field_name} must contain at least one value")
+    if not all(isinstance(item, str) for item in value):
+        raise TaskLoadError(f"{field_name} must contain only strings")
+    if any(not item.strip() for item in value):
+        raise TaskLoadError(f"{field_name} must not contain blank strings")
+    return [item for item in value]
+
+
 def _environment_path(value: Any, field_name: str) -> List[str]:
     entries = _string_list(value, field_name)
     for entry in entries:
@@ -364,6 +396,57 @@ def _reference_artifact(
             ),
         )
     raise TaskLoadError("reference_artifact.type must be one of: patch, commit")
+
+
+def _hidden_verifier(
+    value: Any,
+    source_path: Optional[Path],
+) -> Optional[HiddenVerifier]:
+    if value is None:
+        return None
+    mapping = _mapping(value, "hidden_verifier")
+    allowed_keys = {"patch", "commands"}
+    unknown_keys = sorted(str(key) for key in mapping if key not in allowed_keys)
+    if unknown_keys:
+        raise TaskLoadError(
+            "hidden_verifier contains unknown field(s): "
+            + ", ".join(unknown_keys)
+        )
+    patch = _hidden_patch_path(mapping.get("patch"), source_path)
+    commands = _nonempty_strict_string_list(
+        mapping.get("commands"),
+        "hidden_verifier.commands",
+    )
+    return HiddenVerifier(patch=patch, commands=commands)
+
+
+def _hidden_patch_path(value: Any, source_path: Optional[Path]) -> str:
+    patch = _required_string(value, "hidden_verifier.patch")
+    path = PurePosixPath(patch)
+    if path.is_absolute() or ".." in path.parts:
+        raise TaskLoadError(
+            "hidden_verifier.patch must be a relative path inside the bundle"
+        )
+    if path.name in {"", "."}:
+        raise TaskLoadError("hidden_verifier.patch is invalid")
+    if path.suffix not in {".patch", ".diff"}:
+        raise TaskLoadError(
+            "hidden_verifier.patch must end with .patch or .diff"
+        )
+    if source_path is not None:
+        bundle_dir = source_path.parent
+        candidate = bundle_dir / patch
+        if not candidate.is_file():
+            raise TaskLoadError(f"hidden_verifier.patch does not exist: {patch}")
+        try:
+            candidate.resolve(strict=True).relative_to(
+                bundle_dir.resolve(strict=True)
+            )
+        except (OSError, ValueError) as exc:
+            raise TaskLoadError(
+                "hidden_verifier.patch must stay inside the bundle"
+            ) from exc
+    return patch
 
 
 def _required_string(value: Any, field_name: str) -> str:

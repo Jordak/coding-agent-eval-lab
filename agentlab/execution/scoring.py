@@ -35,17 +35,25 @@ def calculate_grader_outcome(
     checks: Iterable[CheckResult],
     files_changed: Sequence[str],
     agent_error: Optional[str] = None,
+    hidden_checks: Iterable[CheckResult] = (),
 ) -> Score:
     check_results = list(checks)
+    hidden_check_results = list(hidden_checks)
     notes = _outcome_notes(task, files_changed)
-    checks_passed = (
+    public_checks_passed = (
         all(check.passed for check in check_results)
         if task.success.tests_must_pass
         else True
     )
+    hidden_checks_passed = all(check.passed for check in hidden_check_results)
 
     return Score(
-        tests_passed=agent_error is None and checks_passed and not notes,
+        tests_passed=(
+            agent_error is None
+            and public_checks_passed
+            and hidden_checks_passed
+            and not notes
+        ),
         checks=check_results,
         notes=notes,
     )

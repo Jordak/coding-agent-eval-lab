@@ -7,6 +7,8 @@ from pathlib import Path
 from agentlab.execution.commands import run_commands
 from agentlab.execution.changed_paths import capture_change_baseline
 from agentlab.execution.changed_paths import capture_diff_details_preserving_index
+from agentlab.execution.hidden_verifier import HiddenVerifierResult
+from agentlab.execution.hidden_verifier import run_hidden_verifier
 from agentlab.tasks.environment import build_task_environment
 from agentlab.runtime.patches import count_patch_lines
 from agentlab.execution.scoring import CheckResult
@@ -35,6 +37,9 @@ class TaskExecution:
     baseline_checks: list[CheckResult] = field(default_factory=list)
     action_checks: list[CheckResult] = field(default_factory=list)
     target_checks: list[CheckResult] = field(default_factory=list)
+    hidden_verifier: HiddenVerifierResult = field(
+        default_factory=HiddenVerifierResult
+    )
     files_changed: list[str] = field(default_factory=list)
     lines_added: int = 0
     lines_deleted: int = 0
@@ -84,7 +89,12 @@ def execute_task_phases(
     patch_stats = count_patch_lines(
         resolved_diff_path.read_text(encoding="utf-8")
     )
-    target_checks = run_commands(task.test, prepared.path, env=task_env)
+    hidden_verifier = run_hidden_verifier(task, prepared.path, task_env)
+    target_checks = (
+        []
+        if hidden_verifier.restore_notes
+        else run_commands(task.test, prepared.path, env=task_env)
+    )
     all_checks = (
         setup_checks
         + baseline_checks
@@ -96,6 +106,7 @@ def execute_task_phases(
         all_checks,
         captured_diff.files_changed,
         agent_error=action_result.agent_error,
+        hidden_checks=hidden_verifier.checks,
     )
     return TaskExecution(
         task=task,
@@ -105,6 +116,7 @@ def execute_task_phases(
         baseline_checks=baseline_checks,
         action_checks=action_result.checks,
         target_checks=target_checks,
+        hidden_verifier=hidden_verifier,
         files_changed=captured_diff.files_changed,
         lines_added=patch_stats.lines_added,
         lines_deleted=patch_stats.lines_deleted,

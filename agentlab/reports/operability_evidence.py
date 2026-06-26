@@ -118,8 +118,29 @@ def _verifier_state_facts(results: list[OutcomeEvidence]) -> list[tuple[str, obj
         ("final_grader_status", _result_values(results, lambda result: result.status)),
         ("checks_array", _coverage(results, lambda result: bool(result.checks))),
         ("graders_array", _coverage(results, lambda result: bool(result.graders))),
+        (
+            "hidden_verifier_configured",
+            _coverage(results, _hidden_verifier_configured),
+        ),
+        (
+            "hidden_verifier_checks",
+            _coverage(results, _hidden_verifier_checks),
+        ),
         ("intermediate_verifier_movement", UNKNOWN),
     ]
+
+
+def _hidden_verifier_configured(result: OutcomeEvidence) -> bool:
+    hidden_verifier = result.raw.get("hidden_verifier")
+    return isinstance(hidden_verifier, Mapping)
+
+
+def _hidden_verifier_checks(result: OutcomeEvidence) -> bool:
+    hidden_verifier = result.raw.get("hidden_verifier")
+    if not isinstance(hidden_verifier, Mapping):
+        return False
+    checks = hidden_verifier.get("checks")
+    return isinstance(checks, list) and bool(checks)
 
 
 def _halt_reasons_facts(results: list[OutcomeEvidence]) -> list[tuple[str, object]]:

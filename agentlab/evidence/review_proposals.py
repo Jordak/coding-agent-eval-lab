@@ -405,6 +405,13 @@ def _default_evidence(context: ReviewProposalContext) -> tuple[str, ...]:
             passed = check.get("passed")
             if command:
                 evidence.append(f"check: passed={passed}; command={command}")
+    for check in _hidden_verifier_checks(result)[:3]:
+        command = str(check.get("command") or "").strip()
+        passed = check.get("passed")
+        if command:
+            evidence.append(
+                f"hidden verifier: passed={passed}; command={command}"
+            )
 
     if context.report_excerpt:
         evidence.append(f"report.md excerpt: {context.report_excerpt}")
@@ -429,6 +436,14 @@ def _looks_like_setup_issue(result: OutcomeEvidence) -> bool:
                     str(check.get("command") or ""),
                 ]
             )
+    for check in _hidden_verifier_checks(result):
+        text_parts.extend(
+            [
+                str(check.get("stdout") or ""),
+                str(check.get("stderr") or ""),
+                str(check.get("command") or ""),
+            ]
+        )
     text = "\n".join(text_parts).lower()
     return any(
         needle in text
@@ -442,6 +457,16 @@ def _looks_like_setup_issue(result: OutcomeEvidence) -> bool:
             "environment",
         ]
     )
+
+
+def _hidden_verifier_checks(result: OutcomeEvidence) -> list[Mapping[str, Any]]:
+    hidden_verifier = result.raw.get("hidden_verifier")
+    if not isinstance(hidden_verifier, Mapping):
+        return []
+    checks = hidden_verifier.get("checks")
+    if not isinstance(checks, list):
+        return []
+    return [check for check in checks if isinstance(check, Mapping)]
 
 
 def _read_excerpt(path: Path | None, max_chars: int = 600) -> str:

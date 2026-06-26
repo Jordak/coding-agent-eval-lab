@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import time
 import uuid
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 from agentlab.agents.base import AgentAdapter
 from agentlab.agents.base import AgentRun
 from agentlab.reports.trial_markdown import render_markdown_report
 from agentlab.execution.scoring import Score
+from agentlab.execution.hidden_verifier import HiddenVerifierResult
 from agentlab.execution.phases import TaskActionResult
 from agentlab.execution.phases import execute_task_phases
 from agentlab.tasks import EvalTask
@@ -22,6 +23,9 @@ class EvaluationRun:
     run_dir: Path
     report_path: Path
     result_path: Path
+    hidden_verifier: HiddenVerifierResult = field(
+        default_factory=HiddenVerifierResult
+    )
     workspace_history_policy: str = "unknown"
     workspace_base_ref: str = "unknown"
 
@@ -73,6 +77,7 @@ def run_task(task: EvalTask, agent: AgentAdapter, runs_dir: Path) -> EvaluationR
         run_dir=run_dir,
         report_path=report_path,
         result_path=result_path,
+        hidden_verifier=execution.hidden_verifier,
         workspace_history_policy=execution.workspace_history_policy,
         workspace_base_ref=execution.workspace_base_ref,
     )

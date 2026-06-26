@@ -107,6 +107,11 @@ def to_result_dict(run: Any) -> Dict[str, Any]:
         "diff_path": str(run.agent_run.diff_path),
         "run_dir": str(run.run_dir),
     }
+    hidden_verifier = _hidden_verifier_to_dict(
+        getattr(run, "hidden_verifier", None)
+    )
+    if hidden_verifier is not None:
+        result["hidden_verifier"] = hidden_verifier
     if setup_created_untracked_changed_paths:
         result["setup_created_untracked_changed_paths"] = (
             setup_created_untracked_changed_paths
@@ -202,6 +207,11 @@ def reference_verification_to_result_dict(verification: Any) -> Dict[str, Any]:
         "diff_path": _display_path(verification.diff_path, output_dir),
         "run_dir": _display_path(output_dir, output_dir),
     }
+    hidden_verifier = _hidden_verifier_to_dict(
+        getattr(verification, "hidden_verifier", None)
+    )
+    if hidden_verifier is not None:
+        result["hidden_verifier"] = hidden_verifier
     if setup_created_untracked_changed_paths:
         result["setup_created_untracked_changed_paths"] = (
             setup_created_untracked_changed_paths
@@ -240,6 +250,20 @@ def _check_to_dict(check: CheckResult) -> Dict[str, Any]:
         "passed": check.passed,
         "stdout": _trim(check.stdout),
         "stderr": _trim(check.stderr),
+    }
+
+
+def _hidden_verifier_to_dict(hidden_verifier: Any) -> Dict[str, Any] | None:
+    if hidden_verifier is None or not getattr(hidden_verifier, "configured", False):
+        return None
+    return {
+        "configured": True,
+        "patch": getattr(hidden_verifier, "patch", None),
+        "checks": [
+            _check_to_dict(check)
+            for check in getattr(hidden_verifier, "checks", [])
+        ],
+        "restore_notes": list(getattr(hidden_verifier, "restore_notes", [])),
     }
 
 
