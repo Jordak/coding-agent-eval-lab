@@ -31,28 +31,12 @@
       "returncode": 0,
       "stderr": "",
       "stdout": ""
-    },
-    {
-      "command": "python3 -c \"from types import SimpleNamespace; from simulation import run_single_simulation; from ai.heuristics import get_advanced_heuristic_with_weights; weights = {'empty': 1.0, 'smooth': 2.0, 'mono': 3.0, 'snake': 4.0}; heuristic = get_advanced_heuristic_with_weights(weights); args = SimpleNamespace(ai='expectimax', heuristic='advanced-snake', depth=1, tag='eval-smoke'); result = run_single_simulation((args, weights, heuristic, {'name': heuristic.name, 'version': heuristic.version, 'description': heuristic.description})); assert result['params'] == weights, result; assert result['tag'] == 'eval-smoke', result\"",
-      "passed": true,
-      "returncode": 0,
-      "stderr": "",
-      "stdout": ""
-    },
-    {
-      "command": "python3 -c \"from game import Game; game = Game(); assert game.board.shape == (4, 4); assert not game.game_over()\"",
-      "passed": true,
-      "returncode": 0,
-      "stderr": "",
-      "stdout": ""
     }
   ],
   "commands_run": [
     "python3 -c \"import numpy\"",
     "python3 -c \"from game import Game; game = Game(); assert game.board.shape == (4, 4); assert not game.game_over()\"",
-    "git apply reference.patch",
-    "python3 -c \"from types import SimpleNamespace; from simulation import run_single_simulation; from ai.heuristics import get_advanced_heuristic_with_weights; weights = {'empty': 1.0, 'smooth': 2.0, 'mono': 3.0, 'snake': 4.0}; heuristic = get_advanced_heuristic_with_weights(weights); args = SimpleNamespace(ai='expectimax', heuristic='advanced-snake', depth=1, tag='eval-smoke'); result = run_single_simulation((args, weights, heuristic, {'name': heuristic.name, 'version': heuristic.version, 'description': heuristic.description})); assert result['params'] == weights, result; assert result['tag'] == 'eval-smoke', result\"",
-    "python3 -c \"from game import Game; game = Game(); assert game.board.shape == (4, 4); assert not game.game_over()\""
+    "git apply reference.patch"
   ],
   "cost_usd": null,
   "diff_path": "reference.diff",
@@ -81,20 +65,29 @@
       "passed": true,
       "returncode": 0,
       "type": "code"
-    },
-    {
-      "assertion": "python3 -c \"from types import SimpleNamespace; from simulation import run_single_simulation; from ai.heuristics import get_advanced_heuristic_with_weights; weights = {'empty': 1.0, 'smooth': 2.0, 'mono': 3.0, 'snake': 4.0}; heuristic = get_advanced_heuristic_with_weights(weights); args = SimpleNamespace(ai='expectimax', heuristic='advanced-snake', depth=1, tag='eval-smoke'); result = run_single_simulation((args, weights, heuristic, {'name': heuristic.name, 'version': heuristic.version, 'description': heuristic.description})); assert result['params'] == weights, result; assert result['tag'] == 'eval-smoke', result\"",
-      "passed": true,
-      "returncode": 0,
-      "type": "code"
-    },
-    {
-      "assertion": "python3 -c \"from game import Game; game = Game(); assert game.board.shape == (4, 4); assert not game.game_over()\"",
-      "passed": true,
-      "returncode": 0,
-      "type": "code"
     }
   ],
+  "hidden_verifier": {
+    "checks": [
+      {
+        "command": "git apply hidden verifier patch: verifier.patch",
+        "passed": true,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": ""
+      },
+      {
+        "command": "python3 .agentlab_hidden/check_behavior.py",
+        "passed": true,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "$ python3 -c \"from types import SimpleNamespace; from simulation import run_single_simulation; from ai.heuristics import get_advanced_heuristic_with_weights; weights = {'empty': 1.0, 'smooth': 2.0, 'mono': 3.0, 'snake': 4.0}; heuristic = get_advanced_heuristic_with_weights(weights); args = SimpleNamespace(ai='expectimax', heuristic='advanced-snake', depth=1, tag='eval-smoke'); result = run_single_simulation((args, weights, heuristic, {'name': heuristic.name, 'version': heuristic.version, 'description': heuristic.description})); assert result['params'] == weights, result; assert result['tag'] == 'eval-smoke', result\"\n$ python3 -c \"from game import Game; game = Game(); assert game.board.shape == (4, 4); assert not game.game_over()\"\n"
+      }
+    ],
+    "configured": true,
+    "patch": "verifier.patch",
+    "restore_notes": []
+  },
   "input_tokens": null,
   "lines_added": 2,
   "lines_deleted": 2,

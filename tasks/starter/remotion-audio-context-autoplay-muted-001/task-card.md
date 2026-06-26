@@ -26,6 +26,11 @@ In `shared-audio-tags.tsx`, store the AudioContext resume promise, resolve the s
 
 No task-local environment configured.
 
+## Hidden Verifier
+
+- Patch: `verifier.patch`
+- Commands: `1 command configured`
+
 ## Graders
 
 ### Setup
@@ -38,9 +43,6 @@ None configured.
 
 ### Target
 
-- `python3 -c 'from pathlib import Path; import re; playback = Path("packages/player/src/use-playback.ts").read_text(); guarded_resume = re.search(r"if\s*\(\s*!muted\s*\)\s*{\s*sharedAudioContext\?\.resume\?\.\(\);\s*}", playback); assert guarded_resume, "sharedAudioContext.resume() must be guarded by !muted"; unguarded_resume = playback.replace(guarded_resume.group(0), ""); assert "sharedAudioContext?.resume?.();" not in unguarded_resume, "no unguarded sharedAudioContext.resume() calls should remain"; waits_only_when_unmuted = re.search(r"if\s*\(\s*getIsResumingAudioContext\s*!==\s*null\s*&&\s*!muted\s*\)", playback) or re.search(r"const\s+getIsResumingAudioContext\s*=\s*muted\s*\?\s*null\s*:", playback); assert waits_only_when_unmuted, "muted playback must not wait on getIsResumingAudioContext()"; assert "getIsResumingAudioContext.then(" in playback, "non-muted playback should still wait for real audio-context resume work"'`
-- `python3 -c 'from pathlib import Path; import re; shared = Path("packages/core/src/audio/shared-audio-tags.tsx").read_text(); assert re.search(r"ctxAndGain\.audioContext\s*\.?\s*resume\(\)", shared), "resume() should still call AudioContext.resume()"; assert re.search(r"ctxAndGain\.audioContext\s*\.?[\s\S]*?resume\(\)[\s\S]*?\.catch\(\(?err", shared) or re.search(r"resumePromise\.catch\(\(?err", shared), "AudioContext.resume() rejection must be caught"; assert "Log.warn" in shared or "Log.verbose" in shared, "resume rejection should be logged"; assert re.search(r"isResuming\.current[\s\S]*?finally\(\(\)\s*=>\s*{[\s\S]*?isResuming\.current\s*=\s*null", shared), "resume waiter should be cleared"; assert "return ctxAndGain.audioContext.resume().then" not in shared, "returning the raw resume().then() chain can propagate autoplay-policy rejection"'`
-- `python3 -c 'import subprocess; changed = subprocess.check_output(["git", "diff", "--name-only"], text=True).splitlines(); assert changed == ["packages/core/src/audio/shared-audio-tags.tsx", "packages/player/src/use-playback.ts"], changed'`
 - `git diff --check`
 
 ## Success Criteria

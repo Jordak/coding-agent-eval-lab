@@ -31,28 +31,12 @@
       "returncode": 0,
       "stderr": "",
       "stdout": ""
-    },
-    {
-      "command": "python3 -c \"from pathlib import Path; req = Path('deployment/requirements.txt').read_text(); dockerfile = Path('Dockerfile').read_text(); expected = ['fastmcp[apps]==3.1.1', 'datawrapper>=2.0.14', 'prefab-ui==0.8.0', 'pandas>=2.0.0', 'starlette>=0.27.0', 'uvicorn>=0.23.0']; missing = [item for item in expected if item not in req]; assert not missing, missing; assert 'fastmcp>=3.0.0' not in req and 'datawrapper>=2.0.7' not in req, req; assert 'RUN pip install --no-cache-dir -r /app/deployment/requirements.txt' in dockerfile, dockerfile\"",
-      "passed": true,
-      "returncode": 0,
-      "stderr": "",
-      "stdout": ""
-    },
-    {
-      "command": "python3 -c \"from pathlib import Path; server = Path('datawrapper_mcp/server.py').read_text(); req = Path('deployment/requirements.txt').read_text(); assert 'from fastmcp import FastMCP' in server and 'fastmcp[apps]==3.1.1' in req, req; assert 'from prefab_ui.app import PrefabApp' in server and 'prefab-ui==0.8.0' in req, req\"",
-      "passed": true,
-      "returncode": 0,
-      "stderr": "",
-      "stdout": ""
     }
   ],
   "commands_run": [
     "python3 -c \"from pathlib import Path; assert Path('pyproject.toml').is_file(); assert Path('Dockerfile').is_file(); assert Path('deployment/requirements.txt').is_file()\"",
     "python3 -c \"from pathlib import Path; req = Path('deployment/requirements.txt').read_text(); pyproject = Path('pyproject.toml').read_text(); dockerfile = Path('Dockerfile').read_text(); assert 'RUN pip install --no-cache-dir -r /app/deployment/requirements.txt' in dockerfile, dockerfile; assert 'prefab-ui==0.8.0' in pyproject and 'fastmcp[apps]==3.1.1' in pyproject and 'datawrapper>=2.0.14' in pyproject, pyproject; assert 'prefab-ui==0.8.0' not in req and 'fastmcp>=3.0.0' in req and 'datawrapper>=2.0.7' in req, req\"",
-    "git apply reference.patch",
-    "python3 -c \"from pathlib import Path; req = Path('deployment/requirements.txt').read_text(); dockerfile = Path('Dockerfile').read_text(); expected = ['fastmcp[apps]==3.1.1', 'datawrapper>=2.0.14', 'prefab-ui==0.8.0', 'pandas>=2.0.0', 'starlette>=0.27.0', 'uvicorn>=0.23.0']; missing = [item for item in expected if item not in req]; assert not missing, missing; assert 'fastmcp>=3.0.0' not in req and 'datawrapper>=2.0.7' not in req, req; assert 'RUN pip install --no-cache-dir -r /app/deployment/requirements.txt' in dockerfile, dockerfile\"",
-    "python3 -c \"from pathlib import Path; server = Path('datawrapper_mcp/server.py').read_text(); req = Path('deployment/requirements.txt').read_text(); assert 'from fastmcp import FastMCP' in server and 'fastmcp[apps]==3.1.1' in req, req; assert 'from prefab_ui.app import PrefabApp' in server and 'prefab-ui==0.8.0' in req, req\""
+    "git apply reference.patch"
   ],
   "cost_usd": null,
   "diff_path": "reference.diff",
@@ -81,20 +65,29 @@
       "passed": true,
       "returncode": 0,
       "type": "code"
-    },
-    {
-      "assertion": "python3 -c \"from pathlib import Path; req = Path('deployment/requirements.txt').read_text(); dockerfile = Path('Dockerfile').read_text(); expected = ['fastmcp[apps]==3.1.1', 'datawrapper>=2.0.14', 'prefab-ui==0.8.0', 'pandas>=2.0.0', 'starlette>=0.27.0', 'uvicorn>=0.23.0']; missing = [item for item in expected if item not in req]; assert not missing, missing; assert 'fastmcp>=3.0.0' not in req and 'datawrapper>=2.0.7' not in req, req; assert 'RUN pip install --no-cache-dir -r /app/deployment/requirements.txt' in dockerfile, dockerfile\"",
-      "passed": true,
-      "returncode": 0,
-      "type": "code"
-    },
-    {
-      "assertion": "python3 -c \"from pathlib import Path; server = Path('datawrapper_mcp/server.py').read_text(); req = Path('deployment/requirements.txt').read_text(); assert 'from fastmcp import FastMCP' in server and 'fastmcp[apps]==3.1.1' in req, req; assert 'from prefab_ui.app import PrefabApp' in server and 'prefab-ui==0.8.0' in req, req\"",
-      "passed": true,
-      "returncode": 0,
-      "type": "code"
     }
   ],
+  "hidden_verifier": {
+    "checks": [
+      {
+        "command": "git apply hidden verifier patch: verifier.patch",
+        "passed": true,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": ""
+      },
+      {
+        "command": "python3 .agentlab_hidden/check_behavior.py",
+        "passed": true,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "$ python3 -c \"from pathlib import Path; req = Path('deployment/requirements.txt').read_text(); dockerfile = Path('Dockerfile').read_text(); expected = ['fastmcp[apps]==3.1.1', 'datawrapper>=2.0.14', 'prefab-ui==0.8.0', 'pandas>=2.0.0', 'starlette>=0.27.0', 'uvicorn>=0.23.0']; missing = [item for item in expected if item not in req]; assert not missing, missing; assert 'fastmcp>=3.0.0' not in req and 'datawrapper>=2.0.7' not in req, req; assert 'RUN pip install --no-cache-dir -r /app/deployment/requirements.txt' in dockerfile, dockerfile\"\n$ python3 -c \"from pathlib import Path; server = Path('datawrapper_mcp/server.py').read_text(); req = Path('deployment/requirements.txt').read_text(); assert 'from fastmcp import FastMCP' in server and 'fastmcp[apps]==3.1.1' in req, req; assert 'from prefab_ui.app import PrefabApp' in server and 'prefab-ui==0.8.0' in req, req\"\n"
+      }
+    ],
+    "configured": true,
+    "patch": "verifier.patch",
+    "restore_notes": []
+  },
   "input_tokens": null,
   "lines_added": 5,
   "lines_deleted": 2,

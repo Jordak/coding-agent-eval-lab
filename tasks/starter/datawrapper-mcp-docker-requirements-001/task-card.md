@@ -27,6 +27,11 @@ Sync deployment/requirements.txt with pyproject.toml by using fastmcp[apps]==3.1
 - PYTEST_ADDOPTS=-p no:cacheprovider
 - PYTHONDONTWRITEBYTECODE=1
 
+## Hidden Verifier
+
+- Patch: `verifier.patch`
+- Commands: `1 command configured`
+
 ## Graders
 
 ### Setup
@@ -39,8 +44,7 @@ Sync deployment/requirements.txt with pyproject.toml by using fastmcp[apps]==3.1
 
 ### Target
 
-- `python3 -c "from pathlib import Path; req = Path('deployment/requirements.txt').read_text(); dockerfile = Path('Dockerfile').read_text(); expected = ['fastmcp[apps]==3.1.1', 'datawrapper>=2.0.14', 'prefab-ui==0.8.0', 'pandas>=2.0.0', 'starlette>=0.27.0', 'uvicorn>=0.23.0']; missing = [item for item in expected if item not in req]; assert not missing, missing; assert 'fastmcp>=3.0.0' not in req and 'datawrapper>=2.0.7' not in req, req; assert 'RUN pip install --no-cache-dir -r /app/deployment/requirements.txt' in dockerfile, dockerfile"`
-- `python3 -c "from pathlib import Path; server = Path('datawrapper_mcp/server.py').read_text(); req = Path('deployment/requirements.txt').read_text(); assert 'from fastmcp import FastMCP' in server and 'fastmcp[apps]==3.1.1' in req, req; assert 'from prefab_ui.app import PrefabApp' in server and 'prefab-ui==0.8.0' in req, req"`
+None configured.
 
 ## Success Criteria
 

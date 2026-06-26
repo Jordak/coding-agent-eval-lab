@@ -1,0 +1,124 @@
+diff --git a/.agentlab_hidden/check_behavior.py b/.agentlab_hidden/check_behavior.py
+new file mode 100644
+index 0000000..0000000
+--- /dev/null
++++ b/.agentlab_hidden/check_behavior.py
+@@ -0,0 +1,31 @@
++from __future__ import annotations
++
++import subprocess
++import sys
++
++COMMANDS = ['python -c \'import click; from click.testing import CliRunner; cmd = click.Command("demo", params=[click.Option(["--name"], help="Name")], callback=lambda name: click.echo("hello " + name if name else "hello")); result = CliRunner().invoke(cmd, ["--help"]); assert result.exit_code == 0, result.output; assert "Usage: demo [OPTIONS]" in result.output, result.output; assert "--help" in result.output, result.output; assert "Show this message and exit." in result.output, result.output; disabled = click.Command("plain", add_help_option=False, callback=lambda: None); disabled_result = CliRunner().invoke(disabled, ["--help"]); assert disabled_result.exit_code == 2, disabled_result.output; assert "No such option: --help" in disabled_result.output, disabled_result.output\'', 'python -c \'import click; from click.testing import CliRunner; cli = click.help_option("-h", "--halp")(click.command()(lambda: click.echo("ran"))); runner = CliRunner(); short_help = runner.invoke(cli, ["-h"]); long_help = runner.invoke(cli, ["--halp"]); normal_run = runner.invoke(cli, []); assert short_help.exit_code == 0, short_help.output; assert long_help.exit_code == 0, long_help.output; assert "Usage:" in short_help.output, short_help.output; assert "Usage:" in long_help.output, long_help.output; assert normal_run.exit_code == 0, normal_run.output; assert normal_run.output.strip() == "ran", normal_run.output\'']
++
++
++def main() -> int:
++    for command in COMMANDS:
++        print(f"$ {command}")
++        completed = subprocess.run(
++            command,
++            shell=True,
++            text=True,
++            stdout=subprocess.PIPE,
++            stderr=subprocess.STDOUT,
++        )
++        if completed.stdout:
++            print(completed.stdout, end="")
++        if completed.returncode != 0:
++            print(
++                f"hidden verifier command failed with exit code {completed.returncode}",
++                file=sys.stderr,
++            )
++            return completed.returncode
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/.agentlab_hidden/check_structure.py b/.agentlab_hidden/check_structure.py
+new file mode 100644
+index 0000000..0000000
+--- /dev/null
++++ b/.agentlab_hidden/check_structure.py
+@@ -0,0 +1,81 @@
++from __future__ import annotations
++
++import ast
++from pathlib import Path
++
++CORE = Path("src/click/core.py")
++DECORATORS = Path("src/click/decorators.py")
++
++
++def parse(path: Path) -> ast.Module:
++    return ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
++
++
++def find_class(module: ast.Module, name: str) -> ast.ClassDef:
++    for node in module.body:
++        if isinstance(node, ast.ClassDef) and node.name == name:
++            return node
++    raise AssertionError(f"missing class {name}")
++
++
++def find_function(nodes: list[ast.stmt], name: str) -> ast.FunctionDef | ast.AsyncFunctionDef:
++    for node in nodes:
++        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == name:
++            return node
++    raise AssertionError(f"missing function {name}")
++
++
++def nested_functions(node: ast.AST) -> list[str]:
++    names: list[str] = []
++    for child in ast.walk(node):
++        if child is node:
++            continue
++        if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
++            names.append(child.name)
++    return names
++
++
++def referenced_names(node: ast.AST) -> set[str]:
++    names: set[str] = set()
++    for child in ast.walk(node):
++        if isinstance(child, ast.Name):
++            names.add(child.id)
++        elif isinstance(child, ast.Attribute):
++            names.add(child.attr)
++    return names
++
++
++def main() -> int:
++    core = parse(CORE)
++    decorators = parse(DECORATORS)
++    command = find_class(core, "Command")
++    get_help_option = find_function(command.body, "get_help_option")
++    help_option = find_function(decorators.body, "help_option")
++
++    core_nested = nested_functions(get_help_option)
++    decorator_nested = nested_functions(help_option)
++    assert not core_nested, (
++        "Command.get_help_option should not keep a private nested help callback: "
++        f"{core_nested}"
++    )
++    assert not decorator_nested, (
++        "click.help_option should not keep a duplicate nested help callback: "
++        f"{decorator_nested}"
++    )
++
++    shared_refs = referenced_names(get_help_option) & referenced_names(help_option)
++    reusable = {
++        name
++        for name in shared_refs
++        if ("help" in name.lower() and "option" in name.lower())
++        or name in {"HelpOption", "_make_help_option"}
++    }
++    assert reusable, (
++        "automatic help and click.help_option should reference the same reusable "
++        "help-option implementation"
++    )
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())

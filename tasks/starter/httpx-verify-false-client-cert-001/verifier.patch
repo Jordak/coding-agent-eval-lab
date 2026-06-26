@@ -1,0 +1,37 @@
+diff --git a/.agentlab_hidden/check_behavior.py b/.agentlab_hidden/check_behavior.py
+new file mode 100644
+index 0000000..0000000
+--- /dev/null
++++ b/.agentlab_hidden/check_behavior.py
+@@ -0,0 +1,31 @@
++from __future__ import annotations
++
++import subprocess
++import sys
++
++COMMANDS = ['python -c \'import ssl, httpx; calls = []; ssl.SSLContext.load_cert_chain = lambda self, *args, **kwargs: calls.append(args); ctx = httpx.create_ssl_context(verify=False, cert=("client.pem", "client.key")); assert ctx.verify_mode == ssl.CERT_NONE, ctx.verify_mode; assert ctx.check_hostname is False, ctx.check_hostname; assert calls == [("client.pem", "client.key")], calls\'', 'python -c \'import ssl, httpx; calls = []; ssl.SSLContext.load_cert_chain = lambda self, *args, **kwargs: calls.append(args); ctx = httpx.create_ssl_context(verify=False, cert="client.pem"); assert ctx.verify_mode == ssl.CERT_NONE, ctx.verify_mode; assert ctx.check_hostname is False, ctx.check_hostname; assert calls == [("client.pem",)], calls\'', "python -c 'import ssl, httpx; calls = []; ssl.SSLContext.load_cert_chain = lambda self, *args, **kwargs: calls.append(args); ctx = httpx.create_ssl_context(verify=False); assert ctx.verify_mode == ssl.CERT_NONE, ctx.verify_mode; assert ctx.check_hostname is False, ctx.check_hostname; assert calls == [], calls'", 'python -c \'import ssl, httpx; calls = []; ssl.SSLContext.load_cert_chain = lambda self, *args, **kwargs: calls.append(args); ctx = httpx.create_ssl_context(verify=True, cert=("client.pem", "client.key")); assert ctx.verify_mode == ssl.CERT_REQUIRED, ctx.verify_mode; assert ctx.check_hostname is True, ctx.check_hostname; assert calls == [("client.pem", "client.key")], calls\'']
++
++
++def main() -> int:
++    for command in COMMANDS:
++        print(f"$ {command}")
++        completed = subprocess.run(
++            command,
++            shell=True,
++            text=True,
++            stdout=subprocess.PIPE,
++            stderr=subprocess.STDOUT,
++        )
++        if completed.stdout:
++            print(completed.stdout, end="")
++        if completed.returncode != 0:
++            print(
++                f"hidden verifier command failed with exit code {completed.returncode}",
++                file=sys.stderr,
++            )
++            return completed.returncode
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())

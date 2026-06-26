@@ -23,7 +23,7 @@
       "passed": true,
       "returncode": 0,
       "stderr": "\n[notice] A new release of pip is available: 25.1.1 -> 26.1.2\n[notice] To update, run: pip install --upgrade pip\n",
-      "stdout": "Obtaining file:///private/var/folders/3m/s27dbmbs1mn8yp8dmfxmtl9h0000gn/T/agentlab-reference-4ic7u1_p/click-help-shadowed-option-001\n  Installing build dependencies: started\n  Installing build dependencies: finished with status 'done'\n  Checking if build backend supports build_editable: started\n  Checking if build backend supports build_editable: finished with status 'done'\n  Getting requirements to build editable: started\n  Getting requirements to build editable: finished with status 'done'\n  Preparing editable metadata (pyproject.toml): started\n  Preparing editable metadata (pyproject.toml): finished with status 'done'\nCollecting pytest<9\n  Using cached pytest-8.4.2-py3-none-any.whl.metadata (7.7 kB)\nCollecting iniconfig>=1 (from pytest<9)\n  Using cached iniconfig-2.3.0-py3-none-any.whl.metadata (2.5 kB)\nCollecting packaging>=20 (from pytest<9)\n  Using cached packaging-26.2-py3-none-any.whl.metadata (3.5 kB)\nCollecting pluggy<2,>=1.5 (from pytest<9)\n  Using cached pluggy-1.6.0-py3-none-any.whl.metadata (4.8 kB)\nCollecting pygments>=2.7.2 (from pytest<9)\n  Using cached pygments-2.20.0-py3-none-any.whl.metadata (2.5 kB)\nUsing cached pytest-8.4.2-py3-none-any.whl (365 kB)\nUsing cached pluggy-1.6.0-py3-none-any.whl (20 kB)\nUsing cached iniconfig-2.3.0-py3-none-any.whl (7.5 kB)\nUsing cached packaging-26.2-py3-none-any.whl (100 kB)\nUsing cached pygments-2.20.0-py3-none-any.whl (1.2 MB)\nBuilding wheels for collected packages: click\n  Building editable for click (pyproject.toml): started\n  Building editable for click (pyproject.toml): finished with status 'done'\n  Created wheel for click: filename=click-8.3.2-py3-none-any.whl size=3186 sha256=772562614b318eb7c39c797c59f5c66fd962bdf5cc220f356cb10eba50d0424a\n  Stored in directory: /private/var/folders/3m/s27dbmbs1mn8yp8dmfxmtl9h0000gn/T/pip-ephem-wheel-cache-i9rwibbj/wheels/fd/c8/ac/7e84f649080d6c72bd7fd3ab580fe1aa2aaa00ca2900b237dd\nSuccessfully built click\nInstalling collected packages: pygments, pluggy, packaging, iniconfig, click, pytest\n\nSuccessfully installed click-8.3.2 iniconfig-2.3.0 packaging-26.2 pluggy-1.6.0 pygments-2.20.0 pytest-8.4.2\n"
+      "stdout": "Obtaining file:///private/tmp/ael-ref-starter-123/click-help-shadowed-option-001\n  Installing build dependencies: started\n  Installing build dependencies: finished with status 'done'\n  Checking if build backend supports build_editable: started\n  Checking if build backend supports build_editable: finished with status 'done'\n  Getting requirements to build editable: started\n  Getting requirements to build editable: finished with status 'done'\n  Preparing editable metadata (pyproject.toml): started\n  Preparing editable metadata (pyproject.toml): finished with status 'done'\nCollecting pytest<9\n  Using cached pytest-8.4.2-py3-none-any.whl.metadata (7.7 kB)\nCollecting iniconfig>=1 (from pytest<9)\n  Using cached iniconfig-2.3.0-py3-none-any.whl.metadata (2.5 kB)\nCollecting packaging>=20 (from pytest<9)\n  Using cached packaging-26.2-py3-none-any.whl.metadata (3.5 kB)\nCollecting pluggy<2,>=1.5 (from pytest<9)\n  Using cached pluggy-1.6.0-py3-none-any.whl.metadata (4.8 kB)\nCollecting pygments>=2.7.2 (from pytest<9)\n  Using cached pygments-2.20.0-py3-none-any.whl.metadata (2.5 kB)\nUsing cached pytest-8.4.2-py3-none-any.whl (365 kB)\nUsing cached pluggy-1.6.0-py3-none-any.whl (20 kB)\nUsing cached iniconfig-2.3.0-py3-none-any.whl (7.5 kB)\nUsing cached packaging-26.2-py3-none-any.whl (100 kB)\nUsing cached pygments-2.20.0-py3-none-any.whl (1.2 MB)\nBuilding wheels for collected packages: click\n  Building editable for click (pyproject.toml): started\n  Building editable for click (pyproject.toml): finished with status 'done'\n  Created wheel for click: filename=click-8.3.2-py3-none-any.whl size=3148 sha256=32e41dc984bfba3b4fc9048adc613c90e2beddb1702a057f7dc89ee87cd6aede\n  Stored in directory: /private/var/folders/3m/s27dbmbs1mn8yp8dmfxmtl9h0000gn/T/pip-ephem-wheel-cache-wcms6817/wheels/1c/59/60/ad3a269806eeac86612ce5fc68d1b3e8a49705298e0835dfe8\nSuccessfully built click\nInstalling collected packages: pygments, pluggy, packaging, iniconfig, click, pytest\n\nSuccessfully installed click-8.3.2 iniconfig-2.3.0 packaging-26.2 pluggy-1.6.0 pygments-2.20.0 pytest-8.4.2\n"
     },
     {
       "command": "python -c 'import click; from click.testing import CliRunner; cli = click.group(\"cli\", context_settings={\"help_option_names\":[\"-h\",\"--help\"]})(lambda: None); foo = click.command(\"foo\")(click.option(\"--host\",\"-h\")(click.argument(\"required_arg\")(lambda required_arg, host: None))); cli.add_command(foo); result = CliRunner().invoke(cli, [\"foo\"]); expected = \"Try \" + chr(39) + \"cli foo -h\" + chr(39) + \" for help.\"; assert result.exit_code == 2, result.output; assert expected in result.output, result.output'",
@@ -38,29 +38,13 @@
       "returncode": 0,
       "stderr": "",
       "stdout": ""
-    },
-    {
-      "command": "python -c 'import click; from click.testing import CliRunner; cli = click.group(\"cli\", context_settings={\"help_option_names\":[\"-h\",\"--help\"]})(lambda: None); foo = click.command(\"foo\")(click.option(\"--host\",\"-h\")(click.argument(\"required_arg\")(lambda required_arg, host: None))); cli.add_command(foo); runner = CliRunner(); result = runner.invoke(cli, [\"foo\"]); expected = \"Try \" + chr(39) + \"cli foo --help\" + chr(39) + \" for help.\"; bad = \"Try \" + chr(39) + \"cli foo -h\" + chr(39) + \" for help.\"; assert result.exit_code == 2, result.output; assert expected in result.output, result.output; assert bad not in result.output, result.output; help_result = runner.invoke(cli, [\"foo\", \"--help\"]); assert help_result.exit_code == 0, help_result.output; assert \"--help\" in help_result.output, help_result.output'",
-      "passed": true,
-      "returncode": 0,
-      "stderr": "",
-      "stdout": ""
-    },
-    {
-      "command": "python -c 'import click; from click.testing import CliRunner; cli = click.group(\"cli\", context_settings={\"help_option_names\":[\"-h\",\"--help\"]})(lambda: None); foo = click.command(\"foo\")(click.option(\"--host\",\"-h\")(click.option(\"--help-file\",\"--help\")(click.argument(\"required_arg\")(lambda required_arg, help_file, host: None)))); cli.add_command(foo); result = CliRunner().invoke(cli, [\"foo\"]); assert result.exit_code == 2, result.output; assert \"Try \" not in result.output, result.output'",
-      "passed": true,
-      "returncode": 0,
-      "stderr": "",
-      "stdout": ""
     }
   ],
   "commands_run": [
     "PYENV_VERSION=3.13.5 python3.13 -m venv .agentlab/venv",
     "python -m pip install -e . \"pytest<9\"",
     "python -c 'import click; from click.testing import CliRunner; cli = click.group(\"cli\", context_settings={\"help_option_names\":[\"-h\",\"--help\"]})(lambda: None); foo = click.command(\"foo\")(click.option(\"--host\",\"-h\")(click.argument(\"required_arg\")(lambda required_arg, host: None))); cli.add_command(foo); result = CliRunner().invoke(cli, [\"foo\"]); expected = \"Try \" + chr(39) + \"cli foo -h\" + chr(39) + \" for help.\"; assert result.exit_code == 2, result.output; assert expected in result.output, result.output'",
-    "git apply reference.patch",
-    "python -c 'import click; from click.testing import CliRunner; cli = click.group(\"cli\", context_settings={\"help_option_names\":[\"-h\",\"--help\"]})(lambda: None); foo = click.command(\"foo\")(click.option(\"--host\",\"-h\")(click.argument(\"required_arg\")(lambda required_arg, host: None))); cli.add_command(foo); runner = CliRunner(); result = runner.invoke(cli, [\"foo\"]); expected = \"Try \" + chr(39) + \"cli foo --help\" + chr(39) + \" for help.\"; bad = \"Try \" + chr(39) + \"cli foo -h\" + chr(39) + \" for help.\"; assert result.exit_code == 2, result.output; assert expected in result.output, result.output; assert bad not in result.output, result.output; help_result = runner.invoke(cli, [\"foo\", \"--help\"]); assert help_result.exit_code == 0, help_result.output; assert \"--help\" in help_result.output, help_result.output'",
-    "python -c 'import click; from click.testing import CliRunner; cli = click.group(\"cli\", context_settings={\"help_option_names\":[\"-h\",\"--help\"]})(lambda: None); foo = click.command(\"foo\")(click.option(\"--host\",\"-h\")(click.option(\"--help-file\",\"--help\")(click.argument(\"required_arg\")(lambda required_arg, help_file, host: None)))); cli.add_command(foo); result = CliRunner().invoke(cli, [\"foo\"]); assert result.exit_code == 2, result.output; assert \"Try \" not in result.output, result.output'"
+    "git apply reference.patch"
   ],
   "cost_usd": null,
   "diff_path": "reference.diff",
@@ -95,20 +79,29 @@
       "passed": true,
       "returncode": 0,
       "type": "code"
-    },
-    {
-      "assertion": "python -c 'import click; from click.testing import CliRunner; cli = click.group(\"cli\", context_settings={\"help_option_names\":[\"-h\",\"--help\"]})(lambda: None); foo = click.command(\"foo\")(click.option(\"--host\",\"-h\")(click.argument(\"required_arg\")(lambda required_arg, host: None))); cli.add_command(foo); runner = CliRunner(); result = runner.invoke(cli, [\"foo\"]); expected = \"Try \" + chr(39) + \"cli foo --help\" + chr(39) + \" for help.\"; bad = \"Try \" + chr(39) + \"cli foo -h\" + chr(39) + \" for help.\"; assert result.exit_code == 2, result.output; assert expected in result.output, result.output; assert bad not in result.output, result.output; help_result = runner.invoke(cli, [\"foo\", \"--help\"]); assert help_result.exit_code == 0, help_result.output; assert \"--help\" in help_result.output, help_result.output'",
-      "passed": true,
-      "returncode": 0,
-      "type": "code"
-    },
-    {
-      "assertion": "python -c 'import click; from click.testing import CliRunner; cli = click.group(\"cli\", context_settings={\"help_option_names\":[\"-h\",\"--help\"]})(lambda: None); foo = click.command(\"foo\")(click.option(\"--host\",\"-h\")(click.option(\"--help-file\",\"--help\")(click.argument(\"required_arg\")(lambda required_arg, help_file, host: None)))); cli.add_command(foo); result = CliRunner().invoke(cli, [\"foo\"]); assert result.exit_code == 2, result.output; assert \"Try \" not in result.output, result.output'",
-      "passed": true,
-      "returncode": 0,
-      "type": "code"
     }
   ],
+  "hidden_verifier": {
+    "checks": [
+      {
+        "command": "git apply hidden verifier patch: verifier.patch",
+        "passed": true,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": ""
+      },
+      {
+        "command": "python .agentlab_hidden/check_behavior.py",
+        "passed": true,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "$ python -c 'import click; from click.testing import CliRunner; cli = click.group(\"cli\", context_settings={\"help_option_names\":[\"-h\",\"--help\"]})(lambda: None); foo = click.command(\"foo\")(click.option(\"--host\",\"-h\")(click.argument(\"required_arg\")(lambda required_arg, host: None))); cli.add_command(foo); runner = CliRunner(); result = runner.invoke(cli, [\"foo\"]); expected = \"Try \" + chr(39) + \"cli foo --help\" + chr(39) + \" for help.\"; bad = \"Try \" + chr(39) + \"cli foo -h\" + chr(39) + \" for help.\"; assert result.exit_code == 2, result.output; assert expected in result.output, result.output; assert bad not in result.output, result.output; help_result = runner.invoke(cli, [\"foo\", \"--help\"]); assert help_result.exit_code == 0, help_result.output; assert \"--help\" in help_result.output, help_result.output'\n$ python -c 'import click; from click.testing import CliRunner; cli = click.group(\"cli\", context_settings={\"help_option_names\":[\"-h\",\"--help\"]})(lambda: None); foo = click.command(\"foo\")(click.option(\"--host\",\"-h\")(click.option(\"--help-file\",\"--help\")(click.argument(\"required_arg\")(lambda required_arg, help_file, host: None)))); cli.add_command(foo); result = CliRunner().invoke(cli, [\"foo\"]); assert result.exit_code == 2, result.output; assert \"Try \" not in result.output, result.output'\n"
+      }
+    ],
+    "configured": true,
+    "patch": "verifier.patch",
+    "restore_notes": []
+  },
   "input_tokens": null,
   "lines_added": 5,
   "lines_deleted": 1,

@@ -32,7 +32,7 @@ Setup-created untracked coverage caveat: 1802 setup-created untracked paths exis
 - Workspace history policy: `base_only`
 - Workspace base ref: `bfb2ef2dc56d8bc66a833a5c91a122ccb2eb63ba`
 
-## Code-Based Graders
+## Public Graders
 
 1. Assertion `PYENV_VERSION=3.13.5 python3.13 -m venv .agentlab/venv`: passed (0)
 2. Assertion `python -m pip install -e . "pytest<9"`: passed (0)
@@ -46,9 +46,20 @@ Setup-created untracked coverage caveat: 1802 setup-created untracked paths exis
 4. Assertion `python -c 'import click; from click.testing import CliRunner; cmd = click.Command("demo", params=[click.Option(["--name"], help="Name")], callback=lambda name: click.echo("hello " + name if name else "hello")); result = CliRunner().invoke(cmd, ["--help"]); assert result.exit_code == 0, result.output; assert "Usage: demo [OPTIONS]" in result.output, result.output; assert "--help" in result.output, result.output; assert "Show this message and exit." in result.output, result.output; disabled = click.Command("plain", add_help_option=False, callback=lambda: None); disabled_result = CliRunner().invoke(disabled, ["--help"]); assert disabled_result.exit_code == 2, disabled_result.output; assert "No such option: --help" in disabled_result.output, disabled_result.output'`: passed (0)
 5. Assertion `python -c 'import click; from click.testing import CliRunner; cli = click.help_option("-h", "--halp")(click.command()(lambda: click.echo("ran"))); runner = CliRunner(); short_help = runner.invoke(cli, ["-h"]); long_help = runner.invoke(cli, ["--halp"]); normal_run = runner.invoke(cli, []); assert short_help.exit_code == 0, short_help.output; assert long_help.exit_code == 0, long_help.output; assert "Usage:" in short_help.output, short_help.output; assert "Usage:" in long_help.output, long_help.output; assert normal_run.exit_code == 0, normal_run.output; assert normal_run.output.strip() == "ran", normal_run.output'`: passed (0)
 6. Assertion `git apply reference.patch`: passed (0)
-7. Assertion `python -c 'import click; assert hasattr(click, "HelpOption"); cmd = click.Command("demo"); ctx = click.Context(cmd); option = cmd.get_help_option(ctx); assert isinstance(option, click.HelpOption), type(option); assert option.is_flag is True; assert option.is_eager is True; assert option.expose_value is False'`: passed (0)
-8. Assertion `python -c 'import click; from click.testing import CliRunner; cmd = click.Command("demo", params=[click.Option(["--name"], help="Name")], callback=lambda name: click.echo("hello " + name if name else "hello")); result = CliRunner().invoke(cmd, ["--help"]); assert result.exit_code == 0, result.output; assert "Usage: demo [OPTIONS]" in result.output, result.output; assert "--help" in result.output, result.output; assert "Show this message and exit." in result.output, result.output; disabled = click.Command("plain", add_help_option=False, callback=lambda: None); disabled_result = CliRunner().invoke(disabled, ["--help"]); assert disabled_result.exit_code == 2, disabled_result.output; assert "No such option: --help" in disabled_result.output, disabled_result.output'`: passed (0)
-9. Assertion `python -c 'import click; from click.testing import CliRunner; cli = click.help_option("-h", "--halp")(click.command()(lambda: click.echo("ran"))); runner = CliRunner(); short_help = runner.invoke(cli, ["-h"]); long_help = runner.invoke(cli, ["--halp"]); normal_run = runner.invoke(cli, []); assert short_help.exit_code == 0, short_help.output; assert long_help.exit_code == 0, long_help.output; assert "Usage:" in short_help.output, short_help.output; assert "Usage:" in long_help.output, long_help.output; assert normal_run.exit_code == 0, normal_run.output; assert normal_run.output.strip() == "ran", normal_run.output'`: passed (0)
+
+## Hidden Verifier
+
+- Patch: `verifier.patch`
+
+1. Assertion `git apply hidden verifier patch: verifier.patch`: passed (0)
+2. Assertion `python .agentlab_hidden/check_behavior.py`: passed (0)
+
+```text
+$ python -c 'import click; from click.testing import CliRunner; cmd = click.Command("demo", params=[click.Option(["--name"], help="Name")], callback=lambda name: click.echo("hello " + name if name else "hello")); result = CliRunner().invoke(cmd, ["--help"]); assert result.exit_code == 0, result.output; assert "Usage: demo [OPTIONS]" in result.output, result.output; assert "--help" in result.output, result.output; assert "Show this message and exit." in result.output, result.output; disabled = click.Command("plain", add_help_option=False, callback=lambda: None); disabled_result = CliRunner().invoke(disabled, ["--help"]); assert disabled_result.exit_code == 2, disabled_result.output; assert "No such option: --help" in disabled_result.output, disabled_result.output'
+$ python -c 'import click; from click.testing import CliRunner; cli = click.help_option("-h", "--halp")(click.command()(lambda: click.echo("ran"))); runner = CliRunner(); short_help = runner.invoke(cli, ["-h"]); long_help = runner.invoke(cli, ["--halp"]); normal_run = runner.invoke(cli, []); assert short_help.exit_code == 0, short_help.output; assert long_help.exit_code == 0, long_help.output; assert "Usage:" in short_help.output, short_help.output; assert "Usage:" in long_help.output, long_help.output; assert normal_run.exit_code == 0, normal_run.output; assert normal_run.output.strip() == "ran", normal_run.output'
+```
+
+3. Assertion `python .agentlab_hidden/check_structure.py`: passed (0)
 
 ## Changed Files
 
